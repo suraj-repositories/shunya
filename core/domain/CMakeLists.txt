@@ -11,6 +11,9 @@ target_sources(shunya_core_domain
         src/packaging.cpp
         src/element_definition.cpp
         src/element_instance.cpp
+        src/material_curve.cpp
+        src/material.cpp
+        src/material_assignment.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -23,6 +26,9 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
             include/shunya/core/domain/element_instance.hpp
+            include/shunya/core/domain/material_curve.hpp
+            include/shunya/core/domain/material.hpp
+            include/shunya/core/domain/material_assignment.hpp
 )
 
 target_include_directories(shunya_core_domain

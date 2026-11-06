@@ -120,6 +120,13 @@ public:
         return false;
     }
 
+    [[nodiscard]] bool has_error(std::string_view target_or_code) const noexcept {
+        for (const auto& issue : issues_) {
+            if (issue.target_path == target_or_code && issue.severity >= Severity::Error) return true;
+        }
+        return false;
+    }
+
     void merge(const ValidationReport& other) {
         for (const auto& issue : other.issues_) {
             add_issue(issue);
