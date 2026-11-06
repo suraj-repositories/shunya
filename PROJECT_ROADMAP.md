@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 284 |
+| [ ] | Not started | 280 |
 | [~] | In progress | 0 |
-| [x] | Completed | 25 |
+| [x] | Completed | 29 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -63,7 +63,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 10 | 100.0% |
 | **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 7 | 100.0% |
 | **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 8 | 100.0% |
-| **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
+| **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 4 | 50.0% |
 | **MAT** | Materials Foundation | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
 | **MATDB** | Periodic Elements & Material Database | Phase 1 / T2 | P0 | 10 | 0 | 0.0% |
 | **MATRT** | Element/Material Runtime & Properties | Phase 1 / T2 | P0 | 12 | 0 | 0.0% |
@@ -465,15 +465,14 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 1 / T2 | **Default Priority:** P0
 
 #### [ELM-01] 01 – Element definition
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** Module Baseline
 - **Description:** Separate reusable definition from scene instance; include type, metadata, schema and version.
-- **Implementation Details:** Implement ELM-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented ElementDefinition archetype class in core/domain/include/shunya/core/domain/element_definition.hpp and src/element_definition.cpp with distinct type_name, display_name, category, semantic Version, parameter schemas, multi-domain ports, metadata map, and full JSON serialization/deserialization.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
-
+- **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: ElementDefinition complete specification and JSON roundtrip); Git Commit: [Pending Commit]
 #### [ELM-02] 02 – Element instance
 - **Status:** [ ] Not started
 - **Priority:** P0
@@ -485,25 +484,23 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Verification & Git Commit:** None (Pending)
 
 #### [ELM-03] 03 – Parameter schema
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** ELM-02
 - **Description:** Typed parameters, defaults, min/max, units, enums, visibility and validation constraints.
-- **Implementation Details:** Implement ELM-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented ParameterType enum, ParameterValue variant (Double, Int64, Bool, String, base::units::Quantity, Vec3), and ParameterSchema with validation bounds checking (min_value, max_value, enum membership, type mismatch diagnostics).
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
-
+- **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: ParameterValue typed storage and stringification, ParameterSchema validation and constraints); Git Commit: [Pending Commit]
 #### [ELM-04] 04 – Port schema
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** ELM-03
 - **Description:** Typed ports with domain, direction, units, cardinality and connection constraints.
-- **Implementation Details:** Implement ELM-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented PortDomain (Electrical, MechanicalTranslational, MechanicalRotational, Thermal, Fluid, Signal, Optical), PortDirection (Input, Output, Bidirectional), PortCardinality, and PortSchema with connection compatibility checks (cross-domain rejection, complementary direction rules).
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
-
+- **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: PortSchema domain and direction connectivity rules); Git Commit: [Pending Commit]
 #### [ELM-05] 05 – Element lifecycle
 - **Status:** [ ] Not started
 - **Priority:** P0
@@ -515,15 +512,14 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Verification & Git Commit:** None (Pending)
 
 #### [ELM-06] 06 – Element categories
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** ELM-05
 - **Description:** Physical object, material, field, source, sensor, actuator, device, logic block and abstract node.
-- **Implementation Details:** Implement ELM-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented ElementCategory enum with all 9 core physical & logical classifications, fast string conversions, and deserialization lookup.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
-
+- **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: ElementCategory conversions and coverage); Git Commit: [Pending Commit]
 #### [ELM-07] 07 – Element inspector
 - **Status:** [ ] Not started
 - **Priority:** P0
@@ -3413,6 +3409,6 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** All Module FND Tasks [x] FND-01 through [x] FND-10 (**100% Completed**)
 - **Last Completed Tasks:** [x] UNIT-01, [x] UNIT-02, [x] UNIT-03
 - **Last Completed Tasks:** All Module UNIT Tasks [x] UNIT-01 through [x] UNIT-07 (**100% Completed**)
-- **Pending Immediate Task:** [ ] ELM-01: Element schema (Parametric model, state representation, port declarations, metadata).
+- **Pending Immediate Task:** [ ] ELM-02: Element instance (Instance ID, transform, parameter value overrides, state binding, port connections).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.

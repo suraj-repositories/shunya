@@ -9,6 +9,7 @@ target_sources(shunya_core_domain
         src/migration.cpp
         src/validator.cpp
         src/packaging.cpp
+        src/element_definition.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -19,6 +20,7 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/migration.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
+            include/shunya/core/domain/element_definition.hpp
 )
 
 target_include_directories(shunya_core_domain
