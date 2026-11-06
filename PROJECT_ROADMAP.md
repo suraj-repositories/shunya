@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 276 |
+| [ ] | Not started | 268 |
 | [~] | In progress | 0 |
-| [x] | Completed | 33 |
+| [x] | Completed | 41 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -64,7 +64,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 7 | 100.0% |
 | **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 8 | 100.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 8 | 100.0% |
-| **MAT** | Materials Foundation | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
+| **MAT** | Materials Foundation | Phase 1 / T2 | P0 | 8 | 8 | 100.0% |
 | **MATDB** | Periodic Elements & Material Database | Phase 1 / T2 | P0 | 10 | 0 | 0.0% |
 | **MATRT** | Element/Material Runtime & Properties | Phase 1 / T2 | P0 | 12 | 0 | 0.0% |
 | **MATUI** | Material Editor & Periodic Table UI | Phase 1 / T2 | P1 | 10 | 0 | 0.0% |
@@ -541,84 +541,84 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 1 / T2 | **Default Priority:** P0
 
 #### [MAT-01] 01 – Material database schema
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** Module Baseline
 - **Description:** Material ID, name, composition, density, state, provenance, source and version.
-- **Implementation Details:** Implement MAT-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented Material schema in core/domain/include/shunya/core/domain/material.hpp and src/material.cpp holding unique UUID, display name, description, chemical composition, physical density (kg/m^3), 4-state phase enum (Solid, Liquid, Gas, Plasma), reference provenance, source dataset attribution, semantic Version, and JSON serialization.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material.cpp: Material schema, state conversions, and metadata); Git Commit: c5294f1
 
 #### [MAT-02] 02 – Mechanical properties
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MAT-01
 - **Description:** Elastic modulus, Poisson ratio, yield strength, plasticity and fracture parameters where supported.
-- **Implementation Details:** Implement MAT-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented MechanicalProperties struct with Young's modulus E, Poisson's ratio nu, shear modulus G, bulk modulus K, yield strength sigma_y, ultimate tensile strength sigma_u, elongation at break, tangent hardening modulus, and fracture toughness K_1c; analytical derivation of effective G and K from (E, nu); and elastoplastic stress evaluation.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material.cpp: mechanical properties and effective modulus calculations); Git Commit: c5294f1
 
 #### [MAT-03] 03 – Thermal properties
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MAT-02
 - **Description:** Conductivity, heat capacity, emissivity, expansion and phase-change parameters.
-- **Implementation Details:** Implement MAT-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented ThermalProperties struct with thermal conductivity k, specific heat capacity c_p, linear thermal expansion coefficient alpha, emissivity epsilon (0..1), melting point T_m, boiling point T_b, latent heat of fusion, and latent heat of vaporization with temperature evaluation and fallback.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material.cpp: thermal properties and scalar evaluation); Git Commit: c5294f1
 
 #### [MAT-04] 04 – Electrical properties
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MAT-03
 - **Description:** Conductivity, resistivity, permittivity, permeability and temperature dependence.
-- **Implementation Details:** Implement MAT-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented ElectricalProperties struct with electrical conductivity sigma, resistivity rho, relative permittivity epsilon_r, relative permeability mu_r, dielectric breakdown strength, loss tangent tan(delta), and temperature coefficient of resistance alpha_R with automatic effective resistivity derivation and temperature scaling.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material.cpp: electrical and electromagnetic properties); Git Commit: c5294f1
 
 #### [MAT-05] 05 – Fluid/chemical properties
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MAT-04
 - **Description:** Viscosity, density, diffusivity, heat capacity and supported constitutive data.
-- **Implementation Details:** Implement MAT-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented FluidProperties struct with dynamic viscosity mu, kinematic viscosity nu, mass diffusivity D, surface tension gamma, molecular weight M, and chemical formula string.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material.cpp: fluid and chemical properties); Git Commit: c5294f1
 
 #### [MAT-06] 06 – Material assignment
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MAT-05
 - **Description:** Assign material to bodies, regions, layers or component subdomains.
-- **Implementation Details:** Implement MAT-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented MaterialAssignment struct and MaterialRegistry in core/domain/include/shunya/core/domain/material_assignment.hpp and src/material_assignment.cpp supporting material registration, target entity/subdomain binding, priority-based override resolution, fallback from specific subdomain to default, and assignment removal/clearing.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material.cpp: material assignment and priority overrides); Git Commit: c5294f1
 
 #### [MAT-07] 07 – Material curves
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MAT-06
 - **Description:** Temperature/frequency/strain-dependent tables with interpolation and extrapolation policy.
-- **Implementation Details:** Implement MAT-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented MaterialCurve class in core/domain/include/shunya/core/domain/material_curve.hpp and src/material_curve.cpp supporting independent curve variables (Temperature, Frequency, Strain, Pressure, etc.), interpolation modes (Linear, Natural Cubic Spline via tridiagonal solver, Nearest, Step), extrapolation policies (ClampToBoundary, LinearExtrapolate, ConstantZero, ErrorOnExtrapolate), and dynamic property evaluation overriding scalar defaults.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material.cpp: material curves, cubic spline interpolation and extrapolation); Git Commit: c5294f1
 
 #### [MAT-08] 08 – Material validation
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MAT-07
 - **Description:** Units, physically plausible ranges, source metadata and regression fixtures. CMP – Generic component and device framework
-- **Implementation Details:** Implement MAT-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented physical and thermodynamic validation rules in Material::validate() and MaterialRegistry::validate_registry() (checking positive density, -1 < nu < 0.5 isotropic bounds, positive moduli, strength ordering, emissivity bounds, absolute zero limits, non-negative electrical parameters, and valid references); engineered preset catalog fixtures (Structural Steel, Aluminium 6061-T6, Copper, Silicon, Air, Water); and verified complete JSON serialization/deserialization.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material.cpp: material validation, preset catalog fixtures, and JSON roundtrip); Git Commit: c5294f1
 
 ---
 
