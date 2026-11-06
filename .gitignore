@@ -1,0 +1,29 @@
+# Build directories
+build/
+shunya/build/
+bin/
+lib/
+out/
+.cache/
+
+# Qt Creator & IDE files
+*.user
+*.user.*
+.qtcreator/
+.vs/
+.vscode/
+
+# Intermediate analysis / scratch files
+scratch/
+extracted_plan.txt
+parsed_tasks.txt
+all_parsed_tasks.json
+complete_document_dump.txt
+*.pyc
+__pycache__/
+
+# Word temporary lock files
+~$*
+
+Thumbs.db
+Desktop.ini
