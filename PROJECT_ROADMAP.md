@@ -224,7 +224,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Create app lifecycle, configuration loading, service registration, startup/shutdown and clean failure reporting.
 - **Implementation Details:** Implemented unified AppContext in core/base/include/shunya/core/base/app_context.hpp and app_context.cpp managing full platform lifecycle (Uninitialized, Initializing, Running, ShuttingDown, Stopped), structured AppInitOptions, central Configuration binding, ThreadPool initialization, ServiceRegistry for type-safe dependency injection and service locator pattern, and clean shutdown draining.
 - **Acceptance Criteria:** Unit tests verifying state machine transitions, configuration text loading during bootstrap, double initialization rejection with error code 1001, service registration and type retrieval, and graceful shutdown.
-- **Verification & Git Commit:** Verified via unit tests (3/3 test cases, 23/23 assertions passed in test_app_context.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (3/3 test cases, 23/23 assertions passed in test_app_context.cpp); Git Commit: d1994bf
 
 #### [FND-03] Identity System
 - **Status:** [x] Completed
