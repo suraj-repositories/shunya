@@ -423,7 +423,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Use command pattern or transaction log; support grouped operations and undo-safe editing.
 - **Implementation Details:** Implemented ICommand interface, CompositeCommand for atomic macro actions with forward rollback on failure, and CommandStack with undo/redo history, branching history management, bounded history limits, and atomic transaction grouping (begin, commit, rollback) in core/domain/include/shunya/core/domain/command_stack.hpp and src/command_stack.cpp.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** Verified via unit tests (test_command_stack.cpp: 6 test cases, 75 assertions passed); Git Commit: [Pending Commit]
+- **Verification & Git Commit:** Verified via unit tests (test_command_stack.cpp: 6 test cases, 75 assertions passed); Git Commit: a83cf75
 #### [PRJ-05] 05 – Selection and editing
 - **Status:** [ ] Not started
 - **Priority:** P0
