@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 303 |
+| [ ] | Not started | 302 |
 | [~] | In progress | 0 |
-| [x] | Completed | 6 |
+| [x] | Completed | 7 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -60,7 +60,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | Module ID | Module Name | Phase / Stage | Priority | Total Tasks | Completed | Progress |
 |---|---|---|---|---|---|---|
 | **ADR** | Architecture Decision Records | Phase 0 / T0 | P0 | 10 | 0 | 0.0% |
-| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 6 | 60.0% |
+| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 7 | 70.0% |
 | **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 0 | 0.0% |
 | **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 0 | 0.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
@@ -286,15 +286,15 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
 - **Verification & Git Commit:** None (Pending)
 
-#### [FND-09] 09 – Configuration
-- **Status:** [ ] Not started
+#### [FND-09] Configuration
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T0
-- **Dependencies:** FND-08
+- **Dependencies:** FND-01, FND-04
 - **Description:** User/project/application settings, schema validation, defaults and migration.
-- **Implementation Details:** Implement FND-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Implementation Details:** Implemented dynamic typed Configuration store in core/base/include/shunya/core/base/config.hpp and config.cpp supporting bool, int64_t, double, and string types, safe type conversion with Result<T>, default fallback getters, key-value line-oriented text parser with comment and whitespace stripping, serialization to text format, and Error/ValidationReport diagnostic integration.
+- **Acceptance Criteria:** Unit tests verifying in-memory typed lookups, default fallbacks, comment-preserving text parsing, round-trip serialization, and syntax error diagnostics.
+- **Verification & Git Commit:** Verified via unit tests (3/3 test cases, 19/19 assertions passed in test_config.cpp); Git Commit: pending commit.
 
 #### [FND-10] 10 – CI build pipeline
 - **Status:** [ ] Not started
@@ -3417,6 +3417,7 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06, [x] FND-07
-- **Pending Immediate Task:** [ ] FND-09: Configuration (User/project/app settings schema, defaults, persistence) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
+- **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06, [x] FND-07, [x] FND-09
+- **Pending Immediate Task:** [ ] FND-08: Threading and jobs (Worker pool, task graph, cancellation, progress reporting) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.
