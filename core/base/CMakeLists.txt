@@ -4,6 +4,7 @@ target_sources(shunya_core_base
     PRIVATE
         src/version.cpp
         src/uuid.cpp
+        src/logging.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -11,6 +12,7 @@ target_sources(shunya_core_base
             include/shunya/core/base/uuid.hpp
             include/shunya/core/base/error.hpp
             include/shunya/core/base/result.hpp
+            include/shunya/core/base/logging.hpp
 )
 
 target_include_directories(shunya_core_base

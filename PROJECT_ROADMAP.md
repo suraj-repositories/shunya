@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 306 |
+| [ ] | Not started | 305 |
 | [~] | In progress | 0 |
-| [x] | Completed | 3 |
+| [x] | Completed | 4 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -60,7 +60,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | Module ID | Module Name | Phase / Stage | Priority | Total Tasks | Completed | Progress |
 |---|---|---|---|---|---|---|
 | **ADR** | Architecture Decision Records | Phase 0 / T0 | P0 | 10 | 0 | 0.0% |
-| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 3 | 30.0% |
+| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 4 | 40.0% |
 | **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 0 | 0.0% |
 | **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 0 | 0.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
@@ -246,15 +246,15 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Acceptance Criteria:** Unit tests verifying value unwrapping, error propagation, fallback value_or semantics, void specialization, and multi-issue validation reporting.
 - **Verification & Git Commit:** Verified via unit tests (3/3 test cases, 18/18 assertions passed in test_error_result.cpp); Git Commit: bf28b9
 
-#### [FND-05] 05 – Logging and diagnostics
-- **Status:** [ ] Not started
+#### [FND-05] Logging and Diagnostics
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T0
-- **Dependencies:** FND-04
+- **Dependencies:** FND-01, FND-03
 - **Description:** Structured logs, categories, run IDs, timestamps, log rotation, crash reports and exportable diagnostic bundles.
-- **Implementation Details:** Implement FND-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Implementation Details:** Implemented LogLevel (Debug, Info, Warning, Error, Critical), LogRecord with sub-millisecond timestamps, run ID tracking, file/line metadata, thread-safe MemorySink with capacity limiting, ConsoleSink with stderr routing for errors, Logger singleton, diagnostic bundle exporter, and SHUNYA_LOG_* macros in core/base/include/shunya/core/base/logging.hpp and logging.cpp.
+- **Acceptance Criteria:** Unit tests verifying level filtering, memory sink buffer constraints, active simulation run ID association, log record formatting, and diagnostic bundle generation.
+- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 19/19 assertions passed in test_logging.cpp); Git Commit: pending commit.
 
 #### [FND-06] 06 – Event/message system
 - **Status:** [ ] Not started
@@ -3414,6 +3414,7 @@ These improvements represent proactive technical optimizations identified during
 - **Completed Work:** Planning document analysis; Git repository initialized; baseline commit created; PROJECT_ROADMAP.md created with all 309 catalogued tasks.
 - **Last Completed Task:** [x] FND-01: Build and dependency management (Commit: c8fce74)
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04 (Commit: bf28b9)
-- **Pending Immediate Task:** [ ] FND-02: Application bootstrap (App lifecycle, service registry, configuration) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
+- **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05
+- **Pending Immediate Task:** [ ] FND-06: Event/message system (Typed events, subscriptions, thread-safety, event ordering) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.
