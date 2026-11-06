@@ -10,6 +10,7 @@ target_sources(shunya_core_domain
         src/validator.cpp
         src/packaging.cpp
         src/element_definition.cpp
+        src/element_instance.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -21,6 +22,7 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
+            include/shunya/core/domain/element_instance.hpp
 )
 
 target_include_directories(shunya_core_domain

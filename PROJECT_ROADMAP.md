@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 280 |
+| [ ] | Not started | 276 |
 | [~] | In progress | 0 |
-| [x] | Completed | 29 |
+| [x] | Completed | 33 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -63,7 +63,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 10 | 100.0% |
 | **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 7 | 100.0% |
 | **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 8 | 100.0% |
-| **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 4 | 50.0% |
+| **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 8 | 100.0% |
 | **MAT** | Materials Foundation | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
 | **MATDB** | Periodic Elements & Material Database | Phase 1 / T2 | P0 | 10 | 0 | 0.0% |
 | **MATRT** | Element/Material Runtime & Properties | Phase 1 / T2 | P0 | 12 | 0 | 0.0% |
@@ -474,15 +474,14 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
 - **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: ElementDefinition complete specification and JSON roundtrip); Git Commit: 2a736bd
 #### [ELM-02] 02 – Element instance
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** ELM-01
 - **Description:** Instance ID, transform, parameter values, state binding and component reference.
-- **Implementation Details:** Implement ELM-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented ElementInstance class in core/domain/include/shunya/core/domain/element_instance.hpp and src/element_instance.cpp holding unique instance UUID, definition pointer, local transform, parameter value overrides, read-only parameter enforcement, port instances, and JSON serialization.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
-
+- **Verification & Git Commit:** Verified via unit tests (test_element_instance.cpp: parameter access, overrides, read-only guards); Git Commit: [Pending Commit]
 #### [ELM-03] 03 – Parameter schema
 - **Status:** [x] Completed
 - **Priority:** P0
@@ -502,15 +501,14 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
 - **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: PortSchema domain and direction connectivity rules); Git Commit: 2a736bd
 #### [ELM-05] 05 – Element lifecycle
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** ELM-04
 - **Description:** Create, initialise, update, reset, duplicate, serialize and destroy.
-- **Implementation Details:** Implement ELM-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented LifecycleState state machine (Uninitialized, Configured, Active, Paused, Error, Terminated), simulated time step advancement (update), reset, pause, resume, terminate, and deep duplication with position offset.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
-
+- **Verification & Git Commit:** Verified via unit tests (test_element_instance.cpp: lifecycle transitions and simulated time, duplication); Git Commit: [Pending Commit]
 #### [ELM-06] 06 – Element categories
 - **Status:** [x] Completed
 - **Priority:** P0
@@ -521,27 +519,23 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
 - **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: ElementCategory conversions and coverage); Git Commit: 2a736bd
 #### [ELM-07] 07 – Element inspector
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** ELM-06
 - **Description:** Property panels generated from schemas, validation and contextual help.
-- **Implementation Details:** Implement ELM-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented ElementInspector reflection engine generating InspectorProperty structs with display labels, property grouping, unit formatting, validation status, min/max limits, enum choices, help text, and dynamic property editing via apply_change.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
-
+- **Verification & Git Commit:** Verified via unit tests (test_element_instance.cpp: property introspection and dynamic edits); Git Commit: [Pending Commit]
 #### [ELM-08] 08 – Element test harness
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** ELM-07
 - **Description:** Test default values, lifecycle, serialization and port contracts. MAT – Materials and substances
-- **Implementation Details:** Implement ELM-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented ElementRegistry cataloging definitions, managing live instances, and enforcing symmetric multi-domain port connections, contract verification (domain, direction, cardinality), and disconnection.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
-
----
-
+- **Verification & Git Commit:** Verified via unit tests (test_element_instance.cpp: registry catalog, instantiation, multi-domain connection wiring); Git Commit: [Pending Commit]
 ### Module MAT: Materials Foundation
 **Scope & Objective:** Material database schemas, physical property groups, temperature/pressure curves, and assignments.  
 **Delivery Stage:** Phase 1 / T2 | **Default Priority:** P0
@@ -3409,6 +3403,6 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** All Module FND Tasks [x] FND-01 through [x] FND-10 (**100% Completed**)
 - **Last Completed Tasks:** [x] UNIT-01, [x] UNIT-02, [x] UNIT-03
 - **Last Completed Tasks:** All Module UNIT Tasks [x] UNIT-01 through [x] UNIT-07 (**100% Completed**)
-- **Pending Immediate Task:** [ ] ELM-02: Element instance (Instance ID, transform, parameter value overrides, state binding, port connections).
+- **Pending Immediate Task:** [ ] MAT-01: Material schema (Linear/nonlinear, isotropic/orthotropic, property groups, composition, phase state).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.
