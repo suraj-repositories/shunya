@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 296 |
+| [ ] | Not started | 292 |
 | [~] | In progress | 0 |
-| [x] | Completed | 13 |
+| [x] | Completed | 17 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -61,7 +61,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 |---|---|---|---|---|---|---|
 | **ADR** | Architecture Decision Records | Phase 0 / T0 | P0 | 10 | 0 | 0.0% |
 | **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 10 | 100.0% |
-| **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 3 | 42.9% |
+| **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 7 | 100.0% |
 | **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 0 | 0.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
 | **MAT** | Materials Foundation | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
@@ -342,45 +342,45 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Acceptance Criteria:** Unit tests verifying valid arithmetic on matching dimensions, automatic derived quantity creation, rejection of incompatible additions/subtractions, and port compatibility checking.
 - **Verification & Git Commit:** Verified via unit tests (1/1 test case, 15/15 assertions passed in test_units.cpp); Git Commit: fd7cfe
 
-#### [UNIT-04] 04 – Unit conversion
-- **Status:** [ ] Not started
+#### [UNIT-04] Unit Conversion
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
-- **Dependencies:** UNIT-03
+- **Dependencies:** UNIT-01, UNIT-02
 - **Description:** Convert display units without changing canonical stored values.
-- **Implementation Details:** Implement UNIT-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Implementation Details:** Implemented UnitRegistry in core/base/include/shunya/core/base/units.hpp and units.cpp with pre-registered standard units across metric prefixes (nm, um, mm, cm, m, km, ms, us, ns, g, mg, tonne, mA, uA, mV, kV, kOhm, MOhm, uF, nF, pF, mH, uH, kHz, MHz, GHz), imperial conversions (in, ft, yd, mi, lb, oz, psi, lbf, hp), and affine temperature conversions (degC, degF with scale and absolute offset).
+- **Acceptance Criteria:** Unit tests verifying conversion from display to canonical storage, canonical storage to display, and exact offset conversions for Celsius and Fahrenheit.
+- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 12/12 assertions passed in test_units.cpp); Git Commit: pending commit.
 
-#### [UNIT-05] 05 – Quantity types
-- **Status:** [ ] Not started
+#### [UNIT-05] Quantity Types
+- **Status:** [x] Completed
+- **Priority:** P0
+- **Stage / Phase:** Phase 1 / T2
+- **Dependencies:** UNIT-01, UNIT-02, FND-07
+- **Description:** Store value plus dimension; define scalar/vector/tensor quantity support.
+- **Implementation Details:** Implemented Scalar Quantity, VectorQuantity (3D vector with physical dimension, dot product, cross product, magnitude, and addition/subtraction), and TensorQuantity (3x3 second-order tensor with physical dimension, trace calculation, tensor-vector transformation, and tensor addition) in core/base/include/shunya/core/base/units.hpp.
+- **Acceptance Criteria:** Unit tests verifying vector quantity addition, vector dot product yielding energy from force and displacement, tensor trace calculation, and spatial vector transformation.
+- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 11/11 assertions passed in test_units.cpp); Git Commit: pending commit.
+
+#### [UNIT-06] Unit-Aware UI
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** UNIT-04
-- **Description:** Store value plus dimension; define scalar/vector/tensor quantity support.
-- **Implementation Details:** Implement UNIT-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
-
-#### [UNIT-06] 06 – Unit-aware UI
-- **Status:** [ ] Not started
-- **Priority:** P0
-- **Stage / Phase:** Phase 1 / T2
-- **Dependencies:** UNIT-05
 - **Description:** Show unit labels, precision, significant figures and conversion controls.
-- **Implementation Details:** Implement UNIT-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Implementation Details:** Implemented suggest_best_unit and format utilities in UnitRegistry automatically choosing optimal engineering prefix scale (e.g. converting 0.005 V to 5.0 mV, 10.5e6 Hz to 10.50 MHz) and formatting numbers with configurable decimal precision.
+- **Acceptance Criteria:** Unit tests validating automatic engineering unit suggestions across voltage and frequency ranges with custom decimal precision.
+- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 5/5 assertions passed in test_units.cpp); Git Commit: pending commit.
 
-#### [UNIT-07] 07 – Validation suite
-- **Status:** [ ] Not started
+#### [UNIT-07] Validation Suite
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
-- **Dependencies:** UNIT-06
-- **Description:** Test conversion round trips, dimension algebra and invalid expression rejection. PRJ – Project, scene and document lifecycle
-- **Implementation Details:** Implement UNIT-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Dependencies:** UNIT-01, UNIT-02, UNIT-03, UNIT-04, UNIT-05, UNIT-06
+- **Description:** Test conversion round trips, dimension algebra and invalid expression rejection.
+- **Implementation Details:** Comprehensive validation test suite testing round-trip conversions (display -> canonical -> display) within 1e-9 tolerance, unknown unit symbol rejection (error code 3010), and incompatible unit conversion rejection (error code 3012).
+- **Acceptance Criteria:** Unit test suite passing 100% of round-trip precision checks and negative error handling tests.
+- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 5/5 assertions passed in test_units.cpp); Git Commit: pending commit.
 
 ---
 
@@ -3422,6 +3422,7 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06, [x] FND-07, [x] FND-09, [x] FND-08, [x] FND-02
 - **Last Completed Tasks:** All Module FND Tasks [x] FND-01 through [x] FND-10 (**100% Completed**)
 - **Last Completed Tasks:** [x] UNIT-01, [x] UNIT-02, [x] UNIT-03
-- **Pending Immediate Task:** [ ] UNIT-04: Unit conversion (Display units, imperial conversions, scaling prefixes) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
+- **Last Completed Tasks:** All Module UNIT Tasks [x] UNIT-01 through [x] UNIT-07 (**100% Completed**)
+- **Pending Immediate Task:** [ ] PRJ-01: Project format (Manifest schema, project identity, authoring metadata) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.

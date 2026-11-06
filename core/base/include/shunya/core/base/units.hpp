@@ -2,11 +2,15 @@
 
 #include "shunya/core/base/error.hpp"
 #include "shunya/core/base/result.hpp"
+#include "shunya/core/base/math.hpp"
 
 #include <cstdint>
 #include <string>
 #include <string_view>
 #include <sstream>
+#include <unordered_map>
+#include <vector>
+#include <array>
 
 namespace shunya::core::base::units {
 
@@ -167,5 +171,138 @@ inline Quantity operator*(double scalar, const Quantity& q) noexcept {
 
 [[nodiscard]] Result<void> check_compatible(const Dimension& a, const Dimension& b);
 [[nodiscard]] Result<void> check_compatible(const Quantity& a, const Quantity& b);
+
+// -------------------------------------------------------------
+// Unit Conversion Definitions (UNIT-04)
+// -------------------------------------------------------------
+struct UnitDefinition {
+    std::string symbol;
+    std::string name;
+    Dimension dimension;
+    double scale_to_canonical = 1.0;
+    double offset_to_canonical = 0.0; // canonical = (display * scale) + offset
+};
+
+class UnitRegistry {
+public:
+    static UnitRegistry& instance();
+
+    UnitRegistry();
+
+    void register_unit(UnitDefinition def);
+    [[nodiscard]] const UnitDefinition* find_unit(std::string_view symbol) const noexcept;
+    [[nodiscard]] bool has_unit(std::string_view symbol) const noexcept;
+
+    [[nodiscard]] Result<Quantity> to_canonical(double display_val, std::string_view unit_symbol) const;
+    [[nodiscard]] Result<double> from_canonical(const Quantity& q, std::string_view target_unit_symbol) const;
+
+    // Unit-aware formatting (UNIT-06)
+    [[nodiscard]] std::string format(const Quantity& q, int precision = 4, bool auto_prefix = false) const;
+    [[nodiscard]] std::string suggest_best_unit(const Dimension& dim, double value) const;
+
+private:
+    void populate_standard_units();
+    std::unordered_map<std::string, UnitDefinition> units_;
+};
+
+// -------------------------------------------------------------
+// Vector and Tensor Quantities (UNIT-05)
+// -------------------------------------------------------------
+class VectorQuantity {
+public:
+    math::Vec3 value{0.0, 0.0, 0.0};
+    Dimension dimension = Dimensionless;
+
+    constexpr VectorQuantity() noexcept = default;
+    constexpr VectorQuantity(math::Vec3 val, Dimension dim) noexcept : value(val), dimension(dim) {}
+
+    [[nodiscard]] Result<VectorQuantity> add(const VectorQuantity& rhs) const {
+        if (dimension != rhs.dimension) {
+            return Result<VectorQuantity>::err({
+                .code = 3004,
+                .domain = ErrorDomain::Validation,
+                .severity = Severity::Error,
+                .message = "Dimensional mismatch in vector addition: " + dimension.symbol() + " vs " + rhs.dimension.symbol(),
+                .details = ""
+            });
+        }
+        return VectorQuantity(value + rhs.value, dimension);
+    }
+
+    [[nodiscard]] Result<VectorQuantity> sub(const VectorQuantity& rhs) const {
+        if (dimension != rhs.dimension) {
+            return Result<VectorQuantity>::err({
+                .code = 3005,
+                .domain = ErrorDomain::Validation,
+                .severity = Severity::Error,
+                .message = "Dimensional mismatch in vector subtraction: " + dimension.symbol() + " vs " + rhs.dimension.symbol(),
+                .details = ""
+            });
+        }
+        return VectorQuantity(value - rhs.value, dimension);
+    }
+
+    [[nodiscard]] Quantity dot(const VectorQuantity& rhs) const noexcept {
+        return Quantity(value.dot(rhs.value), dimension * rhs.dimension);
+    }
+
+    [[nodiscard]] VectorQuantity cross(const VectorQuantity& rhs) const noexcept {
+        return VectorQuantity(value.cross(rhs.value), dimension * rhs.dimension);
+    }
+
+    [[nodiscard]] Quantity magnitude() const noexcept {
+        return Quantity(value.length(), dimension);
+    }
+
+    [[nodiscard]] VectorQuantity operator*(double scalar) const noexcept {
+        return VectorQuantity(value * scalar, dimension);
+    }
+
+    [[nodiscard]] VectorQuantity operator/(double scalar) const {
+        if (scalar == 0.0) throw std::domain_error("VectorQuantity division by zero");
+        return VectorQuantity(value / scalar, dimension);
+    }
+};
+
+class TensorQuantity {
+public:
+    std::array<double, 9> data{
+        0, 0, 0,
+        0, 0, 0,
+        0, 0, 0
+    };
+    Dimension dimension = Dimensionless;
+
+    constexpr TensorQuantity() noexcept = default;
+    constexpr TensorQuantity(std::array<double, 9> d, Dimension dim) noexcept : data(d), dimension(dim) {}
+
+    [[nodiscard]] Quantity trace() const noexcept {
+        return Quantity(data[0] + data[4] + data[8], dimension);
+    }
+
+    [[nodiscard]] Result<TensorQuantity> add(const TensorQuantity& rhs) const {
+        if (dimension != rhs.dimension) {
+            return Result<TensorQuantity>::err({
+                .code = 3006,
+                .domain = ErrorDomain::Validation,
+                .severity = Severity::Error,
+                .message = "Dimensional mismatch in tensor addition",
+                .details = ""
+            });
+        }
+        std::array<double, 9> res{};
+        for (std::size_t i = 0; i < 9; ++i) res[i] = data[i] + rhs.data[i];
+        return TensorQuantity(res, dimension);
+    }
+
+    [[nodiscard]] VectorQuantity transform(const math::Vec3& vec) const noexcept {
+        math::Vec3 res{
+            data[0] * vec.x + data[1] * vec.y + data[2] * vec.z,
+            data[3] * vec.x + data[4] * vec.y + data[5] * vec.z,
+            data[6] * vec.x + data[7] * vec.y + data[8] * vec.z
+        };
+        return VectorQuantity(res, dimension);
+    }
+};
 
 } // namespace shunya::core::base::units
