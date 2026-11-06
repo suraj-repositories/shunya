@@ -450,7 +450,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Detect missing assets, broken references, invalid IDs and unsupported versions.
 - **Implementation Details:** Implemented ProjectValidator in core/domain/include/shunya/core/domain/validator.hpp and src/validator.cpp to inspect ProjectManifest and SceneGraph for schema compatibility, nil UUIDs, empty names, broken parent-child relations, asymmetric links, duplicate names, and missing on-disk asset files (CAD meshes, SPICE subcircuits, scripts, textures) with structured ValidationReport aggregation.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** Verified via unit tests (test_validator.cpp: 3 test cases, 14 assertions passed); Git Commit: [Pending Commit]
+- **Verification & Git Commit:** Verified via unit tests (test_validator.cpp: 3 test cases, 14 assertions passed); Git Commit: cd687bd
 #### [PRJ-08] 08 – Project packaging
 - **Status:** [ ] Not started
 - **Priority:** P0
