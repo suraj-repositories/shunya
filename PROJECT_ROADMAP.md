@@ -254,7 +254,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Structured logs, categories, run IDs, timestamps, log rotation, crash reports and exportable diagnostic bundles.
 - **Implementation Details:** Implemented LogLevel (Debug, Info, Warning, Error, Critical), LogRecord with sub-millisecond timestamps, run ID tracking, file/line metadata, thread-safe MemorySink with capacity limiting, ConsoleSink with stderr routing for errors, Logger singleton, diagnostic bundle exporter, and SHUNYA_LOG_* macros in core/base/include/shunya/core/base/logging.hpp and logging.cpp.
 - **Acceptance Criteria:** Unit tests verifying level filtering, memory sink buffer constraints, active simulation run ID association, log record formatting, and diagnostic bundle generation.
-- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 19/19 assertions passed in test_logging.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 19/19 assertions passed in test_logging.cpp); Git Commit: 8239a05
 
 #### [FND-06] 06 – Event/message system
 - **Status:** [ ] Not started
