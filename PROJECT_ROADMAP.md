@@ -441,7 +441,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Migrate old project schemas with preview, backup and rollback.
 - **Implementation Details:** Implemented IMigrationStep interface, ProjectMigrator with chained migration planning, in-memory preview (preview_migration), automated backup creation (.bak), atomic file migration with replacement, rollback_from_backup restoration, and standard legacy v0.0.1 to v0.1.0-dev upgrade step in core/domain/include/shunya/core/domain/migration.hpp and src/migration.cpp.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** Verified via unit tests (test_migration.cpp: 5 test cases, 33 assertions passed); Git Commit: [Pending Commit]
+- **Verification & Git Commit:** Verified via unit tests (test_migration.cpp: 5 test cases, 33 assertions passed); Git Commit: 0d5e0c6
 #### [PRJ-07] 07 – Project validation
 - **Status:** [ ] Not started
 - **Priority:** P0
