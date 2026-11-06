@@ -8,6 +8,7 @@ target_sources(shunya_core_base
         src/config.cpp
         src/thread_pool.cpp
         src/app_context.cpp
+        src/units.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -21,6 +22,7 @@ target_sources(shunya_core_base
             include/shunya/core/base/config.hpp
             include/shunya/core/base/thread_pool.hpp
             include/shunya/core/base/app_context.hpp
+            include/shunya/core/base/units.hpp
 )
 
 target_include_directories(shunya_core_base

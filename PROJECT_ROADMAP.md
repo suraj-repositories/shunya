@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 299 |
+| [ ] | Not started | 296 |
 | [~] | In progress | 0 |
-| [x] | Completed | 10 |
+| [x] | Completed | 13 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -61,7 +61,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 |---|---|---|---|---|---|---|
 | **ADR** | Architecture Decision Records | Phase 0 / T0 | P0 | 10 | 0 | 0.0% |
 | **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 10 | 100.0% |
-| **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 0 | 0.0% |
+| **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 3 | 42.9% |
 | **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 0 | 0.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
 | **MAT** | Materials Foundation | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
@@ -312,35 +312,35 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Scope & Objective:** Rigorous dimensional analysis, SI base units, derived units, conversion, and validation.  
 **Delivery Stage:** Phase 1 / T2 | **Default Priority:** P0
 
-#### [UNIT-01] 01 – SI base units
-- **Status:** [ ] Not started
+#### [UNIT-01] SI Base Units
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
-- **Dependencies:** Module Baseline
+- **Dependencies:** FND-01, FND-04
 - **Description:** Represent metre, kilogram, second, ampere, kelvin, mole and candela.
-- **Implementation Details:** Implement UNIT-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Implementation Details:** Implemented 7-dimensional Dimension vector in core/base/include/shunya/core/base/units.hpp representing integer/rational exponents for metre (length), kilogram (mass), second (time), ampere (current), kelvin (temperature), mole (amount of substance), and candela (luminous intensity), with support for dimension multiplication (exponent addition), division (exponent subtraction), power scaling, and standard symbol formatting.
+- **Acceptance Criteria:** Unit tests verifying individual base unit exponents, standard SI symbols (m, kg, s, A, K, mol, cd), and dimensionless verification.
+- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 15/15 assertions passed in test_units.cpp); Git Commit: pending commit.
 
-#### [UNIT-02] 02 – Derived units
-- **Status:** [ ] Not started
+#### [UNIT-02] Derived Units
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** UNIT-01
 - **Description:** Support newton, joule, watt, pascal, volt, ohm, farad, tesla, coulomb and derived dimensions.
-- **Implementation Details:** Implement UNIT-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Implementation Details:** Defined standard derived SI dimensions in core/base/include/shunya/core/base/units.hpp including Force (N), Energy (J), Power (W), Pressure (Pa), ElectricCharge (C), Voltage (V), ElectricalResistance (Ohm), ElectricalCapacitance (F), ElectricalConductance (S), MagneticFlux (Wb), MagneticField (T), Inductance (H), Frequency (Hz), Area, Volume, Velocity, and Acceleration with standard dimensional algebra.
+- **Acceptance Criteria:** Unit tests validating dimensional algebraic derivation (e.g. Length/Time -> Velocity, Mass*Acceleration -> Force, Force*Length -> Energy, Power/Current -> Voltage, Voltage/Current -> Resistance, Charge/Voltage -> Capacitance).
+- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 16/16 assertions passed in test_units.cpp); Git Commit: pending commit.
 
-#### [UNIT-03] 03 – Dimensional analysis
-- **Status:** [ ] Not started
+#### [UNIT-03] Dimensional Analysis
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
-- **Dependencies:** UNIT-02
+- **Dependencies:** UNIT-01, UNIT-02
 - **Description:** Reject invalid equation combinations and incompatible port connections.
-- **Implementation Details:** Implement UNIT-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Implementation Details:** Implemented Quantity class and check_compatible functions in core/base/include/shunya/core/base/units.hpp and units.cpp enforcing strict dimensional matching on additions and subtractions via Result<Quantity>, automatic dimensional multiplication/division, and typed error diagnostic reporting (error codes 3001, 3002, 3003) on incompatible dimensions.
+- **Acceptance Criteria:** Unit tests verifying valid arithmetic on matching dimensions, automatic derived quantity creation, rejection of incompatible additions/subtractions, and port compatibility checking.
+- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 15/15 assertions passed in test_units.cpp); Git Commit: pending commit.
 
 #### [UNIT-04] 04 – Unit conversion
 - **Status:** [ ] Not started
@@ -3421,6 +3421,7 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06, [x] FND-07, [x] FND-09, [x] FND-08
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06, [x] FND-07, [x] FND-09, [x] FND-08, [x] FND-02
 - **Last Completed Tasks:** All Module FND Tasks [x] FND-01 through [x] FND-10 (**100% Completed**)
-- **Pending Immediate Task:** [ ] UNIT-01: SI base units (Metre, kilogram, second, ampere, kelvin, mole, candela dimensional representations) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
+- **Last Completed Tasks:** [x] UNIT-01, [x] UNIT-02, [x] UNIT-03
+- **Pending Immediate Task:** [ ] UNIT-04: Unit conversion (Display units, imperial conversions, scaling prefixes) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.

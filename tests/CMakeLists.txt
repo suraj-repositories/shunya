@@ -8,6 +8,7 @@ add_executable(shunya_unit_tests
     unit/test_config.cpp
     unit/test_thread_pool.cpp
     unit/test_app_context.cpp
+    unit/test_units.cpp
 )
 
 target_include_directories(shunya_unit_tests
