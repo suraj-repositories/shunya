@@ -13,6 +13,7 @@ target_sources(shunya_core_base
             include/shunya/core/base/error.hpp
             include/shunya/core/base/result.hpp
             include/shunya/core/base/logging.hpp
+            include/shunya/core/base/event_bus.hpp
 )
 
 target_include_directories(shunya_core_base

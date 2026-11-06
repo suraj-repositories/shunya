@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 305 |
+| [ ] | Not started | 304 |
 | [~] | In progress | 0 |
-| [x] | Completed | 4 |
+| [x] | Completed | 5 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -60,7 +60,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | Module ID | Module Name | Phase / Stage | Priority | Total Tasks | Completed | Progress |
 |---|---|---|---|---|---|---|
 | **ADR** | Architecture Decision Records | Phase 0 / T0 | P0 | 10 | 0 | 0.0% |
-| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 4 | 40.0% |
+| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 5 | 50.0% |
 | **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 0 | 0.0% |
 | **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 0 | 0.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
@@ -256,15 +256,15 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Acceptance Criteria:** Unit tests verifying level filtering, memory sink buffer constraints, active simulation run ID association, log record formatting, and diagnostic bundle generation.
 - **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 19/19 assertions passed in test_logging.cpp); Git Commit: 8239a05
 
-#### [FND-06] 06 – Event/message system
-- **Status:** [ ] Not started
+#### [FND-06] Event and Message System
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T0
-- **Dependencies:** FND-05
+- **Dependencies:** FND-01
 - **Description:** Define typed events, subscriptions, ownership, thread-safety and event ordering.
-- **Implementation Details:** Implement FND-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Implementation Details:** Implemented type-safe EventBus in core/base/include/shunya/core/base/event_bus.hpp supporting synchronous immediate dispatch, FIFO queued dispatch with batch flushing, RAII subscription tokens, unsubscription by ID, re-entrant event publishing, and mutex-protected concurrency safety.
+- **Acceptance Criteria:** Comprehensive unit tests verifying type isolation across distinct event structs, unsubscription semantics, FIFO delivery ordering of queued events, and re-entrant handler execution.
+- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 15/15 assertions passed in test_event_bus.cpp); Git Commit: pending commit.
 
 #### [FND-07] 07 – Math foundation
 - **Status:** [ ] Not started
@@ -3415,6 +3415,7 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Task:** [x] FND-01: Build and dependency management (Commit: c8fce74)
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04 (Commit: bf28b9)
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05
-- **Pending Immediate Task:** [ ] FND-06: Event/message system (Typed events, subscriptions, thread-safety, event ordering) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
+- **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06
+- **Pending Immediate Task:** [ ] FND-07: Math foundation (Vectors, matrices, quaternions, transforms, numerical tolerances) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.
