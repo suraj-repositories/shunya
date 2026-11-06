@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 308 |
+| [ ] | Not started | 306 |
 | [~] | In progress | 0 |
-| [x] | Completed | 1 |
+| [x] | Completed | 3 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -60,7 +60,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | Module ID | Module Name | Phase / Stage | Priority | Total Tasks | Completed | Progress |
 |---|---|---|---|---|---|---|
 | **ADR** | Architecture Decision Records | Phase 0 / T0 | P0 | 10 | 0 | 0.0% |
-| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 1 | 10.0% |
+| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 3 | 30.0% |
 | **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 0 | 0.0% |
 | **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 0 | 0.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
@@ -226,25 +226,25 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
 - **Verification & Git Commit:** None (Pending)
 
-#### [FND-03] 03 – Identity system
-- **Status:** [ ] Not started
+#### [FND-03] Identity System
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T0
-- **Dependencies:** FND-02
+- **Dependencies:** FND-01
 - **Description:** Define stable UUIDs for projects, entities, ports, models, components, runs and packages; never use display names as identifiers.
-- **Implementation Details:** Implement FND-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Implementation Details:** Implemented 128-bit RFC 4122 v4 compliant Uuid class in core/base/include/shunya/core/base/uuid.hpp and core/base/src/uuid.cpp with random generation, canonical string serialization/parsing, nil checking, and std::hash specialization for hash containers.
+- **Acceptance Criteria:** Comprehensive unit tests validating RFC 4122 v4 version and variant bits, nil identity, string round-trips, rejection of invalid strings, and std::unordered_set hashing.
+- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 17/17 assertions passed in test_uuid.cpp); Git Commit: pending commit.
 
-#### [FND-04] 04 – Error/result model
-- **Status:** [ ] Not started
+#### [FND-04] Error and Result Model
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T0
-- **Dependencies:** FND-03
+- **Dependencies:** FND-01
 - **Description:** Create typed errors, severity levels, recoverable errors, validation reports and user-facing diagnostic mapping.
-- **Implementation Details:** Implement FND-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Implementation Details:** Implemented Severity (Info, Warning, Error, Fatal), ErrorDomain (System, Validation, Simulation, IO, Scripting, Materials), Error struct with diagnostic formatting, ValidationReport aggregator, and modern monadic Result<T> / Result<void> templates in core/base/include/shunya/core/base/error.hpp and result.hpp.
+- **Acceptance Criteria:** Unit tests verifying value unwrapping, error propagation, fallback value_or semantics, void specialization, and multi-issue validation reporting.
+- **Verification & Git Commit:** Verified via unit tests (3/3 test cases, 18/18 assertions passed in test_error_result.cpp); Git Commit: pending commit.
 
 #### [FND-05] 05 – Logging and diagnostics
 - **Status:** [ ] Not started

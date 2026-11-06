@@ -3,10 +3,14 @@ add_library(shunya_core_base)
 target_sources(shunya_core_base
     PRIVATE
         src/version.cpp
+        src/uuid.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
             include/shunya/core/base/version.hpp
+            include/shunya/core/base/uuid.hpp
+            include/shunya/core/base/error.hpp
+            include/shunya/core/base/result.hpp
 )
 
 target_include_directories(shunya_core_base

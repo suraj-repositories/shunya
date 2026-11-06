@@ -1,5 +1,7 @@
 add_executable(shunya_unit_tests
     unit/test_build_smoke.cpp
+    unit/test_uuid.cpp
+    unit/test_error_result.cpp
 )
 
 target_include_directories(shunya_unit_tests
