@@ -5,12 +5,14 @@ target_sources(shunya_core_domain
         src/project.cpp
         src/scene_graph.cpp
         src/command_stack.cpp
+        src/selection.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
             include/shunya/core/domain/project.hpp
             include/shunya/core/domain/scene_graph.hpp
             include/shunya/core/domain/command_stack.hpp
+            include/shunya/core/domain/selection.hpp
 )
 
 target_include_directories(shunya_core_domain
