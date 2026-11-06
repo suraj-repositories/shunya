@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 289 |
+| [ ] | Not started | 288 |
 | [~] | In progress | 0 |
-| [x] | Completed | 20 |
+| [x] | Completed | 21 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -62,7 +62,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **ADR** | Architecture Decision Records | Phase 0 / T0 | P0 | 10 | 0 | 0.0% |
 | **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 10 | 100.0% |
 | **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 7 | 100.0% |
-| **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 3 | 37.5% |
+| **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 4 | 50.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
 | **MAT** | Materials Foundation | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
 | **MATDB** | Periodic Elements & Material Database | Phase 1 / T2 | P0 | 10 | 0 | 0.0% |
@@ -416,15 +416,14 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
 - **Verification & Git Commit:** Verified via unit tests (test_scene_graph.cpp: 8 test cases, 65 assertions passed); Git Commit: 980e680
 #### [PRJ-04] 04 – Undo/redo commands
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** PRJ-03
 - **Description:** Use command pattern or transaction log; support grouped operations and undo-safe editing.
-- **Implementation Details:** Implement PRJ-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented ICommand interface, CompositeCommand for atomic macro actions with forward rollback on failure, and CommandStack with undo/redo history, branching history management, bounded history limits, and atomic transaction grouping (begin, commit, rollback) in core/domain/include/shunya/core/domain/command_stack.hpp and src/command_stack.cpp.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
-
+- **Verification & Git Commit:** Verified via unit tests (test_command_stack.cpp: 6 test cases, 75 assertions passed); Git Commit: [Pending Commit]
 #### [PRJ-05] 05 – Selection and editing
 - **Status:** [ ] Not started
 - **Priority:** P0
@@ -3420,6 +3419,6 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** All Module FND Tasks [x] FND-01 through [x] FND-10 (**100% Completed**)
 - **Last Completed Tasks:** [x] UNIT-01, [x] UNIT-02, [x] UNIT-03
 - **Last Completed Tasks:** All Module UNIT Tasks [x] UNIT-01 through [x] UNIT-07 (**100% Completed**)
-- **Pending Immediate Task:** [ ] PRJ-04: Undo/redo commands (Command pattern or transaction log, grouped operations, undo-safe editing).
+- **Pending Immediate Task:** [ ] PRJ-05: Selection sets (Multi-entity selection, primary vs secondary, filtered picking).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.

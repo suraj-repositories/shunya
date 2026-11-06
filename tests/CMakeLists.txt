@@ -11,6 +11,7 @@ add_executable(shunya_unit_tests
     unit/test_units.cpp
     unit/test_project.cpp
     unit/test_scene_graph.cpp
+    unit/test_command_stack.cpp
 )
 
 target_include_directories(shunya_unit_tests
