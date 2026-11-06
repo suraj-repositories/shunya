@@ -350,7 +350,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Convert display units without changing canonical stored values.
 - **Implementation Details:** Implemented UnitRegistry in core/base/include/shunya/core/base/units.hpp and units.cpp with pre-registered standard units across metric prefixes (nm, um, mm, cm, m, km, ms, us, ns, g, mg, tonne, mA, uA, mV, kV, kOhm, MOhm, uF, nF, pF, mH, uH, kHz, MHz, GHz), imperial conversions (in, ft, yd, mi, lb, oz, psi, lbf, hp), and affine temperature conversions (degC, degF with scale and absolute offset).
 - **Acceptance Criteria:** Unit tests verifying conversion from display to canonical storage, canonical storage to display, and exact offset conversions for Celsius and Fahrenheit.
-- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 12/12 assertions passed in test_units.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 12/12 assertions passed in test_units.cpp); Git Commit: 992c9b2
 
 #### [UNIT-05] Quantity Types
 - **Status:** [x] Completed
@@ -360,7 +360,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Store value plus dimension; define scalar/vector/tensor quantity support.
 - **Implementation Details:** Implemented Scalar Quantity, VectorQuantity (3D vector with physical dimension, dot product, cross product, magnitude, and addition/subtraction), and TensorQuantity (3x3 second-order tensor with physical dimension, trace calculation, tensor-vector transformation, and tensor addition) in core/base/include/shunya/core/base/units.hpp.
 - **Acceptance Criteria:** Unit tests verifying vector quantity addition, vector dot product yielding energy from force and displacement, tensor trace calculation, and spatial vector transformation.
-- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 11/11 assertions passed in test_units.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 11/11 assertions passed in test_units.cpp); Git Commit: 992c9b2
 
 #### [UNIT-06] Unit-Aware UI
 - **Status:** [x] Completed
@@ -370,7 +370,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Show unit labels, precision, significant figures and conversion controls.
 - **Implementation Details:** Implemented suggest_best_unit and format utilities in UnitRegistry automatically choosing optimal engineering prefix scale (e.g. converting 0.005 V to 5.0 mV, 10.5e6 Hz to 10.50 MHz) and formatting numbers with configurable decimal precision.
 - **Acceptance Criteria:** Unit tests validating automatic engineering unit suggestions across voltage and frequency ranges with custom decimal precision.
-- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 5/5 assertions passed in test_units.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 5/5 assertions passed in test_units.cpp); Git Commit: 992c9b2
 
 #### [UNIT-07] Validation Suite
 - **Status:** [x] Completed
@@ -380,7 +380,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Test conversion round trips, dimension algebra and invalid expression rejection.
 - **Implementation Details:** Comprehensive validation test suite testing round-trip conversions (display -> canonical -> display) within 1e-9 tolerance, unknown unit symbol rejection (error code 3010), and incompatible unit conversion rejection (error code 3012).
 - **Acceptance Criteria:** Unit test suite passing 100% of round-trip precision checks and negative error handling tests.
-- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 5/5 assertions passed in test_units.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 5/5 assertions passed in test_units.cpp); Git Commit: 992c9b2
 
 ---
 
