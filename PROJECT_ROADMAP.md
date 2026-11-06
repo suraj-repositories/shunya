@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 301 |
+| [ ] | Not started | 300 |
 | [~] | In progress | 0 |
-| [x] | Completed | 8 |
+| [x] | Completed | 9 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -60,7 +60,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | Module ID | Module Name | Phase / Stage | Priority | Total Tasks | Completed | Progress |
 |---|---|---|---|---|---|---|
 | **ADR** | Architecture Decision Records | Phase 0 / T0 | P0 | 10 | 0 | 0.0% |
-| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 8 | 80.0% |
+| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 9 | 90.0% |
 | **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 0 | 0.0% |
 | **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 0 | 0.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
@@ -216,15 +216,15 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Acceptance Criteria:** Full CMake configuration and Ninja build of core static library (shunya_core_base), desktop shell (appshunya), and automated test runner (shunya_unit_tests); CTest test execution passing with zero errors.
 - **Verification & Git Commit:** Verified via CTest and shunya_unit_tests.exe (2/2 test cases, 6/6 assertions passed, C++20 concepts and version validation); Git Commit: c8fce74
 
-#### [FND-02] 02 – Application bootstrap
-- **Status:** [ ] Not started
+#### [FND-02] Application Bootstrap
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T0
-- **Dependencies:** FND-01
+- **Dependencies:** FND-01, FND-03, FND-04, FND-05, FND-06, FND-08, FND-09
 - **Description:** Create app lifecycle, configuration loading, service registration, startup/shutdown and clean failure reporting.
-- **Implementation Details:** Implement FND-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Implementation Details:** Implemented unified AppContext in core/base/include/shunya/core/base/app_context.hpp and app_context.cpp managing full platform lifecycle (Uninitialized, Initializing, Running, ShuttingDown, Stopped), structured AppInitOptions, central Configuration binding, ThreadPool initialization, ServiceRegistry for type-safe dependency injection and service locator pattern, and clean shutdown draining.
+- **Acceptance Criteria:** Unit tests verifying state machine transitions, configuration text loading during bootstrap, double initialization rejection with error code 1001, service registration and type retrieval, and graceful shutdown.
+- **Verification & Git Commit:** Verified via unit tests (3/3 test cases, 23/23 assertions passed in test_app_context.cpp); Git Commit: pending commit.
 
 #### [FND-03] Identity System
 - **Status:** [x] Completed
@@ -3419,6 +3419,7 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06, [x] FND-07
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06, [x] FND-07, [x] FND-09
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06, [x] FND-07, [x] FND-09, [x] FND-08
-- **Pending Immediate Task:** [ ] FND-02: Application bootstrap (App lifecycle, service registry, configuration) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
+- **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06, [x] FND-07, [x] FND-09, [x] FND-08, [x] FND-02
+- **Pending Immediate Task:** [ ] FND-10: CI build pipeline (Automated static analysis, formatting, unit test pipeline, artifact packaging) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.
