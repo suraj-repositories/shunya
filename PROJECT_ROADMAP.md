@@ -264,7 +264,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Define typed events, subscriptions, ownership, thread-safety and event ordering.
 - **Implementation Details:** Implemented type-safe EventBus in core/base/include/shunya/core/base/event_bus.hpp supporting synchronous immediate dispatch, FIFO queued dispatch with batch flushing, RAII subscription tokens, unsubscription by ID, re-entrant event publishing, and mutex-protected concurrency safety.
 - **Acceptance Criteria:** Comprehensive unit tests verifying type isolation across distinct event structs, unsubscription semantics, FIFO delivery ordering of queued events, and re-entrant handler execution.
-- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 15/15 assertions passed in test_event_bus.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 15/15 assertions passed in test_event_bus.cpp); Git Commit: 9bfbf72
 
 #### [FND-07] 07 – Math foundation
 - **Status:** [ ] Not started
