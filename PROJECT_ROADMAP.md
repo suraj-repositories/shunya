@@ -320,7 +320,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Represent metre, kilogram, second, ampere, kelvin, mole and candela.
 - **Implementation Details:** Implemented 7-dimensional Dimension vector in core/base/include/shunya/core/base/units.hpp representing integer/rational exponents for metre (length), kilogram (mass), second (time), ampere (current), kelvin (temperature), mole (amount of substance), and candela (luminous intensity), with support for dimension multiplication (exponent addition), division (exponent subtraction), power scaling, and standard symbol formatting.
 - **Acceptance Criteria:** Unit tests verifying individual base unit exponents, standard SI symbols (m, kg, s, A, K, mol, cd), and dimensionless verification.
-- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 15/15 assertions passed in test_units.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 15/15 assertions passed in test_units.cpp); Git Commit: fd7cfe
 
 #### [UNIT-02] Derived Units
 - **Status:** [x] Completed
@@ -330,7 +330,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Support newton, joule, watt, pascal, volt, ohm, farad, tesla, coulomb and derived dimensions.
 - **Implementation Details:** Defined standard derived SI dimensions in core/base/include/shunya/core/base/units.hpp including Force (N), Energy (J), Power (W), Pressure (Pa), ElectricCharge (C), Voltage (V), ElectricalResistance (Ohm), ElectricalCapacitance (F), ElectricalConductance (S), MagneticFlux (Wb), MagneticField (T), Inductance (H), Frequency (Hz), Area, Volume, Velocity, and Acceleration with standard dimensional algebra.
 - **Acceptance Criteria:** Unit tests validating dimensional algebraic derivation (e.g. Length/Time -> Velocity, Mass*Acceleration -> Force, Force*Length -> Energy, Power/Current -> Voltage, Voltage/Current -> Resistance, Charge/Voltage -> Capacitance).
-- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 16/16 assertions passed in test_units.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 16/16 assertions passed in test_units.cpp); Git Commit: fd7cfe
 
 #### [UNIT-03] Dimensional Analysis
 - **Status:** [x] Completed
@@ -340,7 +340,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Reject invalid equation combinations and incompatible port connections.
 - **Implementation Details:** Implemented Quantity class and check_compatible functions in core/base/include/shunya/core/base/units.hpp and units.cpp enforcing strict dimensional matching on additions and subtractions via Result<Quantity>, automatic dimensional multiplication/division, and typed error diagnostic reporting (error codes 3001, 3002, 3003) on incompatible dimensions.
 - **Acceptance Criteria:** Unit tests verifying valid arithmetic on matching dimensions, automatic derived quantity creation, rejection of incompatible additions/subtractions, and port compatibility checking.
-- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 15/15 assertions passed in test_units.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (1/1 test case, 15/15 assertions passed in test_units.cpp); Git Commit: fd7cfe
 
 #### [UNIT-04] 04 – Unit conversion
 - **Status:** [ ] Not started
