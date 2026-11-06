@@ -459,7 +459,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Collect assets, scripts, model dependencies and result references into a portable package. ELM – Elements and object model
 - **Implementation Details:** Implemented PackageManifest schema with CRC32 file checksums and ProjectPackager in core/domain/include/shunya/core/domain/packaging.hpp and src/packaging.cpp to build portable standalone packages (project.json, scene.json, assets/, scripts/, and package_manifest.json), automatic package integrity self-verification, and unpack_and_load lifecycle into live Project and SceneGraph instances.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** Verified via unit tests (test_packaging.cpp: 2 test cases, 24 assertions passed); Git Commit: [Pending Commit]
+- **Verification & Git Commit:** Verified via unit tests (test_packaging.cpp: 2 test cases, 24 assertions passed); Git Commit: 64372eb
 ### Module ELM: Elements and Object Model
 **Scope & Objective:** Element definitions, scene instances, typed parameter schemas, and multi-domain ports.  
 **Delivery Stage:** Phase 1 / T2 | **Default Priority:** P0
