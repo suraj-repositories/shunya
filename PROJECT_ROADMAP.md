@@ -284,7 +284,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Worker pool, task graph, cancellation, priorities, progress reporting and main-thread dispatch.
 - **Implementation Details:** Implemented ThreadPool in core/base/include/shunya/core/base/thread_pool.hpp and thread_pool.cpp featuring configurable worker thread count (defaults to hardware concurrency), template submit returning std::future<T>, priority-based task queue (Low, Normal, High, Critical) with FIFO sequence tie-breaking, CancellationToken with thread-safe atomic status, wait_idle synchronization, and graceful worker thread shutdown.
 - **Acceptance Criteria:** Unit tests verifying parallel batch job execution, future return value resolution, priority queue ordering execution, cancellation token flag propagation, and worker pool idle synchronization.
-- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 13/13 assertions passed in test_thread_pool.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 13/13 assertions passed in test_thread_pool.cpp); Git Commit: 3b2c6a5
 
 #### [FND-09] Configuration
 - **Status:** [x] Completed
