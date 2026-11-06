@@ -234,7 +234,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Define stable UUIDs for projects, entities, ports, models, components, runs and packages; never use display names as identifiers.
 - **Implementation Details:** Implemented 128-bit RFC 4122 v4 compliant Uuid class in core/base/include/shunya/core/base/uuid.hpp and core/base/src/uuid.cpp with random generation, canonical string serialization/parsing, nil checking, and std::hash specialization for hash containers.
 - **Acceptance Criteria:** Comprehensive unit tests validating RFC 4122 v4 version and variant bits, nil identity, string round-trips, rejection of invalid strings, and std::unordered_set hashing.
-- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 17/17 assertions passed in test_uuid.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 17/17 assertions passed in test_uuid.cpp); Git Commit: bf28b9
 
 #### [FND-04] Error and Result Model
 - **Status:** [x] Completed
@@ -244,7 +244,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Create typed errors, severity levels, recoverable errors, validation reports and user-facing diagnostic mapping.
 - **Implementation Details:** Implemented Severity (Info, Warning, Error, Fatal), ErrorDomain (System, Validation, Simulation, IO, Scripting, Materials), Error struct with diagnostic formatting, ValidationReport aggregator, and modern monadic Result<T> / Result<void> templates in core/base/include/shunya/core/base/error.hpp and result.hpp.
 - **Acceptance Criteria:** Unit tests verifying value unwrapping, error propagation, fallback value_or semantics, void specialization, and multi-issue validation reporting.
-- **Verification & Git Commit:** Verified via unit tests (3/3 test cases, 18/18 assertions passed in test_error_result.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (3/3 test cases, 18/18 assertions passed in test_error_result.cpp); Git Commit: bf28b9
 
 #### [FND-05] 05 – Logging and diagnostics
 - **Status:** [ ] Not started
@@ -3413,6 +3413,7 @@ These improvements represent proactive technical optimizations identified during
 - **Current Session Goal:** Initial analysis, Git setup, master roadmap creation, and kickoff of Foundational Task FND-01.
 - **Completed Work:** Planning document analysis; Git repository initialized; baseline commit created; PROJECT_ROADMAP.md created with all 309 catalogued tasks.
 - **Last Completed Task:** [x] FND-01: Build and dependency management (Commit: c8fce74)
+- **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04 (Commit: bf28b9)
 - **Pending Immediate Task:** [ ] FND-02: Application bootstrap (App lifecycle, service registry, configuration) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.
