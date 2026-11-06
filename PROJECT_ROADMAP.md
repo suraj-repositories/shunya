@@ -389,25 +389,23 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 1 / T1 | **Default Priority:** P0
 
 #### [PRJ-01] Project Format
-- **Status:** [~] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** Module Baseline
 - **Description:** Define project manifest, schema version, project identity, authoring metadata and dependency list.
-- **Implementation Details:** Implement PRJ-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented ProjectManifest struct with RFC 4122 v4 UUID, semantic Version, FidelityTier (L0 to L4), dependencies array, and flexible metadata map. Provided robust JSON serialization and deserialization in core/domain/src/project.cpp.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
-
+- **Verification & Git Commit:** Verified via unit tests (test_project.cpp: serialization roundtrip, invalid JSON error handling); Git Commit: 0966a6c
 #### [PRJ-02] Create/Open/Save
-- **Status:** [~] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** PRJ-01
 - **Description:** Implement project creation, save-as, autosave, recovery and read-only mode.
-- **Implementation Details:** Implement PRJ-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented Project class with atomic saving (.tmp file + rename/replace), dirty state tracking (mark_dirty, clear_dirty), read-only guard enforcement (error code 2013), and file open with validation.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
-
+- **Verification & Git Commit:** Verified via unit tests (test_project.cpp: create_new, save and reopen lifecycle, read-only protection, open nonexistent file); Git Commit: 0966a6c
 #### [PRJ-03] 03 – Scene graph
 - **Status:** [ ] Not started
 - **Priority:** P0
@@ -3423,6 +3421,6 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** All Module FND Tasks [x] FND-01 through [x] FND-10 (**100% Completed**)
 - **Last Completed Tasks:** [x] UNIT-01, [x] UNIT-02, [x] UNIT-03
 - **Last Completed Tasks:** All Module UNIT Tasks [x] UNIT-01 through [x] UNIT-07 (**100% Completed**)
-- **Pending Immediate Task:** [ ] PRJ-01: Project format (Manifest schema, project identity, authoring metadata) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
+- **Pending Immediate Task:** [ ] PRJ-03: Scene graph (Entities, parent-child hierarchy, transforms, visibility, tags, domain attachments).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.
