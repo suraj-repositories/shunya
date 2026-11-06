@@ -274,7 +274,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Vectors, matrices, quaternions, transforms, interpolation, tolerances and numerical-safe operations.
 - **Implementation Details:** Implemented C++20 standard math primitives in core/base/include/shunya/core/base/math.hpp including Vector2, Vector3, Quaternion, Matrix4x4, and Transform with support for vector cross/dot products, normalization with zero-guard, quaternion axis-angle construction, vector rotation, Slerp spherical linear interpolation, matrix-vector transformation, lerp, clamp, and approx_equal relative/absolute tolerance utilities.
 - **Acceptance Criteria:** Unit tests verifying vector arithmetic, cross product orthogonality, quaternion 3D rotation, Slerp interpolation accuracy, and composite spatial transformation equivalence with 4x4 matrix multiplication.
-- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 24/24 assertions passed in test_math.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 24/24 assertions passed in test_math.cpp); Git Commit: 5b0aa5a
 
 #### [FND-08] 08 – Threading and jobs
 - **Status:** [ ] Not started
