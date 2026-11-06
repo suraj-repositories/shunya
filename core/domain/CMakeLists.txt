@@ -3,10 +3,12 @@ add_library(shunya_core_domain)
 target_sources(shunya_core_domain
     PRIVATE
         src/project.cpp
+        src/scene_graph.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
             include/shunya/core/domain/project.hpp
+            include/shunya/core/domain/scene_graph.hpp
 )
 
 target_include_directories(shunya_core_domain

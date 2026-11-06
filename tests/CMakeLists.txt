@@ -10,6 +10,7 @@ add_executable(shunya_unit_tests
     unit/test_app_context.cpp
     unit/test_units.cpp
     unit/test_project.cpp
+    unit/test_scene_graph.cpp
 )
 
 target_include_directories(shunya_unit_tests
