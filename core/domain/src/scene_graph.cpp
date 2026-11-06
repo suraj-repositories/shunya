@@ -401,16 +401,13 @@ base::Result<std::unique_ptr<SceneGraph>> SceneGraph::from_json(std::string_view
 
     auto sg = std::make_unique<SceneGraph>();
 
-    // Parse entity blocks
     static const std::regex id_regex(R"re("id"\s*:\s*"([0-9a-fA-F-]+)")re");
     static const std::regex name_regex(R"re("name"\s*:\s*"([^"]*)")re");
     static const std::regex parent_regex(R"re("parent_id"\s*:\s*"([0-9a-fA-F-]*)")re");
     static const std::regex vis_regex(R"re("visible"\s*:\s*(true|false))re");
     static const std::regex act_regex(R"re("active"\s*:\s*(true|false))re");
 
-    // Tokenize entities
     std::string json_s(json_str);
-    std::size_t pos = 0;
 
     struct ParsedEntityRaw {
         base::Uuid id;
@@ -418,49 +415,97 @@ base::Result<std::unique_ptr<SceneGraph>> SceneGraph::from_json(std::string_view
         std::optional<base::Uuid> parent_id;
         bool visible = true;
         bool active = true;
+        std::unordered_set<std::string> tags;
+        std::unordered_map<std::string, std::string> domain_attachments;
     };
 
     std::vector<ParsedEntityRaw> parsed_entities;
 
-    while ((pos = json_s.find('{', pos)) != std::string::npos) {
-        auto next_obj = json_s.find('}', pos);
-        if (next_obj == std::string::npos) break;
+    auto id_begin = std::sregex_iterator(json_s.begin(), json_s.end(), id_regex);
+    auto id_end = std::sregex_iterator();
 
-        // Skip inner objects like transform or domain_attachments if needed
-        // Find matching outer entity
-        std::string block = json_s.substr(pos, 512); // block header
+    for (auto it = id_begin; it != id_end; ++it) {
+        std::smatch id_m = *it;
+        auto uid_opt = base::Uuid::from_string(id_m[1].str());
+        if (!uid_opt.has_value()) continue;
 
-        std::smatch id_m;
-        if (std::regex_search(block, id_m, id_regex)) {
-            auto uid_opt = base::Uuid::from_string(id_m[1].str());
-            if (uid_opt.has_value()) {
-                ParsedEntityRaw raw;
-                raw.id = uid_opt.value();
+        // Find outer brace enclosing this entity
+        auto match_pos = static_cast<std::size_t>(id_m.position());
+        auto open_brace = json_s.rfind('{', match_pos);
+        if (open_brace == std::string::npos) continue;
 
-                std::smatch name_m;
-                if (std::regex_search(block, name_m, name_regex)) {
-                    raw.name = name_m[1].str();
+        int depth = 0;
+        std::size_t close_brace = open_brace;
+        for (std::size_t i = open_brace; i < json_s.size(); ++i) {
+            if (json_s[i] == '{') ++depth;
+            else if (json_s[i] == '}') {
+                --depth;
+                if (depth == 0) {
+                    close_brace = i;
+                    break;
                 }
-
-                std::smatch p_m;
-                if (std::regex_search(block, p_m, parent_regex) && !p_m[1].str().empty()) {
-                    raw.parent_id = base::Uuid::from_string(p_m[1].str());
-                }
-
-                std::smatch v_m;
-                if (std::regex_search(block, v_m, vis_regex)) {
-                    raw.visible = (v_m[1].str() == "true");
-                }
-
-                std::smatch a_m;
-                if (std::regex_search(block, a_m, act_regex)) {
-                    raw.active = (a_m[1].str() == "true");
-                }
-
-                parsed_entities.push_back(raw);
             }
         }
-        pos = next_obj + 1;
+
+        std::string block = json_s.substr(open_brace, close_brace - open_brace + 1);
+
+        ParsedEntityRaw raw;
+        raw.id = uid_opt.value();
+
+        std::smatch name_m;
+        if (std::regex_search(block, name_m, name_regex)) {
+            raw.name = name_m[1].str();
+        }
+
+        std::smatch p_m;
+        if (std::regex_search(block, p_m, parent_regex) && !p_m[1].str().empty()) {
+            raw.parent_id = base::Uuid::from_string(p_m[1].str());
+        }
+
+        std::smatch v_m;
+        if (std::regex_search(block, v_m, vis_regex)) {
+            raw.visible = (v_m[1].str() == "true");
+        }
+
+        std::smatch a_m;
+        if (std::regex_search(block, a_m, act_regex)) {
+            raw.active = (a_m[1].str() == "true");
+        }
+
+        // Parse domain attachments
+        auto att_pos = block.find("\"domain_attachments\"");
+        if (att_pos != std::string::npos) {
+            auto open_b = block.find('{', att_pos);
+            auto close_b = block.find('}', open_b);
+            if (open_b != std::string::npos && close_b != std::string::npos) {
+                std::string att_sub = block.substr(open_b, close_b - open_b + 1);
+                static const std::regex kv_re(R"re("([^"]+)"\s*:\s*"([^"]*)")re");
+                auto kv_begin = std::sregex_iterator(att_sub.begin(), att_sub.end(), kv_re);
+                auto kv_end = std::sregex_iterator();
+                for (auto kit = kv_begin; kit != kv_end; ++kit) {
+                    std::smatch km = *kit;
+                    raw.domain_attachments[km[1].str()] = km[2].str();
+                }
+            }
+        }
+
+        // Parse tags
+        auto tag_pos = block.find("\"tags\"");
+        if (tag_pos != std::string::npos) {
+            auto open_b = block.find('[', tag_pos);
+            auto close_b = block.find(']', open_b);
+            if (open_b != std::string::npos && close_b != std::string::npos) {
+                std::string tag_sub = block.substr(open_b, close_b - open_b + 1);
+                static const std::regex t_re(R"re("([^"]+)")re");
+                auto t_begin = std::sregex_iterator(tag_sub.begin(), tag_sub.end(), t_re);
+                auto t_end = std::sregex_iterator();
+                for (auto tit = t_begin; tit != t_end; ++tit) {
+                    raw.tags.insert((*tit)[1].str());
+                }
+            }
+        }
+
+        parsed_entities.push_back(raw);
     }
 
     // Populate SceneGraph
@@ -469,6 +514,12 @@ base::Result<std::unique_ptr<SceneGraph>> SceneGraph::from_json(std::string_view
         ent->set_visible(raw.visible);
         ent->set_active(raw.active);
         ent->parent_id_ = raw.parent_id;
+        for (const auto& tag : raw.tags) {
+            ent->add_tag(tag);
+        }
+        for (const auto& [k, v] : raw.domain_attachments) {
+            ent->set_attachment(k, v);
+        }
         sg->entities_[raw.id] = ent;
     }
 

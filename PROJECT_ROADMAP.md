@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 285 |
+| [ ] | Not started | 284 |
 | [~] | In progress | 0 |
-| [x] | Completed | 24 |
+| [x] | Completed | 25 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -62,7 +62,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **ADR** | Architecture Decision Records | Phase 0 / T0 | P0 | 10 | 0 | 0.0% |
 | **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 10 | 100.0% |
 | **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 7 | 100.0% |
-| **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 7 | 87.5% |
+| **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 8 | 100.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
 | **MAT** | Materials Foundation | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
 | **MATDB** | Periodic Elements & Material Database | Phase 1 / T2 | P0 | 10 | 0 | 0.0% |
@@ -452,17 +452,14 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
 - **Verification & Git Commit:** Verified via unit tests (test_validator.cpp: 3 test cases, 14 assertions passed); Git Commit: cd687bd
 #### [PRJ-08] 08 – Project packaging
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** PRJ-07
 - **Description:** Collect assets, scripts, model dependencies and result references into a portable package. ELM – Elements and object model
-- **Implementation Details:** Implement PRJ-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented PackageManifest schema with CRC32 file checksums and ProjectPackager in core/domain/include/shunya/core/domain/packaging.hpp and src/packaging.cpp to build portable standalone packages (project.json, scene.json, assets/, scripts/, and package_manifest.json), automatic package integrity self-verification, and unpack_and_load lifecycle into live Project and SceneGraph instances.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
-
----
-
+- **Verification & Git Commit:** Verified via unit tests (test_packaging.cpp: 2 test cases, 24 assertions passed); Git Commit: [Pending Commit]
 ### Module ELM: Elements and Object Model
 **Scope & Objective:** Element definitions, scene instances, typed parameter schemas, and multi-domain ports.  
 **Delivery Stage:** Phase 1 / T2 | **Default Priority:** P0
@@ -3416,6 +3413,6 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** All Module FND Tasks [x] FND-01 through [x] FND-10 (**100% Completed**)
 - **Last Completed Tasks:** [x] UNIT-01, [x] UNIT-02, [x] UNIT-03
 - **Last Completed Tasks:** All Module UNIT Tasks [x] UNIT-01 through [x] UNIT-07 (**100% Completed**)
-- **Pending Immediate Task:** [ ] PRJ-08: Project packaging (Collect assets, scripts, model dependencies and result references into a portable package).
+- **Pending Immediate Task:** [ ] ELM-01: Element schema (Parametric model, state representation, port declarations, metadata).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.

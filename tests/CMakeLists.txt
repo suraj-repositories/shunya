@@ -15,6 +15,7 @@ add_executable(shunya_unit_tests
     unit/test_selection.cpp
     unit/test_migration.cpp
     unit/test_validator.cpp
+    unit/test_packaging.cpp
 )
 
 target_include_directories(shunya_unit_tests
