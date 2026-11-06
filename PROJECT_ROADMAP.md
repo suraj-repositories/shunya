@@ -432,7 +432,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Selection sets, multi-select, gizmos, snapping, duplication and deletion.
 - **Implementation Details:** Implemented SelectionSet and SelectionManager in core/domain/include/shunya/core/domain/selection.hpp and src/selection.cpp with multi-selection modes (Replace, Add, Remove, Toggle), primary vs secondary tracking, predicate filtering, change notifications, named selection sets, grid/rotation snapping, and atomic duplication/deletion.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** Verified via unit tests (test_selection.cpp: 5 test cases, 50 assertions passed); Git Commit: [Pending Commit]
+- **Verification & Git Commit:** Verified via unit tests (test_selection.cpp: 5 test cases, 50 assertions passed); Git Commit: 210537a
 #### [PRJ-06] 06 – Version migration
 - **Status:** [ ] Not started
 - **Priority:** P0
