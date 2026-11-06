@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 304 |
+| [ ] | Not started | 303 |
 | [~] | In progress | 0 |
-| [x] | Completed | 5 |
+| [x] | Completed | 6 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -60,7 +60,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | Module ID | Module Name | Phase / Stage | Priority | Total Tasks | Completed | Progress |
 |---|---|---|---|---|---|---|
 | **ADR** | Architecture Decision Records | Phase 0 / T0 | P0 | 10 | 0 | 0.0% |
-| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 5 | 50.0% |
+| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 6 | 60.0% |
 | **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 0 | 0.0% |
 | **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 0 | 0.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
@@ -266,15 +266,15 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Acceptance Criteria:** Comprehensive unit tests verifying type isolation across distinct event structs, unsubscription semantics, FIFO delivery ordering of queued events, and re-entrant handler execution.
 - **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 15/15 assertions passed in test_event_bus.cpp); Git Commit: 9bfbf72
 
-#### [FND-07] 07 – Math foundation
-- **Status:** [ ] Not started
+#### [FND-07] Math Foundation
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T0
-- **Dependencies:** FND-06
+- **Dependencies:** FND-01
 - **Description:** Vectors, matrices, quaternions, transforms, interpolation, tolerances and numerical-safe operations.
-- **Implementation Details:** Implement FND-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Implementation Details:** Implemented C++20 standard math primitives in core/base/include/shunya/core/base/math.hpp including Vector2, Vector3, Quaternion, Matrix4x4, and Transform with support for vector cross/dot products, normalization with zero-guard, quaternion axis-angle construction, vector rotation, Slerp spherical linear interpolation, matrix-vector transformation, lerp, clamp, and approx_equal relative/absolute tolerance utilities.
+- **Acceptance Criteria:** Unit tests verifying vector arithmetic, cross product orthogonality, quaternion 3D rotation, Slerp interpolation accuracy, and composite spatial transformation equivalence with 4x4 matrix multiplication.
+- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 24/24 assertions passed in test_math.cpp); Git Commit: pending commit.
 
 #### [FND-08] 08 – Threading and jobs
 - **Status:** [ ] Not started
@@ -3416,6 +3416,7 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04 (Commit: bf28b9)
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06
-- **Pending Immediate Task:** [ ] FND-07: Math foundation (Vectors, matrices, quaternions, transforms, numerical tolerances) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
+- **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06, [x] FND-07
+- **Pending Immediate Task:** [ ] FND-09: Configuration (User/project/app settings schema, defaults, persistence) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.

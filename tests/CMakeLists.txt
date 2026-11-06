@@ -4,6 +4,7 @@ add_executable(shunya_unit_tests
     unit/test_error_result.cpp
     unit/test_logging.cpp
     unit/test_event_bus.cpp
+    unit/test_math.cpp
 )
 
 target_include_directories(shunya_unit_tests
