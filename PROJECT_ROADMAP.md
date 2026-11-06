@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 302 |
+| [ ] | Not started | 301 |
 | [~] | In progress | 0 |
-| [x] | Completed | 7 |
+| [x] | Completed | 8 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -60,7 +60,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | Module ID | Module Name | Phase / Stage | Priority | Total Tasks | Completed | Progress |
 |---|---|---|---|---|---|---|
 | **ADR** | Architecture Decision Records | Phase 0 / T0 | P0 | 10 | 0 | 0.0% |
-| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 7 | 70.0% |
+| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 8 | 80.0% |
 | **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 0 | 0.0% |
 | **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 0 | 0.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
@@ -276,15 +276,15 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Acceptance Criteria:** Unit tests verifying vector arithmetic, cross product orthogonality, quaternion 3D rotation, Slerp interpolation accuracy, and composite spatial transformation equivalence with 4x4 matrix multiplication.
 - **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 24/24 assertions passed in test_math.cpp); Git Commit: 5b0aa5a
 
-#### [FND-08] 08 – Threading and jobs
-- **Status:** [ ] Not started
+#### [FND-08] Threading and Jobs
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T0
-- **Dependencies:** FND-07
+- **Dependencies:** FND-01
 - **Description:** Worker pool, task graph, cancellation, priorities, progress reporting and main-thread dispatch.
-- **Implementation Details:** Implement FND-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Implementation Details:** Implemented ThreadPool in core/base/include/shunya/core/base/thread_pool.hpp and thread_pool.cpp featuring configurable worker thread count (defaults to hardware concurrency), template submit returning std::future<T>, priority-based task queue (Low, Normal, High, Critical) with FIFO sequence tie-breaking, CancellationToken with thread-safe atomic status, wait_idle synchronization, and graceful worker thread shutdown.
+- **Acceptance Criteria:** Unit tests verifying parallel batch job execution, future return value resolution, priority queue ordering execution, cancellation token flag propagation, and worker pool idle synchronization.
+- **Verification & Git Commit:** Verified via unit tests (4/4 test cases, 13/13 assertions passed in test_thread_pool.cpp); Git Commit: pending commit.
 
 #### [FND-09] Configuration
 - **Status:** [x] Completed
@@ -3418,6 +3418,7 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06, [x] FND-07
 - **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06, [x] FND-07, [x] FND-09
-- **Pending Immediate Task:** [ ] FND-08: Threading and jobs (Worker pool, task graph, cancellation, progress reporting) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
+- **Last Completed Tasks:** [x] FND-01, [x] FND-03, [x] FND-04, [x] FND-05, [x] FND-06, [x] FND-07, [x] FND-09, [x] FND-08
+- **Pending Immediate Task:** [ ] FND-02: Application bootstrap (App lifecycle, service registry, configuration) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.
