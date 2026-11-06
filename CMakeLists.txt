@@ -21,6 +21,7 @@ enable_testing()
 
 # Core non-GUI foundational scientific modules
 add_subdirectory(core/base)
+add_subdirectory(core/domain)
 
 # Automated unit testing suite
 add_subdirectory(tests)

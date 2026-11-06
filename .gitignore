@@ -15,6 +15,8 @@ out/
 
 # Intermediate analysis / scratch files
 scratch/
+test_artifacts/
+*.shunya
 extracted_plan.txt
 parsed_tasks.txt
 all_parsed_tasks.json

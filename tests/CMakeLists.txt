@@ -9,6 +9,7 @@ add_executable(shunya_unit_tests
     unit/test_thread_pool.cpp
     unit/test_app_context.cpp
     unit/test_units.cpp
+    unit/test_project.cpp
 )
 
 target_include_directories(shunya_unit_tests
@@ -19,6 +20,7 @@ target_include_directories(shunya_unit_tests
 target_link_libraries(shunya_unit_tests
     PRIVATE
         shunya_core_base
+        shunya_core_domain
 )
 
 target_compile_features(shunya_unit_tests PRIVATE cxx_std_20)

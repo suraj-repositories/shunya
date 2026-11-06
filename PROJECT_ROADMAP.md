@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 292 |
+| [ ] | Not started | 290 |
 | [~] | In progress | 0 |
-| [x] | Completed | 17 |
+| [x] | Completed | 19 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -62,7 +62,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **ADR** | Architecture Decision Records | Phase 0 / T0 | P0 | 10 | 0 | 0.0% |
 | **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 10 | 100.0% |
 | **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 7 | 100.0% |
-| **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 0 | 0.0% |
+| **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 2 | 25.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
 | **MAT** | Materials Foundation | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
 | **MATDB** | Periodic Elements & Material Database | Phase 1 / T2 | P0 | 10 | 0 | 0.0% |
@@ -388,8 +388,8 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Scope & Objective:** Project file lifecycle, scene graph, undo/redo command stack, and project package serialization.  
 **Delivery Stage:** Phase 1 / T1 | **Default Priority:** P0
 
-#### [PRJ-01] 01 – Project format
-- **Status:** [ ] Not started
+#### [PRJ-01] Project Format
+- **Status:** [~] Not started
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** Module Baseline
@@ -398,8 +398,8 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
 - **Verification & Git Commit:** None (Pending)
 
-#### [PRJ-02] 02 – Create/open/save
-- **Status:** [ ] Not started
+#### [PRJ-02] Create/Open/Save
+- **Status:** [~] Not started
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** PRJ-01
