@@ -13,6 +13,7 @@ add_executable(shunya_unit_tests
     unit/test_scene_graph.cpp
     unit/test_command_stack.cpp
     unit/test_selection.cpp
+    unit/test_migration.cpp
 )
 
 target_include_directories(shunya_unit_tests
