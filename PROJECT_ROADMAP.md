@@ -414,7 +414,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Entities, parent-child hierarchy, transforms, visibility, tags and domain attachments.
 - **Implementation Details:** Implemented Entity and SceneGraph in core/domain/include/shunya/core/domain/scene_graph.hpp and src/scene_graph.cpp with cycle-detected reparenting (prevent self & descendant loops), hierarchical world matrix computation, global visibility/active evaluation, multi-tag filtering, domain attachments, and depth-first traversal.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** Verified via unit tests (test_scene_graph.cpp: 8 test cases, 65 assertions passed); Git Commit: [Pending Commit]
+- **Verification & Git Commit:** Verified via unit tests (test_scene_graph.cpp: 8 test cases, 65 assertions passed); Git Commit: 980e680
 #### [PRJ-04] 04 – Undo/redo commands
 - **Status:** [ ] Not started
 - **Priority:** P0
