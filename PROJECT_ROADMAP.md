@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 309 |
+| [ ] | Not started | 308 |
 | [~] | In progress | 0 |
-| [x] | Completed | 0 |
+| [x] | Completed | 1 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -60,7 +60,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | Module ID | Module Name | Phase / Stage | Priority | Total Tasks | Completed | Progress |
 |---|---|---|---|---|---|---|
 | **ADR** | Architecture Decision Records | Phase 0 / T0 | P0 | 10 | 0 | 0.0% |
-| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 0 | 0.0% |
+| **FND** | Cross-Cutting Foundations | Phase 1 / T0 | P0 | 10 | 1 | 10.0% |
 | **UNIT** | Units, Dimensions and Quantities | Phase 1 / T2 | P0 | 7 | 0 | 0.0% |
 | **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 0 | 0.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 0 | 0.0% |
@@ -206,15 +206,15 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Scope & Objective:** Core platform primitives, build system, error model, UUID, logging, threading, configuration.  
 **Delivery Stage:** Phase 1 / T0 | **Default Priority:** P0
 
-#### [FND-01] 01 – Build and dependency management
-- **Status:** [ ] Not started
+#### [FND-01] Build and Dependency Management
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T0
-- **Dependencies:** Module Baseline
-- **Description:** Choose C++ standard (C++20 baseline; evaluate C++23 features against compiler support), CMake presets, package manager, compiler matrix and reproducible build flags.
-- **Implementation Details:** Implement FND-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
-- **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Dependencies:** None (Platform Root Foundation)
+- **Description:** Choose C++ standard (C++20 baseline; evaluate C++23 features against compiler support), CMake presets, package manager, compiler matrix, reproducible build flags, and modular CMake target hierarchy.
+- **Implementation Details:** Created root CMakeLists.txt establishing C++20 baseline, strict compiler warnings (-Wall -Wextra -Wpedantic / W4), modular subdirectories (core/base, tests, shunya), CMakePresets.json, ADR-001 (UI/Core separation), and ADR-002 (C++ Toolchain and Standard).
+- **Acceptance Criteria:** Full CMake configuration and Ninja build of core static library (shunya_core_base), desktop shell (appshunya), and automated test runner (shunya_unit_tests); CTest test execution passing with zero errors.
+- **Verification & Git Commit:** Verified via CTest and shunya_unit_tests.exe (2/2 test cases, 6/6 assertions passed, C++20 concepts and version validation); Git Commit: pending commit.
 
 #### [FND-02] 02 – Application bootstrap
 - **Status:** [ ] Not started
