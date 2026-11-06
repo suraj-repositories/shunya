@@ -101,8 +101,30 @@ public:
     }
 
     [[nodiscard]] bool is_valid() const noexcept { return !has_errors_; }
+    [[nodiscard]] bool has_errors() const noexcept { return has_errors_; }
     [[nodiscard]] bool has_warnings() const noexcept { return has_warnings_; }
     [[nodiscard]] const std::vector<ValidationIssue>& issues() const noexcept { return issues_; }
+
+    [[nodiscard]] std::size_t error_count() const noexcept {
+        std::size_t count = 0;
+        for (const auto& issue : issues_) {
+            if (issue.severity >= Severity::Error) ++count;
+        }
+        return count;
+    }
+
+    [[nodiscard]] bool has_error(int32_t code) const noexcept {
+        for (const auto& issue : issues_) {
+            if (issue.code == code && issue.severity >= Severity::Error) return true;
+        }
+        return false;
+    }
+
+    void merge(const ValidationReport& other) {
+        for (const auto& issue : other.issues_) {
+            add_issue(issue);
+        }
+    }
 
     void clear() noexcept {
         issues_.clear();
