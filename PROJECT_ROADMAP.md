@@ -472,7 +472,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Separate reusable definition from scene instance; include type, metadata, schema and version.
 - **Implementation Details:** Implemented ElementDefinition archetype class in core/domain/include/shunya/core/domain/element_definition.hpp and src/element_definition.cpp with distinct type_name, display_name, category, semantic Version, parameter schemas, multi-domain ports, metadata map, and full JSON serialization/deserialization.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: ElementDefinition complete specification and JSON roundtrip); Git Commit: [Pending Commit]
+- **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: ElementDefinition complete specification and JSON roundtrip); Git Commit: 2a736bd
 #### [ELM-02] 02 – Element instance
 - **Status:** [ ] Not started
 - **Priority:** P0
@@ -491,7 +491,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Typed parameters, defaults, min/max, units, enums, visibility and validation constraints.
 - **Implementation Details:** Implemented ParameterType enum, ParameterValue variant (Double, Int64, Bool, String, base::units::Quantity, Vec3), and ParameterSchema with validation bounds checking (min_value, max_value, enum membership, type mismatch diagnostics).
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: ParameterValue typed storage and stringification, ParameterSchema validation and constraints); Git Commit: [Pending Commit]
+- **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: ParameterValue typed storage and stringification, ParameterSchema validation and constraints); Git Commit: 2a736bd
 #### [ELM-04] 04 – Port schema
 - **Status:** [x] Completed
 - **Priority:** P0
@@ -500,7 +500,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Typed ports with domain, direction, units, cardinality and connection constraints.
 - **Implementation Details:** Implemented PortDomain (Electrical, MechanicalTranslational, MechanicalRotational, Thermal, Fluid, Signal, Optical), PortDirection (Input, Output, Bidirectional), PortCardinality, and PortSchema with connection compatibility checks (cross-domain rejection, complementary direction rules).
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: PortSchema domain and direction connectivity rules); Git Commit: [Pending Commit]
+- **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: PortSchema domain and direction connectivity rules); Git Commit: 2a736bd
 #### [ELM-05] 05 – Element lifecycle
 - **Status:** [ ] Not started
 - **Priority:** P0
@@ -519,7 +519,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Physical object, material, field, source, sensor, actuator, device, logic block and abstract node.
 - **Implementation Details:** Implemented ElementCategory enum with all 9 core physical & logical classifications, fast string conversions, and deserialization lookup.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: ElementCategory conversions and coverage); Git Commit: [Pending Commit]
+- **Verification & Git Commit:** Verified via unit tests (test_element_definition.cpp: ElementCategory conversions and coverage); Git Commit: 2a736bd
 #### [ELM-07] 07 – Element inspector
 - **Status:** [ ] Not started
 - **Priority:** P0
