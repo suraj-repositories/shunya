@@ -294,7 +294,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** User/project/application settings, schema validation, defaults and migration.
 - **Implementation Details:** Implemented dynamic typed Configuration store in core/base/include/shunya/core/base/config.hpp and config.cpp supporting bool, int64_t, double, and string types, safe type conversion with Result<T>, default fallback getters, key-value line-oriented text parser with comment and whitespace stripping, serialization to text format, and Error/ValidationReport diagnostic integration.
 - **Acceptance Criteria:** Unit tests verifying in-memory typed lookups, default fallbacks, comment-preserving text parsing, round-trip serialization, and syntax error diagnostics.
-- **Verification & Git Commit:** Verified via unit tests (3/3 test cases, 19/19 assertions passed in test_config.cpp); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via unit tests (3/3 test cases, 19/19 assertions passed in test_config.cpp); Git Commit: 039f43
 
 #### [FND-10] 10 – CI build pipeline
 - **Status:** [ ] Not started
