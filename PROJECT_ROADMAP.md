@@ -214,7 +214,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Choose C++ standard (C++20 baseline; evaluate C++23 features against compiler support), CMake presets, package manager, compiler matrix, reproducible build flags, and modular CMake target hierarchy.
 - **Implementation Details:** Created root CMakeLists.txt establishing C++20 baseline, strict compiler warnings (-Wall -Wextra -Wpedantic / W4), modular subdirectories (core/base, tests, shunya), CMakePresets.json, ADR-001 (UI/Core separation), and ADR-002 (C++ Toolchain and Standard).
 - **Acceptance Criteria:** Full CMake configuration and Ninja build of core static library (shunya_core_base), desktop shell (appshunya), and automated test runner (shunya_unit_tests); CTest test execution passing with zero errors.
-- **Verification & Git Commit:** Verified via CTest and shunya_unit_tests.exe (2/2 test cases, 6/6 assertions passed, C++20 concepts and version validation); Git Commit: pending commit.
+- **Verification & Git Commit:** Verified via CTest and shunya_unit_tests.exe (2/2 test cases, 6/6 assertions passed, C++20 concepts and version validation); Git Commit: c8fce74
 
 #### [FND-02] 02 – Application bootstrap
 - **Status:** [ ] Not started
@@ -3412,6 +3412,7 @@ These improvements represent proactive technical optimizations identified during
 ## 6. Development Session State & Immediate Next Steps
 - **Current Session Goal:** Initial analysis, Git setup, master roadmap creation, and kickoff of Foundational Task FND-01.
 - **Completed Work:** Planning document analysis; Git repository initialized; baseline commit created; PROJECT_ROADMAP.md created with all 309 catalogued tasks.
-- **Pending Immediate Task:** [~] FND-01: Build and dependency management (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
+- **Last Completed Task:** [x] FND-01: Build and dependency management (Commit: c8fce74)
+- **Pending Immediate Task:** [ ] FND-02: Application bootstrap (App lifecycle, service registry, configuration) (Root CMake setup, C++20/C++23 baseline configuration, modular folder structure, compiler warning flags, and test harness integration).
 - **Blockers:** None.
 - **Active Git Commit:** Baseline 92b20f.
