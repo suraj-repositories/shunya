@@ -481,7 +481,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Instance ID, transform, parameter values, state binding and component reference.
 - **Implementation Details:** Implemented ElementInstance class in core/domain/include/shunya/core/domain/element_instance.hpp and src/element_instance.cpp holding unique instance UUID, definition pointer, local transform, parameter value overrides, read-only parameter enforcement, port instances, and JSON serialization.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** Verified via unit tests (test_element_instance.cpp: parameter access, overrides, read-only guards); Git Commit: [Pending Commit]
+- **Verification & Git Commit:** Verified via unit tests (test_element_instance.cpp: parameter access, overrides, read-only guards); Git Commit: d6e867c
 #### [ELM-03] 03 – Parameter schema
 - **Status:** [x] Completed
 - **Priority:** P0
@@ -508,7 +508,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Create, initialise, update, reset, duplicate, serialize and destroy.
 - **Implementation Details:** Implemented LifecycleState state machine (Uninitialized, Configured, Active, Paused, Error, Terminated), simulated time step advancement (update), reset, pause, resume, terminate, and deep duplication with position offset.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** Verified via unit tests (test_element_instance.cpp: lifecycle transitions and simulated time, duplication); Git Commit: [Pending Commit]
+- **Verification & Git Commit:** Verified via unit tests (test_element_instance.cpp: lifecycle transitions and simulated time, duplication); Git Commit: d6e867c
 #### [ELM-06] 06 – Element categories
 - **Status:** [x] Completed
 - **Priority:** P0
@@ -526,7 +526,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Property panels generated from schemas, validation and contextual help.
 - **Implementation Details:** Implemented ElementInspector reflection engine generating InspectorProperty structs with display labels, property grouping, unit formatting, validation status, min/max limits, enum choices, help text, and dynamic property editing via apply_change.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** Verified via unit tests (test_element_instance.cpp: property introspection and dynamic edits); Git Commit: [Pending Commit]
+- **Verification & Git Commit:** Verified via unit tests (test_element_instance.cpp: property introspection and dynamic edits); Git Commit: d6e867c
 #### [ELM-08] 08 – Element test harness
 - **Status:** [x] Completed
 - **Priority:** P0
@@ -535,7 +535,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 - **Description:** Test default values, lifecycle, serialization and port contracts. MAT – Materials and substances
 - **Implementation Details:** Implemented ElementRegistry cataloging definitions, managing live instances, and enforcing symmetric multi-domain port connections, contract verification (domain, direction, cardinality), and disconnection.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** Verified via unit tests (test_element_instance.cpp: registry catalog, instantiation, multi-domain connection wiring); Git Commit: [Pending Commit]
+- **Verification & Git Commit:** Verified via unit tests (test_element_instance.cpp: registry catalog, instantiation, multi-domain connection wiring); Git Commit: d6e867c
 ### Module MAT: Materials Foundation
 **Scope & Objective:** Material database schemas, physical property groups, temperature/pressure curves, and assignments.  
 **Delivery Stage:** Phase 1 / T2 | **Default Priority:** P0
