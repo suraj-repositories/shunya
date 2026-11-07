@@ -687,7 +687,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Switching from 3D viewport to PCB schematic switches active ribbon tabs in < 16ms with zero UI flicker.
     - **Testing & Verification Requirements:** Test selection change signals update ribbon tab models accurately across all 5 workspace domains.
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_ribbon_command.cpp (RibbonBarModel tabs, groups, actions, category mapping, workspace preset context switching < 16ms, selection context switching for 2D_Profile, PCB_Component, Physics_Body).
-    - **Git Commit Reference:** Pending commit for UI-01-002
+    - **Git Commit Reference:** Commit 2ce8911 (feat(ui): implement contextual ribbon bar, fuzzy command palette and undo history)
 
   - [x] **UI-01-002-02: Implement quick-access toolbar and fuzzy command palette**
     - **Status:** `[x] Completed`
@@ -699,7 +699,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Command search returns ranked results in < 5ms over 1,000 registered actions; executing action triggers bound slot cleanly.
     - **Testing & Verification Requirements:** Benchmark fuzzy search latency on 2,000 commands; verify action invocation with parameter passing.
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_ribbon_command.cpp (QuickAccessToolbarModel pin/unpin/is_pinned, FuzzyMatcher scoring, CommandPaletteRegistry fuzzy_search across title, keywords, shortcuts, and benchmark latency on 2,000 commands).
-    - **Git Commit Reference:** Pending commit for UI-01-002
+    - **Git Commit Reference:** Commit 2ce8911 (feat(ui): implement contextual ribbon bar, fuzzy command palette and undo history)
 
   - [x] **UI-01-002-03: Implement undo/redo visualization stack in toolbar dropdown**
     - **Status:** `[x] Completed`
@@ -711,7 +711,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** User can click 5 steps back in history dropdown to roll back state atomically in one transaction.
     - **Testing & Verification Requirements:** Undo/redo transaction rollbacks tested against multi-entity modifications; assert consistency of project state.
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_ribbon_command.cpp (CommandStack 5 commands execution, history_entries inspection, multi-step rollback from 5 to 2, roll-forward from 2 to 4, atomic state consistency).
-    - **Git Commit Reference:** Pending commit for UI-01-002
+    - **Git Commit Reference:** Commit 2ce8911 (feat(ui): implement contextual ribbon bar, fuzzy command palette and undo history)
 
 - [x] **UI-01-003: Desktop Menu Bar & File Management Architecture**
   - **Status:** `[x] Completed`
