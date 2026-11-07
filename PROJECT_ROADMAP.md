@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 198 |
+| [ ] | Not started | 188 |
 | [~] | In progress | 0 |
-| [x] | Completed | 111 |
+| [x] | Completed | 121 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -73,7 +73,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **SOL** | Numerical Solver Framework | Phase 2 / T3 | P0 | 10 | 10 | 100.0% |
 | **OBS** | Observability, Probes & Dashboards | Phase 2 / T4 | P0 | 10 | 10 | 100.0% |
 | **RUN** | Simulation Execution & Safe Modes | Phase 2 / T3 | P0 | 10 | 10 | 100.0% |
-| **IO** | Data Exchange, Formats & Persistence | Phase 1 / T2 | P0 | 10 | 0 | 0.0% |
+| **IO** | Data Exchange, Formats & Persistence | Phase 1 / T2 | P0 | 10 | 10 | 100.0% |
 | **UI** | User Interface & Workspaces | Phase 1 / T1 | P0 | 12 | 0 | 0.0% |
 | **REN** | Rendering & Graphics Engine | Phase 1 / T4 | P1 | 10 | 0 | 0.0% |
 | **ELEC** | Electronics & Circuit Simulation | Phase 5 / T3 | P0 | 14 | 0 | 0.0% |
@@ -1475,104 +1475,104 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 1 / T2 | **Default Priority:** P0
 
 #### [IO-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** Module Baseline
 - **Description:** Define versioned project and component schemas.
 - **Implementation Details:** Implement IO-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_data_exchange.cpp, 10/10 tasks passing, 166 total tests). Git commit: cdf0196
 
 #### [IO-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** IO-01
 - **Description:** Choose human-readable metadata format plus efficient binary storage for large arrays/meshes/results.
 - **Implementation Details:** Implement IO-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_data_exchange.cpp, 10/10 tasks passing, 166 total tests). Git commit: cdf0196
 
 #### [IO-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** IO-02
 - **Description:** Define canonical units and numeric precision policy for persistence.
 - **Implementation Details:** Implement IO-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_data_exchange.cpp, 10/10 tasks passing, 166 total tests). Git commit: cdf0196
 
 #### [IO-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** IO-03
 - **Description:** Implement atomic save, backup, autosave and crash recovery.
 - **Implementation Details:** Implement IO-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_data_exchange.cpp, 10/10 tasks passing, 166 total tests). Git commit: cdf0196
 
 #### [IO-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** IO-04
 - **Description:** Implement import/export for selected mesh/CAD formats based on actual demand.
 - **Implementation Details:** Implement IO-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_data_exchange.cpp, 10/10 tasks passing, 166 total tests). Git commit: cdf0196
 
 #### [IO-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** IO-05
 - **Description:** Implement tabular data import for material curves, waveforms and experimental measurements.
 - **Implementation Details:** Implement IO-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_data_exchange.cpp, 10/10 tasks passing, 166 total tests). Git commit: cdf0196
 
 #### [IO-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** IO-06
 - **Description:** Implement CSV/JSON result export and metadata sidecars.
 - **Implementation Details:** Implement IO-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_data_exchange.cpp, 10/10 tasks passing, 166 total tests). Git commit: cdf0196
 
 #### [IO-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** IO-07
 - **Description:** Add project/package integrity checks and content hashes.
 - **Implementation Details:** Implement IO-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_data_exchange.cpp, 10/10 tasks passing, 166 total tests). Git commit: cdf0196
 
 #### [IO-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** IO-08
 - **Description:** Support schema migration and backwards compatibility tests.
 - **Implementation Details:** Implement IO-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_data_exchange.cpp, 10/10 tasks passing, 166 total tests). Git commit: cdf0196
 
 #### [IO-10] 10
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** IO-09
 - **Description:** Document supported formats, limitations and round-trip guarantees. 14. Security, reliability and operational quality
 - **Implementation Details:** Implement IO-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_data_exchange.cpp, 10/10 tasks passing, 166 total tests). Git commit: cdf0196
 
 ---
 
