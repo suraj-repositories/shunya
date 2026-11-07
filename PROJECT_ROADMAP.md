@@ -3397,8 +3397,12 @@ These improvements represent proactive technical optimizations identified during
 - **Implementation Status:** [x] Completed (Commit: 2aaca1b)
 
 ## 6. Development Session State & Platform Status
-- **Platform Status:** All 32 catalogued modules (309/309 tasks, 100%), all architectural enhancements (IMP-01 through IMP-05), Section 18 MVP Demonstrator, and Section 23 Whole-Platform Acceptance Suite completed and verified.
+- **Platform Status:** All 32 catalogued modules (309/309 tasks, 100%), all architectural enhancements (IMP-01 through IMP-05), Section 18 MVP Demonstrator, Section 23 Whole-Platform Acceptance Suite, and Desktop Qt 6 Quick GUI Studio shell completed and verified.
 - **Test Metrics:** 326 test cases passing out of 326 (3,429 checks passing, 0 failures, 0 warnings).
+- **Application Targets:**
+  - shunya_unit_tests.exe: Catch2-style test runner verifying all 32 core modules, 326 test cases, 3,429 assertions.
+  - shunya-cli.exe: Headless CLI for CI/CD batch runs, parametric sweeps, and analytical benchmarks.
+  - ppshunya.exe: Interactive Qt 6 Quick Desktop Studio with C++20 core QObject controller (ShunyaStudioController), live simulation clock stepping, Project Explorer, telemetry display, and diagnostics drawer.
 - **Last Completed Tasks:**
   - [x] IMP-01: Compile-Time Dimensional Unit Analysis via C++20 NTTP (Commit: a94a534)
   - [x] IMP-02: Headless Simulation CLI in apps/cli (Commit: 2aaca1b)
@@ -3407,4 +3411,5 @@ These improvements represent proactive technical optimizations identified during
   - [x] IMP-05: Coupled Electro-Thermo-Mechanical Demonstrator & Project Persistence (Commit: 2aaca1b)
   - [x] E2E-02: Section 18 MVP Virtual Test Bench, Scripted Switch & Component Reuse (Commit: 051682d)
   - [x] E2E-03: Section 23 Whole-Platform Acceptance Criteria Suite AC-01 to AC-10 (Commit: 051682d)
+  - [x] DESKTOP-01: Qt 6 Quick GUI Application Shell & Core Controller Integration (appshunya)
 - **Blockers:** None. Platform is in pristine, warning-free, 100% verified state.
