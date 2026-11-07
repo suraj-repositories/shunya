@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 68 |
+| [ ] | Not started | 62 |
 | [~] | In progress | 0 |
-| [x] | Completed | 241 |
+| [x] | Completed | 247 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -85,7 +85,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **CODE** | Programmability, Formulas & Scripting | Phase 4 / T6 | P1 | 12 | 12 | 100.0% |
 | **SEC** | Security, Sandboxing & Reliability | Phase 4 / T6 | P1 | 10 | 10 | 100.0% |
 | **LIB** | Component Library, Templates & Sharing | Phase 7 / T6 | P1 | 14 | 14 | 100.0% |
-| **EVT** | Event & Co-Simulation Orchestration | Phase 9 / T6 | P1 | 6 | 0 | 0.0% |
+| **EVT** | Event & Co-Simulation Orchestration | Phase 9 / T6 | P1 | 6 | 6 | 100.0% |
 | **FLD** | Fluid Dynamics & Hydraulics | Phase 8 / T7 | P2 | 10 | 0 | 0.0% |
 | **CHEM** | Chemical Reactions & Stoichiometry | Phase 8 / T7 | P2 | 9 | 0 | 0.0% |
 | **OPT** | Optics & Wave Phenomena | Phase 8 / T7 | P2 | 6 | 0 | 0.0% |
@@ -2847,64 +2847,64 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 9 / T6 | **Default Priority:** P1
 
 #### [EVT-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 9 / T6
 - **Dependencies:** Module Baseline
 - **Description:** Define typed event channels and timestamp semantics.
 - **Implementation Details:** Implement EVT-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_co_simulation.cpp, 6/6 tasks passing, 281 total test cases, 2993 checks) & appshunya desktop build. Git commit: 9076a0e
 
 #### [EVT-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 9 / T6
 - **Dependencies:** EVT-01
 - **Description:** Implement signal sampling, interpolation, buffering and rate conversion.
 - **Implementation Details:** Implement EVT-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_co_simulation.cpp, 6/6 tasks passing, 281 total test cases, 2993 checks) & appshunya desktop build. Git commit: 9076a0e
 
 #### [EVT-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 9 / T6
 - **Dependencies:** EVT-02
 - **Description:** Define domain coupling schedule and communication points.
 - **Implementation Details:** Implement EVT-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_co_simulation.cpp, 6/6 tasks passing, 281 total test cases, 2993 checks) & appshunya desktop build. Git commit: 9076a0e
 
 #### [EVT-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 9 / T6
 - **Dependencies:** EVT-03
 - **Description:** Support discrete/continuous event interaction without hidden time drift.
 - **Implementation Details:** Implement EVT-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_co_simulation.cpp, 6/6 tasks passing, 281 total test cases, 2993 checks) & appshunya desktop build. Git commit: 9076a0e
 
 #### [EVT-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 9 / T6
 - **Dependencies:** EVT-04
 - **Description:** Implement co-simulation adapters for external tools only through explicit APIs.
 - **Implementation Details:** Implement EVT-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_co_simulation.cpp, 6/6 tasks passing, 281 total test cases, 2993 checks) & appshunya desktop build. Git commit: 9076a0e
 
 #### [EVT-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 9 / T6
 - **Dependencies:** EVT-05
 - **Description:** Test event ordering, simultaneity, feedback loops and deterministic replay. 6. Physics and engineering domain modules Each domain must implement the same lifecycle: model catalogue → parameters/materials → topology/geometry → governing equations → discretization → solver adapter → diagnostics → visualisation → validation. Domain-specific work must not leak into the generic scene or UI layers. MEC – Classical mechanics and rigid bodies
 - **Implementation Details:** Implement EVT-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_co_simulation.cpp, 6/6 tasks passing, 281 total test cases, 2993 checks) & appshunya desktop build. Git commit: 9076a0e
 
 ---
 
@@ -3405,6 +3405,7 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** All Module UNIT Tasks [x] UNIT-01 through [x] UNIT-07 (**100% Completed**)
 - **Last Completed Tasks:** All Module CMP Tasks [x] CMP-01 through [x] CMP-08 (**100% Completed**)
 - **Last Completed Tasks:** All Module LIB Tasks [x] LIB-01 through [x] LIB-14 (**100% Completed**)
+- **Last Completed Tasks:** All Module EVT Tasks [x] EVT-01 through [x] EVT-06 (**100% Completed**)
 - **Pending Immediate Task:** [ ] MATUI-01: Periodic table visualizer and explorer.
 - **Blockers:** None.
 - **Active Git Commit:** 418aa64.
