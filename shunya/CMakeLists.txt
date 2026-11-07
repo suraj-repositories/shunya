@@ -35,6 +35,8 @@ qt_add_executable(appshunya
     property_tree_model.cpp
     quantity_input_controller.hpp
     quantity_input_controller.cpp
+    multi_property_controller.hpp
+    multi_property_controller.cpp
 )
 
 qt_add_qml_module(appshunya
@@ -54,6 +56,7 @@ qt_add_qml_module(appshunya
         PropertyInspector.qml
         PropertyDelegateFactory.qml
         QuantitySpinBox.qml
+        MultiPropertyInspector.qml
 )
 
 set_target_properties(appshunya PROPERTIES

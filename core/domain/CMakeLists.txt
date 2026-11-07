@@ -49,6 +49,7 @@ target_sources(shunya_core_domain
         src/material_ui.cpp
         src/property_node.cpp
         src/parameter_reference_manager.cpp
+        src/multi_property_analyzer.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -99,6 +100,7 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/material_ui.hpp
             include/shunya/core/domain/property_node.hpp
             include/shunya/core/domain/parameter_reference_manager.hpp
+            include/shunya/core/domain/multi_property_analyzer.hpp
 )
 
 target_include_directories(shunya_core_domain

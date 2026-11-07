@@ -529,15 +529,91 @@ ApplicationWindow {
                 }
             }
 
-            // Right Panel: Scientific Property Inspector
+            // Right Panel: Scientific Property Inspector & Multi-Selection Inspector
             Rectangle {
-                Layout.preferredWidth: 300
+                id: inspectorPanel
+                Layout.preferredWidth: 320
                 Layout.fillHeight: true
                 color: window.panelDark
 
-                PropertyInspector {
+                property bool showMultiInspector: typeof multiPropertyController !== "undefined" && multiPropertyController.hasMultiSelection
+
+                ColumnLayout {
                     anchors.fill: parent
-                    model: typeof propertyTreeModel !== "undefined" ? propertyTreeModel : null
+                    spacing: 0
+
+                    // Tab Selector
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 28
+                        color: "#181a1f"
+                        border.color: window.borderDark
+
+                        RowLayout {
+                            anchors.fill: parent
+                            spacing: 0
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                color: !inspectorPanel.showMultiInspector ? "#21252b" : "#181a1f"
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "Single Entity"
+                                    color: !inspectorPanel.showMultiInspector ? "#ffffff" : window.textMuted
+                                    font.pixelSize: 11
+                                    font.bold: !inspectorPanel.showMultiInspector
+                                }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: inspectorPanel.showMultiInspector = false
+                                }
+                            }
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                color: inspectorPanel.showMultiInspector ? "#21252b" : "#181a1f"
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "Multi-Selection (" + (typeof multiPropertyController !== "undefined" ? multiPropertyController.selectedEntityCount : 0) + ")"
+                                    color: inspectorPanel.showMultiInspector ? "#61afef" : window.textMuted
+                                    font.pixelSize: 11
+                                    font.bold: inspectorPanel.showMultiInspector
+                                }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        inspectorPanel.showMultiInspector = true;
+                                        if (typeof multiPropertyController !== "undefined" && multiPropertyController.selectedEntityCount === 0) {
+                                            multiPropertyController.selectDemoMultiSet("50_resistors_identical");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+
+                        PropertyInspector {
+                            anchors.fill: parent
+                            model: typeof propertyTreeModel !== "undefined" ? propertyTreeModel : null
+                            visible: !inspectorPanel.showMultiInspector
+                        }
+
+                        MultiPropertyInspector {
+                            anchors.fill: parent
+                            controller: typeof multiPropertyController !== "undefined" ? multiPropertyController : null
+                            visible: inspectorPanel.showMultiInspector
+                        }
+                    }
                 }
             }
         }

@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 150 | 92.6% |
+| `[ ]` | Not Started | 148 | 91.4% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 12 | 7.4% |
+| `[x]` | Completed | 14 | 8.6% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **7.4%** (12 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **8.6%** (14 / 162 leaf subtasks completed)
 
 
 ---
@@ -87,7 +87,7 @@ Every module is assigned a target development stage, priority classification (P0
 
 | Module ID | Module Name | Phase / Stage | Priority | Total Subtasks | Completed | Progress |
 |---|---|---|---|---:|---:|---:|
-| **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 12 | 60.0% |
+| **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 14 | 70.0% |
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 0 | 0.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 0 | 0.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **12** | **7.4%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **14** | **8.6%** |
 
 ---
 
@@ -150,14 +150,14 @@ SHUNYA NEXT PHASE PLATFORM WBS
 │   │   │   ├── Subtask [UI-01-003-01] Implement desktop application menu bar structure and cross-platform native integration
 │   │   │   ├── Subtask [UI-01-003-02] Implement File menu project lifecycle actions and recent files manager
 │   │   │   ├── Subtask [UI-01-003-03] Implement File import/export action dispatchers and dirty state save prompt dialogs
-│   ├── Submodule [UI-02] [~] Unified Inspector & Property Editor
+│   ├── Submodule [UI-02] [x] Unified Inspector & Property Editor
 │   │   ├── Task [UI-02-001] [x] Scientific Property Grid & Dimension-Aware Inputs
 │   │   │   ├── Subtask [UI-02-001-01] [x] Build hierarchical reflected property tree editor
 │   │   │   ├── Subtask [UI-02-001-02] [x] Implement inline dimensional unit conversions in property fields
 │   │   │   ├── Subtask [UI-02-001-03] [x] Implement parametric mathematical formula expression evaluator in numerical inputs
-│   │   ├── Task [UI-02-002] Multi-Selection & Batch Property Editing
-│   │   │   ├── Subtask [UI-02-002-01] Implement homogenous & heterogenous multi-selection property diffing
-│   │   │   ├── Subtask [UI-02-002-02] Implement bulk property update transactions with atomic rollback
+│   │   ├── Task [UI-02-002] [x] Multi-Selection & Batch Property Editing
+│   │   │   ├── Subtask [UI-02-002-01] [x] Implement homogenous & heterogenous multi-selection property diffing
+│   │   │   ├── Subtask [UI-02-002-02] [x] Implement bulk property update transactions with atomic rollback
 │   ├── Submodule [UI-03] Scientific Visualization Viewports & Overlays
 │   │   ├── Task [UI-03-001] Viewport Controls, Gizmos & Heads-Up Display (HUD)
 │   │   │   ├── Subtask [UI-03-001-01] Implement 3D transform gizmos with coordinate snapping
@@ -416,7 +416,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 ## 7. Detailed Modules and Submodules
 
 ### Module UI: Advanced UI Development
-**Target Stage:** Stage 1 | **Priority:** P0 | **Status:** `[~] In Progress` (45.0% completed: 9/20 subtasks)  
+**Target Stage:** Stage 1 | **Priority:** P0 | **Status:** `[~] In Progress` (70.0% completed: 14/20 subtasks)  
 **Scope Summary:** Professional engineering workspace, multi-window dockable panels, contextual ribbon toolbars, unified property inspector with unit intelligence, 3D viewport gizmos, and high-framerate scientific visualization overlays.
 
 #### Submodule UI-01: Dockable Workspace & Window Management
@@ -424,8 +424,8 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 3 major engineering tasks, 9 canonical leaf subtasks (9 completed).
 
 #### Submodule UI-02: Unified Inspector & Property Editor
-**Status:** `[ ] Not Started`  
-**Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
+**Status:** `[x] Completed` (100.0% completed: 5/5 subtasks)  
+**Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks (5 completed).
 
 #### Submodule UI-03: Scientific Visualization Viewports & Overlays
 **Status:** `[ ] Not Started`  
@@ -756,7 +756,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule UI-02: Unified Inspector & Property Editor
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **UI-02-001: Scientific Property Grid & Dimension-Aware Inputs**
   - **Status:** `[x] Completed`
@@ -798,12 +798,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_property_inspector.cpp (Operator precedence, built-in functions, inline physical unit suffixes, variable context evaluation, topological dependency propagation, and cycle rejection).
     - **Git Commit Reference:** Commit 226000e (feat(ui): implement scientific property grid, dimensional inputs and formula evaluator)
 
-- [ ] **UI-02-002: Multi-Selection & Batch Property Editing**
-  - **Status:** `[ ] Not Started`
+- [x] **UI-02-002: Multi-Selection & Batch Property Editing**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Support selecting multiple entities across the viewport or scene tree and editing shared properties simultaneously with diff visualizers.
-  - [ ] **UI-02-002-01: Implement homogenous & heterogenous multi-selection property diffing**
-    - **Status:** `[ ] Not Started`
+  - [x] **UI-02-002-01: Implement homogenous & heterogenous multi-selection property diffing**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Determine intersection of properties across multi-selected entities, showing '<mixed>' placeholder for differing values and unified value for identical values.
     - **Implementation Details:** PropertyIntersectionAnalyzer scanning selected QObject reflection metadata; builds composite property descriptor map.
@@ -811,11 +811,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** multi_property_controller.hpp/.cpp, MultiPropertyInspector.qml.
     - **Acceptance Criteria:** Selecting 50 identical resistors shows resistance value once; selecting a resistor and capacitor shows only shared transform/name properties.
     - **Testing & Verification Requirements:** Test intersection logic on homogenous sets, heterogenous sets, and empty selections.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_ui_multi_property.cpp (50 identical resistors intersection with unified resistance value, 50 divergent resistors with <mixed> placeholder, heterogeneous resistor + capacitor intersection isolating common spatial transforms, and empty selection safety).
+    - **Git Commit Reference:** Pending Commit
 
-  - [ ] **UI-02-002-02: Implement bulk property update transactions with atomic rollback**
-    - **Status:** `[ ] Not Started`
+  - [x] **UI-02-002-02: Implement bulk property update transactions with atomic rollback**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Apply batch property modifications across selected entity collections wrapped inside an atomic MacroCommand on the undo stack.
     - **Implementation Details:** MacroCommand wrapping vector of individual SetPropertyCommand instances executed sequentially in an atomic transaction.
@@ -823,8 +823,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** batch_command_helper.hpp/.cpp, unit tests for batch command execution.
     - **Acceptance Criteria:** Single undo action reverts property change on all 50 modified entities simultaneously.
     - **Testing & Verification Requirements:** Apply bulk property change across 100 entities -> undo -> assert all 100 return to exact original values.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_ui_multi_property.cpp (BatchSetPropertyCommand modifying 100 entities in batch, single CommandStack::undo() atomic rollback restoring all 100 entities to original values, and CommandStack::redo() restoration).
+    - **Git Commit Reference:** Pending Commit
 
 
 

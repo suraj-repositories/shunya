@@ -7,6 +7,7 @@
 #include "ribbon_controller.hpp"
 #include "property_tree_model.hpp"
 #include "quantity_input_controller.hpp"
+#include "multi_property_controller.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +21,7 @@ int main(int argc, char *argv[])
     auto* ribbonCtrl = new shunya::gui::ShunyaRibbonController(&app);
     auto* propTreeModel = new shunya::gui::ShunyaPropertyTreeModel(&app);
     auto* quantityCtrl = new shunya::gui::ShunyaQuantityInputController(&app);
+    auto* multiPropCtrl = new shunya::gui::ShunyaMultiPropertyController(&app);
 
     auto paramMgr = std::make_shared<shunya::core::domain::ParameterReferenceManager>();
     propTreeModel->setParameterReferenceManager(paramMgr);
@@ -27,6 +29,7 @@ int main(int argc, char *argv[])
 
     studio->setMenuBarController(menuCtrl);
     ribbonCtrl->setCommandStack(&studio->commandStack());
+    multiPropCtrl->setCommandStack(&studio->commandStack());
 
     // Connect ribbon action triggers to studio
     QObject::connect(ribbonCtrl, &shunya::gui::ShunyaRibbonController::actionTriggered, [studio](const QString& act) {
@@ -43,6 +46,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("ribbonController", ribbonCtrl);
     engine.rootContext()->setContextProperty("propertyTreeModel", propTreeModel);
     engine.rootContext()->setContextProperty("quantityController", quantityCtrl);
+    engine.rootContext()->setContextProperty("multiPropertyController", multiPropCtrl);
 
     QObject::connect(
         &engine,
