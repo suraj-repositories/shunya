@@ -14,6 +14,9 @@ target_sources(shunya_core_domain
         src/material_curve.cpp
         src/material.cpp
         src/material_assignment.cpp
+        src/material_dictionary.cpp
+        src/periodic_table.cpp
+        src/dataset_release.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -29,6 +32,9 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/material_curve.hpp
             include/shunya/core/domain/material.hpp
             include/shunya/core/domain/material_assignment.hpp
+            include/shunya/core/domain/material_dictionary.hpp
+            include/shunya/core/domain/periodic_table.hpp
+            include/shunya/core/domain/dataset_release.hpp
 )
 
 target_include_directories(shunya_core_domain
