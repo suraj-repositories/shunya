@@ -29,6 +29,8 @@ qt_add_executable(appshunya
     menu_bar_controller.cpp
     docking_controller.hpp
     docking_controller.cpp
+    ribbon_controller.hpp
+    ribbon_controller.cpp
 )
 
 qt_add_qml_module(appshunya
@@ -40,6 +42,11 @@ qt_add_qml_module(appshunya
         UnsavedChangesGuardDialog.qml
         DockContainer.qml
         DockOverlay.qml
+        RibbonBar.qml
+        RibbonTab.qml
+        RibbonGroup.qml
+        CommandPalette.qml
+        UndoHistoryDropdown.qml
 )
 
 set_target_properties(appshunya PROPERTIES

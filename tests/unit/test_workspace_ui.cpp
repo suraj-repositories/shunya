@@ -46,14 +46,16 @@ TEST_CASE("UI-01: Workspace Shell, Presets, and Command Palette") {
 
     // Command palette action execution
     bool action_executed = false;
-    shell.command_palette().register_action(CommandPaletteAction{
-        .action_id = "test.action",
-        .category = "Test",
-        .title = "Execute Test Action",
-        .shortcut = "Ctrl+T",
-        .is_enabled = true,
-        .callback = [&action_executed]() { action_executed = true; }
-    });
+    shell.command_palette().register_action(CommandPaletteAction::make(
+        "test.action",
+        "Test",
+        "Execute Test Action",
+        "Ctrl+T",
+        {},
+        "",
+        true,
+        [&action_executed]() { action_executed = true; }
+    ));
 
     auto search_results = shell.command_palette().search("Execute Test");
     REQUIRE(search_results.size() == 1u);

@@ -250,6 +250,48 @@ void CommandStack::set_max_history(std::size_t limit) noexcept {
     }
 }
 
+std::vector<CommandStack::CommandHistoryEntry> CommandStack::history_entries() const {
+    std::vector<CommandHistoryEntry> list;
+    list.reserve(commands_.size());
+    for (size_t i = 0; i < commands_.size(); ++i) {
+        list.push_back(CommandHistoryEntry{
+            .index = i,
+            .name = std::string(commands_[i]->name()),
+            .is_undone = (i >= current_index_),
+            .is_current = (i + 1 == current_index_)
+        });
+    }
+    return list;
+}
+
+base::Result<void> CommandStack::rollback_to_index(size_t target_index) {
+    if (active_transaction_.has_value()) {
+        return base::Result<void>::err({
+            .code = 2206,
+            .domain = base::ErrorDomain::System,
+            .severity = base::Severity::Error,
+            .message = "Cannot rollback history during active transaction",
+            .details = ""
+        });
+    }
+
+    if (target_index > commands_.size()) {
+        target_index = commands_.size();
+    }
+
+    while (current_index_ > target_index) {
+        auto res = undo();
+        if (res.is_err()) return res;
+    }
+
+    while (current_index_ < target_index) {
+        auto res = redo();
+        if (res.is_err()) return res;
+    }
+
+    return base::Result<void>::ok();
+}
+
 void CommandStack::clear() noexcept {
     commands_.clear();
     current_index_ = 0;

@@ -59,6 +59,14 @@ ApplicationWindow {
             if (typeof dockingController !== "undefined") dockingController.triggerShortcut("Ctrl+J");
         }
     }
+    Shortcut {
+        sequence: "Ctrl+K"
+        onActivated: commandPaletteDialog.open()
+    }
+    Shortcut {
+        sequence: "Ctrl+P"
+        onActivated: commandPaletteDialog.open()
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -83,6 +91,16 @@ ApplicationWindow {
                 if (typeof menuController !== "undefined") menuController.requestExit();
                 else Qt.quit();
             }
+        }
+
+        // =====================================================================
+        // Contextual Ribbon Toolbar (UI-01-002)
+        // =====================================================================
+        RibbonBar {
+            id: appRibbon
+            Layout.fillWidth: true
+            onCommandPaletteRequested: commandPaletteDialog.open()
+            onHistoryDropdownRequested: undoHistoryPopup.open()
         }
 
         // =====================================================================
@@ -589,6 +607,16 @@ ApplicationWindow {
 
     UnsavedChangesGuardDialog {
         id: unsavedChangesGuard
+    }
+
+    CommandPalette {
+        id: commandPaletteDialog
+    }
+
+    UndoHistoryDropdown {
+        id: undoHistoryPopup
+        x: 40
+        y: 65
     }
 
     FileDialog {

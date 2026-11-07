@@ -188,19 +188,149 @@ private:
     std::vector<DockActionShortcut> shortcuts_;
 };
 
+// =============================================================================
+// UI-01-002: Contextual Ribbon, Quick Access Toolbar & Fuzzy Command Palette
+// =============================================================================
+
+enum class RibbonCategory {
+    General,
+    Sketch2D,
+    Mesh3D,
+    PcbRouting,
+    PhysicsSetup,
+    AnalysisResults
+};
+
+[[nodiscard]] constexpr std::string_view ribbon_category_to_string(RibbonCategory c) noexcept {
+    switch (c) {
+        case RibbonCategory::General: return "General";
+        case RibbonCategory::Sketch2D: return "2D Sketch";
+        case RibbonCategory::Mesh3D: return "3D Mesh";
+        case RibbonCategory::PcbRouting: return "PCB Routing";
+        case RibbonCategory::PhysicsSetup: return "Physics Setup";
+        case RibbonCategory::AnalysisResults: return "Analysis";
+    }
+    return "General";
+}
+
+enum class RibbonItemSize {
+    Large,
+    Small
+};
+
+struct RibbonActionItem {
+    std::string id;
+    std::string label;
+    std::string icon_name;
+    std::string tooltip;
+    std::string shortcut;
+    RibbonItemSize size{RibbonItemSize::Large};
+    bool is_enabled{true};
+    bool is_checked{false};
+
+    static RibbonActionItem make(std::string id, std::string label, std::string icon_name, std::string tooltip, std::string shortcut = "", RibbonItemSize size = RibbonItemSize::Large, bool is_enabled = true, bool is_checked = false) {
+        RibbonActionItem item;
+        item.id = std::move(id);
+        item.label = std::move(label);
+        item.icon_name = std::move(icon_name);
+        item.tooltip = std::move(tooltip);
+        item.shortcut = std::move(shortcut);
+        item.size = size;
+        item.is_enabled = is_enabled;
+        item.is_checked = is_checked;
+        return item;
+    }
+};
+
+struct RibbonGroup {
+    std::string id;
+    std::string title;
+    std::vector<RibbonActionItem> actions;
+};
+
+struct RibbonTab {
+    std::string id;
+    std::string title;
+    RibbonCategory category{RibbonCategory::General};
+    bool is_contextual{false};
+    bool is_active{false};
+    std::vector<RibbonGroup> groups;
+};
+
+class QuickAccessToolbarModel {
+public:
+    QuickAccessToolbarModel();
+    void pin_action(std::string action_id);
+    void unpin_action(std::string_view action_id);
+    [[nodiscard]] bool is_pinned(std::string_view action_id) const;
+    [[nodiscard]] const std::vector<std::string>& pinned_action_ids() const noexcept { return pinned_ids_; }
+
+private:
+    std::vector<std::string> pinned_ids_;
+};
+
+class RibbonBarModel {
+public:
+    RibbonBarModel();
+
+    void add_tab(RibbonTab tab);
+    [[nodiscard]] const std::vector<RibbonTab>& tabs() const noexcept { return tabs_; }
+    [[nodiscard]] std::string active_tab_id() const noexcept { return active_tab_id_; }
+    void set_active_tab(std::string_view tab_id);
+
+    [[nodiscard]] bool is_collapsed() const noexcept { return is_collapsed_; }
+    void set_collapsed(bool collapsed) noexcept { is_collapsed_ = collapsed; }
+    void toggle_collapsed() noexcept { is_collapsed_ = !is_collapsed_; }
+
+    void set_context_for_workspace(WorkspacePreset preset);
+    void set_context_for_selection(std::string_view entity_type);
+
+    [[nodiscard]] std::optional<RibbonActionItem> find_action(std::string_view action_id) const;
+    QuickAccessToolbarModel& quick_access() noexcept { return quick_access_; }
+    [[nodiscard]] const QuickAccessToolbarModel& quick_access() const noexcept { return quick_access_; }
+
+private:
+    std::vector<RibbonTab> tabs_;
+    std::string active_tab_id_;
+    bool is_collapsed_{false};
+    QuickAccessToolbarModel quick_access_;
+    void setup_default_ribbon();
+};
+
 struct CommandPaletteAction {
     std::string action_id;
     std::string category;
     std::string title;
     std::string shortcut;
+    std::vector<std::string> keywords;
+    std::string icon_name;
     bool is_enabled{true};
     std::function<void()> callback;
+
+    static CommandPaletteAction make(std::string action_id, std::string category, std::string title, std::string shortcut = "", std::vector<std::string> keywords = {}, std::string icon_name = "", bool is_enabled = true, std::function<void()> callback = nullptr) {
+        CommandPaletteAction act;
+        act.action_id = std::move(action_id);
+        act.category = std::move(category);
+        act.title = std::move(title);
+        act.shortcut = std::move(shortcut);
+        act.keywords = std::move(keywords);
+        act.icon_name = std::move(icon_name);
+        act.is_enabled = is_enabled;
+        act.callback = std::move(callback);
+        return act;
+    }
+};
+
+struct CommandSearchResult {
+    CommandPaletteAction action;
+    int score{0};
 };
 
 class CommandPaletteRegistry {
 public:
     void register_action(CommandPaletteAction action);
     [[nodiscard]] std::vector<CommandPaletteAction> search(std::string_view query) const;
+    [[nodiscard]] std::vector<CommandSearchResult> fuzzy_search(std::string_view query) const;
     [[nodiscard]] bool execute_action(std::string_view action_id);
     [[nodiscard]] const std::vector<CommandPaletteAction>& actions() const noexcept { return actions_; }
 
@@ -231,12 +361,16 @@ public:
     DockActionManager& action_manager() noexcept { return action_manager_; }
     [[nodiscard]] const DockActionManager& action_manager() const noexcept { return action_manager_; }
 
+    RibbonBarModel& ribbon() noexcept { return ribbon_; }
+    [[nodiscard]] const RibbonBarModel& ribbon() const noexcept { return ribbon_; }
+
 private:
     WorkspacePreset current_preset_{WorkspacePreset::Modeling};
     std::vector<DockPanelState> panels_;
     CommandPaletteRegistry command_palette_;
     DockingManager docking_manager_;
     DockActionManager action_manager_;
+    RibbonBarModel ribbon_;
 };
 
 // =============================================================================

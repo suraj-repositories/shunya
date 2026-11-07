@@ -1,4 +1,4 @@
-# Shunya Next Phase Master Development Roadmap: Advanced CAD, Multiphysics & Virtual Simulation Studio
+# Shunya Phase-2 Master Development Roadmap: Advanced CAD, Multiphysics & Virtual Simulation Studio
 **Document ID:** `PROJECT_ROADMAP_PHASE_2.md`  
 **Platform Version Target:** `v2.5.0-alpha` through `v3.0.0-release`  
 **Status:** `Active Engineering Roadmap`  
@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 156 | 96.3% |
+| `[ ]` | Not Started | 153 | 94.4% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 6 | 3.7% |
+| `[x]` | Completed | 9 | 5.6% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **3.7%** (6 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **5.6%** (9 / 162 leaf subtasks completed)
 
 
 ---
@@ -87,7 +87,7 @@ Every module is assigned a target development stage, priority classification (P0
 
 | Module ID | Module Name | Phase / Stage | Priority | Total Subtasks | Completed | Progress |
 |---|---|---|---|---:|---:|---:|
-| **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 6 | 30.0% |
+| **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 9 | 45.0% |
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 0 | 0.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 0 | 0.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 0 | 0.0% |
@@ -137,15 +137,15 @@ The development lifecycle is divided into 11 sequential, dependency-gated engine
 ```text
 SHUNYA NEXT PHASE PLATFORM WBS
 ├── Module [UI] Advanced UI Development (Stage 1 | P0)
-│   ├── Submodule [UI-01] Dockable Workspace & Window Management
+│   ├── Submodule [UI-01] [x] Dockable Workspace & Window Management
 │   │   ├── Task [UI-01-001] [x] Multi-pane Docking Framework & Layout Serialization
 │   │   │   ├── Subtask [UI-01-001-01] [x] Implement layout node tree & docking manager
 │   │   │   ├── Subtask [UI-01-001-02] [x] Implement workspace presets serialization & DPI restoration
 │   │   │   ├── Subtask [UI-01-001-03] [x] Implement hotkey-driven panel toggle and multi-monitor management
-│   │   ├── Task [UI-01-002] Contextual Ribbon & Modular Toolbars
-│   │   │   ├── Subtask [UI-01-002-01] Implement domain-sensitive dynamic ribbon bar
-│   │   │   ├── Subtask [UI-01-002-02] Implement quick-access toolbar and fuzzy command palette
-│   │   │   ├── Subtask [UI-01-002-03] Implement undo/redo visualization stack in toolbar dropdown
+│   │   ├── Task [UI-01-002] [x] Contextual Ribbon & Modular Toolbars
+│   │   │   ├── Subtask [UI-01-002-01] [x] Implement domain-sensitive dynamic ribbon bar
+│   │   │   ├── Subtask [UI-01-002-02] [x] Implement quick-access toolbar and fuzzy command palette
+│   │   │   ├── Subtask [UI-01-002-03] [x] Implement undo/redo visualization stack in toolbar dropdown
 │   │   ├── Task [UI-01-003] Desktop Menu Bar & File Management Architecture
 │   │   │   ├── Subtask [UI-01-003-01] Implement desktop application menu bar structure and cross-platform native integration
 │   │   │   ├── Subtask [UI-01-003-02] Implement File menu project lifecycle actions and recent files manager
@@ -416,12 +416,12 @@ SHUNYA NEXT PHASE PLATFORM WBS
 ## 7. Detailed Modules and Submodules
 
 ### Module UI: Advanced UI Development
-**Target Stage:** Stage 1 | **Priority:** P0 | **Status:** `[~] In Progress` (15.0% completed: 3/20 subtasks)  
+**Target Stage:** Stage 1 | **Priority:** P0 | **Status:** `[~] In Progress` (45.0% completed: 9/20 subtasks)  
 **Scope Summary:** Professional engineering workspace, multi-window dockable panels, contextual ribbon toolbars, unified property inspector with unit intelligence, 3D viewport gizmos, and high-framerate scientific visualization overlays.
 
 #### Submodule UI-01: Dockable Workspace & Window Management
-**Status:** `[~] In Progress` (33.3% completed: 3/9 subtasks)  
-**Submodule Task Inventory:** 3 major engineering tasks, 9 canonical leaf subtasks (3 completed).
+**Status:** `[x] Completed` (100.0% completed: 9/9 subtasks)  
+**Submodule Task Inventory:** 3 major engineering tasks, 9 canonical leaf subtasks (9 completed).
 
 #### Submodule UI-02: Unified Inspector & Property Editor
 **Status:** `[ ] Not Started`  
@@ -631,7 +631,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 **Status:** `[~] In Progress` | **Stage:** Stage 1 | **Priority:** P0
 
 #### Submodule UI-01: Dockable Workspace & Window Management
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **UI-01-001: Multi-pane Docking Framework & Layout Serialization**
   - **Status:** `[x] Completed`
@@ -673,45 +673,45 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_docking.cpp (F9, F10, F12, Ctrl+B, Ctrl+J shortcut execution, dual sidebar toggling, invalid sequence rejection) and Main.qml Shortcut bindings.
     - **Git Commit Reference:** Commit 7a9d7d9 (feat(ui): implement multi-pane docking framework & layout serialization)
 
-- [ ] **UI-01-002: Contextual Ribbon & Modular Toolbars**
-  - **Status:** `[ ] Not Started`
+- [x] **UI-01-002: Contextual Ribbon & Modular Toolbars**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Design and implement a context-aware ribbon toolbar system that adapts actions and tools dynamically based on active workspace mode and active selection.
-  - [ ] **UI-01-002-01: Implement domain-sensitive dynamic ribbon bar**
-    - **Status:** `[ ] Not Started`
+  - [x] **UI-01-002-01: Implement domain-sensitive dynamic ribbon bar**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Develop RibbonBar.qml with contextual tabs (2D Sketch, 3D Mesh, PCB Routing, Physics Setup, Analysis) dynamically activated upon entity selection or mode switch.
-    - **Implementation Details:** RibbonController C++ backend exposing active category, command groups, large/small icon modes, and ribbon collapse/expand behavior.
+    - **Implementation Details:** RibbonBarModel C++ domain class in workspace_ui.hpp/.cpp, ShunyaRibbonController backend exposing active category, command groups, large/small icon modes, and ribbon collapse/expand behavior. RibbonBar.qml, RibbonTab.qml, and RibbonGroup.qml components.
     - **Dependencies:** UI-01-001-01, core/domain/selection.hpp
     - **Expected Deliverables:** ribbon_controller.hpp/.cpp, RibbonBar.qml, RibbonTab.qml, RibbonGroup.qml.
     - **Acceptance Criteria:** Switching from 3D viewport to PCB schematic switches active ribbon tabs in < 16ms with zero UI flicker.
     - **Testing & Verification Requirements:** Test selection change signals update ribbon tab models accurately across all 5 workspace domains.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_ui_ribbon_command.cpp (RibbonBarModel tabs, groups, actions, category mapping, workspace preset context switching < 16ms, selection context switching for 2D_Profile, PCB_Component, Physics_Body).
+    - **Git Commit Reference:** Pending commit for UI-01-002
 
-  - [ ] **UI-01-002-02: Implement quick-access toolbar and fuzzy command palette**
-    - **Status:** `[ ] Not Started`
+  - [x] **UI-01-002-02: Implement quick-access toolbar and fuzzy command palette**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Create a quick-access toolbar for pin-able commands and a central fuzzy-search command palette (Ctrl+K / Ctrl+P) indexing all actions, elements, and solver runs.
-    - **Implementation Details:** FuzzyMatcher scoring algorithm (Smith-Waterman / Levenshtein distance) indexing QAction registry; CommandPalette.qml modal overlay.
+    - **Implementation Details:** FuzzyMatcher scoring algorithm in fuzzy_match.hpp with word boundary, prefix, and consecutive bonuses. CommandPaletteRegistry fuzzy_search with relevance ranking. CommandPalette.qml modal dialog with Ctrl+K / Ctrl+P shortcuts.
     - **Dependencies:** UI-01-002-01
-    - **Expected Deliverables:** command_palette_controller.hpp/.cpp, CommandPalette.qml, fuzzy_match.hpp.
+    - **Expected Deliverables:** command_palette_controller in ribbon_controller.hpp/.cpp, CommandPalette.qml, fuzzy_match.hpp.
     - **Acceptance Criteria:** Command search returns ranked results in < 5ms over 1,000 registered actions; executing action triggers bound slot cleanly.
     - **Testing & Verification Requirements:** Benchmark fuzzy search latency on 2,000 commands; verify action invocation with parameter passing.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_ui_ribbon_command.cpp (QuickAccessToolbarModel pin/unpin/is_pinned, FuzzyMatcher scoring, CommandPaletteRegistry fuzzy_search across title, keywords, shortcuts, and benchmark latency on 2,000 commands).
+    - **Git Commit Reference:** Pending commit for UI-01-002
 
-  - [ ] **UI-01-002-03: Implement undo/redo visualization stack in toolbar dropdown**
-    - **Status:** `[ ] Not Started`
+  - [x] **UI-01-002-03: Implement undo/redo visualization stack in toolbar dropdown**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Visual dropdown history stack showing command descriptions, timestamps, and memory footprint with multi-step rollback capability.
-    - **Implementation Details:** C++ CommandHistoryModel exposing core/domain/command_stack.hpp entries to QML ListView with rollback target preview.
+    - **Implementation Details:** CommandStack::history_entries() and rollback_to_index() in command_stack.hpp/.cpp; ShunyaRibbonController exposing historyEntries, canUndo, canRedo, undoName, redoName; UndoHistoryDropdown.qml popup with atomic multi-step rollback.
     - **Dependencies:** UI-01-002-01, core/domain/command_stack.hpp
-    - **Expected Deliverables:** command_history_model.hpp/.cpp, UndoHistoryDropdown.qml.
+    - **Expected Deliverables:** command_history_model in ribbon_controller.hpp/.cpp, UndoHistoryDropdown.qml.
     - **Acceptance Criteria:** User can click 5 steps back in history dropdown to roll back state atomically in one transaction.
     - **Testing & Verification Requirements:** Undo/redo transaction rollbacks tested against multi-entity modifications; assert consistency of project state.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_ui_ribbon_command.cpp (CommandStack 5 commands execution, history_entries inspection, multi-step rollback from 5 to 2, roll-forward from 2 to 4, atomic state consistency).
+    - **Git Commit Reference:** Pending commit for UI-01-002
 
 - [x] **UI-01-003: Desktop Menu Bar & File Management Architecture**
   - **Status:** `[x] Completed`

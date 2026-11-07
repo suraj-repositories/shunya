@@ -10,6 +10,7 @@
 #include "shunya/core/base/logging.hpp"
 #include "shunya/core/base/version.hpp"
 #include "shunya/core/domain/project.hpp"
+#include "shunya/core/domain/command_stack.hpp"
 #include "shunya/core/domain/scene_graph.hpp"
 #include "shunya/core/domain/simulation_clock.hpp"
 #include "shunya/core/domain/circuit.hpp"
@@ -36,6 +37,7 @@ public:
     [[nodiscard]] QString benchmarkOutput() const noexcept { return benchmark_output_; }
     [[nodiscard]] QString logOutput() const noexcept { return log_output_; }
     [[nodiscard]] std::shared_ptr<shunya::core::domain::Project> currentProject() const noexcept { return current_project_; }
+    [[nodiscard]] shunya::core::domain::CommandStack& commandStack() noexcept { return command_stack_; }
 
     void setMenuBarController(class ShunyaMenuBarController* ctrl);
 
@@ -76,4 +78,5 @@ private:
     QTimer* timer_{nullptr};
     std::shared_ptr<shunya::core::domain::Project> current_project_;
     shunya::core::domain::SimulationClock clock_;
+    shunya::core::domain::CommandStack command_stack_{100};
 };

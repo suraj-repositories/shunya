@@ -85,6 +85,16 @@ public:
     [[nodiscard]] std::size_t max_history() const noexcept { return max_history_; }
     void set_max_history(std::size_t limit) noexcept;
 
+    struct CommandHistoryEntry {
+        size_t index{0};
+        std::string name;
+        bool is_undone{false};
+        bool is_current{false};
+    };
+
+    [[nodiscard]] std::vector<CommandHistoryEntry> history_entries() const;
+    [[nodiscard]] base::Result<void> rollback_to_index(size_t target_index);
+
     void clear() noexcept;
 
 private:

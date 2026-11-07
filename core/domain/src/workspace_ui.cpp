@@ -1,4 +1,5 @@
 #include "shunya/core/domain/workspace_ui.hpp"
+#include "shunya/core/base/fuzzy_match.hpp"
 
 #include <algorithm>
 #include <sstream>
@@ -749,6 +750,290 @@ std::optional<WorkspacePreset> workspace_preset_from_string(std::string_view s) 
     return std::nullopt;
 }
 
+// =============================================================================
+// QuickAccessToolbarModel Implementation
+// =============================================================================
+
+QuickAccessToolbarModel::QuickAccessToolbarModel() {
+    pinned_ids_ = {"file.save", "edit.undo", "edit.redo", "sim.run", "sim.step"};
+}
+
+void QuickAccessToolbarModel::pin_action(std::string action_id) {
+    if (!is_pinned(action_id)) {
+        pinned_ids_.push_back(std::move(action_id));
+    }
+}
+
+void QuickAccessToolbarModel::unpin_action(std::string_view action_id) {
+    auto it = std::find(pinned_ids_.begin(), pinned_ids_.end(), action_id);
+    if (it != pinned_ids_.end()) {
+        pinned_ids_.erase(it);
+    }
+}
+
+bool QuickAccessToolbarModel::is_pinned(std::string_view action_id) const {
+    return std::find(pinned_ids_.begin(), pinned_ids_.end(), action_id) != pinned_ids_.end();
+}
+
+// =============================================================================
+// RibbonBarModel Implementation
+// =============================================================================
+
+RibbonBarModel::RibbonBarModel() {
+    setup_default_ribbon();
+}
+
+void RibbonBarModel::setup_default_ribbon() {
+    tabs_.clear();
+
+    // 1. Home / General Tab
+    RibbonTab home_tab{
+        .id = "tab_home",
+        .title = "Home",
+        .category = RibbonCategory::General,
+        .is_contextual = false,
+        .is_active = true,
+        .groups = {
+            RibbonGroup{
+                .id = "grp_project",
+                .title = "Project",
+                .actions = {
+                    RibbonActionItem::make("file.new", "New", "new_project", "Create new simulation project (Ctrl+N)", "Ctrl+N"),
+                    RibbonActionItem::make("file.open", "Open", "open_project", "Open existing project (Ctrl+O)", "Ctrl+O"),
+                    RibbonActionItem::make("file.save", "Save", "save_project", "Save project state (Ctrl+S)", "Ctrl+S")
+                }
+            },
+            RibbonGroup{
+                .id = "grp_clipboard",
+                .title = "Clipboard",
+                .actions = {
+                    RibbonActionItem::make("edit.cut", "Cut", "cut", "Cut selection to clipboard (Ctrl+X)", "Ctrl+X", RibbonItemSize::Small),
+                    RibbonActionItem::make("edit.copy", "Copy", "copy", "Copy selection to clipboard (Ctrl+C)", "Ctrl+C", RibbonItemSize::Small),
+                    RibbonActionItem::make("edit.paste", "Paste", "paste", "Paste from clipboard (Ctrl+V)", "Ctrl+V", RibbonItemSize::Large)
+                }
+            },
+            RibbonGroup{
+                .id = "grp_history",
+                .title = "History",
+                .actions = {
+                    RibbonActionItem::make("edit.undo", "Undo", "undo", "Undo last command (Ctrl+Z)", "Ctrl+Z"),
+                    RibbonActionItem::make("edit.redo", "Redo", "redo", "Redo command (Ctrl+Y)", "Ctrl+Y")
+                }
+            }
+        }
+    };
+    tabs_.push_back(std::move(home_tab));
+
+    // 2. 2D Sketch Tab (Contextual)
+    RibbonTab sketch_tab{
+        .id = "tab_sketch",
+        .title = "2D Sketch",
+        .category = RibbonCategory::Sketch2D,
+        .is_contextual = true,
+        .is_active = false,
+        .groups = {
+            RibbonGroup{
+                .id = "grp_draw",
+                .title = "Draw",
+                .actions = {
+                    RibbonActionItem::make("draw.line", "Line", "tool_line", "Draw 2D parametric line"),
+                    RibbonActionItem::make("draw.circle", "Circle", "tool_circle", "Draw parametric circle/arc"),
+                    RibbonActionItem::make("draw.rect", "Rectangle", "tool_rect", "Draw rectangle")
+                }
+            },
+            RibbonGroup{
+                .id = "grp_constraints",
+                .title = "Constraints",
+                .actions = {
+                    RibbonActionItem::make("geom.coincident", "Coincident", "c_coincident", "Snap vertices together"),
+                    RibbonActionItem::make("geom.parallel", "Parallel", "c_parallel", "Parallel constraint"),
+                    RibbonActionItem::make("geom.tangent", "Tangent", "c_tangent", "Tangent constraint")
+                }
+            },
+            RibbonGroup{
+                .id = "grp_booleans",
+                .title = "Booleans",
+                .actions = {
+                    RibbonActionItem::make("bool.union", "Union", "b_union", "Polygon Boolean Union"),
+                    RibbonActionItem::make("bool.diff", "Subtract", "b_diff", "Polygon Boolean Difference")
+                }
+            }
+        }
+    };
+    tabs_.push_back(std::move(sketch_tab));
+
+    // 3. 3D Mesh Tab
+    RibbonTab mesh_tab{
+        .id = "tab_mesh",
+        .title = "3D Mesh",
+        .category = RibbonCategory::Mesh3D,
+        .is_contextual = false,
+        .is_active = true,
+        .groups = {
+            RibbonGroup{
+                .id = "grp_features",
+                .title = "Solid Features",
+                .actions = {
+                    RibbonActionItem::make("feat.extrude", "Extrude", "extrude", "Extrude 2D sketch into 3D solid"),
+                    RibbonActionItem::make("feat.revolve", "Revolve", "revolve", "Revolve sketch about axis"),
+                    RibbonActionItem::make("feat.sweep", "Sweep", "sweep", "Sweep profile along 3D trajectory")
+                }
+            },
+            RibbonGroup{
+                .id = "grp_modify",
+                .title = "Modify",
+                .actions = {
+                    RibbonActionItem::make("mesh.fillet", "Fillet", "fillet", "3D edge fillet"),
+                    RibbonActionItem::make("mesh.chamfer", "Chamfer", "chamfer", "Planar edge chamfer"),
+                    RibbonActionItem::make("mesh.shell", "Shell", "shell", "Hollow thin-wall shell")
+                }
+            }
+        }
+    };
+    tabs_.push_back(std::move(mesh_tab));
+
+    // 4. PCB & Circuit Tab
+    RibbonTab pcb_tab{
+        .id = "tab_pcb",
+        .title = "PCB & Schematic",
+        .category = RibbonCategory::PcbRouting,
+        .is_contextual = true,
+        .is_active = false,
+        .groups = {
+            RibbonGroup{
+                .id = "grp_components",
+                .title = "Components",
+                .actions = {
+                    RibbonActionItem::make("pcb.resistor", "Resistor", "resistor", "Add passives: resistor"),
+                    RibbonActionItem::make("pcb.capacitor", "Capacitor", "capacitor", "Add capacitor"),
+                    RibbonActionItem::make("pcb.ic", "IC Chip", "chip", "Place IC footprint")
+                }
+            },
+            RibbonGroup{
+                .id = "grp_routing",
+                .title = "Routing",
+                .actions = {
+                    RibbonActionItem::make("pcb.wire", "Net Wire", "wire", "Connect schematic net wire"),
+                    RibbonActionItem::make("pcb.route45", "45° Push", "route", "Push-and-shove interactive routing")
+                }
+            }
+        }
+    };
+    tabs_.push_back(std::move(pcb_tab));
+
+    // 5. Physics Setup Tab
+    RibbonTab phys_tab{
+        .id = "tab_physics",
+        .title = "Physics Setup",
+        .category = RibbonCategory::PhysicsSetup,
+        .is_contextual = false,
+        .is_active = false,
+        .groups = {
+            RibbonGroup{
+                .id = "grp_domains",
+                .title = "Domains",
+                .actions = {
+                    RibbonActionItem::make("phys.rigid", "Rigid Body", "rigid_body", "Add rigid dynamic body"),
+                    RibbonActionItem::make("phys.thermal", "Thermal Heat", "thermal", "Attach thermal dissipation field"),
+                    RibbonActionItem::make("phys.fluid", "SPH Fluid", "fluid", "Spawn particle fluid basin")
+                }
+            },
+            RibbonGroup{
+                .id = "grp_simulation",
+                .title = "Simulation",
+                .actions = {
+                    RibbonActionItem::make("sim.run", "Run", "play", "Start simulation execution (F5)", "F5"),
+                    RibbonActionItem::make("sim.pause", "Pause", "pause", "Pause simulation (F6)", "F6"),
+                    RibbonActionItem::make("sim.step", "Step", "step", "Step single timestep (F10)", "F10")
+                }
+            }
+        }
+    };
+    tabs_.push_back(std::move(phys_tab));
+
+    // 6. Analysis & Results Tab
+    RibbonTab analysis_tab{
+        .id = "tab_analysis",
+        .title = "Analysis & Results",
+        .category = RibbonCategory::AnalysisResults,
+        .is_contextual = false,
+        .is_active = false,
+        .groups = {
+            RibbonGroup{
+                .id = "grp_probes",
+                .title = "Telemetry",
+                .actions = {
+                    RibbonActionItem::make("plot.2d_trace", "Time Plot", "plot", "Open 2D real-time probe trace"),
+                    RibbonActionItem::make("plot.contour", "3D Field", "contour", "Field contour visualization")
+                }
+            }
+        }
+    };
+    tabs_.push_back(std::move(analysis_tab));
+
+    active_tab_id_ = "tab_home";
+}
+
+void RibbonBarModel::add_tab(RibbonTab tab) {
+    tabs_.push_back(std::move(tab));
+}
+
+void RibbonBarModel::set_active_tab(std::string_view tab_id) {
+    for (auto& t : tabs_) {
+        t.is_active = (t.id == tab_id);
+        if (t.is_active) {
+            active_tab_id_ = t.id;
+        }
+    }
+}
+
+void RibbonBarModel::set_context_for_workspace(WorkspacePreset preset) {
+    switch (preset) {
+        case WorkspacePreset::Modeling:
+            set_active_tab("tab_mesh");
+            break;
+        case WorkspacePreset::Schematic:
+            set_active_tab("tab_pcb");
+            break;
+        case WorkspacePreset::Simulation:
+            set_active_tab("tab_physics");
+            break;
+        case WorkspacePreset::Results:
+            set_active_tab("tab_analysis");
+            break;
+        case WorkspacePreset::Scripting:
+            set_active_tab("tab_home");
+            break;
+    }
+}
+
+void RibbonBarModel::set_context_for_selection(std::string_view entity_type) {
+    if (entity_type == "2D_Profile" || entity_type == "Sketch") {
+        set_active_tab("tab_sketch");
+    } else if (entity_type == "3D_Solid" || entity_type == "Mesh") {
+        set_active_tab("tab_mesh");
+    } else if (entity_type == "PCB_Component" || entity_type == "NetWire") {
+        set_active_tab("tab_pcb");
+    } else if (entity_type == "Physics_Body" || entity_type == "Constraint") {
+        set_active_tab("tab_physics");
+    }
+}
+
+std::optional<RibbonActionItem> RibbonBarModel::find_action(std::string_view action_id) const {
+    for (const auto& tab : tabs_) {
+        for (const auto& grp : tab.groups) {
+            for (const auto& act : grp.actions) {
+                if (act.id == action_id) return act;
+            }
+        }
+    }
+    return std::nullopt;
+}
+
+// =============================================================================
+// CommandPaletteRegistry Implementation
+// =============================================================================
+
 void CommandPaletteRegistry::register_action(CommandPaletteAction action) {
     actions_.push_back(std::move(action));
 }
@@ -772,6 +1057,52 @@ std::vector<CommandPaletteAction> CommandPaletteRegistry::search(std::string_vie
     return results;
 }
 
+std::vector<CommandSearchResult> CommandPaletteRegistry::fuzzy_search(std::string_view query) const {
+    std::vector<CommandSearchResult> results;
+    if (query.empty()) {
+        results.reserve(actions_.size());
+        for (const auto& act : actions_) {
+            results.push_back({act, 0});
+        }
+        return results;
+    }
+
+    for (const auto& act : actions_) {
+        int best_score = 0;
+        auto res_title = base::FuzzyMatcher::match(query, act.title);
+        if (res_title.matches && res_title.score > best_score) {
+            best_score = res_title.score;
+        }
+
+        auto res_cat = base::FuzzyMatcher::match(query, act.category);
+        if (res_cat.matches && (res_cat.score + 5) > best_score) {
+            best_score = res_cat.score + 5;
+        }
+
+        auto res_short = base::FuzzyMatcher::match(query, act.shortcut);
+        if (res_short.matches && (res_short.score + 10) > best_score) {
+            best_score = res_short.score + 10;
+        }
+
+        for (const auto& kw : act.keywords) {
+            auto res_kw = base::FuzzyMatcher::match(query, kw);
+            if (res_kw.matches && res_kw.score > best_score) {
+                best_score = res_kw.score;
+            }
+        }
+
+        if (best_score > 0) {
+            results.push_back({act, best_score});
+        }
+    }
+
+    std::sort(results.begin(), results.end(), [](const auto& a, const auto& b) {
+        return a.score > b.score;
+    });
+
+    return results;
+}
+
 bool CommandPaletteRegistry::execute_action(std::string_view action_id) {
     for (const auto& act : actions_) {
         if (act.action_id == action_id) {
@@ -789,38 +1120,16 @@ WorkspaceShell::WorkspaceShell(WorkspacePreset initial_preset) {
     apply_preset(initial_preset);
 
     // Register standard actions
-    command_palette_.register_action(CommandPaletteAction{
-        .action_id = "sim.run",
-        .category = "Simulation",
-        .title = "Run Simulation",
-        .shortcut = "F5",
-        .is_enabled = true,
-        .callback = nullptr
-    });
-
-    command_palette_.register_action(CommandPaletteAction{
-        .action_id = "sim.pause",
-        .category = "Simulation",
-        .title = "Pause Simulation",
-        .shortcut = "F6",
-        .is_enabled = true,
-        .callback = nullptr
-    });
-
-    command_palette_.register_action(CommandPaletteAction{
-        .action_id = "view.preset.schematic",
-        .category = "View",
-        .title = "Switch to Schematic View",
-        .shortcut = "Ctrl+2",
-        .is_enabled = true,
-        .callback = [this]() { apply_preset(WorkspacePreset::Schematic); }
-    });
+    command_palette_.register_action(CommandPaletteAction::make("sim.run", "Simulation", "Run Simulation", "F5", {"start", "execute"}));
+    command_palette_.register_action(CommandPaletteAction::make("sim.pause", "Simulation", "Pause Simulation", "F6", {"halt", "freeze"}));
+    command_palette_.register_action(CommandPaletteAction::make("view.preset.schematic", "View", "Switch to Schematic View", "Ctrl+2", {"circuit", "diagram"}, "", true, [this]() { apply_preset(WorkspacePreset::Schematic); }));
 }
 
 void WorkspaceShell::apply_preset(WorkspacePreset preset) {
     current_preset_ = preset;
     panels_.clear();
     docking_manager_.apply_preset(preset);
+    ribbon_.set_context_for_workspace(preset);
 
     switch (preset) {
         case WorkspacePreset::Modeling:
