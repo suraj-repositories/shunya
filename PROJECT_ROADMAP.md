@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 176 |
+| [ ] | Not started | 166 |
 | [~] | In progress | 0 |
-| [x] | Completed | 133 |
+| [x] | Completed | 143 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -75,7 +75,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **RUN** | Simulation Execution & Safe Modes | Phase 2 / T3 | P0 | 10 | 10 | 100.0% |
 | **IO** | Data Exchange, Formats & Persistence | Phase 1 / T2 | P0 | 10 | 10 | 100.0% |
 | **UI** | User Interface & Workspaces | Phase 1 / T1 | P0 | 12 | 12 | 100.0% |
-| **REN** | Rendering & Graphics Engine | Phase 1 / T4 | P1 | 10 | 0 | 0.0% |
+| **REN** | Rendering & Graphics Engine | Phase 1 / T4 | P1 | 10 | 10 | 100.0% |
 | **ELEC** | Electronics & Circuit Simulation | Phase 5 / T3 | P0 | 14 | 0 | 0.0% |
 | **LOGIC** | Digital Logic & State Machines | Phase 6 / T3 | P1 | 9 | 0 | 0.0% |
 | **MEC** | Classical Mechanics & Rigid Bodies | Phase 3 / T5 | P1 | 10 | 0 | 0.0% |
@@ -1707,104 +1707,104 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 1 / T4 | **Default Priority:** P1
 
 #### [REN-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T4
 - **Dependencies:** Module Baseline
 - **Description:** Choose renderer abstraction and backend strategy; keep graphics API details out of domain engines.
 - **Implementation Details:** Implement REN-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_rendering.cpp, 10/10 tasks passing, 188 total test cases, 1962 checks) & appshunya desktop build. Git commit: f6ff61a
 
 #### [REN-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T4
 - **Dependencies:** REN-01
 - **Description:** Create viewport camera, scene submission, lighting and material pipeline.
 - **Implementation Details:** Implement REN-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_rendering.cpp, 10/10 tasks passing, 188 total test cases, 1962 checks) & appshunya desktop build. Git commit: f6ff61a
 
 #### [REN-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T4
 - **Dependencies:** REN-02
 - **Description:** Support 2D schematic rendering and 3D scene rendering as separate presentation modes.
 - **Implementation Details:** Implement REN-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_rendering.cpp, 10/10 tasks passing, 188 total test cases, 1962 checks) & appshunya desktop build. Git commit: f6ff61a
 
 #### [REN-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T4
 - **Dependencies:** REN-03
 - **Description:** Build picking/selection, gizmos, overlays and debug draw.
 - **Implementation Details:** Implement REN-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_rendering.cpp, 10/10 tasks passing, 188 total test cases, 1962 checks) & appshunya desktop build. Git commit: f6ff61a
 
 #### [REN-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T4
 - **Dependencies:** REN-04
 - **Description:** Implement GPU resource lifetime, asset cache and asynchronous loading.
 - **Implementation Details:** Implement REN-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_rendering.cpp, 10/10 tasks passing, 188 total test cases, 1962 checks) & appshunya desktop build. Git commit: f6ff61a
 
 #### [REN-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T4
 - **Dependencies:** REN-05
 - **Description:** Add visualisation layers for solver output without changing simulation state.
 - **Implementation Details:** Implement REN-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_rendering.cpp, 10/10 tasks passing, 188 total test cases, 1962 checks) & appshunya desktop build. Git commit: f6ff61a
 
 #### [REN-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T4
 - **Dependencies:** REN-06
 - **Description:** Profile draw calls, memory, shader compilation and large scenes.
 - **Implementation Details:** Implement REN-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_rendering.cpp, 10/10 tasks passing, 188 total test cases, 1962 checks) & appshunya desktop build. Git commit: f6ff61a
 
 #### [REN-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T4
 - **Dependencies:** REN-07
 - **Description:** Support headless mode without requiring a graphics context.
 - **Implementation Details:** Implement REN-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_rendering.cpp, 10/10 tasks passing, 188 total test cases, 1962 checks) & appshunya desktop build. Git commit: f6ff61a
 
 #### [REN-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T4
 - **Dependencies:** REN-08
 - **Description:** Add renderer capability detection and fallback path.
 - **Implementation Details:** Implement REN-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_rendering.cpp, 10/10 tasks passing, 188 total test cases, 1962 checks) & appshunya desktop build. Git commit: f6ff61a
 
 #### [REN-10] 10
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T4
 - **Dependencies:** REN-09
 - **Description:** Test rendering independently from numerical correctness. 13. Data, file formats, import/export and interoperability
 - **Implementation Details:** Implement REN-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_rendering.cpp, 10/10 tasks passing, 188 total test cases, 1962 checks) & appshunya desktop build. Git commit: f6ff61a
 
 ---
 
