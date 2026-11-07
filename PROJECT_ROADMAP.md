@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 43 |
+| [ ] | Not started | 37 |
 | [~] | In progress | 0 |
-| [x] | Completed | 266 |
+| [x] | Completed | 272 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -88,7 +88,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **EVT** | Event & Co-Simulation Orchestration | Phase 9 / T6 | P1 | 6 | 6 | 100.0% |
 | **FLD** | Fluid Dynamics & Hydraulics | Phase 8 / T7 | P2 | 10 | 10 | 100.0% |
 | **CHEM** | Chemical Reactions & Stoichiometry | Phase 8 / T7 | P2 | 9 | 9 | 100.0% |
-| **OPT** | Optics & Wave Phenomena | Phase 8 / T7 | P2 | 6 | 0 | 0.0% |
+| **OPT** | Optics & Wave Phenomena | Phase 8 / T7 | P2 | 6 | 6 | 100.0% |
 | **BIO** | Biological & Cellular Models | Phase 8 / T7 | P2 | 7 | 0 | 0.0% |
 | **PERF** | Performance, Benchmarks & Profiling | Phase 10 / T8 | P1 | 10 | 0 | 0.0% |
 
@@ -3115,64 +3115,64 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 8 / T7 | **Default Priority:** P2
 
 #### [OPT-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** Module Baseline
 - **Description:** Define whether initial scope is geometric optics, wave optics or electromagnetic field solving.
 - **Implementation Details:** Implement OPT-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_optics.cpp, 6/6 tasks passing, 300 total test cases, 3101 checks) & appshunya desktop build. Git commit: 4307c36
 
 #### [OPT-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** OPT-01
 - **Description:** Optical material properties and interfaces.
 - **Implementation Details:** Implement OPT-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_optics.cpp, 6/6 tasks passing, 300 total test cases, 3101 checks) & appshunya desktop build. Git commit: 4307c36
 
 #### [OPT-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** OPT-02
 - **Description:** Ray sources, lenses, mirrors and detectors for a geometric-optics baseline.
 - **Implementation Details:** Implement OPT-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_optics.cpp, 6/6 tasks passing, 300 total test cases, 3101 checks) & appshunya desktop build. Git commit: 4307c36
 
 #### [OPT-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** OPT-03
 - **Description:** Ray tracing, reflection, refraction and absorption.
 - **Implementation Details:** Implement OPT-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_optics.cpp, 6/6 tasks passing, 300 total test cases, 3101 checks) & appshunya desktop build. Git commit: 4307c36
 
 #### [OPT-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** OPT-04
 - **Description:** Field-based electromagnetic solver architecture as a later major project.
 - **Implementation Details:** Implement OPT-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_optics.cpp, 6/6 tasks passing, 300 total test cases, 3101 checks) & appshunya desktop build. Git commit: 4307c36
 
 #### [OPT-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** OPT-05
 - **Description:** Validation against Snell's law and canonical optical systems. BIO – Biological and cellular systems
 - **Implementation Details:** Implement OPT-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_optics.cpp, 6/6 tasks passing, 300 total test cases, 3101 checks) & appshunya desktop build. Git commit: 4307c36
 
 ---
 
@@ -3408,6 +3408,7 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** All Module EVT Tasks [x] EVT-01 through [x] EVT-06 (**100% Completed**)
 - **Last Completed Tasks:** All Module FLD Tasks [x] FLD-01 through [x] FLD-10 (**100% Completed**)
 - **Last Completed Tasks:** All Module CHEM Tasks [x] CHEM-01 through [x] CHEM-09 (**100% Completed**)
+- **Last Completed Tasks:** All Module OPT Tasks [x] OPT-01 through [x] OPT-06 (**100% Completed**)
 - **Pending Immediate Task:** [ ] MATUI-01: Periodic table visualizer and explorer.
 - **Blockers:** None.
 - **Active Git Commit:** 418aa64.
