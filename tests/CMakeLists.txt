@@ -46,6 +46,7 @@ add_executable(shunya_unit_tests
     unit/test_performance.cpp
     unit/test_adr.cpp
     unit/test_material_ui.cpp
+    unit/test_end_to_end_demonstrator.cpp
 )
 
 target_include_directories(shunya_unit_tests

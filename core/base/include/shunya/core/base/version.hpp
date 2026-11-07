@@ -61,4 +61,10 @@ struct Version {
 
 inline constexpr Version CURRENT_VERSION{0, 1, 0, "dev"};
 
+#if defined(__EMSCRIPTEN__)
+inline constexpr bool IS_WASM_TARGET = true;
+#else
+inline constexpr bool IS_WASM_TARGET = false;
+#endif
+
 } // namespace shunya::core::base

@@ -17,6 +17,12 @@ elseif(MSVC)
     add_compile_options(/W4 /permissive-)
 endif()
 
+# WebAssembly / Emscripten headless solver target readiness (IMP-04)
+if(EMSCRIPTEN)
+    message(STATUS "Configuring Shunya headless solver kernel for WebAssembly target via Emscripten")
+    add_compile_options(-sWASM=1 -sDISABLE_EXCEPTION_CATCHING=0)
+endif()
+
 enable_testing()
 
 # Core non-GUI foundational scientific modules
@@ -25,6 +31,11 @@ add_subdirectory(core/domain)
 
 # Automated unit testing suite
 add_subdirectory(tests)
+
+# Headless simulation command-line interface (CLI)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/apps/cli/CMakeLists.txt")
+    add_subdirectory(apps/cli)
+endif()
 
 # Desktop application shell (Qt 6)
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/shunya/CMakeLists.txt")
