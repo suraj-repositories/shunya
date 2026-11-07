@@ -423,4 +423,333 @@ base::Result<void> AccessibilityManager::set_ui_scale_factor(double scale) {
     return base::Result<void>::ok();
 }
 
+// =============================================================================
+// UI-01-003: Desktop Menu Bar & File Management Architecture
+// =============================================================================
+
+std::optional<MenuCategory> menu_category_from_string(std::string_view str) noexcept {
+    if (str == "File") return MenuCategory::File;
+    if (str == "Edit") return MenuCategory::Edit;
+    if (str == "View") return MenuCategory::View;
+    if (str == "Insert") return MenuCategory::Insert;
+    if (str == "Simulation") return MenuCategory::Simulation;
+    if (str == "Tools") return MenuCategory::Tools;
+    if (str == "Window") return MenuCategory::Window;
+    if (str == "Help") return MenuCategory::Help;
+    return std::nullopt;
+}
+
+RecentProjectsManager::RecentProjectsManager(size_t max_entries)
+    : max_entries_(max_entries) {}
+
+void RecentProjectsManager::add_recent_project(std::string path, std::string title, std::string timestamp_iso) {
+    if (path.empty()) return;
+
+    // Remove if already present (MRU promotes to front)
+    auto it = std::remove_if(entries_.begin(), entries_.end(),
+        [&path](const RecentProjectEntry& e) { return e.path == path; });
+    entries_.erase(it, entries_.end());
+
+    RecentProjectEntry new_entry{
+        .path = std::move(path),
+        .title = title.empty() ? "Untitled Project" : std::move(title),
+        .last_opened_iso = timestamp_iso.empty() ? "2026-11-07T00:00:00Z" : std::move(timestamp_iso),
+        .thumbnail_hint = "",
+        .is_pinned = false
+    };
+
+    entries_.insert(entries_.begin(), std::move(new_entry));
+
+    // Keep pinned items and trim unpinned to max_entries_
+    if (entries_.size() > max_entries_) {
+        // Find last unpinned and remove
+        for (auto rit = entries_.rbegin(); rit != entries_.rend(); ++rit) {
+            if (!rit->is_pinned) {
+                entries_.erase(std::next(rit).base());
+                break;
+            }
+        }
+    }
+}
+
+void RecentProjectsManager::remove_recent_project(std::string_view path) {
+    auto it = std::remove_if(entries_.begin(), entries_.end(),
+        [path](const RecentProjectEntry& e) { return e.path == path; });
+    entries_.erase(it, entries_.end());
+}
+
+void RecentProjectsManager::clear() noexcept {
+    entries_.clear();
+}
+
+void RecentProjectsManager::pin_project(std::string_view path, bool pinned) {
+    for (auto& entry : entries_) {
+        if (entry.path == path) {
+            entry.is_pinned = pinned;
+            break;
+        }
+    }
+}
+
+std::string RecentProjectsManager::serialize_json() const {
+    std::ostringstream ss;
+    ss << "[\n";
+    for (size_t i = 0; i < entries_.size(); ++i) {
+        const auto& e = entries_[i];
+        ss << "  {\n"
+           << "    \"path\": \"" << e.path << "\",\n"
+           << "    \"title\": \"" << e.title << "\",\n"
+           << "    \"last_opened\": \"" << e.last_opened_iso << "\",\n"
+           << "    \"is_pinned\": " << (e.is_pinned ? "true" : "false") << "\n"
+           << "  }" << (i + 1 < entries_.size() ? "," : "") << "\n";
+    }
+    ss << "]\n";
+    return ss.str();
+}
+
+base::Result<void> RecentProjectsManager::restore_json(std::string_view json_str) {
+    if (json_str.empty()) {
+        return base::Result<void>::err(make_ui_error("Empty JSON for recent projects"));
+    }
+
+    entries_.clear();
+    // Simplified parsing for JSON array of objects
+    size_t pos = 0;
+    while ((pos = json_str.find('{', pos)) != std::string_view::npos) {
+        size_t end_obj = json_str.find('}', pos);
+        if (end_obj == std::string_view::npos) break;
+
+        std::string_view obj = json_str.substr(pos, end_obj - pos + 1);
+        RecentProjectEntry entry;
+
+        auto extract_val = [obj](std::string_view key) -> std::string {
+            size_t kpos = obj.find(key);
+            if (kpos == std::string_view::npos) return "";
+            size_t vstart = obj.find('"', kpos + key.size());
+            if (vstart == std::string_view::npos) return "";
+            size_t vend = obj.find('"', vstart + 1);
+            if (vend == std::string_view::npos) return "";
+            return std::string(obj.substr(vstart + 1, vend - vstart - 1));
+        };
+
+        entry.path = extract_val("\"path\"");
+        entry.title = extract_val("\"title\"");
+        entry.last_opened_iso = extract_val("\"last_opened\"");
+        entry.is_pinned = (obj.find("\"is_pinned\": true") != std::string_view::npos);
+
+        if (!entry.path.empty()) {
+            entries_.push_back(std::move(entry));
+        }
+
+        pos = end_obj + 1;
+    }
+
+    return base::Result<void>::ok();
+}
+
+ProjectTemplateRegistry::ProjectTemplateRegistry() {
+    register_template(ProjectTemplateDescriptor{
+        .template_id = "template.multiphysics",
+        .name = "Coupled Multiphysics Rig",
+        .category = "Multiphysics",
+        .description = "Coupled Electro-Thermo-Mechanical rig with active telemetry probes and transient solver setup.",
+        .default_preset = WorkspacePreset::Simulation,
+        .tags = {"multiphysics", "thermal", "mechanics", "circuits"}
+    });
+
+    register_template(ProjectTemplateDescriptor{
+        .template_id = "template.pcb",
+        .name = "Electronic Circuit & PCB Layout",
+        .category = "Electronics",
+        .description = "Schematic capture, SPICE simulation bench, and multi-layer PCB routing template.",
+        .default_preset = WorkspacePreset::Schematic,
+        .tags = {"pcb", "schematic", "spice", "digital"}
+    });
+
+    register_template(ProjectTemplateDescriptor{
+        .template_id = "template.cad3d",
+        .name = "Mechanical 3D Assembly",
+        .category = "Mechanics",
+        .description = "Parametric 3D solid modeling workspace with B-Rep feature tree and rigid kinematics.",
+        .default_preset = WorkspacePreset::Modeling,
+        .tags = {"cad", "3d", "mechanics", "assembly"}
+    });
+
+    register_template(ProjectTemplateDescriptor{
+        .template_id = "template.chemistry",
+        .name = "Chemical Reaction Reactor",
+        .category = "Chemistry",
+        .description = "Batch/CSTR reactor model with Arrhenius reaction kinetics and thermodynamic equilibrium.",
+        .default_preset = WorkspacePreset::Simulation,
+        .tags = {"chemistry", "kinetics", "reactions", "thermodynamics"}
+    });
+
+    register_template(ProjectTemplateDescriptor{
+        .template_id = "template.blank",
+        .name = "Blank Project",
+        .category = "General",
+        .description = "Clean empty scene graph with default SI unit configuration.",
+        .default_preset = WorkspacePreset::Modeling,
+        .tags = {"blank", "empty", "custom"}
+    });
+}
+
+void ProjectTemplateRegistry::register_template(ProjectTemplateDescriptor desc) {
+    templates_.push_back(std::move(desc));
+}
+
+std::optional<ProjectTemplateDescriptor> ProjectTemplateRegistry::get_template(std::string_view id) const {
+    for (const auto& t : templates_) {
+        if (t.template_id == id) return t;
+    }
+    return std::nullopt;
+}
+
+std::vector<ProjectTemplateDescriptor> ProjectTemplateRegistry::get_templates_by_category(std::string_view category) const {
+    std::vector<ProjectTemplateDescriptor> matches;
+    for (const auto& t : templates_) {
+        if (t.category == category) matches.push_back(t);
+    }
+    return matches;
+}
+
+ApplicationMenuBarModel::ApplicationMenuBarModel() {
+    initialize_default_menu_bar();
+}
+
+void ApplicationMenuBarModel::initialize_default_menu_bar() {
+    menu_map_.clear();
+
+    // -------------------------------------------------------------------------
+    // FILE MENU
+    // -------------------------------------------------------------------------
+    menu_map_[MenuCategory::File] = {
+        MenuItemDescriptor::make_action("file.new", "New Project...", MenuCategory::File, "Ctrl+N", "N"),
+        MenuItemDescriptor::make_action("file.open", "Open Project...", MenuCategory::File, "Ctrl+O", "O"),
+        MenuItemDescriptor::make_submenu("file.recent", "Recent Projects", MenuCategory::File, {}),
+        MenuItemDescriptor::make_separator("file.sep1"),
+        MenuItemDescriptor::make_action("file.save", "Save", MenuCategory::File, "Ctrl+S", "S"),
+        MenuItemDescriptor::make_action("file.save_as", "Save As...", MenuCategory::File, "Ctrl+Shift+S", "A"),
+        MenuItemDescriptor::make_separator("file.sep2"),
+        MenuItemDescriptor::make_submenu("file.import", "Import", MenuCategory::File, {
+            MenuItemDescriptor::make_action("file.import.dxf", "AutoCAD DXF (*.dxf)", MenuCategory::File),
+            MenuItemDescriptor::make_action("file.import.svg", "Scalable Vector Graphics (*.svg)", MenuCategory::File),
+            MenuItemDescriptor::make_action("file.import.step", "STEP 3D CAD (*.step, *.stp)", MenuCategory::File),
+            MenuItemDescriptor::make_action("file.import.netlist", "SPICE Netlist (*.cir, *.net)", MenuCategory::File)
+        }),
+        MenuItemDescriptor::make_submenu("file.export", "Export", MenuCategory::File, {
+            MenuItemDescriptor::make_action("file.export.step", "STEP Solid Model (*.step)", MenuCategory::File),
+            MenuItemDescriptor::make_action("file.export.gerber", "Gerber RS-274X Package (*.zip)", MenuCategory::File),
+            MenuItemDescriptor::make_action("file.export.report", "Engineering Validation Report (*.pdf)", MenuCategory::File),
+            MenuItemDescriptor::make_action("file.export.csv", "Simulation Telemetry Data (*.csv)", MenuCategory::File)
+        }),
+        MenuItemDescriptor::make_separator("file.sep3"),
+        MenuItemDescriptor::make_action("file.close", "Close Project", MenuCategory::File, "Ctrl+W", "C"),
+        MenuItemDescriptor::make_action("file.exit", "Exit", MenuCategory::File, "Ctrl+Q", "X")
+    };
+
+    // -------------------------------------------------------------------------
+    // EDIT MENU
+    // -------------------------------------------------------------------------
+    menu_map_[MenuCategory::Edit] = {
+        MenuItemDescriptor::make_action("edit.undo", "Undo", MenuCategory::Edit, "Ctrl+Z"),
+        MenuItemDescriptor::make_action("edit.redo", "Redo", MenuCategory::Edit, "Ctrl+Y"),
+        MenuItemDescriptor::make_separator("edit.sep1"),
+        MenuItemDescriptor::make_action("edit.cut", "Cut", MenuCategory::Edit, "Ctrl+X"),
+        MenuItemDescriptor::make_action("edit.copy", "Copy", MenuCategory::Edit, "Ctrl+C"),
+        MenuItemDescriptor::make_action("edit.paste", "Paste", MenuCategory::Edit, "Ctrl+V"),
+        MenuItemDescriptor::make_separator("edit.sep2"),
+        MenuItemDescriptor::make_action("edit.preferences", "Preferences...", MenuCategory::Edit, "Ctrl+,")
+    };
+
+    // -------------------------------------------------------------------------
+    // VIEW MENU
+    // -------------------------------------------------------------------------
+    menu_map_[MenuCategory::View] = {
+        MenuItemDescriptor::make_action("view.reset_layout", "Reset to Default Layout", MenuCategory::View),
+        MenuItemDescriptor::make_action("view.toggle_fullscreen", "Toggle Full Screen", MenuCategory::View, "F11")
+    };
+
+    // -------------------------------------------------------------------------
+    // SIMULATION MENU
+    // -------------------------------------------------------------------------
+    menu_map_[MenuCategory::Simulation] = {
+        MenuItemDescriptor::make_action("sim.run", "Start Simulation", MenuCategory::Simulation, "F5"),
+        MenuItemDescriptor::make_action("sim.step", "Step Forward", MenuCategory::Simulation, "F10"),
+        MenuItemDescriptor::make_action("sim.pause", "Pause", MenuCategory::Simulation, "F6"),
+        MenuItemDescriptor::make_action("sim.stop", "Stop", MenuCategory::Simulation, "Shift+F5"),
+        MenuItemDescriptor::make_action("sim.reset", "Reset Simulation Clock", MenuCategory::Simulation)
+    };
+
+    // -------------------------------------------------------------------------
+    // HELP MENU
+    // -------------------------------------------------------------------------
+    menu_map_[MenuCategory::Help] = {
+        MenuItemDescriptor::make_action("help.docs", "Shunya Documentation", MenuCategory::Help, "F1"),
+        MenuItemDescriptor::make_action("help.about", "About Shunya Studio...", MenuCategory::Help)
+    };
+}
+
+void ApplicationMenuBarModel::add_item(MenuItemDescriptor item) {
+    menu_map_[item.category].push_back(std::move(item));
+}
+
+const std::vector<MenuItemDescriptor>& ApplicationMenuBarModel::items_for_category(MenuCategory cat) const {
+    static const std::vector<MenuItemDescriptor> empty;
+    auto it = menu_map_.find(cat);
+    return (it != menu_map_.end()) ? it->second : empty;
+}
+
+MenuItemDescriptor* ApplicationMenuBarModel::find_item(std::string_view id) {
+    for (auto& [cat, list] : menu_map_) {
+        if (auto* found = recursive_find(list, id)) {
+            return found;
+        }
+    }
+    return nullptr;
+}
+
+const MenuItemDescriptor* ApplicationMenuBarModel::find_item(std::string_view id) const {
+    for (const auto& [cat, list] : menu_map_) {
+        if (const auto* found = recursive_find(list, id)) {
+            return found;
+        }
+    }
+    return nullptr;
+}
+
+MenuItemDescriptor* ApplicationMenuBarModel::recursive_find(std::vector<MenuItemDescriptor>& items, std::string_view id) {
+    for (auto& item : items) {
+        if (item.id == id) return &item;
+        if (!item.sub_items.empty()) {
+            if (auto* sub = recursive_find(item.sub_items, id)) {
+                return sub;
+            }
+        }
+    }
+    return nullptr;
+}
+
+const MenuItemDescriptor* ApplicationMenuBarModel::recursive_find(const std::vector<MenuItemDescriptor>& items, std::string_view id) const {
+    for (const auto& item : items) {
+        if (item.id == id) return &item;
+        if (!item.sub_items.empty()) {
+            if (const auto* sub = recursive_find(item.sub_items, id)) {
+                return sub;
+            }
+        }
+    }
+    return nullptr;
+}
+
+bool ApplicationMenuBarModel::execute_item(std::string_view id) {
+    auto* item = find_item(id);
+    if (!item || !item->is_enabled) return false;
+    if (item->callback) {
+        item->callback();
+        return true;
+    }
+    return false;
+}
+
 } // namespace shunya::core::domain

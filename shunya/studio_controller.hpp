@@ -35,6 +35,9 @@ public:
     [[nodiscard]] QStringList activeEntities() const noexcept { return active_entities_; }
     [[nodiscard]] QString benchmarkOutput() const noexcept { return benchmark_output_; }
     [[nodiscard]] QString logOutput() const noexcept { return log_output_; }
+    [[nodiscard]] std::shared_ptr<shunya::core::domain::Project> currentProject() const noexcept { return current_project_; }
+
+    void setMenuBarController(class ShunyaMenuBarController* ctrl);
 
 public slots:
     void startSimulation();

@@ -1,4 +1,5 @@
 #include "studio_controller.hpp"
+#include "menu_bar_controller.hpp"
 
 #include <QDateTime>
 #include <chrono>
@@ -50,6 +51,18 @@ ShunyaStudioController::~ShunyaStudioController()
         timer_->stop();
     }
     AppContext::instance().shutdown();
+}
+
+void ShunyaStudioController::setMenuBarController(ShunyaMenuBarController* ctrl)
+{
+    if (!ctrl) return;
+    ctrl->setProject(current_project_);
+    connect(ctrl, &ShunyaMenuBarController::projectLoaded, this, [this](const QString& name, const QString& /*path*/) {
+        project_name_ = name;
+        emit projectNameChanged();
+        resetSimulation();
+    });
+    connect(ctrl, &ShunyaMenuBarController::logMessage, this, &ShunyaStudioController::appendLog);
 }
 
 void ShunyaStudioController::startSimulation()

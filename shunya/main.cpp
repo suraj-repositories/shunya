@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include "studio_controller.hpp"
+#include "menu_bar_controller.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -10,7 +11,11 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
 
     auto* studio = new ShunyaStudioController(&app);
+    auto* menuCtrl = new ShunyaMenuBarController(&app);
+    studio->setMenuBarController(menuCtrl);
+
     engine.rootContext()->setContextProperty("studio", studio);
+    engine.rootContext()->setContextProperty("menuController", menuCtrl);
 
     QObject::connect(
         &engine,

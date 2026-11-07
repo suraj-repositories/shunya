@@ -494,4 +494,157 @@ private:
     AccessibilitySettings settings_;
 };
 
+// =============================================================================
+// UI-01-003: Desktop Menu Bar & File Management Architecture
+// =============================================================================
+
+enum class MenuCategory {
+    File,
+    Edit,
+    View,
+    Insert,
+    Simulation,
+    Tools,
+    Window,
+    Help
+};
+
+[[nodiscard]] constexpr std::string_view menu_category_to_string(MenuCategory cat) noexcept {
+    switch (cat) {
+        case MenuCategory::File: return "File";
+        case MenuCategory::Edit: return "Edit";
+        case MenuCategory::View: return "View";
+        case MenuCategory::Insert: return "Insert";
+        case MenuCategory::Simulation: return "Simulation";
+        case MenuCategory::Tools: return "Tools";
+        case MenuCategory::Window: return "Window";
+        case MenuCategory::Help: return "Help";
+    }
+    return "File";
+}
+
+[[nodiscard]] std::optional<MenuCategory> menu_category_from_string(std::string_view str) noexcept;
+
+struct MenuItemDescriptor {
+    std::string id{};
+    std::string title{};
+    MenuCategory category{MenuCategory::File};
+    std::string shortcut{};
+    std::string mnemonic{};
+    bool is_enabled{true};
+    bool is_checkable{false};
+    bool is_checked{false};
+    bool is_separator{false};
+    std::vector<MenuItemDescriptor> sub_items{};
+    std::function<void()> callback{nullptr};
+
+    static MenuItemDescriptor make_action(std::string p_id, std::string p_title, MenuCategory p_cat = MenuCategory::File, std::string p_shortcut = "", std::string p_mnemonic = "") {
+        MenuItemDescriptor item;
+        item.id = std::move(p_id);
+        item.title = std::move(p_title);
+        item.category = p_cat;
+        item.shortcut = std::move(p_shortcut);
+        item.mnemonic = std::move(p_mnemonic);
+        return item;
+    }
+
+    static MenuItemDescriptor make_separator(std::string p_id) {
+        MenuItemDescriptor item;
+        item.id = std::move(p_id);
+        item.is_separator = true;
+        return item;
+    }
+
+    static MenuItemDescriptor make_submenu(std::string p_id, std::string p_title, MenuCategory p_cat, std::vector<MenuItemDescriptor> p_subs) {
+        MenuItemDescriptor item;
+        item.id = std::move(p_id);
+        item.title = std::move(p_title);
+        item.category = p_cat;
+        item.sub_items = std::move(p_subs);
+        return item;
+    }
+};
+
+struct RecentProjectEntry {
+    std::string path;
+    std::string title;
+    std::string last_opened_iso;
+    std::string thumbnail_hint;
+    bool is_pinned{false};
+
+    bool operator==(const RecentProjectEntry& o) const noexcept {
+        return path == o.path;
+    }
+};
+
+class RecentProjectsManager {
+public:
+    explicit RecentProjectsManager(size_t max_entries = 10);
+
+    void add_recent_project(std::string path, std::string title, std::string timestamp_iso = "");
+    void remove_recent_project(std::string_view path);
+    void clear() noexcept;
+    void pin_project(std::string_view path, bool pinned);
+
+    [[nodiscard]] const std::vector<RecentProjectEntry>& recent_projects() const noexcept { return entries_; }
+    [[nodiscard]] size_t size() const noexcept { return entries_.size(); }
+    [[nodiscard]] bool empty() const noexcept { return entries_.empty(); }
+
+    [[nodiscard]] std::string serialize_json() const;
+    base::Result<void> restore_json(std::string_view json_str);
+
+private:
+    size_t max_entries_{10};
+    std::vector<RecentProjectEntry> entries_;
+};
+
+struct ProjectTemplateDescriptor {
+    std::string template_id;
+    std::string name;
+    std::string category;
+    std::string description;
+    WorkspacePreset default_preset{WorkspacePreset::Modeling};
+    std::vector<std::string> tags;
+};
+
+class ProjectTemplateRegistry {
+public:
+    ProjectTemplateRegistry();
+
+    void register_template(ProjectTemplateDescriptor desc);
+    [[nodiscard]] const std::vector<ProjectTemplateDescriptor>& templates() const noexcept { return templates_; }
+    [[nodiscard]] std::optional<ProjectTemplateDescriptor> get_template(std::string_view id) const;
+    [[nodiscard]] std::vector<ProjectTemplateDescriptor> get_templates_by_category(std::string_view category) const;
+
+private:
+    std::vector<ProjectTemplateDescriptor> templates_;
+};
+
+class ApplicationMenuBarModel {
+public:
+    ApplicationMenuBarModel();
+
+    void initialize_default_menu_bar();
+
+    void add_item(MenuItemDescriptor item);
+    [[nodiscard]] const std::vector<MenuItemDescriptor>& items_for_category(MenuCategory cat) const;
+    [[nodiscard]] MenuItemDescriptor* find_item(std::string_view id);
+    [[nodiscard]] const MenuItemDescriptor* find_item(std::string_view id) const;
+    bool execute_item(std::string_view id);
+
+    RecentProjectsManager& recent_projects() noexcept { return recent_projects_; }
+    [[nodiscard]] const RecentProjectsManager& recent_projects() const noexcept { return recent_projects_; }
+
+    ProjectTemplateRegistry& templates() noexcept { return templates_; }
+    [[nodiscard]] const ProjectTemplateRegistry& templates() const noexcept { return templates_; }
+
+private:
+    std::unordered_map<MenuCategory, std::vector<MenuItemDescriptor>> menu_map_;
+    RecentProjectsManager recent_projects_;
+    ProjectTemplateRegistry templates_;
+
+    MenuItemDescriptor* recursive_find(std::vector<MenuItemDescriptor>& items, std::string_view id);
+    const MenuItemDescriptor* recursive_find(const std::vector<MenuItemDescriptor>& items, std::string_view id) const;
+};
+
 } // namespace shunya::core::domain

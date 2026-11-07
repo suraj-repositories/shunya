@@ -25,12 +25,17 @@ qt_add_executable(appshunya
     main.cpp
     studio_controller.hpp
     studio_controller.cpp
+    menu_bar_controller.hpp
+    menu_bar_controller.cpp
 )
 
 qt_add_qml_module(appshunya
     URI shunya
     QML_FILES
         Main.qml
+        MainMenuBar.qml
+        NewProjectWizard.qml
+        UnsavedChangesGuardDialog.qml
 )
 
 set_target_properties(appshunya PROPERTIES

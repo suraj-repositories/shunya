@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Basic
+import QtQuick.Dialogs
 
 ApplicationWindow {
     id: window
@@ -31,6 +32,27 @@ ApplicationWindow {
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
+
+        // =====================================================================
+        // Desktop Application Menu Bar (UI-01-003)
+        // =====================================================================
+        MainMenuBar {
+            id: appMenuBar
+            Layout.fillWidth: true
+            onNewProjectRequested: newProjectWizard.open()
+            onOpenProjectRequested: openFileDialog.open()
+            onSaveProjectRequested: {
+                if (typeof menuController !== "undefined") menuController.saveProject();
+            }
+            onSaveProjectAsRequested: saveFileDialog.open()
+            onCloseProjectRequested: {
+                if (typeof menuController !== "undefined") menuController.closeProject(false);
+            }
+            onExitRequested: {
+                if (typeof menuController !== "undefined") menuController.requestExit();
+                else Qt.quit();
+            }
+        }
 
         // =====================================================================
         // Top Toolbar
@@ -522,6 +544,45 @@ ApplicationWindow {
                 Item { Layout.fillWidth: true }
                 Label { text: "C++20 Core Baseline | Zero Leakage Interface"; color: "#6e7681"; font.pixelSize: 11 }
             }
+        }
+    }
+
+    NewProjectWizard {
+        id: newProjectWizard
+    }
+
+    UnsavedChangesGuardDialog {
+        id: unsavedChangesGuard
+    }
+
+    FileDialog {
+        id: openFileDialog
+        title: qsTr("Open Shunya Project")
+        nameFilters: ["Shunya Project Files (*.shunya *.json)", "All Files (*)"]
+        onAccepted: {
+            if (typeof menuController !== "undefined") {
+                menuController.openProject(selectedFile.toString().replace("file:///", ""));
+            }
+        }
+    }
+
+    FileDialog {
+        id: saveFileDialog
+        title: qsTr("Save Shunya Project As")
+        fileMode: FileDialog.SaveFile
+        nameFilters: ["Shunya Project Files (*.shunya *.json)", "All Files (*)"]
+        onAccepted: {
+            if (typeof menuController !== "undefined") {
+                menuController.saveProjectAs(selectedFile.toString().replace("file:///", ""));
+            }
+        }
+    }
+
+    Connections {
+        target: typeof menuController !== "undefined" ? menuController : null
+        function onConfirmUnsavedChanges(action) {
+            unsavedChangesGuard.pendingAction = action;
+            unsavedChangesGuard.open();
         }
     }
 }
