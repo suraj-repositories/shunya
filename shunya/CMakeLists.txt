@@ -31,6 +31,10 @@ qt_add_executable(appshunya
     docking_controller.cpp
     ribbon_controller.hpp
     ribbon_controller.cpp
+    property_tree_model.hpp
+    property_tree_model.cpp
+    quantity_input_controller.hpp
+    quantity_input_controller.cpp
 )
 
 qt_add_qml_module(appshunya
@@ -47,6 +51,9 @@ qt_add_qml_module(appshunya
         RibbonGroup.qml
         CommandPalette.qml
         UndoHistoryDropdown.qml
+        PropertyInspector.qml
+        PropertyDelegateFactory.qml
+        QuantitySpinBox.qml
 )
 
 set_target_properties(appshunya PROPERTIES

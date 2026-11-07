@@ -529,51 +529,15 @@ ApplicationWindow {
                 }
             }
 
-            // Right Panel: Property Inspector
+            // Right Panel: Scientific Property Inspector
             Rectangle {
-                Layout.preferredWidth: 280
+                Layout.preferredWidth: 300
                 Layout.fillHeight: true
                 color: window.panelDark
 
-                ColumnLayout {
+                PropertyInspector {
                     anchors.fill: parent
-                    anchors.margins: 12
-                    spacing: 8
-
-                    Label { text: "PROPERTY INSPECTOR"; font.bold: true; font.pixelSize: 11; color: window.textMuted }
-
-                    Rectangle { Layout.fillWidth: true; height: 1; color: window.borderDark }
-
-                    ListView {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        clip: true
-                        model: ListModel {
-                            ListElement { propName: "System State"; propVal: "Coupled L3" }
-                            ListElement { propName: "Circuit Load"; propVal: "8.0 \u03A9" }
-                            ListElement { propName: "Heater Dissipation"; propVal: "18.0 W" }
-                            ListElement { propName: "Thermal Mass"; propVal: "0.27 kg" }
-                            ListElement { propName: "Actuator Mass"; propVal: "1.5 kg" }
-                            ListElement { propName: "Coupling Rate"; propVal: "60 Hz" }
-                            ListElement { propName: "WASM Compatibility"; propVal: "Active" }
-                            ListElement { propName: "Memory Safety"; propVal: "Zero Leakage" }
-                        }
-                        delegate: Rectangle {
-                            width: parent.width
-                            height: 36
-                            color: "transparent"
-                            border.color: "#2d333b"
-                            radius: 4
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 8
-                                anchors.rightMargin: 8
-                                Label { text: model.propName; color: window.textMuted; font.pixelSize: 12 }
-                                Item { Layout.fillWidth: true }
-                                Label { text: model.propVal; color: window.textDark; font.bold: true; font.pixelSize: 12 }
-                            }
-                        }
-                    }
+                    model: typeof propertyTreeModel !== "undefined" ? propertyTreeModel : null
                 }
             }
         }

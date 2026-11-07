@@ -9,6 +9,7 @@ target_sources(shunya_core_base
         src/thread_pool.cpp
         src/app_context.cpp
         src/units.cpp
+        src/expression_evaluator.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -18,6 +19,8 @@ target_sources(shunya_core_base
             include/shunya/core/base/result.hpp
             include/shunya/core/base/logging.hpp
             include/shunya/core/base/event_bus.hpp
+            include/shunya/core/base/fuzzy_match.hpp
+            include/shunya/core/base/expression_evaluator.hpp
             include/shunya/core/base/math.hpp
             include/shunya/core/base/config.hpp
             include/shunya/core/base/thread_pool.hpp

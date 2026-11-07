@@ -148,6 +148,16 @@ base::Result<void> ParameterSchema::validate(const ParameterValue& value) const 
                 .details = ""
             });
         }
+    } else if (type == ParameterType::Quantity) {
+        if (value.type() != ParameterType::Quantity && value.type() != ParameterType::Double && value.type() != ParameterType::Int64) {
+            return base::Result<void>::err({
+                .code = 3101,
+                .domain = base::ErrorDomain::Validation,
+                .severity = base::Severity::Error,
+                .message = "Parameter '" + name + "' expected Quantity or Double, got " + std::string(parameter_type_to_string(value.type())),
+                .details = ""
+            });
+        }
     } else if (type != value.type()) {
         return base::Result<void>::err({
             .code = 3101,

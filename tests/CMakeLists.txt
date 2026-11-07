@@ -31,6 +31,7 @@ add_executable(shunya_unit_tests
     unit/test_ui_menu_bar.cpp
     unit/test_ui_docking.cpp
     unit/test_ui_ribbon_command.cpp
+    unit/test_ui_property_inspector.cpp
     unit/test_rendering.cpp
     unit/test_circuit.cpp
     unit/test_digital_logic.cpp

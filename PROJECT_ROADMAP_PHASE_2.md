@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 153 | 94.4% |
+| `[ ]` | Not Started | 150 | 92.6% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 9 | 5.6% |
+| `[x]` | Completed | 12 | 7.4% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **5.6%** (9 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **7.4%** (12 / 162 leaf subtasks completed)
 
 
 ---
@@ -87,7 +87,7 @@ Every module is assigned a target development stage, priority classification (P0
 
 | Module ID | Module Name | Phase / Stage | Priority | Total Subtasks | Completed | Progress |
 |---|---|---|---|---:|---:|---:|
-| **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 9 | 45.0% |
+| **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 12 | 60.0% |
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 0 | 0.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 0 | 0.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **3** | **1.9%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **12** | **7.4%** |
 
 ---
 
@@ -150,11 +150,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 │   │   │   ├── Subtask [UI-01-003-01] Implement desktop application menu bar structure and cross-platform native integration
 │   │   │   ├── Subtask [UI-01-003-02] Implement File menu project lifecycle actions and recent files manager
 │   │   │   ├── Subtask [UI-01-003-03] Implement File import/export action dispatchers and dirty state save prompt dialogs
-│   ├── Submodule [UI-02] Unified Inspector & Property Editor
-│   │   ├── Task [UI-02-001] Scientific Property Grid & Dimension-Aware Inputs
-│   │   │   ├── Subtask [UI-02-001-01] Build hierarchical reflected property tree editor
-│   │   │   ├── Subtask [UI-02-001-02] Implement inline dimensional unit conversions in property fields
-│   │   │   ├── Subtask [UI-02-001-03] Implement parametric mathematical formula expression evaluator in numerical inputs
+│   ├── Submodule [UI-02] [~] Unified Inspector & Property Editor
+│   │   ├── Task [UI-02-001] [x] Scientific Property Grid & Dimension-Aware Inputs
+│   │   │   ├── Subtask [UI-02-001-01] [x] Build hierarchical reflected property tree editor
+│   │   │   ├── Subtask [UI-02-001-02] [x] Implement inline dimensional unit conversions in property fields
+│   │   │   ├── Subtask [UI-02-001-03] [x] Implement parametric mathematical formula expression evaluator in numerical inputs
 │   │   ├── Task [UI-02-002] Multi-Selection & Batch Property Editing
 │   │   │   ├── Subtask [UI-02-002-01] Implement homogenous & heterogenous multi-selection property diffing
 │   │   │   ├── Subtask [UI-02-002-02] Implement bulk property update transactions with atomic rollback

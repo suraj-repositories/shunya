@@ -109,7 +109,15 @@ public:
         }, storage_);
     }
 
-    [[nodiscard]] double as_double() const { return std::get<double>(storage_); }
+    [[nodiscard]] double as_double() const {
+        if (std::holds_alternative<base::units::Quantity>(storage_)) {
+            return std::get<base::units::Quantity>(storage_).value;
+        }
+        if (std::holds_alternative<int64_t>(storage_)) {
+            return static_cast<double>(std::get<int64_t>(storage_));
+        }
+        return std::get<double>(storage_);
+    }
     [[nodiscard]] int64_t as_int64() const { return std::get<int64_t>(storage_); }
     [[nodiscard]] bool as_bool() const { return std::get<bool>(storage_); }
     [[nodiscard]] const std::string& as_string() const { return std::get<std::string>(storage_); }

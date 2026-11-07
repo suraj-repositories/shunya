@@ -206,10 +206,18 @@ public:
     [[nodiscard]] std::string format(const Quantity& q, int precision = 4, bool auto_prefix = false) const;
     [[nodiscard]] std::string suggest_best_unit(const Dimension& dim, double value) const;
 
+    [[nodiscard]] std::vector<std::string> get_units_for_dimension(const Dimension& dim) const;
+    [[nodiscard]] std::vector<std::string> get_compatible_units(std::string_view unit_symbol) const;
+
 private:
     void populate_standard_units();
     std::unordered_map<std::string, UnitDefinition> units_;
 };
+
+// -------------------------------------------------------------
+// Quantity Parsing (UI-02-001-02)
+// -------------------------------------------------------------
+[[nodiscard]] Result<Quantity> parse_quantity(std::string_view str);
 
 // -------------------------------------------------------------
 // Vector and Tensor Quantities (UNIT-05)
