@@ -812,7 +812,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Selecting 50 identical resistors shows resistance value once; selecting a resistor and capacitor shows only shared transform/name properties.
     - **Testing & Verification Requirements:** Test intersection logic on homogenous sets, heterogenous sets, and empty selections.
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_multi_property.cpp (50 identical resistors intersection with unified resistance value, 50 divergent resistors with <mixed> placeholder, heterogeneous resistor + capacitor intersection isolating common spatial transforms, and empty selection safety).
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit 31968f3 (feat(ui): implement multi-selection property diffing and batch editing)
 
   - [x] **UI-02-002-02: Implement bulk property update transactions with atomic rollback**
     - **Status:** `[x] Completed`
@@ -824,7 +824,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Single undo action reverts property change on all 50 modified entities simultaneously.
     - **Testing & Verification Requirements:** Apply bulk property change across 100 entities -> undo -> assert all 100 return to exact original values.
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_multi_property.cpp (BatchSetPropertyCommand modifying 100 entities in batch, single CommandStack::undo() atomic rollback restoring all 100 entities to original values, and CommandStack::redo() restoration).
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit 31968f3 (feat(ui): implement multi-selection property diffing and batch editing)
 
 
 
