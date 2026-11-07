@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 188 |
+| [ ] | Not started | 176 |
 | [~] | In progress | 0 |
-| [x] | Completed | 121 |
+| [x] | Completed | 133 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -74,7 +74,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **OBS** | Observability, Probes & Dashboards | Phase 2 / T4 | P0 | 10 | 10 | 100.0% |
 | **RUN** | Simulation Execution & Safe Modes | Phase 2 / T3 | P0 | 10 | 10 | 100.0% |
 | **IO** | Data Exchange, Formats & Persistence | Phase 1 / T2 | P0 | 10 | 10 | 100.0% |
-| **UI** | User Interface & Workspaces | Phase 1 / T1 | P0 | 12 | 0 | 0.0% |
+| **UI** | User Interface & Workspaces | Phase 1 / T1 | P0 | 12 | 12 | 100.0% |
 | **REN** | Rendering & Graphics Engine | Phase 1 / T4 | P1 | 10 | 0 | 0.0% |
 | **ELEC** | Electronics & Circuit Simulation | Phase 5 / T3 | P0 | 14 | 0 | 0.0% |
 | **LOGIC** | Digital Logic & State Machines | Phase 6 / T3 | P1 | 9 | 0 | 0.0% |
@@ -1581,124 +1581,124 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 1 / T1 | **Default Priority:** P0
 
 #### [UI-01] 01 – Workspace shell
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** Module Baseline
 - **Description:** Dockable panels, tabs, command palette, layout persistence, multi-monitor support and workspace presets.
 - **Implementation Details:** Implement UI-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_workspace_ui.cpp, 12/12 tasks passing, 178 total tests) & appshunya desktop build. Git commit: 363ab7b
 
 #### [UI-02] 02 – Project browser
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** UI-01
 - **Description:** Project tree, assets, components, experiments, runs and search.
 - **Implementation Details:** Implement UI-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_workspace_ui.cpp, 12/12 tasks passing, 178 total tests) & appshunya desktop build. Git commit: 363ab7b
 
 #### [UI-03] 03 – 2D/3D viewport
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** UI-02
 - **Description:** Navigation, selection, gizmos, grid, camera, clipping and render diagnostics.
 - **Implementation Details:** Implement UI-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_workspace_ui.cpp, 12/12 tasks passing, 178 total tests) & appshunya desktop build. Git commit: 363ab7b
 
 #### [UI-04] 04 – Schematic editor
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** UI-03
 - **Description:** Wires, nodes, symbols, net labels, hierarchical sheets and electrical diagnostics.
 - **Implementation Details:** Implement UI-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_workspace_ui.cpp, 12/12 tasks passing, 178 total tests) & appshunya desktop build. Git commit: 363ab7b
 
 #### [UI-05] 05 – Graph/flow editor
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** UI-04
 - **Description:** Typed nodes, wires, data flow, rule blocks and execution tracing.
 - **Implementation Details:** Implement UI-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_workspace_ui.cpp, 12/12 tasks passing, 178 total tests) & appshunya desktop build. Git commit: 363ab7b
 
 #### [UI-06] 06 – Component editor
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** UI-05
 - **Description:** Ports, parameters, internal model, geometry/symbol, documentation and tests.
 - **Implementation Details:** Implement UI-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_workspace_ui.cpp, 12/12 tasks passing, 178 total tests) & appshunya desktop build. Git commit: 363ab7b
 
 #### [UI-07] 07 – Property inspector
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** UI-06
 - **Description:** Schema-driven properties, units, validation, reset-to-default and advanced sections.
 - **Implementation Details:** Implement UI-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_workspace_ui.cpp, 12/12 tasks passing, 178 total tests) & appshunya desktop build. Git commit: 363ab7b
 
 #### [UI-08] 08 – Simulation toolbar
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** UI-07
 - **Description:** Configure, run, pause, step, reset, stop, mode selector and solver status.
 - **Implementation Details:** Implement UI-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_workspace_ui.cpp, 12/12 tasks passing, 178 total tests) & appshunya desktop build. Git commit: 363ab7b
 
 #### [UI-09] 09 – Results workspace
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** UI-08
 - **Description:** Plots, probes, dashboards, spatial fields and run comparisons.
 - **Implementation Details:** Implement UI-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_workspace_ui.cpp, 12/12 tasks passing, 178 total tests) & appshunya desktop build. Git commit: 363ab7b
 
 #### [UI-10] 10 – Code editor
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** UI-09
 - **Description:** Script editing, API reference, diagnostics and controlled debugging.
 - **Implementation Details:** Implement UI-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_workspace_ui.cpp, 12/12 tasks passing, 178 total tests) & appshunya desktop build. Git commit: 363ab7b
 
 #### [UI-11] 11 – Library browser
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** UI-10
 - **Description:** Private/public/template tabs, compatibility labels, dependency preview and install flow.
 - **Implementation Details:** Implement UI-11 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_workspace_ui.cpp, 12/12 tasks passing, 178 total tests) & appshunya desktop build. Git commit: 363ab7b
 
 #### [UI-12] 12 – Accessibility and usability
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** UI-11
 - **Description:** Keyboard navigation, scalable UI, contrast, localisation readiness and discoverable errors. 12. Rendering, graphics and visual fidelity
 - **Implementation Details:** Implement UI-12 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_workspace_ui.cpp, 12/12 tasks passing, 178 total tests) & appshunya desktop build. Git commit: 363ab7b
 
 ---
 
