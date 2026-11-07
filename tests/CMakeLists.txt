@@ -34,6 +34,7 @@ add_executable(shunya_unit_tests
     unit/test_mechanics.cpp
     unit/test_thermal.cpp
     unit/test_device.cpp
+    unit/test_virtual_lab.cpp
 )
 
 target_include_directories(shunya_unit_tests

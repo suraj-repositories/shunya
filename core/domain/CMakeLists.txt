@@ -35,6 +35,7 @@ target_sources(shunya_core_domain
         src/mechanics.cpp
         src/thermal.cpp
         src/device.cpp
+        src/virtual_lab.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -71,6 +72,7 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/mechanics.hpp
             include/shunya/core/domain/thermal.hpp
             include/shunya/core/domain/device.hpp
+            include/shunya/core/domain/virtual_lab.hpp
 )
 
 target_include_directories(shunya_core_domain
