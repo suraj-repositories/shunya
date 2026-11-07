@@ -42,6 +42,7 @@ target_sources(shunya_core_domain
         src/co_simulation.cpp
         src/fluid_dynamics.cpp
         src/chemistry.cpp
+        src/optics.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -85,6 +86,7 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/co_simulation.hpp
             include/shunya/core/domain/fluid_dynamics.hpp
             include/shunya/core/domain/chemistry.hpp
+            include/shunya/core/domain/optics.hpp
 )
 
 target_include_directories(shunya_core_domain

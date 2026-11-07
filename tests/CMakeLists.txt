@@ -41,6 +41,7 @@ add_executable(shunya_unit_tests
     unit/test_co_simulation.cpp
     unit/test_fluid_dynamics.cpp
     unit/test_chemistry.cpp
+    unit/test_optics.cpp
 )
 
 target_include_directories(shunya_unit_tests
