@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 152 |
+| [ ] | Not started | 143 |
 | [~] | In progress | 0 |
-| [x] | Completed | 157 |
+| [x] | Completed | 166 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -77,7 +77,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **UI** | User Interface & Workspaces | Phase 1 / T1 | P0 | 12 | 12 | 100.0% |
 | **REN** | Rendering & Graphics Engine | Phase 1 / T4 | P1 | 10 | 10 | 100.0% |
 | **ELEC** | Electronics & Circuit Simulation | Phase 5 / T3 | P0 | 14 | 14 | 100.0% |
-| **LOGIC** | Digital Logic & State Machines | Phase 6 / T3 | P1 | 9 | 0 | 0.0% |
+| **LOGIC** | Digital Logic & State Machines | Phase 6 / T3 | P1 | 9 | 9 | 100.0% |
 | **MEC** | Classical Mechanics & Rigid Bodies | Phase 3 / T5 | P1 | 10 | 0 | 0.0% |
 | **THM** | Thermal & Heat Transfer | Phase 3 / T5 | P1 | 9 | 0 | 0.0% |
 | **DEV** | Physical Device Construction | Phase 7 / T5 | P1 | 12 | 0 | 0.0% |
@@ -1959,94 +1959,94 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 6 / T3 | **Default Priority:** P1
 
 #### [LOGIC-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 6 / T3
 - **Dependencies:** Module Baseline
 - **Description:** Boolean signal type, logic levels, propagation delay and unknown/high-impedance states.
 - **Implementation Details:** Implement LOGIC-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_digital_logic.cpp, 9/9 tasks passing, 209 total test cases, 2157 checks) & appshunya desktop build. Git commit: 11d9022
 
 #### [LOGIC-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 6 / T3
 - **Dependencies:** LOGIC-01
 - **Description:** Functional gates: NOT, AND, OR, NAND, NOR, XOR and XNOR.
 - **Implementation Details:** Implement LOGIC-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_digital_logic.cpp, 9/9 tasks passing, 209 total test cases, 2157 checks) & appshunya desktop build. Git commit: 11d9022
 
 #### [LOGIC-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 6 / T3
 - **Dependencies:** LOGIC-02
 - **Description:** Combinational circuit evaluation and truth-table test harness.
 - **Implementation Details:** Implement LOGIC-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_digital_logic.cpp, 9/9 tasks passing, 209 total test cases, 2157 checks) & appshunya desktop build. Git commit: 11d9022
 
 #### [LOGIC-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 6 / T3
 - **Dependencies:** LOGIC-03
 - **Description:** Sequential elements: latch, flip-flop, counter and register.
 - **Implementation Details:** Implement LOGIC-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_digital_logic.cpp, 9/9 tasks passing, 209 total test cases, 2157 checks) & appshunya desktop build. Git commit: 11d9022
 
 #### [LOGIC-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 6 / T3
 - **Dependencies:** LOGIC-04
 - **Description:** Clock generation, event scheduling and setup/hold abstractions where supported.
 - **Implementation Details:** Implement LOGIC-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_digital_logic.cpp, 9/9 tasks passing, 209 total test cases, 2157 checks) & appshunya desktop build. Git commit: 11d9022
 
 #### [LOGIC-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 6 / T3
 - **Dependencies:** LOGIC-05
 - **Description:** Bus, pin grouping and hierarchical digital modules.
 - **Implementation Details:** Implement LOGIC-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_digital_logic.cpp, 9/9 tasks passing, 209 total test cases, 2157 checks) & appshunya desktop build. Git commit: 11d9022
 
 #### [LOGIC-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 6 / T3
 - **Dependencies:** LOGIC-06
 - **Description:** Functional CPU/computing abstractions as later modules: ALU, registers, memory and bus.
 - **Implementation Details:** Implement LOGIC-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_digital_logic.cpp, 9/9 tasks passing, 209 total test cases, 2157 checks) & appshunya desktop build. Git commit: 11d9022
 
 #### [LOGIC-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 6 / T3
 - **Dependencies:** LOGIC-07
 - **Description:** Mixed-signal bridge between analog voltages and digital states.
 - **Implementation Details:** Implement LOGIC-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_digital_logic.cpp, 9/9 tasks passing, 209 total test cases, 2157 checks) & appshunya desktop build. Git commit: 11d9022
 
 #### [LOGIC-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 6 / T3
 - **Dependencies:** LOGIC-08
 - **Description:** Validation: truth tables, timing tests and sequential state tests. OPT – Optics and electromagnetic extensions
 - **Implementation Details:** Implement LOGIC-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_digital_logic.cpp, 9/9 tasks passing, 209 total test cases, 2157 checks) & appshunya desktop build. Git commit: 11d9022
 
 ---
 
