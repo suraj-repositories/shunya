@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 238 |
+| [ ] | Not started | 228 |
 | [~] | In progress | 0 |
-| [x] | Completed | 71 |
+| [x] | Completed | 81 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -69,7 +69,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **MATRT** | Element/Material Runtime & Properties | Phase 1 / T2 | P0 | 12 | 12 | 100.0% |
 | **MATUI** | Material Editor & Periodic Table UI | Phase 1 / T2 | P1 | 10 | 0 | 0.0% |
 | **CMP** | Generic Component & Device Framework | Phase 1 / T1 | P0 | 8 | 8 | 100.0% |
-| **SIM** | Simulation Runtime and Scheduling | Phase 2 / T3 | P0 | 10 | 0 | 0.0% |
+| **SIM** | Simulation Runtime and Scheduling | Phase 2 / T3 | P0 | 10 | 10 | 100.0% |
 | **SOL** | Numerical Solver Framework | Phase 2 / T3 | P0 | 10 | 0 | 0.0% |
 | **OBS** | Observability, Probes & Dashboards | Phase 2 / T4 | P0 | 10 | 0 | 0.0% |
 | **RUN** | Simulation Execution & Safe Modes | Phase 2 / T3 | P0 | 10 | 0 | 0.0% |
@@ -1051,104 +1051,104 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 2 / T3 | **Default Priority:** P0
 
 #### [SIM-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** Module Baseline
 - **Description:** Define simulation states: stopped, configuring, running, paused, stepping, completed, failed and cancelled.
 - **Implementation Details:** Implement SIM-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_runtime.cpp, 10/10 tasks passing). Git commit: bb96686
 
 #### [SIM-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SIM-01
 - **Description:** Create simulation configuration: start/end time, time-step policy, solver selection, tolerances, seed and output sampling.
 - **Implementation Details:** Implement SIM-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_runtime.cpp, 10/10 tasks passing). Git commit: bb96686
 
 #### [SIM-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SIM-02
 - **Description:** Implement simulation clock with physical time distinct from wall-clock time.
 - **Implementation Details:** Implement SIM-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_runtime.cpp, 10/10 tasks passing). Git commit: bb96686
 
 #### [SIM-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SIM-03
 - **Description:** Coordinate domain engines through a deterministic step protocol.
 - **Implementation Details:** Implement SIM-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_runtime.cpp, 10/10 tasks passing). Git commit: bb96686
 
 #### [SIM-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SIM-04
 - **Description:** Support fixed and adaptive time steps; expose minimum/maximum step and rejection diagnostics.
 - **Implementation Details:** Implement SIM-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_runtime.cpp, 10/10 tasks passing). Git commit: bb96686
 
 #### [SIM-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SIM-05
 - **Description:** Implement pause, resume, single-step, stop, reset and checkpoint/restart.
 - **Implementation Details:** Implement SIM-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_runtime.cpp, 10/10 tasks passing). Git commit: bb96686
 
 #### [SIM-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SIM-06
 - **Description:** Define event scheduling for discrete events, switching and user-triggered events.
 - **Implementation Details:** Implement SIM-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_runtime.cpp, 10/10 tasks passing). Git commit: bb96686
 
 #### [SIM-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SIM-07
 - **Description:** Implement run isolation so editing a project does not silently mutate an active run.
 - **Implementation Details:** Implement SIM-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_runtime.cpp, 10/10 tasks passing). Git commit: bb96686
 
 #### [SIM-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SIM-08
 - **Description:** Record run manifest with project hash, model versions, solver settings and environment.
 - **Implementation Details:** Implement SIM-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_runtime.cpp, 10/10 tasks passing). Git commit: bb96686
 
 #### [SIM-10] 10
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SIM-09
 - **Description:** Add progress estimates, cancellation and graceful failure recovery. SOL – Numerical solver framework
 - **Implementation Details:** Implement SIM-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_runtime.cpp, 10/10 tasks passing). Git commit: bb96686
 
 ---
 
