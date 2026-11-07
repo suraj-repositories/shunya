@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 92 |
+| [ ] | Not started | 82 |
 | [~] | In progress | 0 |
-| [x] | Completed | 217 |
+| [x] | Completed | 227 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -83,7 +83,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **DEV** | Physical Device Construction | Phase 7 / T5 | P1 | 12 | 12 | 100.0% |
 | **ENV** | Real-time Virtual Lab Environment | Phase 1 / T1 | P1 | 8 | 8 | 100.0% |
 | **CODE** | Programmability, Formulas & Scripting | Phase 4 / T6 | P1 | 12 | 12 | 100.0% |
-| **SEC** | Security, Sandboxing & Reliability | Phase 4 / T6 | P1 | 10 | 0 | 0.0% |
+| **SEC** | Security, Sandboxing & Reliability | Phase 4 / T6 | P1 | 10 | 10 | 100.0% |
 | **LIB** | Component Library, Templates & Sharing | Phase 7 / T6 | P1 | 14 | 0 | 0.0% |
 | **EVT** | Event & Co-Simulation Orchestration | Phase 9 / T6 | P1 | 6 | 0 | 0.0% |
 | **FLD** | Fluid Dynamics & Hydraulics | Phase 8 / T7 | P2 | 10 | 0 | 0.0% |
@@ -2595,104 +2595,104 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 4 / T6 | **Default Priority:** P1
 
 #### [SEC-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 4 / T6
 - **Dependencies:** Module Baseline
 - **Description:** Threat-model scripts, plugins, public packages, file imports and collaboration.
 - **Implementation Details:** Implement SEC-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_security.cpp, 10/10 tasks passing, 267 total test cases, 2912 checks) & appshunya desktop build. Git commit: 3e9668e
 
 #### [SEC-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 4 / T6
 - **Dependencies:** SEC-01
 - **Description:** Sandbox user scripts with strict capabilities and resource budgets.
 - **Implementation Details:** Implement SEC-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_security.cpp, 10/10 tasks passing, 267 total test cases, 2912 checks) & appshunya desktop build. Git commit: 3e9668e
 
 #### [SEC-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 4 / T6
 - **Dependencies:** SEC-02
 - **Description:** Require explicit trust and signing for native extensions.
 - **Implementation Details:** Implement SEC-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_security.cpp, 10/10 tasks passing, 267 total test cases, 2912 checks) & appshunya desktop build. Git commit: 3e9668e
 
 #### [SEC-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 4 / T6
 - **Dependencies:** SEC-03
 - **Description:** Validate imported files; defend against path traversal, oversized assets and malformed schemas.
 - **Implementation Details:** Implement SEC-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_security.cpp, 10/10 tasks passing, 267 total test cases, 2912 checks) & appshunya desktop build. Git commit: 3e9668e
 
 #### [SEC-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 4 / T6
 - **Dependencies:** SEC-04
 - **Description:** Separate project data from executable code.
 - **Implementation Details:** Implement SEC-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_security.cpp, 10/10 tasks passing, 267 total test cases, 2912 checks) & appshunya desktop build. Git commit: 3e9668e
 
 #### [SEC-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 4 / T6
 - **Dependencies:** SEC-05
 - **Description:** Add permission model for private, team and public assets.
 - **Implementation Details:** Implement SEC-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_security.cpp, 10/10 tasks passing, 267 total test cases, 2912 checks) & appshunya desktop build. Git commit: 3e9668e
 
 #### [SEC-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 4 / T6
 - **Dependencies:** SEC-06
 - **Description:** Create crash recovery, autosave and corrupted-project recovery tests.
 - **Implementation Details:** Implement SEC-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_security.cpp, 10/10 tasks passing, 267 total test cases, 2912 checks) & appshunya desktop build. Git commit: 3e9668e
 
 #### [SEC-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 4 / T6
 - **Dependencies:** SEC-07
 - **Description:** Define privacy-safe telemetry as opt-in with clear data inventory.
 - **Implementation Details:** Implement SEC-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_security.cpp, 10/10 tasks passing, 267 total test cases, 2912 checks) & appshunya desktop build. Git commit: 3e9668e
 
 #### [SEC-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 4 / T6
 - **Dependencies:** SEC-08
 - **Description:** Add dependency vulnerability scanning and software bill of materials.
 - **Implementation Details:** Implement SEC-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_security.cpp, 10/10 tasks passing, 267 total test cases, 2912 checks) & appshunya desktop build. Git commit: 3e9668e
 
 #### [SEC-10] 10
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 4 / T6
 - **Dependencies:** SEC-09
 - **Description:** Define release signing, update channel and rollback strategy. 15. Testing and scientific validation framework
 - **Implementation Details:** Implement SEC-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_security.cpp, 10/10 tasks passing, 267 total test cases, 2912 checks) & appshunya desktop build. Git commit: 3e9668e
 
 ---
 
