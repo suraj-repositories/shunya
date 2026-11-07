@@ -23,6 +23,723 @@ base::Error make_ui_error(std::string message, int32_t code = 3001) {
 // UI-01: Workspace Shell & Docking Layout
 // =============================================================================
 
+namespace {
+
+enum class JsonType { Null, Bool, Number, String, Array, Object };
+
+struct SimpleJson {
+    JsonType type{JsonType::Null};
+    bool bool_val{false};
+    double num_val{0.0};
+    std::string str_val;
+    std::vector<SimpleJson> arr_val;
+    std::vector<std::pair<std::string, SimpleJson>> obj_val;
+
+    [[nodiscard]] const SimpleJson* get(std::string_view key) const {
+        for (const auto& [k, v] : obj_val) {
+            if (k == key) return &v;
+        }
+        return nullptr;
+    }
+
+    [[nodiscard]] std::string get_string(std::string_view key, std::string default_val = "") const {
+        const auto* p = get(key);
+        return (p && p->type == JsonType::String) ? p->str_val : default_val;
+    }
+
+    [[nodiscard]] double get_number(std::string_view key, double default_val = 0.0) const {
+        const auto* p = get(key);
+        return (p && p->type == JsonType::Number) ? p->num_val : default_val;
+    }
+
+    [[nodiscard]] bool get_bool(std::string_view key, bool default_val = false) const {
+        const auto* p = get(key);
+        return (p && p->type == JsonType::Bool) ? p->bool_val : default_val;
+    }
+};
+
+void skip_json_ws(std::string_view s, size_t& pos) {
+    while (pos < s.size() && (s[pos] == ' ' || s[pos] == '\t' || s[pos] == '\r' || s[pos] == '\n')) {
+        ++pos;
+    }
+}
+
+SimpleJson parse_simple_json_val(std::string_view s, size_t& pos);
+
+std::string parse_simple_json_str(std::string_view s, size_t& pos) {
+    std::string result;
+    if (pos >= s.size() || s[pos] != '"') return result;
+    ++pos; // skip opening quote
+    while (pos < s.size()) {
+        char c = s[pos++];
+        if (c == '"') {
+            return result;
+        }
+        if (c == '\\' && pos < s.size()) {
+            char esc = s[pos++];
+            if (esc == '"') result.push_back('"');
+            else if (esc == '\\') result.push_back('\\');
+            else if (esc == 'n') result.push_back('\n');
+            else if (esc == 'r') result.push_back('\r');
+            else if (esc == 't') result.push_back('\t');
+            else result.push_back(esc);
+        } else {
+            result.push_back(c);
+        }
+    }
+    return result;
+}
+
+SimpleJson parse_simple_json_val(std::string_view s, size_t& pos) {
+    skip_json_ws(s, pos);
+    SimpleJson val;
+    if (pos >= s.size()) return val;
+
+    if (s[pos] == '"') {
+        val.type = JsonType::String;
+        val.str_val = parse_simple_json_str(s, pos);
+        return val;
+    }
+
+    if (s[pos] == '{') {
+        val.type = JsonType::Object;
+        ++pos;
+        while (pos < s.size()) {
+            skip_json_ws(s, pos);
+            if (pos < s.size() && s[pos] == '}') {
+                ++pos;
+                break;
+            }
+            if (s[pos] != '"') break;
+            std::string key = parse_simple_json_str(s, pos);
+            skip_json_ws(s, pos);
+            if (pos < s.size() && s[pos] == ':') ++pos;
+            SimpleJson child = parse_simple_json_val(s, pos);
+            val.obj_val.emplace_back(std::move(key), std::move(child));
+            skip_json_ws(s, pos);
+            if (pos < s.size() && s[pos] == ',') ++pos;
+        }
+        return val;
+    }
+
+    if (s[pos] == '[') {
+        val.type = JsonType::Array;
+        ++pos;
+        while (pos < s.size()) {
+            skip_json_ws(s, pos);
+            if (pos < s.size() && s[pos] == ']') {
+                ++pos;
+                break;
+            }
+            SimpleJson child = parse_simple_json_val(s, pos);
+            val.arr_val.push_back(std::move(child));
+            skip_json_ws(s, pos);
+            if (pos < s.size() && s[pos] == ',') ++pos;
+        }
+        return val;
+    }
+
+    if (s.substr(pos, 4) == "true") {
+        val.type = JsonType::Bool;
+        val.bool_val = true;
+        pos += 4;
+        return val;
+    }
+    if (s.substr(pos, 5) == "false") {
+        val.type = JsonType::Bool;
+        val.bool_val = false;
+        pos += 5;
+        return val;
+    }
+    if (s.substr(pos, 4) == "null") {
+        val.type = JsonType::Null;
+        pos += 4;
+        return val;
+    }
+
+    // Number
+    size_t start = pos;
+    if (pos < s.size() && (s[pos] == '-' || s[pos] == '+')) ++pos;
+    while (pos < s.size() && ((s[pos] >= '0' && s[pos] <= '9') || s[pos] == '.' || s[pos] == 'e' || s[pos] == 'E')) {
+        ++pos;
+    }
+    std::string num_str(s.substr(start, pos - start));
+    val.type = JsonType::Number;
+    try {
+        val.num_val = std::stod(num_str);
+    } catch (...) {
+        val.num_val = 0.0;
+    }
+    return val;
+}
+
+std::shared_ptr<DockNode> parse_dock_node_from_json(const SimpleJson& obj) {
+    if (obj.type != JsonType::Object) return nullptr;
+
+    std::string id = obj.get_string("node_id", "node");
+    std::string type_str = obj.get_string("type", "Leaf");
+
+    if (type_str == "Leaf") {
+        auto node = std::make_shared<DockNode>();
+        node->node_id = id;
+        node->type = DockNodeType::Leaf;
+        node->panel_id = obj.get_string("panel_id", id);
+        node->title = obj.get_string("title", node->panel_id);
+        node->is_visible = obj.get_bool("is_visible", true);
+        node->is_closable = obj.get_bool("is_closable", true);
+        node->is_floating = obj.get_bool("is_floating", false);
+        node->min_width = obj.get_number("min_width", 160.0);
+        node->min_height = obj.get_number("min_height", 120.0);
+        return node;
+    }
+
+    if (type_str == "SplitHorizontal" || type_str == "SplitVertical") {
+        auto node = std::make_shared<DockNode>();
+        node->node_id = id;
+        node->type = (type_str == "SplitHorizontal") ? DockNodeType::SplitHorizontal : DockNodeType::SplitVertical;
+        node->split_ratio = obj.get_number("split_ratio", 0.5);
+
+        const auto* first = obj.get("first_child");
+        if (first) node->first_child = parse_dock_node_from_json(*first);
+
+        const auto* second = obj.get("second_child");
+        if (second) node->second_child = parse_dock_node_from_json(*second);
+
+        return node;
+    }
+
+    if (type_str == "Tabbed") {
+        auto node = std::make_shared<DockNode>();
+        node->node_id = id;
+        node->type = DockNodeType::Tabbed;
+        node->active_tab_index = static_cast<size_t>(obj.get_number("active_tab_index", 0.0));
+
+        const auto* tabs_arr = obj.get("tabs");
+        if (tabs_arr && tabs_arr->type == JsonType::Array) {
+            for (const auto& tab_elem : tabs_arr->arr_val) {
+                auto child = parse_dock_node_from_json(tab_elem);
+                if (child) node->tabs.push_back(std::move(child));
+            }
+        }
+        return node;
+    }
+
+    return nullptr;
+}
+
+} // namespace
+
+// =============================================================================
+// DockNode Implementation
+// =============================================================================
+
+std::shared_ptr<DockNode> DockNode::make_leaf(std::string node_id, std::string panel_id, std::string title, bool is_visible) {
+    auto node = std::make_shared<DockNode>();
+    node->node_id = std::move(node_id);
+    node->type = DockNodeType::Leaf;
+    node->panel_id = std::move(panel_id);
+    node->title = std::move(title);
+    node->is_visible = is_visible;
+    return node;
+}
+
+std::shared_ptr<DockNode> DockNode::make_split(std::string node_id, DockNodeType split_type, double ratio, std::shared_ptr<DockNode> first, std::shared_ptr<DockNode> second) {
+    auto node = std::make_shared<DockNode>();
+    node->node_id = std::move(node_id);
+    node->type = split_type;
+    node->split_ratio = std::clamp(ratio, 0.05, 0.95);
+    node->first_child = std::move(first);
+    node->second_child = std::move(second);
+    return node;
+}
+
+std::shared_ptr<DockNode> DockNode::make_tabbed(std::string node_id, std::vector<std::shared_ptr<DockNode>> tabs, size_t active_idx) {
+    auto node = std::make_shared<DockNode>();
+    node->node_id = std::move(node_id);
+    node->type = DockNodeType::Tabbed;
+    node->tabs = std::move(tabs);
+    node->active_tab_index = active_idx;
+    return node;
+}
+
+std::shared_ptr<DockNode> DockNode::clone() const {
+    auto c = std::make_shared<DockNode>();
+    c->node_id = node_id;
+    c->type = type;
+    c->panel_id = panel_id;
+    c->title = title;
+    c->is_visible = is_visible;
+    c->is_closable = is_closable;
+    c->is_floating = is_floating;
+    c->min_width = min_width;
+    c->min_height = min_height;
+    c->split_ratio = split_ratio;
+    c->active_tab_index = active_tab_index;
+
+    if (first_child) c->first_child = first_child->clone();
+    if (second_child) c->second_child = second_child->clone();
+
+    for (const auto& t : tabs) {
+        if (t) c->tabs.push_back(t->clone());
+    }
+    return c;
+}
+
+std::shared_ptr<DockNode> DockNode::find_node(std::string_view id) const {
+    if (node_id == id) return std::const_pointer_cast<DockNode>(shared_from_this());
+
+    if (first_child) {
+        auto found = first_child->find_node(id);
+        if (found) return found;
+    }
+    if (second_child) {
+        auto found = second_child->find_node(id);
+        if (found) return found;
+    }
+    for (const auto& t : tabs) {
+        if (t) {
+            auto found = t->find_node(id);
+            if (found) return found;
+        }
+    }
+    return nullptr;
+}
+
+std::shared_ptr<DockNode> DockNode::find_panel(std::string_view pid) const {
+    if (type == DockNodeType::Leaf && panel_id == pid) {
+        return std::const_pointer_cast<DockNode>(shared_from_this());
+    }
+
+    if (first_child) {
+        auto found = first_child->find_panel(pid);
+        if (found) return found;
+    }
+    if (second_child) {
+        auto found = second_child->find_panel(pid);
+        if (found) return found;
+    }
+    for (const auto& t : tabs) {
+        if (t) {
+            auto found = t->find_panel(pid);
+            if (found) return found;
+        }
+    }
+    return nullptr;
+}
+
+void DockNode::collect_leaves(std::vector<std::shared_ptr<DockNode>>& out) const {
+    if (type == DockNodeType::Leaf) {
+        out.push_back(std::const_pointer_cast<DockNode>(shared_from_this()));
+        return;
+    }
+    if (first_child) first_child->collect_leaves(out);
+    if (second_child) second_child->collect_leaves(out);
+    for (const auto& t : tabs) {
+        if (t) t->collect_leaves(out);
+    }
+}
+
+std::string DockNode::to_json(int indent) const {
+    std::string ind(static_cast<size_t>(indent), ' ');
+    std::string ind2(static_cast<size_t>(indent + 2), ' ');
+    std::ostringstream ss;
+
+    ss << "{\n";
+    ss << ind2 << "\"node_id\": \"" << node_id << "\",\n";
+    ss << ind2 << "\"type\": \"" << dock_node_type_to_string(type) << "\"";
+
+    if (type == DockNodeType::Leaf) {
+        ss << ",\n" << ind2 << "\"panel_id\": \"" << panel_id << "\",\n";
+        ss << ind2 << "\"title\": \"" << title << "\",\n";
+        ss << ind2 << "\"is_visible\": " << (is_visible ? "true" : "false") << ",\n";
+        ss << ind2 << "\"is_closable\": " << (is_closable ? "true" : "false") << ",\n";
+        ss << ind2 << "\"is_floating\": " << (is_floating ? "true" : "false") << ",\n";
+        ss << ind2 << "\"min_width\": " << min_width << ",\n";
+        ss << ind2 << "\"min_height\": " << min_height << "\n";
+    } else if (type == DockNodeType::SplitHorizontal || type == DockNodeType::SplitVertical) {
+        ss << ",\n" << ind2 << "\"split_ratio\": " << split_ratio << ",\n";
+        ss << ind2 << "\"first_child\": " << (first_child ? first_child->to_json(indent + 2) : "null") << ",\n";
+        ss << ind2 << "\"second_child\": " << (second_child ? second_child->to_json(indent + 2) : "null") << "\n";
+    } else if (type == DockNodeType::Tabbed) {
+        ss << ",\n" << ind2 << "\"active_tab_index\": " << active_tab_index << ",\n";
+        ss << ind2 << "\"tabs\": [\n";
+        for (size_t i = 0; i < tabs.size(); ++i) {
+            ss << ind2 << "  " << (tabs[i] ? tabs[i]->to_json(indent + 4) : "null");
+            if (i + 1 < tabs.size()) ss << ",";
+            ss << "\n";
+        }
+        ss << ind2 << "]\n";
+    }
+
+    ss << ind << "}";
+    return ss.str();
+}
+
+std::shared_ptr<DockNode> DockNode::from_json_str(std::string_view json_str) {
+    size_t pos = 0;
+    SimpleJson root_val = parse_simple_json_val(json_str, pos);
+    return parse_dock_node_from_json(root_val);
+}
+
+// =============================================================================
+// DockingManager Implementation
+// =============================================================================
+
+DockingManager::DockingManager() {
+    apply_preset(WorkspacePreset::Modeling);
+}
+
+void DockingManager::set_root(std::shared_ptr<DockNode> root) {
+    root_ = std::move(root);
+}
+
+std::shared_ptr<DockNode> DockNodePtrHelperFind(std::shared_ptr<DockNode> n, std::string_view id) {
+    if (!n) return nullptr;
+    if (n->node_id == id) return n;
+    if (n->first_child) {
+        auto r = DockNodePtrHelperFind(n->first_child, id);
+        if (r) return r;
+    }
+    if (n->second_child) {
+        auto r = DockNodePtrHelperFind(n->second_child, id);
+        if (r) return r;
+    }
+    for (const auto& t : n->tabs) {
+        auto r = DockNodePtrHelperFind(t, id);
+        if (r) return r;
+    }
+    return nullptr;
+}
+
+std::shared_ptr<DockNode> DockNodePtrHelperFindPanel(std::shared_ptr<DockNode> n, std::string_view pid) {
+    if (!n) return nullptr;
+    if (n->type == DockNodeType::Leaf && n->panel_id == pid) return n;
+    if (n->first_child) {
+        auto r = DockNodePtrHelperFindPanel(n->first_child, pid);
+        if (r) return r;
+    }
+    if (n->second_child) {
+        auto r = DockNodePtrHelperFindPanel(n->second_child, pid);
+        if (r) return r;
+    }
+    for (const auto& t : n->tabs) {
+        auto r = DockNodePtrHelperFindPanel(t, pid);
+        if (r) return r;
+    }
+    return nullptr;
+}
+
+std::shared_ptr<DockNode> DockingManager::find_node(std::string_view node_id) const {
+    return DockNodePtrHelperFind(root_, node_id);
+}
+
+std::shared_ptr<DockNode> DockingManager::find_panel(std::string_view panel_id) const {
+    return DockNodePtrHelperFindPanel(root_, panel_id);
+}
+
+bool DockingManager::replace_child_in_tree(std::shared_ptr<DockNode> current, std::shared_ptr<DockNode> target, std::shared_ptr<DockNode> replacement) {
+    if (!current || !target || !replacement) return false;
+
+    if (current == target) {
+        root_ = replacement;
+        return true;
+    }
+
+    if (current->first_child == target) {
+        current->first_child = replacement;
+        return true;
+    }
+    if (current->second_child == target) {
+        current->second_child = replacement;
+        return true;
+    }
+
+    for (size_t i = 0; i < current->tabs.size(); ++i) {
+        if (current->tabs[i] == target) {
+            current->tabs[i] = replacement;
+            return true;
+        }
+    }
+
+    if (current->first_child && replace_child_in_tree(current->first_child, target, replacement)) return true;
+    if (current->second_child && replace_child_in_tree(current->second_child, target, replacement)) return true;
+
+    for (const auto& t : current->tabs) {
+        if (t && replace_child_in_tree(t, target, replacement)) return true;
+    }
+
+    return false;
+}
+
+bool DockingManager::dock_panel(std::string_view panel_id, std::string_view title, std::string_view target_node_id, DockSnapZone snap_zone) {
+    if (snap_zone == DockSnapZone::None) return false;
+
+    auto target = find_node(target_node_id);
+    if (!target) return false;
+
+    // Create new leaf
+    auto new_leaf = DockNode::make_leaf("node_" + std::string(panel_id), std::string(panel_id), std::string(title));
+
+    if (snap_zone == DockSnapZone::CenterTab) {
+        if (target->type == DockNodeType::Tabbed) {
+            target->tabs.push_back(new_leaf);
+            target->active_tab_index = target->tabs.size() - 1;
+            return true;
+        }
+        auto tabbed = DockNode::make_tabbed("tab_" + target->node_id, {target->clone(), new_leaf}, 1);
+        return replace_child_in_tree(root_, target, tabbed);
+    }
+
+    DockNodeType split_type = (snap_zone == DockSnapZone::North || snap_zone == DockSnapZone::South)
+                                  ? DockNodeType::SplitVertical
+                                  : DockNodeType::SplitHorizontal;
+
+    std::shared_ptr<DockNode> first = (snap_zone == DockSnapZone::North || snap_zone == DockSnapZone::West)
+                                          ? new_leaf
+                                          : target->clone();
+    std::shared_ptr<DockNode> second = (snap_zone == DockSnapZone::North || snap_zone == DockSnapZone::West)
+                                           ? target->clone()
+                                           : new_leaf;
+
+    auto split = DockNode::make_split("split_" + target->node_id, split_type, 0.5, first, second);
+    return replace_child_in_tree(root_, target, split);
+}
+
+bool DockingManager::remove_child_from_tree(std::shared_ptr<DockNode> current, std::string_view node_id) {
+    if (!current) return false;
+
+    // Check direct children of split
+    if (current->first_child && current->first_child->node_id == node_id) {
+        // Replace current with second_child
+        replace_child_in_tree(root_, current, current->second_child);
+        return true;
+    }
+    if (current->second_child && current->second_child->node_id == node_id) {
+        // Replace current with first_child
+        replace_child_in_tree(root_, current, current->first_child);
+        return true;
+    }
+
+    // Check tabs
+    for (auto it = current->tabs.begin(); it != current->tabs.end(); ++it) {
+        if ((*it)->node_id == node_id) {
+            current->tabs.erase(it);
+            if (current->tabs.size() == 1) {
+                replace_child_in_tree(root_, current, current->tabs[0]);
+            } else if (current->active_tab_index >= current->tabs.size()) {
+                current->active_tab_index = current->tabs.empty() ? 0 : current->tabs.size() - 1;
+            }
+            return true;
+        }
+    }
+
+    if (current->first_child && remove_child_from_tree(current->first_child, node_id)) return true;
+    if (current->second_child && remove_child_from_tree(current->second_child, node_id)) return true;
+    for (const auto& t : current->tabs) {
+        if (t && remove_child_from_tree(t, node_id)) return true;
+    }
+
+    return false;
+}
+
+bool DockingManager::remove_node(std::string_view node_id) {
+    if (!root_) return false;
+    if (root_->node_id == node_id) {
+        root_ = nullptr;
+        return true;
+    }
+    return remove_child_from_tree(root_, node_id);
+}
+
+bool DockingManager::toggle_panel_visibility(std::string_view panel_id, bool visible) {
+    auto panel = find_panel(panel_id);
+    if (!panel) return false;
+    panel->is_visible = visible;
+    return true;
+}
+
+bool DockingManager::set_split_ratio(std::string_view split_node_id, double ratio) {
+    auto node = find_node(split_node_id);
+    if (!node || (node->type != DockNodeType::SplitHorizontal && node->type != DockNodeType::SplitVertical)) {
+        return false;
+    }
+    node->split_ratio = std::clamp(ratio, 0.05, 0.95);
+    return true;
+}
+
+bool DockingManager::set_active_tab(std::string_view tab_node_id, size_t index) {
+    auto node = find_node(tab_node_id);
+    if (!node || node->type != DockNodeType::Tabbed || node->tabs.empty()) {
+        return false;
+    }
+    node->active_tab_index = std::min(index, node->tabs.size() - 1);
+    return true;
+}
+
+bool DockingManager::set_floating(std::string_view panel_id, bool floating) {
+    auto panel = find_panel(panel_id);
+    if (!panel) return false;
+    panel->is_floating = floating;
+    return true;
+}
+
+std::vector<std::shared_ptr<DockNode>> DockingManager::get_all_leaves() const {
+    std::vector<std::shared_ptr<DockNode>> leaves;
+    if (root_) root_->collect_leaves(leaves);
+    return leaves;
+}
+
+std::string DockingManager::serialize_layout_json() const {
+    std::ostringstream ss;
+    ss << "{\n";
+    ss << "  \"schema_version\": 1,\n";
+    ss << "  \"root\": " << (root_ ? root_->to_json(2) : "null") << "\n";
+    ss << "}";
+    return ss.str();
+}
+
+base::Result<void> DockingManager::restore_layout_json(std::string_view json_str) {
+    size_t pos = 0;
+    SimpleJson doc = parse_simple_json_val(json_str, pos);
+    if (doc.type != JsonType::Object) {
+        return base::Result<void>::err(make_ui_error("Invalid docking layout JSON"));
+    }
+    const auto* root_val = doc.get("root");
+    if (!root_val) {
+        return base::Result<void>::err(make_ui_error("Missing 'root' in docking layout JSON"));
+    }
+    auto new_root = parse_dock_node_from_json(*root_val);
+    if (!new_root) {
+        return base::Result<void>::err(make_ui_error("Failed to parse docking root node"));
+    }
+    root_ = std::move(new_root);
+    return base::Result<void>::ok();
+}
+
+void DockingManager::apply_preset(WorkspacePreset preset) {
+    switch (preset) {
+        case WorkspacePreset::Modeling: {
+            auto left = DockNode::make_leaf("node_project_browser", "project_browser", "Project Browser");
+            auto viewport = DockNode::make_leaf("node_viewport_3d", "viewport_3d", "3D Viewport");
+            auto sim_bar = DockNode::make_leaf("node_simulation_toolbar", "simulation_toolbar", "Simulation Toolbar");
+            auto center = DockNode::make_split("split_center_sim", DockNodeType::SplitVertical, 0.75, viewport, sim_bar);
+            auto right = DockNode::make_leaf("node_property_inspector", "property_inspector", "Property Inspector");
+            auto center_right = DockNode::make_split("split_center_right", DockNodeType::SplitHorizontal, 0.75, center, right);
+            root_ = DockNode::make_split("root_split", DockNodeType::SplitHorizontal, 0.20, left, center_right);
+            break;
+        }
+        case WorkspacePreset::Schematic: {
+            auto left = DockNode::make_leaf("node_project_browser", "project_browser", "Component Library");
+            auto canvas = DockNode::make_leaf("node_schematic_editor", "schematic_editor", "Schematic Canvas");
+            auto right = DockNode::make_leaf("node_property_inspector", "property_inspector", "Property Inspector");
+            auto center_right = DockNode::make_split("split_canvas_props", DockNodeType::SplitHorizontal, 0.75, canvas, right);
+            root_ = DockNode::make_split("root_split", DockNodeType::SplitHorizontal, 0.22, left, center_right);
+            break;
+        }
+        case WorkspacePreset::Simulation: {
+            auto left = DockNode::make_leaf("node_simulation_toolbar", "simulation_toolbar", "Simulation Controls");
+            auto viewport = DockNode::make_leaf("node_viewport_3d", "viewport_3d", "3D Viewport");
+            auto results = DockNode::make_leaf("node_results_workspace", "results_workspace", "Live Telemetry & Traces");
+            auto center_right = DockNode::make_split("split_viewport_results", DockNodeType::SplitHorizontal, 0.55, viewport, results);
+            root_ = DockNode::make_split("root_split", DockNodeType::SplitHorizontal, 0.20, left, center_right);
+            break;
+        }
+        case WorkspacePreset::Results: {
+            auto center = DockNode::make_leaf("node_results_workspace", "results_workspace", "Dashboards & Traces");
+            auto right = DockNode::make_leaf("node_property_inspector", "property_inspector", "Plot Inspector");
+            root_ = DockNode::make_split("root_split", DockNodeType::SplitHorizontal, 0.75, center, right);
+            break;
+        }
+        case WorkspacePreset::Scripting: {
+            auto left = DockNode::make_leaf("node_project_browser", "project_browser", "Script Files");
+            auto editor = DockNode::make_leaf("node_code_editor", "code_editor", "Script Editor");
+            root_ = DockNode::make_split("root_split", DockNodeType::SplitHorizontal, 0.25, left, editor);
+            break;
+        }
+    }
+}
+
+// =============================================================================
+// DockActionManager Implementation
+// =============================================================================
+
+DockActionManager::DockActionManager() {
+    register_shortcut(DockActionShortcut{
+        .action_id = "panel.project_browser",
+        .key_sequence = "F9",
+        .target_panel_id = "project_browser",
+        .description = "Toggle Project Browser",
+        .is_global = true
+    });
+    register_shortcut(DockActionShortcut{
+        .action_id = "panel.simulation_toolbar",
+        .key_sequence = "F10",
+        .target_panel_id = "simulation_toolbar",
+        .description = "Toggle Simulation Controls",
+        .is_global = true
+    });
+    register_shortcut(DockActionShortcut{
+        .action_id = "panel.property_inspector",
+        .key_sequence = "F12",
+        .target_panel_id = "property_inspector",
+        .description = "Toggle Property Inspector",
+        .is_global = true
+    });
+    register_shortcut(DockActionShortcut{
+        .action_id = "view.toggle_sidebars",
+        .key_sequence = "Ctrl+B",
+        .target_panel_id = "",
+        .description = "Toggle All Sidebars",
+        .is_global = true
+    });
+    register_shortcut(DockActionShortcut{
+        .action_id = "view.toggle_console",
+        .key_sequence = "Ctrl+J",
+        .target_panel_id = "simulation_toolbar",
+        .description = "Toggle Diagnostics Console",
+        .is_global = true
+    });
+}
+
+void DockActionManager::register_shortcut(DockActionShortcut shortcut) {
+    shortcuts_.push_back(std::move(shortcut));
+}
+
+std::optional<DockActionShortcut> DockActionManager::find_by_key(std::string_view key_seq) const {
+    for (const auto& s : shortcuts_) {
+        if (s.key_sequence == key_seq) return s;
+    }
+    return std::nullopt;
+}
+
+std::optional<DockActionShortcut> DockActionManager::find_by_action(std::string_view action_id) const {
+    for (const auto& s : shortcuts_) {
+        if (s.action_id == action_id) return s;
+    }
+    return std::nullopt;
+}
+
+bool DockActionManager::execute_shortcut(std::string_view key_seq, DockingManager& manager) {
+    auto s = find_by_key(key_seq);
+    if (!s) return false;
+
+    if (!s->target_panel_id.empty()) {
+        auto panel = manager.find_panel(s->target_panel_id);
+        if (panel) {
+            manager.toggle_panel_visibility(s->target_panel_id, !panel->is_visible);
+            return true;
+        }
+    } else if (s->action_id == "view.toggle_sidebars") {
+        auto left = manager.find_panel("project_browser");
+        auto right = manager.find_panel("property_inspector");
+        bool any_visible = (left && left->is_visible) || (right && right->is_visible);
+        if (left) manager.toggle_panel_visibility("project_browser", !any_visible);
+        if (right) manager.toggle_panel_visibility("property_inspector", !any_visible);
+        return true;
+    }
+    return false;
+}
+
 std::optional<WorkspacePreset> workspace_preset_from_string(std::string_view s) noexcept {
     if (s == "Modeling") return WorkspacePreset::Modeling;
     if (s == "Schematic") return WorkspacePreset::Schematic;
@@ -103,6 +820,7 @@ WorkspaceShell::WorkspaceShell(WorkspacePreset initial_preset) {
 void WorkspaceShell::apply_preset(WorkspacePreset preset) {
     current_preset_ = preset;
     panels_.clear();
+    docking_manager_.apply_preset(preset);
 
     switch (preset) {
         case WorkspacePreset::Modeling:

@@ -60,6 +60,134 @@ struct DockPanelState {
     double height_fraction{0.25};
 };
 
+// =============================================================================
+// UI-01-001: Multi-pane Docking Framework & Layout Hierarchy
+// =============================================================================
+
+enum class DockNodeType {
+    Leaf,
+    SplitHorizontal,
+    SplitVertical,
+    Tabbed
+};
+
+enum class DockSnapZone {
+    None,
+    North,
+    South,
+    East,
+    West,
+    CenterTab
+};
+
+[[nodiscard]] constexpr std::string_view dock_node_type_to_string(DockNodeType t) noexcept {
+    switch (t) {
+        case DockNodeType::Leaf: return "Leaf";
+        case DockNodeType::SplitHorizontal: return "SplitHorizontal";
+        case DockNodeType::SplitVertical: return "SplitVertical";
+        case DockNodeType::Tabbed: return "Tabbed";
+    }
+    return "Leaf";
+}
+
+[[nodiscard]] constexpr std::string_view dock_snap_zone_to_string(DockSnapZone z) noexcept {
+    switch (z) {
+        case DockSnapZone::None: return "None";
+        case DockSnapZone::North: return "North";
+        case DockSnapZone::South: return "South";
+        case DockSnapZone::East: return "East";
+        case DockSnapZone::West: return "West";
+        case DockSnapZone::CenterTab: return "CenterTab";
+    }
+    return "None";
+}
+
+struct DockNode : public std::enable_shared_from_this<DockNode> {
+    std::string node_id;
+    DockNodeType type{DockNodeType::Leaf};
+
+    // Leaf node attributes
+    std::string panel_id;
+    std::string title;
+    bool is_visible{true};
+    bool is_closable{true};
+    bool is_floating{false};
+    double min_width{160.0};
+    double min_height{120.0};
+
+    // Split attributes (0.0 to 1.0 normalized proportion)
+    double split_ratio{0.5};
+    std::shared_ptr<DockNode> first_child;
+    std::shared_ptr<DockNode> second_child;
+
+    // Tabbed attributes
+    std::vector<std::shared_ptr<DockNode>> tabs;
+    size_t active_tab_index{0};
+
+    static std::shared_ptr<DockNode> make_leaf(std::string node_id, std::string panel_id, std::string title, bool is_visible = true);
+    static std::shared_ptr<DockNode> make_split(std::string node_id, DockNodeType split_type, double ratio, std::shared_ptr<DockNode> first, std::shared_ptr<DockNode> second);
+    static std::shared_ptr<DockNode> make_tabbed(std::string node_id, std::vector<std::shared_ptr<DockNode>> tabs, size_t active_idx = 0);
+
+    [[nodiscard]] std::shared_ptr<DockNode> clone() const;
+    [[nodiscard]] std::shared_ptr<DockNode> find_node(std::string_view id) const;
+    [[nodiscard]] std::shared_ptr<DockNode> find_panel(std::string_view pid) const;
+    void collect_leaves(std::vector<std::shared_ptr<DockNode>>& out) const;
+    [[nodiscard]] std::string to_json(int indent = 2) const;
+    static std::shared_ptr<DockNode> from_json_str(std::string_view json_str);
+};
+
+class DockingManager {
+public:
+    DockingManager();
+
+    void set_root(std::shared_ptr<DockNode> root);
+    [[nodiscard]] std::shared_ptr<DockNode> root() const noexcept { return root_; }
+
+    [[nodiscard]] std::shared_ptr<DockNode> find_node(std::string_view node_id) const;
+    [[nodiscard]] std::shared_ptr<DockNode> find_panel(std::string_view panel_id) const;
+
+    bool dock_panel(std::string_view panel_id, std::string_view title, std::string_view target_node_id, DockSnapZone snap_zone);
+    bool remove_node(std::string_view node_id);
+    bool toggle_panel_visibility(std::string_view panel_id, bool visible);
+    bool set_split_ratio(std::string_view split_node_id, double ratio);
+    bool set_active_tab(std::string_view tab_node_id, size_t index);
+    bool set_floating(std::string_view panel_id, bool floating);
+
+    [[nodiscard]] std::vector<std::shared_ptr<DockNode>> get_all_leaves() const;
+
+    [[nodiscard]] std::string serialize_layout_json() const;
+    base::Result<void> restore_layout_json(std::string_view json_str);
+
+    void apply_preset(WorkspacePreset preset);
+
+private:
+    std::shared_ptr<DockNode> root_;
+    bool replace_child_in_tree(std::shared_ptr<DockNode> current, std::shared_ptr<DockNode> target, std::shared_ptr<DockNode> replacement);
+    bool remove_child_from_tree(std::shared_ptr<DockNode> current, std::string_view node_id);
+};
+
+// UI-01-001-03: Hotkey & Action manager for panel toggles & window management
+struct DockActionShortcut {
+    std::string action_id;
+    std::string key_sequence;
+    std::string target_panel_id;
+    std::string description;
+    bool is_global{true};
+};
+
+class DockActionManager {
+public:
+    DockActionManager();
+    void register_shortcut(DockActionShortcut shortcut);
+    [[nodiscard]] const std::vector<DockActionShortcut>& shortcuts() const noexcept { return shortcuts_; }
+    [[nodiscard]] std::optional<DockActionShortcut> find_by_key(std::string_view key_seq) const;
+    [[nodiscard]] std::optional<DockActionShortcut> find_by_action(std::string_view action_id) const;
+    bool execute_shortcut(std::string_view key_seq, DockingManager& manager);
+
+private:
+    std::vector<DockActionShortcut> shortcuts_;
+};
+
 struct CommandPaletteAction {
     std::string action_id;
     std::string category;
@@ -97,10 +225,18 @@ public:
     CommandPaletteRegistry& command_palette() noexcept { return command_palette_; }
     [[nodiscard]] const CommandPaletteRegistry& command_palette() const noexcept { return command_palette_; }
 
+    DockingManager& docking_manager() noexcept { return docking_manager_; }
+    [[nodiscard]] const DockingManager& docking_manager() const noexcept { return docking_manager_; }
+
+    DockActionManager& action_manager() noexcept { return action_manager_; }
+    [[nodiscard]] const DockActionManager& action_manager() const noexcept { return action_manager_; }
+
 private:
     WorkspacePreset current_preset_{WorkspacePreset::Modeling};
     std::vector<DockPanelState> panels_;
     CommandPaletteRegistry command_palette_;
+    DockingManager docking_manager_;
+    DockActionManager action_manager_;
 };
 
 // =============================================================================

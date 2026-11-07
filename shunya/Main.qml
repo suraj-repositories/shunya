@@ -23,11 +23,42 @@ ApplicationWindow {
     property color accentYellow: "#ffd166"
     property color accentRed: "#ef476f"
 
-    property string currentPreset: "Simulation"
+    property string currentPreset: typeof dockingController !== "undefined" ? dockingController.activePreset : "Modeling"
     property double simTime: typeof studio !== "undefined" ? studio.simTime : 0.0
     property string simStatus: typeof studio !== "undefined" ? studio.simStatus : "Stopped"
     property string projectName: typeof studio !== "undefined" ? studio.projectName : "ElectroThermoMechanical_Rig"
     property bool showConsoleDrawer: true
+
+    Shortcut {
+        sequence: "F9"
+        onActivated: {
+            if (typeof dockingController !== "undefined") dockingController.triggerShortcut("F9");
+        }
+    }
+    Shortcut {
+        sequence: "F10"
+        onActivated: {
+            if (typeof dockingController !== "undefined") dockingController.triggerShortcut("F10");
+        }
+    }
+    Shortcut {
+        sequence: "F12"
+        onActivated: {
+            if (typeof dockingController !== "undefined") dockingController.triggerShortcut("F12");
+        }
+    }
+    Shortcut {
+        sequence: "Ctrl+B"
+        onActivated: {
+            if (typeof dockingController !== "undefined") dockingController.triggerShortcut("Ctrl+B");
+        }
+    }
+    Shortcut {
+        sequence: "Ctrl+J"
+        onActivated: {
+            if (typeof dockingController !== "undefined") dockingController.triggerShortcut("Ctrl+J");
+        }
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -86,7 +117,12 @@ ApplicationWindow {
                             id: presetBtn
                             text: modelData
                             checked: window.currentPreset === modelData
-                            onClicked: window.currentPreset = modelData
+                            onClicked: {
+                                window.currentPreset = modelData;
+                                if (typeof dockingController !== "undefined") {
+                                    dockingController.applyPreset(modelData);
+                                }
+                            }
                             contentItem: Text {
                                 text: presetBtn.text
                                 color: presetBtn.checked ? window.accentColor : window.textDark

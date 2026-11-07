@@ -27,6 +27,8 @@ qt_add_executable(appshunya
     studio_controller.cpp
     menu_bar_controller.hpp
     menu_bar_controller.cpp
+    docking_controller.hpp
+    docking_controller.cpp
 )
 
 qt_add_qml_module(appshunya
@@ -36,6 +38,8 @@ qt_add_qml_module(appshunya
         MainMenuBar.qml
         NewProjectWizard.qml
         UnsavedChangesGuardDialog.qml
+        DockContainer.qml
+        DockOverlay.qml
 )
 
 set_target_properties(appshunya PROPERTIES
