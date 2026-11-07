@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 52 |
+| [ ] | Not started | 43 |
 | [~] | In progress | 0 |
-| [x] | Completed | 257 |
+| [x] | Completed | 266 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -87,7 +87,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **LIB** | Component Library, Templates & Sharing | Phase 7 / T6 | P1 | 14 | 14 | 100.0% |
 | **EVT** | Event & Co-Simulation Orchestration | Phase 9 / T6 | P1 | 6 | 6 | 100.0% |
 | **FLD** | Fluid Dynamics & Hydraulics | Phase 8 / T7 | P2 | 10 | 10 | 100.0% |
-| **CHEM** | Chemical Reactions & Stoichiometry | Phase 8 / T7 | P2 | 9 | 0 | 0.0% |
+| **CHEM** | Chemical Reactions & Stoichiometry | Phase 8 / T7 | P2 | 9 | 9 | 100.0% |
 | **OPT** | Optics & Wave Phenomena | Phase 8 / T7 | P2 | 6 | 0 | 0.0% |
 | **BIO** | Biological & Cellular Models | Phase 8 / T7 | P2 | 7 | 0 | 0.0% |
 | **PERF** | Performance, Benchmarks & Profiling | Phase 10 / T8 | P1 | 10 | 0 | 0.0% |
@@ -3019,94 +3019,94 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 8 / T7 | **Default Priority:** P2
 
 #### [CHEM-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** Module Baseline
 - **Description:** Species, concentration, phase and reaction schema.
 - **Implementation Details:** Implement CHEM-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_chemistry.cpp, 9/9 tasks passing, 295 total test cases, 3078 checks) & appshunya desktop build. Git commit: 4855c23
 
 #### [CHEM-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** CHEM-01
 - **Description:** Reaction definitions and stoichiometric balance validation.
 - **Implementation Details:** Implement CHEM-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_chemistry.cpp, 9/9 tasks passing, 295 total test cases, 3078 checks) & appshunya desktop build. Git commit: 4855c23
 
 #### [CHEM-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** CHEM-02
 - **Description:** Kinetic rate laws with unit checking.
 - **Implementation Details:** Implement CHEM-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_chemistry.cpp, 9/9 tasks passing, 295 total test cases, 3078 checks) & appshunya desktop build. Git commit: 4855c23
 
 #### [CHEM-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** CHEM-03
 - **Description:** Batch reactor and well-mixed baseline.
 - **Implementation Details:** Implement CHEM-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_chemistry.cpp, 9/9 tasks passing, 295 total test cases, 3078 checks) & appshunya desktop build. Git commit: 4855c23
 
 #### [CHEM-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** CHEM-04
 - **Description:** Transport/diffusion model and boundary conditions.
 - **Implementation Details:** Implement CHEM-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_chemistry.cpp, 9/9 tasks passing, 295 total test cases, 3078 checks) & appshunya desktop build. Git commit: 4855c23
 
 #### [CHEM-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** CHEM-05
 - **Description:** Temperature-dependent reaction rates and thermal coupling.
 - **Implementation Details:** Implement CHEM-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_chemistry.cpp, 9/9 tasks passing, 295 total test cases, 3078 checks) & appshunya desktop build. Git commit: 4855c23
 
 #### [CHEM-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** CHEM-06
 - **Description:** Mass conservation and positivity constraints.
 - **Implementation Details:** Implement CHEM-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_chemistry.cpp, 9/9 tasks passing, 295 total test cases, 3078 checks) & appshunya desktop build. Git commit: 4855c23
 
 #### [CHEM-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** CHEM-07
 - **Description:** Reaction progress and concentration visualisation.
 - **Implementation Details:** Implement CHEM-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_chemistry.cpp, 9/9 tasks passing, 295 total test cases, 3078 checks) & appshunya desktop build. Git commit: 4855c23
 
 #### [CHEM-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** CHEM-08
 - **Description:** Validation against analytic reaction kinetics. ELEC – Analog electronics and circuit simulation
 - **Implementation Details:** Implement CHEM-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_chemistry.cpp, 9/9 tasks passing, 295 total test cases, 3078 checks) & appshunya desktop build. Git commit: 4855c23
 
 ---
 
@@ -3407,6 +3407,7 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** All Module LIB Tasks [x] LIB-01 through [x] LIB-14 (**100% Completed**)
 - **Last Completed Tasks:** All Module EVT Tasks [x] EVT-01 through [x] EVT-06 (**100% Completed**)
 - **Last Completed Tasks:** All Module FLD Tasks [x] FLD-01 through [x] FLD-10 (**100% Completed**)
+- **Last Completed Tasks:** All Module CHEM Tasks [x] CHEM-01 through [x] CHEM-09 (**100% Completed**)
 - **Pending Immediate Task:** [ ] MATUI-01: Periodic table visualizer and explorer.
 - **Blockers:** None.
 - **Active Git Commit:** 418aa64.
