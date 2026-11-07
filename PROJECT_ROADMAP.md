@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 62 |
+| [ ] | Not started | 52 |
 | [~] | In progress | 0 |
-| [x] | Completed | 247 |
+| [x] | Completed | 257 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -86,7 +86,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **SEC** | Security, Sandboxing & Reliability | Phase 4 / T6 | P1 | 10 | 10 | 100.0% |
 | **LIB** | Component Library, Templates & Sharing | Phase 7 / T6 | P1 | 14 | 14 | 100.0% |
 | **EVT** | Event & Co-Simulation Orchestration | Phase 9 / T6 | P1 | 6 | 6 | 100.0% |
-| **FLD** | Fluid Dynamics & Hydraulics | Phase 8 / T7 | P2 | 10 | 0 | 0.0% |
+| **FLD** | Fluid Dynamics & Hydraulics | Phase 8 / T7 | P2 | 10 | 10 | 100.0% |
 | **CHEM** | Chemical Reactions & Stoichiometry | Phase 8 / T7 | P2 | 9 | 0 | 0.0% |
 | **OPT** | Optics & Wave Phenomena | Phase 8 / T7 | P2 | 6 | 0 | 0.0% |
 | **BIO** | Biological & Cellular Models | Phase 8 / T7 | P2 | 7 | 0 | 0.0% |
@@ -2913,104 +2913,104 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 8 / T7 | **Default Priority:** P2
 
 #### [FLD-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** Module Baseline
 - **Description:** Fluid properties and incompressible/compressible model selection.
 - **Implementation Details:** Implement FLD-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_fluid_dynamics.cpp, 10/10 tasks passing, 288 total test cases, 3025 checks) & appshunya desktop build. Git commit: 85df0a7
 
 #### [FLD-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** FLD-01
 - **Description:** Flow domain geometry and mesh pipeline.
 - **Implementation Details:** Implement FLD-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_fluid_dynamics.cpp, 10/10 tasks passing, 288 total test cases, 3025 checks) & appshunya desktop build. Git commit: 85df0a7
 
 #### [FLD-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** FLD-02
 - **Description:** Boundary conditions: inlet, outlet, wall, symmetry and initial state.
 - **Implementation Details:** Implement FLD-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_fluid_dynamics.cpp, 10/10 tasks passing, 288 total test cases, 3025 checks) & appshunya desktop build. Git commit: 85df0a7
 
 #### [FLD-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** FLD-03
 - **Description:** Choose and document initial flow formulation; begin with a bounded, testable subset.
 - **Implementation Details:** Implement FLD-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_fluid_dynamics.cpp, 10/10 tasks passing, 288 total test cases, 3025 checks) & appshunya desktop build. Git commit: 85df0a7
 
 #### [FLD-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** FLD-04
 - **Description:** Pressure/velocity coupling and solver convergence diagnostics.
 - **Implementation Details:** Implement FLD-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_fluid_dynamics.cpp, 10/10 tasks passing, 288 total test cases, 3025 checks) & appshunya desktop build. Git commit: 85df0a7
 
 #### [FLD-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** FLD-05
 - **Description:** Laminar flow baseline; turbulence models only after validation.
 - **Implementation Details:** Implement FLD-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_fluid_dynamics.cpp, 10/10 tasks passing, 288 total test cases, 3025 checks) & appshunya desktop build. Git commit: 85df0a7
 
 #### [FLD-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** FLD-06
 - **Description:** Free-surface and multiphase support as a later capability.
 - **Implementation Details:** Implement FLD-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_fluid_dynamics.cpp, 10/10 tasks passing, 288 total test cases, 3025 checks) & appshunya desktop build. Git commit: 85df0a7
 
 #### [FLD-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** FLD-07
 - **Description:** Particle and tracer visualisation.
 - **Implementation Details:** Implement FLD-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_fluid_dynamics.cpp, 10/10 tasks passing, 288 total test cases, 3025 checks) & appshunya desktop build. Git commit: 85df0a7
 
 #### [FLD-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** FLD-08
 - **Description:** Validation: Poiseuille flow, cavity flow and canonical benchmark cases.
 - **Implementation Details:** Implement FLD-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_fluid_dynamics.cpp, 10/10 tasks passing, 288 total test cases, 3025 checks) & appshunya desktop build. Git commit: 85df0a7
 
 #### [FLD-10] 10
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P2
 - **Stage / Phase:** Phase 8 / T7
 - **Dependencies:** FLD-09
 - **Description:** Mesh sensitivity and performance profiling. CHEM – Chemistry and reaction systems
 - **Implementation Details:** Implement FLD-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_fluid_dynamics.cpp, 10/10 tasks passing, 288 total test cases, 3025 checks) & appshunya desktop build. Git commit: 85df0a7
 
 ---
 
@@ -3406,6 +3406,7 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** All Module CMP Tasks [x] CMP-01 through [x] CMP-08 (**100% Completed**)
 - **Last Completed Tasks:** All Module LIB Tasks [x] LIB-01 through [x] LIB-14 (**100% Completed**)
 - **Last Completed Tasks:** All Module EVT Tasks [x] EVT-01 through [x] EVT-06 (**100% Completed**)
+- **Last Completed Tasks:** All Module FLD Tasks [x] FLD-01 through [x] FLD-10 (**100% Completed**)
 - **Pending Immediate Task:** [ ] MATUI-01: Periodic table visualizer and explorer.
 - **Blockers:** None.
 - **Active Git Commit:** 418aa64.
