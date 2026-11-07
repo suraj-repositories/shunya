@@ -647,7 +647,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Panels can be dragged, dropped into splits or tabs, torn off into standalone windows, and restored without memory leaks or graphic artifacts.
     - **Testing & Verification Requirements:** Unit test tree mutations; integration test simulating drag-and-drop docking events with synthetic pointer coordinates.
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_docking.cpp (Leaf/Split/Tabbed creation, recursive search, snap zones West/South/CenterTab, split ratio mutation and clamping, leaf removal). All 333 test cases passing.
-    - **Git Commit Reference:** Pending commit for UI-01-001
+    - **Git Commit Reference:** Commit 7a9d7d9 (feat(ui): implement multi-pane docking framework & layout serialization)
 
   - [x] **UI-01-001-02: Implement workspace presets serialization & DPI restoration**
     - **Status:** `[x] Completed`
@@ -659,7 +659,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Saving layout to JSON and restoring on different screen resolutions reproduces identical relative proportions with zero clipped controls.
     - **Testing & Verification Requirements:** Round-trip serialization tests: save tree -> mutate -> load -> assert identical node hierarchy and geometry ratios.
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_docking.cpp (JSON layout serialization round-trip across all 5 workspace presets: Modeling, Schematic, Simulation, Results, Scripting with exact split ratio and panel state recovery).
-    - **Git Commit Reference:** Pending commit for UI-01-001
+    - **Git Commit Reference:** Commit 7a9d7d9 (feat(ui): implement multi-pane docking framework & layout serialization)
 
   - [x] **UI-01-001-03: Implement hotkey-driven panel toggle and multi-monitor management**
     - **Status:** `[x] Completed`
@@ -671,7 +671,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Hotkeys (F9-F12, Ctrl+B, Ctrl+J) toggle panels instantaneously without dropping rendering frames; multi-monitor layout recovers cleanly when display disconnects.
     - **Testing & Verification Requirements:** Automated keyboard event injection tests verifying state toggles and screen geometry edge boundary checks.
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_docking.cpp (F9, F10, F12, Ctrl+B, Ctrl+J shortcut execution, dual sidebar toggling, invalid sequence rejection) and Main.qml Shortcut bindings.
-    - **Git Commit Reference:** Pending commit for UI-01-001
+    - **Git Commit Reference:** Commit 7a9d7d9 (feat(ui): implement multi-pane docking framework & layout serialization)
 
 - [ ] **UI-01-002: Contextual Ribbon & Modular Toolbars**
   - **Status:** `[ ] Not Started`
