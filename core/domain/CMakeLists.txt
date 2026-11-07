@@ -39,6 +39,7 @@ target_sources(shunya_core_domain
         src/scripting.cpp
         src/security.cpp
         src/library.cpp
+        src/co_simulation.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -79,6 +80,7 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/scripting.hpp
             include/shunya/core/domain/security.hpp
             include/shunya/core/domain/library.hpp
+            include/shunya/core/domain/co_simulation.hpp
 )
 
 target_include_directories(shunya_core_domain
