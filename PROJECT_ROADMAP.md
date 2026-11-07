@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 268 |
+| [ ] | Not started | 258 |
 | [~] | In progress | 0 |
-| [x] | Completed | 41 |
+| [x] | Completed | 51 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -65,7 +65,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **PRJ** | Project and Scene Management | Phase 1 / T1 | P0 | 8 | 8 | 100.0% |
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 8 | 100.0% |
 | **MAT** | Materials Foundation | Phase 1 / T2 | P0 | 8 | 8 | 100.0% |
-| **MATDB** | Periodic Elements & Material Database | Phase 1 / T2 | P0 | 10 | 0 | 0.0% |
+| **MATDB** | Periodic Elements & Material Database | Phase 1 / T2 | P0 | 10 | 10 | 100.0% |
 | **MATRT** | Element/Material Runtime & Properties | Phase 1 / T2 | P0 | 12 | 0 | 0.0% |
 | **MATUI** | Material Editor & Periodic Table UI | Phase 1 / T2 | P1 | 10 | 0 | 0.0% |
 | **CMP** | Generic Component & Device Framework | Phase 1 / T1 | P0 | 8 | 0 | 0.0% |
@@ -626,105 +626,105 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Scope & Objective:** Periodic table element catalog, data dictionary, dataset ingestion, provenance, and validation.  
 **Delivery Stage:** Phase 1 / T2 | **Default Priority:** P0
 
-#### [MATDB-01] 01
-- **Status:** [ ] Not started
+#### [MATDB-01] 01 – Versioned schema and data dictionary
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** Module Baseline
 - **Description:** Create a versioned schema and data dictionary for every supplied field, including canonical name, aliases, type, unit, dimensions, applicability and definition.
-- **Implementation Details:** Implement MATDB-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented DataDictionary and FieldDefinition in core/domain/include/shunya/core/domain/material_dictionary.hpp and src/material_dictionary.cpp holding version metadata, canonical property names, aliases lookup table, typed physical dimensions (using base::units::Dimension vectors), FieldDataType enum, FieldApplicability filters (Universal, Solid, Fluid, Gas, Semiconductor, Nuclear), min/max physical bounds, and default dictionary seeding with 30+ physical, thermal, electrical, and mechanical properties.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_database.cpp: Data dictionary schema, canonical names, and alias resolution); Git Commit: 65f680a
 
-#### [MATDB-02] 02
-- **Status:** [ ] Not started
+#### [MATDB-02] 02 – Dataset record import adapter
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATDB-01
 - **Description:** Build import adapters for trusted scientific datasets; preserve provider identifiers and source metadata.
-- **Implementation Details:** Implement MATDB-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented PeriodicTableDatabase::import_dataset_record() in core/domain/include/shunya/core/domain/periodic_table.hpp and src/periodic_table.cpp to ingest structured records from scientific authorities (IUPAC, NIST, CRC), mapping provider identifiers, provider names, and field-level audited values into live PeriodicElement models.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_database.cpp: Dataset record import adapter with provider metadata preservation); Git Commit: 65f680a
 
-#### [MATDB-03] 03
-- **Status:** [ ] Not started
+#### [MATDB-03] 03 – Provenance and licence tracking
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATDB-02
 - **Description:** Add field-level provenance and licence tracking; verify that dataset redistribution is permitted.
-- **Implementation Details:** Implement MATDB-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented FieldProvenance struct and LicenceType enum (PublicDomain, CC0, OpenDataCommons_ODbL, CC_BY_4_0, ProprietaryCommercial, AcademicOnly) with source attribution, DOI/citation tracking, confidence scoring (0.0 to 1.0), uncertainty tolerances, and redistribution permission checks (can_redistribute).
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_database.cpp: Field provenance and licence redistribution verification); Git Commit: 65f680a
 
-#### [MATDB-04] 04
-- **Status:** [ ] Not started
+#### [MATDB-04] 04 – Unit normalisation and audit trail
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATDB-03
 - **Description:** Normalise units and identifiers; preserve original raw value/unit for audit.
-- **Implementation Details:** Implement MATDB-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented AuditedValue and DataDictionary::audit_and_normalize() converting heterogeneous input units (g/cm^3 -> kg/m^3, degC -> K, GPa/MPa -> Pa, bar/mbar -> Pa, cal/(g*K) -> J/(kg*K), uOhm*cm -> ohm*m, cP -> Pa*s) into canonical SI representations while immutably recording raw values, raw units, conversion factors, conversion timestamps, and source provenance for regulatory reproducibility.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_database.cpp: Unit normalisation with audit trail and original raw value preservation); Git Commit: 65f680a
 
-#### [MATDB-05] 05
-- **Status:** [ ] Not started
+#### [MATDB-05] 05 – Consistency and isotope validation
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATDB-04
 - **Description:** Validate ranges, duplicate element identities, periodic-table consistency and isotope relationships.
-- **Implementation Details:** Implement MATDB-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented PeriodicTableDatabase::validate_periodic_consistency() validating atomic numbers Z in [1, 118], period in [1, 7], group in [1, 18], block validity (s, p, d, f), positive atomic weights, thermodynamic ordering (boiling point >= melting point), isotope mass number consistency (A >= Z, N = A - Z >= 0), and stable isotopic abundance summation (~100%).
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_database.cpp: Periodic table consistency and isotope relationship validation); Git Commit: 65f680a
 
-#### [MATDB-06] 06
-- **Status:** [ ] Not started
+#### [MATDB-06] 06 – Conflicting sources review queue
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATDB-05
 - **Description:** Create a review queue for conflicting sources and anomalous values.
-- **Implementation Details:** Implement MATDB-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented ConflictRecord, ConflictResolutionState enum (PendingReview, AcceptedSource, ManualOverride, Rejected), and review queue APIs in PeriodicTableDatabase (register_conflict, resolve_conflict, get_pending_conflicts, get_conflict) providing decision rationale tracking and automatic element model synchronization upon conflict resolution.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_database.cpp: Conflicting sources review queue and resolution workflow); Git Commit: 65f680a
 
-#### [MATDB-07] 07
-- **Status:** [ ] Not started
+#### [MATDB-07] 07 – Dataset releases and immutable snapshots
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATDB-06
 - **Description:** Support dataset releases and immutable version snapshots so old projects reproduce old results.
-- **Implementation Details:** Implement MATDB-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented DatasetRelease class in core/domain/include/shunya/core/domain/dataset_release.hpp and src/dataset_release.cpp with semantic Version, release tags, release notes, CRC32 cryptographic payload checksum calculation and verification, lock enforcement, and unpack_database() lifecycle.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_database.cpp: Dataset releases and immutable version snapshots); Git Commit: 65f680a
 
-#### [MATDB-08] 08
-- **Status:** [ ] Not started
+#### [MATDB-08] 08 – Update diff reports
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATDB-07
 - **Description:** Add update diff reports showing changed values, sources and downstream components affected.
-- **Implementation Details:** Implement MATDB-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented PropertyDiff, DatasetDiffReport, and compute_dataset_diff() comparing dataset releases to detect added elements, removed elements, modified physical properties with before/after values, and automated categorization of impacted physics domains (Mechanical, Thermal, Electrical, Fluid, Nuclear).
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_database.cpp: Update diff reports across dataset versions); Git Commit: 65f680a
 
-#### [MATDB-09] 09
-- **Status:** [ ] Not started
+#### [MATDB-09] 09 – Missing-data reports by domain
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATDB-08
 - **Description:** Create missing-data reports by property and domain model requirement.
-- **Implementation Details:** Implement MATDB-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented DomainRequirement, MissingDataReport, standard_domain_requirements(), and evaluate_missing_data() assessing completeness percentages and identifying missing parameters across physics domain tiers (Structural/Mechanical, Thermal, Electrical, Nuclear).
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_database.cpp: Missing-data reports by property and domain requirement); Git Commit: 65f680a
 
-#### [MATDB-10] 10
-- **Status:** [ ] Not started
+#### [MATDB-10] 10 – Regression fixtures for representative elements
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATDB-09
 - **Description:** Add regression fixtures for representative elements and extreme-condition curves.
-- **Implementation Details:** Implement MATDB-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented seed_representative_elements() with high-fidelity reference datasets across blocks and physical states: Hydrogen (Z=1, s-block non-metal), Helium (Z=2, noble gas), Carbon (Z=6, p-block non-metal), Silicon (Z=14, semiconductor), Iron (Z=26, ferromagnetic metal), Copper (Z=29, conductor with cryogenic-to-high-temperature thermal curve), Gold (Z=79, noble metal), and Uranium (Z=92, f-block actinide/radioactive isotopes).
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_database.cpp: Regression fixtures for representative elements and extreme-condition curves); Git Commit: 65f680a
 
 ---
 
