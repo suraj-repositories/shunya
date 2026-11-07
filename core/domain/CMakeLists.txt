@@ -44,6 +44,7 @@ target_sources(shunya_core_domain
         src/chemistry.cpp
         src/optics.cpp
         src/biology.cpp
+        src/performance.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -89,6 +90,7 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/chemistry.hpp
             include/shunya/core/domain/optics.hpp
             include/shunya/core/domain/biology.hpp
+            include/shunya/core/domain/performance.hpp
 )
 
 target_include_directories(shunya_core_domain

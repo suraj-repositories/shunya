@@ -43,6 +43,7 @@ add_executable(shunya_unit_tests
     unit/test_chemistry.cpp
     unit/test_optics.cpp
     unit/test_biology.cpp
+    unit/test_performance.cpp
 )
 
 target_include_directories(shunya_unit_tests
