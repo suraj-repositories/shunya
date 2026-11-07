@@ -29,6 +29,7 @@ target_sources(shunya_core_domain
         src/simulation_execution.cpp
         src/data_exchange.cpp
         src/workspace_ui.cpp
+        src/rendering.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -59,6 +60,7 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/simulation_execution.hpp
             include/shunya/core/domain/data_exchange.hpp
             include/shunya/core/domain/workspace_ui.hpp
+            include/shunya/core/domain/rendering.hpp
 )
 
 target_include_directories(shunya_core_domain
