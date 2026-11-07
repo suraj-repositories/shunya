@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 112 |
+| [ ] | Not started | 104 |
 | [~] | In progress | 0 |
-| [x] | Completed | 197 |
+| [x] | Completed | 205 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -81,7 +81,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **MEC** | Classical Mechanics & Rigid Bodies | Phase 3 / T5 | P1 | 10 | 10 | 100.0% |
 | **THM** | Thermal & Heat Transfer | Phase 3 / T5 | P1 | 9 | 9 | 100.0% |
 | **DEV** | Physical Device Construction | Phase 7 / T5 | P1 | 12 | 12 | 100.0% |
-| **ENV** | Real-time Virtual Lab Environment | Phase 1 / T1 | P1 | 8 | 0 | 0.0% |
+| **ENV** | Real-time Virtual Lab Environment | Phase 1 / T1 | P1 | 8 | 8 | 100.0% |
 | **CODE** | Programmability, Formulas & Scripting | Phase 4 / T6 | P1 | 12 | 0 | 0.0% |
 | **SEC** | Security, Sandboxing & Reliability | Phase 4 / T6 | P1 | 10 | 0 | 0.0% |
 | **LIB** | Component Library, Templates & Sharing | Phase 7 / T6 | P1 | 14 | 0 | 0.0% |
@@ -2383,84 +2383,84 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 1 / T1 | **Default Priority:** P1
 
 #### [ENV-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** Module Baseline
 - **Description:** Define world coordinate system, scale, origin, gravity vector and simulation units.
 - **Implementation Details:** Implement ENV-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_virtual_lab.cpp, 8/8 tasks passing, 247 total test cases, 2634 checks) & appshunya desktop build. Git commit: 621d7de
 
 #### [ENV-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** ENV-01
 - **Description:** Create environment profiles: vacuum, air-like atmosphere, water-like fluid, thermal chamber and custom conditions.
 - **Implementation Details:** Implement ENV-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_virtual_lab.cpp, 8/8 tasks passing, 247 total test cases, 2634 checks) & appshunya desktop build. Git commit: 621d7de
 
 #### [ENV-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** ENV-02
 - **Description:** Define environmental fields: gravity, pressure, temperature, ambient medium and external sources.
 - **Implementation Details:** Implement ENV-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_virtual_lab.cpp, 8/8 tasks passing, 247 total test cases, 2634 checks) & appshunya desktop build. Git commit: 621d7de
 
 #### [ENV-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** ENV-03
 - **Description:** Create boundary-condition editor for domain-specific surfaces and regions.
 - **Implementation Details:** Implement ENV-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_virtual_lab.cpp, 8/8 tasks passing, 247 total test cases, 2634 checks) & appshunya desktop build. Git commit: 621d7de
 
 #### [ENV-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** ENV-04
 - **Description:** Support initial conditions and spatially varying fields.
 - **Implementation Details:** Implement ENV-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_virtual_lab.cpp, 8/8 tasks passing, 247 total test cases, 2634 checks) & appshunya desktop build. Git commit: 621d7de
 
 #### [ENV-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** ENV-05
 - **Description:** Add environment presets with declared assumptions and editable parameters.
 - **Implementation Details:** Implement ENV-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_virtual_lab.cpp, 8/8 tasks passing, 247 total test cases, 2634 checks) & appshunya desktop build. Git commit: 621d7de
 
 #### [ENV-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** ENV-06
 - **Description:** Support experiment fixtures: clamps, mounts, test benches, containers and circuit instruments.
 - **Implementation Details:** Implement ENV-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_virtual_lab.cpp, 8/8 tasks passing, 247 total test cases, 2634 checks) & appshunya desktop build. Git commit: 621d7de
 
 #### [ENV-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T1
 - **Dependencies:** ENV-07
 - **Description:** Add environment validation for missing/contradictory conditions. RUN – Interactive and scientific run modes
 - **Implementation Details:** Implement ENV-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_virtual_lab.cpp, 8/8 tasks passing, 247 total test cases, 2634 checks) & appshunya desktop build. Git commit: 621d7de
 
 ---
 
