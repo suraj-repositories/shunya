@@ -727,7 +727,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Menu bar renders seamlessly across Windows, Linux, and macOS; pressing Alt+F opens File menu; keyboard arrow navigation and Escape work with native responsiveness.
     - **Testing & Verification Requirements:** Automated QML test driving menu item hover, activation, keyboard navigation, and action signal emission.
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_menu_bar.cpp (Menu Bar Structure, Categories & Accelerator Shortcuts), Qt 6 Quick desktop build appshunya.exe with MainMenuBar.qml and ShunyaMenuBarController. All 329 test cases passing.
-    - **Git Commit Reference:** Verified in workspace build test-build (07-Nov-2026)
+    - **Git Commit Reference:** Commit 23291b0 (feat(ui): implement desktop application menu bar and file management)
 
   - [x] **UI-01-003-02: Implement File menu project lifecycle actions and recent files manager**
     - **Status:** `[x] Completed`
@@ -739,7 +739,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Selecting 'New Project' opens template wizard; 'Save' commits project atomically; 'Recent Projects' displays last 10 opened projects with valid file existence validation.
     - **Testing & Verification Requirements:** Unit tests for MRU stack ordering, deduplication, missing file pruning, and project creation from templates.
     - **Actual Verification Evidence:** Verified via Catch2 test suite test_ui_menu_bar.cpp (Recent Projects Manager MRU ordering, JSON round-trip restoration, ProjectTemplateRegistry 5 templates), and NewProjectWizard.qml modal dialog integration.
-    - **Git Commit Reference:** Verified in workspace build test-build (07-Nov-2026)
+    - **Git Commit Reference:** Commit 23291b0 (feat(ui): implement desktop application menu bar and file management)
 
   - [x] **UI-01-003-03: Implement File import/export action dispatchers and dirty state save prompt dialogs**
     - **Status:** `[x] Completed`
@@ -751,7 +751,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Triggering 'Exit' or 'Close Project' on a modified project pops up modal guard with keyboard focus on 'Save'; clicking 'Cancel' aborts closure without losing edits.
     - **Testing & Verification Requirements:** Integration test verifying application exit cancellation on dirty project; test clean discard without saving when explicitly selected.
     - **Actual Verification Evidence:** Verified via Catch2 test suite test_ui_menu_bar.cpp (Import/Export action dispatching, Project::is_dirty() tracking and clearing), UnsavedChangesGuardDialog.qml confirmation modal, and FileDialog integration.
-    - **Git Commit Reference:** Verified in workspace build test-build (07-Nov-2026)
+    - **Git Commit Reference:** Commit 23291b0 (feat(ui): implement desktop application menu bar and file management)
 
 
 
