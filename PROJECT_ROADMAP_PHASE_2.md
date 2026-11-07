@@ -756,47 +756,47 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule UI-02: Unified Inspector & Property Editor
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **UI-02-001: Scientific Property Grid & Dimension-Aware Inputs**
-  - **Status:** `[ ] Not Started`
+- [x] **UI-02-001: Scientific Property Grid & Dimension-Aware Inputs**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Build a high-performance hierarchical property inspector that inspects reflected C++ entities, supports arbitrary units with inline conversion, and evaluates math formulas.
-  - [ ] **UI-02-001-01: Build hierarchical reflected property tree editor**
-    - **Status:** `[ ] Not Started`
+  - [x] **UI-02-001-01: Build hierarchical reflected property tree editor**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Implement PropertyTreeModel wrapping core entity reflection, grouping properties into collapsable categories (Transform, Material, Boundary Conditions, Solvers).
-    - **Implementation Details:** QAbstractItemModel derived PropertyTreeModel with in-place cell delegates for floats, vectors, booleans, enums, and color pickers.
+    - **Implementation Details:** QAbstractItemModel derived PropertyTreeModel with in-place cell delegates for floats, vectors, booleans, enums, and color pickers. ReflectedPropertyItem, PropertyCategoryGroup, and PropertySheet in property_node.hpp/.cpp with PropertyInspector.qml and PropertyDelegateFactory.qml.
     - **Dependencies:** core/domain/element_definition.hpp, core/domain/element_instance.hpp
     - **Expected Deliverables:** property_tree_model.hpp/.cpp, PropertyInspector.qml, PropertyDelegateFactory.qml.
     - **Acceptance Criteria:** Property changes in inspector propagate to core domain models in < 1ms; external domain updates refresh UI delegates immediately.
     - **Testing & Verification Requirements:** Property tree model unit tests covering node insertion, modification, and dataChanged signal emission.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_ui_property_inspector.cpp (PropertySheet reflection inspection, sub-millisecond mutation < 1ms, Transform Vec3 propagation, and external change listener notifications).
+    - **Git Commit Reference:** Commit 226000e (feat(ui): implement scientific property grid, dimensional inputs and formula evaluator)
 
-  - [ ] **UI-02-001-02: Implement inline dimensional unit conversions in property fields**
-    - **Status:** `[ ] Not Started`
+  - [x] **UI-02-001-02: Implement inline dimensional unit conversions in property fields**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Enable inputs to parse unit strings (e.g. '25 mm', '3.5 kOhm', '100 psi', '450 degC') and automatically convert to canonical SI units.
-    - **Implementation Details:** ShunyaQuantityInput item wrapping core/base/units.hpp parse_quantity; supports auto-suggest compatible unit suffixes.
+    - **Implementation Details:** ShunyaQuantityInput item wrapping core/base/units.hpp parse_quantity; supports auto-suggest compatible unit suffixes via ShunyaQuantityInputController and QuantitySpinBox.qml.
     - **Dependencies:** UI-02-001-01, core/base/units.hpp
     - **Expected Deliverables:** quantity_input_controller.hpp/.cpp, QuantitySpinBox.qml.
     - **Acceptance Criteria:** Typing '150 kPa' automatically converts to 150,000 Pa internally while allowing user to toggle display unit.
     - **Testing & Verification Requirements:** Exhaustive unit string parsing tests: pressure, thermal, electrical, kinematic, and compound dimensions.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_ui_property_inspector.cpp (Length, Electrical, Pressure, Temperature affine conversions, Kinematics, Dimensionless, error rejection, and UnitRegistry compatible unit queries).
+    - **Git Commit Reference:** Commit 226000e (feat(ui): implement scientific property grid, dimensional inputs and formula evaluator)
 
-  - [ ] **UI-02-001-03: Implement parametric mathematical formula expression evaluator in numerical inputs**
-    - **Status:** `[ ] Not Started`
+  - [x] **UI-02-001-03: Implement parametric mathematical formula expression evaluator in numerical inputs**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Allow numerical property fields to accept algebraic expressions (e.g. '=width * 2 + 5mm', '=sin(pi/4) * radius') referencing project parameters.
-    - **Implementation Details:** Recursive descent mathematical expression parser with AST evaluation caching and circular dependency detection.
+    - **Implementation Details:** Recursive descent mathematical expression parser in expression_evaluator.hpp/.cpp with AST evaluation, variable resolution, and ParameterReferenceManager with Kahn's topological sort dependency resolution and circular dependency detection.
     - **Dependencies:** UI-02-001-02, core/base/math.hpp
     - **Expected Deliverables:** expression_evaluator.hpp/.cpp, ParameterReferenceManager.hpp, unit tests for expression parser.
     - **Acceptance Criteria:** Expressions evaluate with double-precision accuracy; parameter updates automatically re-evaluate dependent expressions.
     - **Testing & Verification Requirements:** Syntax validation tests, operator precedence verification, circular reference detection tests.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_ui_property_inspector.cpp (Operator precedence, built-in functions, inline physical unit suffixes, variable context evaluation, topological dependency propagation, and cycle rejection).
+    - **Git Commit Reference:** Commit 226000e (feat(ui): implement scientific property grid, dimensional inputs and formula evaluator)
 
 - [ ] **UI-02-002: Multi-Selection & Batch Property Editing**
   - **Status:** `[ ] Not Started`
