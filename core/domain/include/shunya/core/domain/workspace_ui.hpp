@@ -1,0 +1,497 @@
+#pragma once
+
+#include "shunya/core/base/uuid.hpp"
+#include "shunya/core/base/result.hpp"
+#include "shunya/core/base/error.hpp"
+#include "shunya/core/base/version.hpp"
+#include "shunya/core/domain/simulation_runtime.hpp"
+#include "shunya/core/domain/simulation_execution.hpp"
+
+#include <cstdint>
+#include <functional>
+#include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <vector>
+
+namespace shunya::core::domain {
+
+// =============================================================================
+// UI-01: Workspace Shell & Docking Layout
+// =============================================================================
+
+enum class WorkspacePreset {
+    Modeling,
+    Schematic,
+    Simulation,
+    Results,
+    Scripting
+};
+
+[[nodiscard]] constexpr std::string_view workspace_preset_to_string(WorkspacePreset p) noexcept {
+    switch (p) {
+        case WorkspacePreset::Modeling: return "Modeling";
+        case WorkspacePreset::Schematic: return "Schematic";
+        case WorkspacePreset::Simulation: return "Simulation";
+        case WorkspacePreset::Results: return "Results";
+        case WorkspacePreset::Scripting: return "Scripting";
+    }
+    return "Modeling";
+}
+
+[[nodiscard]] std::optional<WorkspacePreset> workspace_preset_from_string(std::string_view s) noexcept;
+
+enum class DockArea {
+    Left,
+    Right,
+    Center,
+    Bottom
+};
+
+struct DockPanelState {
+    std::string panel_id;
+    std::string title;
+    bool is_visible{true};
+    DockArea area{DockArea::Center};
+    bool is_floating{false};
+    double width_fraction{0.25};
+    double height_fraction{0.25};
+};
+
+struct CommandPaletteAction {
+    std::string action_id;
+    std::string category;
+    std::string title;
+    std::string shortcut;
+    bool is_enabled{true};
+    std::function<void()> callback;
+};
+
+class CommandPaletteRegistry {
+public:
+    void register_action(CommandPaletteAction action);
+    [[nodiscard]] std::vector<CommandPaletteAction> search(std::string_view query) const;
+    [[nodiscard]] bool execute_action(std::string_view action_id);
+    [[nodiscard]] const std::vector<CommandPaletteAction>& actions() const noexcept { return actions_; }
+
+private:
+    std::vector<CommandPaletteAction> actions_;
+};
+
+class WorkspaceShell {
+public:
+    explicit WorkspaceShell(WorkspacePreset initial_preset = WorkspacePreset::Modeling);
+
+    void apply_preset(WorkspacePreset preset);
+    [[nodiscard]] WorkspacePreset current_preset() const noexcept { return current_preset_; }
+
+    void set_panel_visibility(std::string_view panel_id, bool visible);
+    [[nodiscard]] std::optional<DockPanelState> get_panel(std::string_view panel_id) const;
+    [[nodiscard]] const std::vector<DockPanelState>& panels() const noexcept { return panels_; }
+
+    [[nodiscard]] std::string serialize_layout_json() const;
+    base::Result<void> restore_layout_json(std::string_view json_str);
+
+    CommandPaletteRegistry& command_palette() noexcept { return command_palette_; }
+    [[nodiscard]] const CommandPaletteRegistry& command_palette() const noexcept { return command_palette_; }
+
+private:
+    WorkspacePreset current_preset_{WorkspacePreset::Modeling};
+    std::vector<DockPanelState> panels_;
+    CommandPaletteRegistry command_palette_;
+};
+
+// =============================================================================
+// UI-02: Project Browser Model
+// =============================================================================
+
+enum class ProjectTreeItemType {
+    ProjectRoot,
+    SceneNode,
+    Component,
+    Experiment,
+    RunResult,
+    Asset,
+    Script
+};
+
+struct ProjectTreeNode {
+    std::string id;
+    std::string name;
+    ProjectTreeItemType type{ProjectTreeItemType::Asset};
+    std::vector<std::string> tags;
+    bool is_expanded{false};
+    bool is_selected{false};
+    std::vector<ProjectTreeNode> children;
+};
+
+class ProjectBrowserModel {
+public:
+    void set_root(ProjectTreeNode root) { root_ = std::move(root); }
+    [[nodiscard]] const ProjectTreeNode& root() const noexcept { return root_; }
+
+    [[nodiscard]] std::vector<const ProjectTreeNode*> search(std::string_view query) const;
+    bool select_node(std::string_view id);
+    [[nodiscard]] std::optional<std::string> selected_node_id() const;
+
+private:
+    ProjectTreeNode root_;
+    void recursive_search(const ProjectTreeNode& node, std::string_view query, std::vector<const ProjectTreeNode*>& out) const;
+    bool recursive_select(ProjectTreeNode& node, std::string_view id);
+};
+
+// =============================================================================
+// UI-03: Viewport Controller (2D/3D)
+// =============================================================================
+
+enum class CameraMode {
+    Perspective,
+    Orthographic
+};
+
+enum class GizmoMode {
+    None,
+    Translate,
+    Rotate,
+    Scale
+};
+
+struct ViewportCamera {
+    CameraMode mode{CameraMode::Perspective};
+    base::math::Vector3<double> position{0.0, 5.0, 10.0};
+    base::math::Vector3<double> target{0.0, 0.0, 0.0};
+    double fov_degrees{60.0};
+    double near_clip{0.1};
+    double far_clip{1000.0};
+    double ortho_width{10.0};
+};
+
+struct RenderDiagnostics {
+    double frames_per_second{60.0};
+    uint32_t draw_calls{12};
+    uint64_t triangle_count{5400};
+    bool overlay_visible{true};
+};
+
+class ViewportController {
+public:
+    void set_camera_mode(CameraMode mode) { camera_.mode = mode; }
+    [[nodiscard]] const ViewportCamera& camera() const noexcept { return camera_; }
+    void set_gizmo(GizmoMode gizmo) noexcept { gizmo_ = gizmo; }
+    [[nodiscard]] GizmoMode gizmo() const noexcept { return gizmo_; }
+
+    void set_grid_visible(bool visible) noexcept { grid_visible_ = visible; }
+    [[nodiscard]] bool grid_visible() const noexcept { return grid_visible_; }
+    void set_grid_spacing(double spacing) noexcept { grid_spacing_ = spacing; }
+    [[nodiscard]] double grid_spacing() const noexcept { return grid_spacing_; }
+
+    [[nodiscard]] RenderDiagnostics& diagnostics() noexcept { return diagnostics_; }
+    [[nodiscard]] const RenderDiagnostics& diagnostics() const noexcept { return diagnostics_; }
+
+private:
+    ViewportCamera camera_;
+    GizmoMode gizmo_{GizmoMode::Translate};
+    bool grid_visible_{true};
+    double grid_spacing_{1.0};
+    RenderDiagnostics diagnostics_;
+};
+
+// =============================================================================
+// UI-04: Schematic Editor Model
+// =============================================================================
+
+struct SchematicPin {
+    std::string name;
+    double offset_x{0.0};
+    double offset_y{0.0};
+};
+
+struct SchematicSymbol {
+    std::string symbol_id;
+    std::string name;
+    double pos_x{0.0};
+    double pos_y{0.0};
+    double width{80.0};
+    double height{60.0};
+    std::vector<SchematicPin> pins;
+};
+
+struct SchematicWire {
+    std::string wire_id;
+    std::string net_name;
+    std::vector<std::pair<double, double>> waypoints;
+};
+
+struct ElectricalIssue {
+    std::string message;
+    bool is_critical{false};
+};
+
+class SchematicEditorModel {
+public:
+    void add_symbol(SchematicSymbol symbol);
+    void add_wire(SchematicWire wire);
+
+    [[nodiscard]] const std::vector<SchematicSymbol>& symbols() const noexcept { return symbols_; }
+    [[nodiscard]] const std::vector<SchematicWire>& wires() const noexcept { return wires_; }
+
+    [[nodiscard]] std::vector<ElectricalIssue> run_electrical_diagnostics() const;
+
+private:
+    std::vector<SchematicSymbol> symbols_;
+    std::vector<SchematicWire> wires_;
+};
+
+// =============================================================================
+// UI-05: Graph / Flow Editor Model
+// =============================================================================
+
+struct FlowSocket {
+    std::string name;
+    std::string data_type; // e.g. "float", "signal", "event"
+    bool is_input{true};
+};
+
+struct FlowBlock {
+    std::string block_id;
+    std::string title;
+    double pos_x{0.0};
+    double pos_y{0.0};
+    std::vector<FlowSocket> sockets;
+};
+
+struct FlowConnection {
+    std::string source_block_id;
+    std::string source_socket;
+    std::string target_block_id;
+    std::string target_socket;
+};
+
+class FlowEditorModel {
+public:
+    void add_block(FlowBlock block);
+    base::Result<void> connect(std::string_view src_id, std::string_view src_sock,
+                               std::string_view dst_id, std::string_view dst_sock);
+
+    [[nodiscard]] const std::vector<FlowBlock>& blocks() const noexcept { return blocks_; }
+    [[nodiscard]] const std::vector<FlowConnection>& connections() const noexcept { return connections_; }
+
+    void set_highlighted_block(std::string_view block_id) { active_block_ = std::string(block_id); }
+    [[nodiscard]] const std::string& active_block() const noexcept { return active_block_; }
+
+private:
+    std::vector<FlowBlock> blocks_;
+    std::vector<FlowConnection> connections_;
+    std::string active_block_;
+};
+
+// =============================================================================
+// UI-06: Component Editor Model
+// =============================================================================
+
+struct ComponentEditorPort {
+    std::string name;
+    std::string domain;
+    std::string direction; // "Input", "Output", "Bidirectional"
+    std::string unit_symbol;
+};
+
+struct ComponentEditorParameter {
+    std::string name;
+    double default_value{0.0};
+    std::string unit_symbol;
+    double min_value{0.0};
+    double max_value{100.0};
+};
+
+class ComponentEditorModel {
+public:
+    void set_component_name(std::string name) { name_ = std::move(name); }
+    [[nodiscard]] const std::string& component_name() const noexcept { return name_; }
+
+    void add_port(ComponentEditorPort port) { ports_.push_back(std::move(port)); }
+    [[nodiscard]] const std::vector<ComponentEditorPort>& ports() const noexcept { return ports_; }
+
+    void add_parameter(ComponentEditorParameter param) { params_.push_back(std::move(param)); }
+    [[nodiscard]] const std::vector<ComponentEditorParameter>& parameters() const noexcept { return params_; }
+
+    void set_documentation_markdown(std::string md) { documentation_md_ = std::move(md); }
+    [[nodiscard]] const std::string& documentation_markdown() const noexcept { return documentation_md_; }
+
+private:
+    std::string name_{"NewComponent"};
+    std::vector<ComponentEditorPort> ports_;
+    std::vector<ComponentEditorParameter> params_;
+    std::string documentation_md_;
+};
+
+// =============================================================================
+// UI-07: Property Inspector Model
+// =============================================================================
+
+struct PropertyItem {
+    std::string name;
+    std::string category{"General"};
+    std::string value;
+    std::string default_value;
+    std::string unit_symbol;
+    bool is_read_only{false};
+    std::string validation_error;
+};
+
+class PropertyInspectorModel {
+public:
+    void add_property(PropertyItem item);
+    void clear() { properties_.clear(); }
+
+    [[nodiscard]] const std::vector<PropertyItem>& properties() const noexcept { return properties_; }
+    base::Result<void> set_value(std::string_view name, std::string_view new_value);
+    void reset_to_default(std::string_view name);
+
+private:
+    std::vector<PropertyItem> properties_;
+};
+
+// =============================================================================
+// UI-08: Simulation Toolbar Controller
+// =============================================================================
+
+class SimulationToolbarController {
+public:
+    void set_state(SimulationState state) noexcept { state_ = state; }
+    [[nodiscard]] SimulationState state() const noexcept { return state_; }
+
+    void set_mode(ExecutionMode mode) noexcept { mode_ = mode; }
+    [[nodiscard]] ExecutionMode mode() const noexcept { return mode_; }
+
+    void update_telemetry(double sim_time, uint64_t step_count, double current_rtf) noexcept;
+
+    [[nodiscard]] double sim_time() const noexcept { return sim_time_; }
+    [[nodiscard]] uint64_t step_count() const noexcept { return step_count_; }
+    [[nodiscard]] double current_rtf() const noexcept { return current_rtf_; }
+
+    [[nodiscard]] bool can_run() const noexcept;
+    [[nodiscard]] bool can_pause() const noexcept;
+    [[nodiscard]] bool can_step() const noexcept;
+    [[nodiscard]] bool can_stop() const noexcept;
+
+private:
+    SimulationState state_{SimulationState::Stopped};
+    ExecutionMode mode_{ExecutionMode::ScientificAuthoritative};
+    double sim_time_{0.0};
+    uint64_t step_count_{0};
+    double current_rtf_{1.0};
+};
+
+// =============================================================================
+// UI-09: Results Workspace Controller
+// =============================================================================
+
+struct ActivePlotTrace {
+    std::string signal_name;
+    std::string color_hex{"#00ffff"};
+    bool is_visible{true};
+    bool log_scale{false};
+};
+
+class ResultsWorkspaceController {
+public:
+    void add_trace(ActivePlotTrace trace) { traces_.push_back(std::move(trace)); }
+    [[nodiscard]] const std::vector<ActivePlotTrace>& traces() const noexcept { return traces_; }
+
+    void set_split_comparison_enabled(bool enabled) noexcept { split_comparison_ = enabled; }
+    [[nodiscard]] bool split_comparison_enabled() const noexcept { return split_comparison_; }
+
+private:
+    std::vector<ActivePlotTrace> traces_;
+    bool split_comparison_{false};
+};
+
+// =============================================================================
+// UI-10: Code Editor Controller
+// =============================================================================
+
+struct DiagnosticMarker {
+    uint32_t line{1};
+    uint32_t column{1};
+    std::string message;
+    bool is_error{true};
+};
+
+class CodeEditorController {
+public:
+    void set_text(std::string text) { buffer_ = std::move(text); }
+    [[nodiscard]] const std::string& text() const noexcept { return buffer_; }
+
+    void set_language(std::string lang) { language_ = std::move(lang); }
+    [[nodiscard]] const std::string& language() const noexcept { return language_; }
+
+    void add_diagnostic(DiagnosticMarker diag) { diagnostics_.push_back(std::move(diag)); }
+    void clear_diagnostics() { diagnostics_.clear(); }
+    [[nodiscard]] const std::vector<DiagnosticMarker>& diagnostics() const noexcept { return diagnostics_; }
+
+    void toggle_breakpoint(uint32_t line);
+    [[nodiscard]] bool has_breakpoint(uint32_t line) const;
+
+private:
+    std::string buffer_;
+    std::string language_{"lua"};
+    std::vector<DiagnosticMarker> diagnostics_;
+    std::vector<uint32_t> breakpoints_;
+};
+
+// =============================================================================
+// UI-11: Library Browser Model
+// =============================================================================
+
+struct LibraryPackageCard {
+    std::string package_name;
+    base::Version version;
+    std::string author;
+    std::string license;
+    std::string category{"Private"}; // "Private", "PublicCommunity", "Templates"
+    std::vector<std::string> tags;
+    bool is_installed{false};
+};
+
+class LibraryBrowserModel {
+public:
+    void add_package(LibraryPackageCard card) { packages_.push_back(std::move(card)); }
+    [[nodiscard]] const std::vector<LibraryPackageCard>& packages() const noexcept { return packages_; }
+
+    [[nodiscard]] std::vector<const LibraryPackageCard*> filter_by_category(std::string_view cat) const;
+    [[nodiscard]] std::vector<const LibraryPackageCard*> search(std::string_view query) const;
+
+private:
+    std::vector<LibraryPackageCard> packages_;
+};
+
+// =============================================================================
+// UI-12: Accessibility and Usability Manager
+// =============================================================================
+
+struct AccessibilitySettings {
+    bool high_contrast_mode{false};
+    double ui_scale_factor{1.0}; // 1.0, 1.25, 1.5, 2.0
+    bool keyboard_navigation_enabled{true};
+    std::string locale{"en_US"};
+};
+
+class AccessibilityManager {
+public:
+    explicit AccessibilityManager(AccessibilitySettings settings = {})
+        : settings_(std::move(settings)) {}
+
+    [[nodiscard]] const AccessibilitySettings& settings() const noexcept { return settings_; }
+
+    base::Result<void> set_ui_scale_factor(double scale);
+    void set_high_contrast(bool enable) noexcept { settings_.high_contrast_mode = enable; }
+    void set_locale(std::string loc) { settings_.locale = std::move(loc); }
+
+private:
+    AccessibilitySettings settings_;
+};
+
+} // namespace shunya::core::domain

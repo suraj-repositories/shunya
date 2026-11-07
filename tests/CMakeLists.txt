@@ -27,6 +27,7 @@ add_executable(shunya_unit_tests
     unit/test_observability.cpp
     unit/test_simulation_execution.cpp
     unit/test_data_exchange.cpp
+    unit/test_workspace_ui.cpp
 )
 
 target_include_directories(shunya_unit_tests
