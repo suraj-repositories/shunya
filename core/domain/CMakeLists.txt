@@ -27,6 +27,7 @@ target_sources(shunya_core_domain
         src/numerical_solver.cpp
         src/observability.cpp
         src/simulation_execution.cpp
+        src/data_exchange.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -55,6 +56,7 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/numerical_solver.hpp
             include/shunya/core/domain/observability.hpp
             include/shunya/core/domain/simulation_execution.hpp
+            include/shunya/core/domain/data_exchange.hpp
 )
 
 target_include_directories(shunya_core_domain
