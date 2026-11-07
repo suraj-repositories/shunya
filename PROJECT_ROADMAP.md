@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 208 |
+| [ ] | Not started | 198 |
 | [~] | In progress | 0 |
-| [x] | Completed | 101 |
+| [x] | Completed | 111 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -72,7 +72,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **SIM** | Simulation Runtime and Scheduling | Phase 2 / T3 | P0 | 10 | 10 | 100.0% |
 | **SOL** | Numerical Solver Framework | Phase 2 / T3 | P0 | 10 | 10 | 100.0% |
 | **OBS** | Observability, Probes & Dashboards | Phase 2 / T4 | P0 | 10 | 10 | 100.0% |
-| **RUN** | Simulation Execution & Safe Modes | Phase 2 / T3 | P0 | 10 | 0 | 0.0% |
+| **RUN** | Simulation Execution & Safe Modes | Phase 2 / T3 | P0 | 10 | 10 | 100.0% |
 | **IO** | Data Exchange, Formats & Persistence | Phase 1 / T2 | P0 | 10 | 0 | 0.0% |
 | **UI** | User Interface & Workspaces | Phase 1 / T1 | P0 | 12 | 0 | 0.0% |
 | **REN** | Rendering & Graphics Engine | Phase 1 / T4 | P1 | 10 | 0 | 0.0% |
@@ -1369,104 +1369,104 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 2 / T3 | **Default Priority:** P0
 
 #### [RUN-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** Module Baseline
 - **Description:** Interactive preview mode with clear approximate/visual-only label when not using authoritative solvers.
 - **Implementation Details:** Implement RUN-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_execution.cpp, 10/10 tasks passing, 156 total tests). Git commit: e238ea6
 
 #### [RUN-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** RUN-01
 - **Description:** Realtime mode with target wall-clock rate, pause, step and performance indicator.
 - **Implementation Details:** Implement RUN-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_execution.cpp, 10/10 tasks passing, 156 total tests). Git commit: e238ea6
 
 #### [RUN-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** RUN-02
 - **Description:** Scientific mode with explicit physical time, solver tolerances and reproducible output.
 - **Implementation Details:** Implement RUN-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_execution.cpp, 10/10 tasks passing, 156 total tests). Git commit: e238ea6
 
 #### [RUN-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** RUN-03
 - **Description:** Accelerated mode where compute permits simulation faster than wall-clock.
 - **Implementation Details:** Implement RUN-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_execution.cpp, 10/10 tasks passing, 156 total tests). Git commit: e238ea6
 
 #### [RUN-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** RUN-04
 - **Description:** Slow-motion and time dilation display controls that do not alter physical model semantics.
 - **Implementation Details:** Implement RUN-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_execution.cpp, 10/10 tasks passing, 156 total tests). Git commit: e238ea6
 
 #### [RUN-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** RUN-05
 - **Description:** Headless batch mode for sweeps, CI and remote compute.
 - **Implementation Details:** Implement RUN-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_execution.cpp, 10/10 tasks passing, 156 total tests). Git commit: e238ea6
 
 #### [RUN-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** RUN-06
 - **Description:** Checkpoint/restart and deterministic replay.
 - **Implementation Details:** Implement RUN-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_execution.cpp, 10/10 tasks passing, 156 total tests). Git commit: e238ea6
 
 #### [RUN-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** RUN-07
 - **Description:** Run comparison: overlay traces, compare metrics and diff configurations.
 - **Implementation Details:** Implement RUN-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_execution.cpp, 10/10 tasks passing, 156 total tests). Git commit: e238ea6
 
 #### [RUN-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** RUN-08
 - **Description:** Run failure report with failing element, domain, solver and suggested diagnostic actions.
 - **Implementation Details:** Implement RUN-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_execution.cpp, 10/10 tasks passing, 156 total tests). Git commit: e238ea6
 
 #### [RUN-10] 10
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** RUN-09
 - **Description:** Run safety controls: stop conditions, numerical divergence limits and user-defined thresholds. OBS – Measurement, instrumentation and results
 - **Implementation Details:** Implement RUN-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_simulation_execution.cpp, 10/10 tasks passing, 156 total tests). Git commit: e238ea6
 
 ---
 
