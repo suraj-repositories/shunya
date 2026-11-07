@@ -845,7 +845,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Dragging gizmo axis translates entity along constrained global or local coordinate axis with sub-pixel responsiveness.
     - **Testing & Verification Requirements:** Synthetic raycast hit tests verifying axis pick tolerances and coordinate snapping accuracy.
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_viewport.cpp (Coordinate snapping rounding invariance, 2D screen projections of 3D axes, axis picking within 14px tolerance, constrained translation delta calculation, and interactive GizmoOverlay.qml).
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit 6a0ee82 (feat(ui): implement 3D transform gizmos, ViewCube, and viewport HUD)
 
   - [x] **UI-03-001-02: Build viewport camera orientation ViewCube with ortho/persp toggle**
     - **Status:** `[x] Completed`
@@ -857,7 +857,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Clicking 'Top' face smoothly interpolates camera rotation and position to orthographic top-down projection in 250ms.
     - **Testing & Verification Requirements:** Verify camera projection matrix calculation for all 6 orthogonal faces and 8 corner isometric views.
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_viewport.cpp (Standard face direction/up vectors for Top, Bottom, Front, Back, Left, Right, Isometric; camera creation with orthographic/perspective toggle; smooth camera interpolation at midpoint/boundaries; and ViewCube.qml).
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit 6a0ee82 (feat(ui): implement 3D transform gizmos, ViewCube, and viewport HUD)
 
   - [x] **UI-03-001-03: Implement interactive viewport HUD for solver diagnostics and FPS**
     - **Status:** `[x] Completed`
@@ -869,7 +869,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** HUD renders at 60 FPS without introducing GC spikes or lock contention with background solver thread.
     - **Testing & Verification Requirements:** Verify telemetry stream formatting, benchmark HUD rendering overhead on high load (< 0.2ms per frame).
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_viewport.cpp (Rolling average FPS computation at 60 FPS baseline, average frame time in ms, solver step duration and residual norm recording, bounded memory capacity, and ViewportHud.qml).
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit 6a0ee82 (feat(ui): implement 3D transform gizmos, ViewCube, and viewport HUD)
 
 - [ ] **UI-03-002: Real-Time Scientific Data Plotting & Probe Drawer**
   - **Status:** `[ ] Not Started`
