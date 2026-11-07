@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 143 |
+| [ ] | Not started | 133 |
 | [~] | In progress | 0 |
-| [x] | Completed | 166 |
+| [x] | Completed | 176 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -78,7 +78,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **REN** | Rendering & Graphics Engine | Phase 1 / T4 | P1 | 10 | 10 | 100.0% |
 | **ELEC** | Electronics & Circuit Simulation | Phase 5 / T3 | P0 | 14 | 14 | 100.0% |
 | **LOGIC** | Digital Logic & State Machines | Phase 6 / T3 | P1 | 9 | 9 | 100.0% |
-| **MEC** | Classical Mechanics & Rigid Bodies | Phase 3 / T5 | P1 | 10 | 0 | 0.0% |
+| **MEC** | Classical Mechanics & Rigid Bodies | Phase 3 / T5 | P1 | 10 | 10 | 100.0% |
 | **THM** | Thermal & Heat Transfer | Phase 3 / T5 | P1 | 9 | 0 | 0.0% |
 | **DEV** | Physical Device Construction | Phase 7 / T5 | P1 | 12 | 0 | 0.0% |
 | **ENV** | Real-time Virtual Lab Environment | Phase 1 / T1 | P1 | 8 | 0 | 0.0% |
@@ -2055,104 +2055,104 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 3 / T5 | **Default Priority:** P1
 
 #### [MEC-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** Module Baseline
 - **Description:** Rigid body state: position, orientation, linear/angular velocity and mass properties.
 - **Implementation Details:** Implement MEC-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_mechanics.cpp, 10/10 tasks passing, 219 total test cases, 2213 checks) & appshunya desktop build. Git commit: 9dc9a40
 
 #### [MEC-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** MEC-01
 - **Description:** Forces and torques: gravity, applied force, impulses and constraints.
 - **Implementation Details:** Implement MEC-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_mechanics.cpp, 10/10 tasks passing, 219 total test cases, 2213 checks) & appshunya desktop build. Git commit: 9dc9a40
 
 #### [MEC-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** MEC-02
 - **Description:** Collision geometry: primitive shapes, convex meshes and broad/narrow phase.
 - **Implementation Details:** Implement MEC-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_mechanics.cpp, 10/10 tasks passing, 219 total test cases, 2213 checks) & appshunya desktop build. Git commit: 9dc9a40
 
 #### [MEC-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** MEC-03
 - **Description:** Contact and friction models with documented assumptions.
 - **Implementation Details:** Implement MEC-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_mechanics.cpp, 10/10 tasks passing, 219 total test cases, 2213 checks) & appshunya desktop build. Git commit: 9dc9a40
 
 #### [MEC-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** MEC-04
 - **Description:** Joints: fixed, hinge, slider, ball and spring-damper.
 - **Implementation Details:** Implement MEC-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_mechanics.cpp, 10/10 tasks passing, 219 total test cases, 2213 checks) & appshunya desktop build. Git commit: 9dc9a40
 
 #### [MEC-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** MEC-05
 - **Description:** Kinematics and motion constraints.
 - **Implementation Details:** Implement MEC-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_mechanics.cpp, 10/10 tasks passing, 219 total test cases, 2213 checks) & appshunya desktop build. Git commit: 9dc9a40
 
 #### [MEC-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** MEC-06
 - **Description:** Energy and momentum diagnostics.
 - **Implementation Details:** Implement MEC-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_mechanics.cpp, 10/10 tasks passing, 219 total test cases, 2213 checks) & appshunya desktop build. Git commit: 9dc9a40
 
 #### [MEC-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** MEC-07
 - **Description:** Mechanics visualisation: vectors, trails, contact points and telemetry.
 - **Implementation Details:** Implement MEC-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_mechanics.cpp, 10/10 tasks passing, 219 total test cases, 2213 checks) & appshunya desktop build. Git commit: 9dc9a40
 
 #### [MEC-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** MEC-08
 - **Description:** Validation: free fall, pendulum, collisions, conservation and joint tests.
 - **Implementation Details:** Implement MEC-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_mechanics.cpp, 10/10 tasks passing, 219 total test cases, 2213 checks) & appshunya desktop build. Git commit: 9dc9a40
 
 #### [MEC-10] 10
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** MEC-09
 - **Description:** Performance: broad-phase scaling, sleeping bodies and deterministic replay. THM – Heat transfer and thermal physics
 - **Implementation Details:** Implement MEC-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_mechanics.cpp, 10/10 tasks passing, 219 total test cases, 2213 checks) & appshunya desktop build. Git commit: 9dc9a40
 
 ---
 
