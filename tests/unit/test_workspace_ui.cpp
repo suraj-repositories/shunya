@@ -132,6 +132,10 @@ TEST_CASE("UI-02: Project Browser Hierarchy and Search") {
 // =============================================================================
 
 TEST_CASE("UI-03: Viewport Controller and Camera Controls") {
+    using CameraMode = WorkspaceCameraMode;
+    using GizmoMode = WorkspaceGizmoMode;
+    using ViewportController = WorkspaceViewportController;
+
     ViewportController vp;
     CHECK(vp.camera().mode == CameraMode::Perspective);
     CHECK(vp.gizmo() == GizmoMode::Translate);

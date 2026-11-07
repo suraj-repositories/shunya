@@ -50,6 +50,7 @@ target_sources(shunya_core_domain
         src/property_node.cpp
         src/parameter_reference_manager.cpp
         src/multi_property_analyzer.cpp
+        src/viewport_interaction.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -58,6 +59,7 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/command_stack.hpp
             include/shunya/core/domain/selection.hpp
             include/shunya/core/domain/migration.hpp
+            include/shunya/core/domain/viewport_interaction.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

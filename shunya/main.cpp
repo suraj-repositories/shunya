@@ -8,6 +8,7 @@
 #include "property_tree_model.hpp"
 #include "quantity_input_controller.hpp"
 #include "multi_property_controller.hpp"
+#include "viewport_controller.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -22,6 +23,7 @@ int main(int argc, char *argv[])
     auto* propTreeModel = new shunya::gui::ShunyaPropertyTreeModel(&app);
     auto* quantityCtrl = new shunya::gui::ShunyaQuantityInputController(&app);
     auto* multiPropCtrl = new shunya::gui::ShunyaMultiPropertyController(&app);
+    auto* viewportCtrl = new shunya::gui::ShunyaViewportController(&app);
 
     auto paramMgr = std::make_shared<shunya::core::domain::ParameterReferenceManager>();
     propTreeModel->setParameterReferenceManager(paramMgr);
@@ -47,6 +49,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("propertyTreeModel", propTreeModel);
     engine.rootContext()->setContextProperty("quantityController", quantityCtrl);
     engine.rootContext()->setContextProperty("multiPropertyController", multiPropCtrl);
+    engine.rootContext()->setContextProperty("viewportController", viewportCtrl);
 
     QObject::connect(
         &engine,

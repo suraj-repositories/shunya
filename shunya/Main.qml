@@ -446,26 +446,56 @@ ApplicationWindow {
                                     }
                                 }
 
-                                // MODELING & SCHEMATIC VIEW
-                                ColumnLayout {
-                                    anchors.centerIn: parent
+                                // MODELING & 3D VIEWPORT WITH GIZMO, VIEWCUBE, AND HUD
+                                Item {
+                                    anchors.fill: parent
                                     visible: window.currentPreset === "Modeling" || window.currentPreset === "Schematic" || window.currentPreset === "Scripting"
-                                    spacing: 12
 
-                                    Label {
-                                        text: window.currentPreset === "Modeling" ? "\u2B21 3D Spatial Multiphysics Mesh Viewport" :
-                                              window.currentPreset === "Schematic" ? "\u26A1 2D Schematic Capture & MNA Topology Canvas" :
-                                              "\u2728 Python & Sandbox Scripting Terminal"
-                                        color: window.accentColor
-                                        font.bold: true
-                                        font.pixelSize: 18
-                                        horizontalAlignment: Text.AlignHCenter
+                                    // Viewport background grid canvas
+                                    Canvas {
+                                        id: vpGridCanvas
+                                        anchors.fill: parent
+                                        onPaint: {
+                                            var ctx = getContext("2d");
+                                            ctx.clearRect(0, 0, width, height);
+                                            ctx.strokeStyle = "#1a1f26";
+                                            ctx.lineWidth = 1;
+                                            var step = 30;
+                                            for (var x = 0; x < width; x += step) {
+                                                ctx.beginPath();
+                                                ctx.moveTo(x, 0);
+                                                ctx.lineTo(x, height);
+                                                ctx.stroke();
+                                            }
+                                            for (var y = 0; y < height; y += step) {
+                                                ctx.beginPath();
+                                                ctx.moveTo(0, y);
+                                                ctx.lineTo(width, y);
+                                                ctx.stroke();
+                                            }
+                                        }
                                     }
-                                    Label {
-                                        text: "High-performance C++20 Core Execution Engine Attached\nAll 32 modules active and synchronized with zero UI latency."
-                                        color: window.textMuted
-                                        font.pixelSize: 13
-                                        horizontalAlignment: Text.AlignHCenter
+
+                                    // Interactive 3D Transform Gizmo Overlay
+                                    GizmoOverlay {
+                                        anchors.fill: parent
+                                        controller: typeof viewportController !== "undefined" ? viewportController : null
+                                    }
+
+                                    // Heads-Up Display (HUD) in top-left
+                                    ViewportHud {
+                                        anchors.top: parent.top
+                                        anchors.left: parent.left
+                                        anchors.margins: 10
+                                        controller: typeof viewportController !== "undefined" ? viewportController : null
+                                    }
+
+                                    // ViewCube Navigation in top-right
+                                    ViewCube {
+                                        anchors.top: parent.top
+                                        anchors.right: parent.right
+                                        anchors.margins: 10
+                                        controller: typeof viewportController !== "undefined" ? viewportController : null
                                     }
                                 }
                             }

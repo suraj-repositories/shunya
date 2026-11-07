@@ -37,6 +37,8 @@ qt_add_executable(appshunya
     quantity_input_controller.cpp
     multi_property_controller.hpp
     multi_property_controller.cpp
+    viewport_controller.hpp
+    viewport_controller.cpp
 )
 
 qt_add_qml_module(appshunya
@@ -57,6 +59,9 @@ qt_add_qml_module(appshunya
         PropertyDelegateFactory.qml
         QuantitySpinBox.qml
         MultiPropertyInspector.qml
+        GizmoOverlay.qml
+        ViewCube.qml
+        ViewportHud.qml
 )
 
 set_target_properties(appshunya PROPERTIES

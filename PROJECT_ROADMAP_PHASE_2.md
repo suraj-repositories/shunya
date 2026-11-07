@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 148 | 91.4% |
+| `[ ]` | Not Started | 145 | 89.5% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 14 | 8.6% |
+| `[x]` | Completed | 17 | 10.5% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **8.6%** (14 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **10.5%** (17 / 162 leaf subtasks completed)
 
 
 ---
@@ -87,7 +87,7 @@ Every module is assigned a target development stage, priority classification (P0
 
 | Module ID | Module Name | Phase / Stage | Priority | Total Subtasks | Completed | Progress |
 |---|---|---|---|---:|---:|---:|
-| **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 14 | 70.0% |
+| **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 17 | 85.0% |
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 0 | 0.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 0 | 0.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **14** | **8.6%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **17** | **10.5%** |
 
 ---
 
@@ -158,11 +158,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 │   │   ├── Task [UI-02-002] [x] Multi-Selection & Batch Property Editing
 │   │   │   ├── Subtask [UI-02-002-01] [x] Implement homogenous & heterogenous multi-selection property diffing
 │   │   │   ├── Subtask [UI-02-002-02] [x] Implement bulk property update transactions with atomic rollback
-│   ├── Submodule [UI-03] Scientific Visualization Viewports & Overlays
-│   │   ├── Task [UI-03-001] Viewport Controls, Gizmos & Heads-Up Display (HUD)
-│   │   │   ├── Subtask [UI-03-001-01] Implement 3D transform gizmos with coordinate snapping
-│   │   │   ├── Subtask [UI-03-001-02] Build viewport camera orientation ViewCube with ortho/persp toggle
-│   │   │   ├── Subtask [UI-03-001-03] Implement interactive viewport HUD for solver diagnostics and FPS
+│   ├── Submodule [UI-03] [~] Scientific Visualization Viewports & Overlays
+│   │   ├── Task [UI-03-001] [x] Viewport Controls, Gizmos & Heads-Up Display (HUD)
+│   │   │   ├── Subtask [UI-03-001-01] [x] Implement 3D transform gizmos with coordinate snapping
+│   │   │   ├── Subtask [UI-03-001-02] [x] Build viewport camera orientation ViewCube with ortho/persp toggle
+│   │   │   ├── Subtask [UI-03-001-03] [x] Implement interactive viewport HUD for solver diagnostics and FPS
 │   │   ├── Task [UI-03-002] Real-Time Scientific Data Plotting & Probe Drawer
 │   │   │   ├── Subtask [UI-03-002-01] Implement high-framerate GPU-accelerated 2D line and scatter plot widget
 │   │   │   ├── Subtask [UI-03-002-02] Implement scalar field contour colormap legend and probe tooltips
@@ -416,7 +416,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 ## 7. Detailed Modules and Submodules
 
 ### Module UI: Advanced UI Development
-**Target Stage:** Stage 1 | **Priority:** P0 | **Status:** `[~] In Progress` (70.0% completed: 14/20 subtasks)  
+**Target Stage:** Stage 1 | **Priority:** P0 | **Status:** `[~] In Progress` (85.0% completed: 17/20 subtasks)  
 **Scope Summary:** Professional engineering workspace, multi-window dockable panels, contextual ribbon toolbars, unified property inspector with unit intelligence, 3D viewport gizmos, and high-framerate scientific visualization overlays.
 
 #### Submodule UI-01: Dockable Workspace & Window Management
@@ -428,8 +428,8 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks (5 completed).
 
 #### Submodule UI-03: Scientific Visualization Viewports & Overlays
-**Status:** `[ ] Not Started`  
-**Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks.
+**Status:** `[~] In Progress` (50.0% completed: 3/6 subtasks)  
+**Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks (3 completed).
 
 
 
@@ -829,47 +829,47 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule UI-03: Scientific Visualization Viewports & Overlays
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **UI-03-001: Viewport Controls, Gizmos & Heads-Up Display (HUD)**
-  - **Status:** `[ ] Not Started`
+- [x] **UI-03-001: Viewport Controls, Gizmos & Heads-Up Display (HUD)**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Interactive viewport interaction components including 3D translation/rotation/scale gizmos, ViewCube orientation widget, and simulation HUD.
-  - [ ] **UI-03-001-01: Implement 3D transform gizmos with coordinate snapping**
-    - **Status:** `[ ] Not Started`
+  - [x] **UI-03-001-01: Implement 3D transform gizmos with coordinate snapping**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Build interactive screen-space 3D gizmos (Translate axes, Rotation rings, Scale boxes) with ray-plane intersection and grid snapping.
-    - **Implementation Details:** TransformGizmoRenderer generating hit-testable line/mesh primitives; calculates transform delta projected on plane perpendicular to camera.
+    - **Implementation Details:** TransformGizmoRenderer generating hit-testable line/mesh primitives; calculates transform delta projected on plane perpendicular to camera. Implemented GizmoInteractionEngine in viewport_interaction.hpp/.cpp with GizmoOverlay.qml and ShunyaViewportController.
     - **Dependencies:** core/domain/rendering.hpp, core/base/math.hpp
     - **Expected Deliverables:** transform_gizmo.hpp/.cpp, GizmoOverlay.qml, mathematical ray-casting hit-test tests.
     - **Acceptance Criteria:** Dragging gizmo axis translates entity along constrained global or local coordinate axis with sub-pixel responsiveness.
     - **Testing & Verification Requirements:** Synthetic raycast hit tests verifying axis pick tolerances and coordinate snapping accuracy.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_ui_viewport.cpp (Coordinate snapping rounding invariance, 2D screen projections of 3D axes, axis picking within 14px tolerance, constrained translation delta calculation, and interactive GizmoOverlay.qml).
+    - **Git Commit Reference:** Pending Commit
 
-  - [ ] **UI-03-001-02: Build viewport camera orientation ViewCube with ortho/persp toggle**
-    - **Status:** `[ ] Not Started`
+  - [x] **UI-03-001-02: Build viewport camera orientation ViewCube with ortho/persp toggle**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Interactive 3D navigation cube in corner of viewport allowing one-click snapping to Top, Front, Right, Isometric views, and perspective/orthographic toggle.
-    - **Implementation Details:** ViewCubeController rendering standalone miniature 3D cube with face hit-testing and smooth slerp camera animation interpolation.
+    - **Implementation Details:** ViewCubeController rendering standalone miniature 3D cube with face hit-testing and smooth slerp camera animation interpolation. Implemented ViewCubeManager in viewport_interaction.hpp/.cpp and ViewCube.qml.
     - **Dependencies:** UI-03-001-01
     - **Expected Deliverables:** view_cube.hpp/.cpp, ViewCube.qml, camera_animator.hpp.
     - **Acceptance Criteria:** Clicking 'Top' face smoothly interpolates camera rotation and position to orthographic top-down projection in 250ms.
     - **Testing & Verification Requirements:** Verify camera projection matrix calculation for all 6 orthogonal faces and 8 corner isometric views.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_ui_viewport.cpp (Standard face direction/up vectors for Top, Bottom, Front, Back, Left, Right, Isometric; camera creation with orthographic/perspective toggle; smooth camera interpolation at midpoint/boundaries; and ViewCube.qml).
+    - **Git Commit Reference:** Pending Commit
 
-  - [ ] **UI-03-001-03: Implement interactive viewport HUD for solver diagnostics and FPS**
-    - **Status:** `[ ] Not Started`
+  - [x] **UI-03-001-03: Implement interactive viewport HUD for solver diagnostics and FPS**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Lightweight semi-transparent HUD overlay showing real-time rendering FPS, simulation step time, solver residual norm, and memory bandwidth.
-    - **Implementation Details:** ViewportHudOverlay.qml subscribing to core/domain/observability.hpp and lock-free telemetry ring buffer.
+    - **Implementation Details:** ViewportHudOverlay.qml subscribing to core/domain/observability.hpp and lock-free telemetry ring buffer. Implemented DiagnosticsTelemetryTracker in viewport_interaction.hpp/.cpp and ViewportHud.qml.
     - **Dependencies:** core/domain/observability.hpp, core/base/ring_buffer.hpp
     - **Expected Deliverables:** hud_controller.hpp/.cpp, ViewportHud.qml.
     - **Acceptance Criteria:** HUD renders at 60 FPS without introducing GC spikes or lock contention with background solver thread.
     - **Testing & Verification Requirements:** Verify telemetry stream formatting, benchmark HUD rendering overhead on high load (< 0.2ms per frame).
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_ui_viewport.cpp (Rolling average FPS computation at 60 FPS baseline, average frame time in ms, solver step duration and residual norm recording, bounded memory capacity, and ViewportHud.qml).
+    - **Git Commit Reference:** Pending Commit
 
 - [ ] **UI-03-002: Real-Time Scientific Data Plotting & Probe Drawer**
   - **Status:** `[ ] Not Started`

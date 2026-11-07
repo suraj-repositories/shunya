@@ -416,20 +416,20 @@ private:
 // UI-03: Viewport Controller (2D/3D)
 // =============================================================================
 
-enum class CameraMode {
+enum class WorkspaceCameraMode {
     Perspective,
     Orthographic
 };
 
-enum class GizmoMode {
+enum class WorkspaceGizmoMode {
     None,
     Translate,
     Rotate,
     Scale
 };
 
-struct ViewportCamera {
-    CameraMode mode{CameraMode::Perspective};
+struct WorkspaceViewportCamera {
+    WorkspaceCameraMode mode{WorkspaceCameraMode::Perspective};
     base::math::Vector3<double> position{0.0, 5.0, 10.0};
     base::math::Vector3<double> target{0.0, 0.0, 0.0};
     double fov_degrees{60.0};
@@ -445,12 +445,12 @@ struct RenderDiagnostics {
     bool overlay_visible{true};
 };
 
-class ViewportController {
+class WorkspaceViewportController {
 public:
-    void set_camera_mode(CameraMode mode) { camera_.mode = mode; }
-    [[nodiscard]] const ViewportCamera& camera() const noexcept { return camera_; }
-    void set_gizmo(GizmoMode gizmo) noexcept { gizmo_ = gizmo; }
-    [[nodiscard]] GizmoMode gizmo() const noexcept { return gizmo_; }
+    void set_camera_mode(WorkspaceCameraMode mode) { camera_.mode = mode; }
+    [[nodiscard]] const WorkspaceViewportCamera& camera() const noexcept { return camera_; }
+    void set_gizmo(WorkspaceGizmoMode gizmo) noexcept { gizmo_ = gizmo; }
+    [[nodiscard]] WorkspaceGizmoMode gizmo() const noexcept { return gizmo_; }
 
     void set_grid_visible(bool visible) noexcept { grid_visible_ = visible; }
     [[nodiscard]] bool grid_visible() const noexcept { return grid_visible_; }
@@ -461,8 +461,8 @@ public:
     [[nodiscard]] const RenderDiagnostics& diagnostics() const noexcept { return diagnostics_; }
 
 private:
-    ViewportCamera camera_;
-    GizmoMode gizmo_{GizmoMode::Translate};
+    WorkspaceViewportCamera camera_{};
+    WorkspaceGizmoMode gizmo_{WorkspaceGizmoMode::Translate};
     bool grid_visible_{true};
     double grid_spacing_{1.0};
     RenderDiagnostics diagnostics_;
