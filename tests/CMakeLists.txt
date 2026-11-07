@@ -30,6 +30,7 @@ add_executable(shunya_unit_tests
     unit/test_workspace_ui.cpp
     unit/test_rendering.cpp
     unit/test_circuit.cpp
+    unit/test_digital_logic.cpp
 )
 
 target_include_directories(shunya_unit_tests

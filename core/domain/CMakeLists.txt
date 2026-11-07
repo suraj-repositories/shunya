@@ -31,6 +31,7 @@ target_sources(shunya_core_domain
         src/workspace_ui.cpp
         src/rendering.cpp
         src/circuit.cpp
+        src/digital_logic.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -63,6 +64,7 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/workspace_ui.hpp
             include/shunya/core/domain/rendering.hpp
             include/shunya/core/domain/circuit.hpp
+            include/shunya/core/domain/digital_logic.hpp
 )
 
 target_include_directories(shunya_core_domain
