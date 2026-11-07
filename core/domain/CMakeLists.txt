@@ -25,6 +25,7 @@ target_sources(shunya_core_domain
         src/simulation_runtime.cpp
         src/sparse_matrix.cpp
         src/numerical_solver.cpp
+        src/observability.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -51,6 +52,7 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/simulation_runtime.hpp
             include/shunya/core/domain/sparse_matrix.hpp
             include/shunya/core/domain/numerical_solver.hpp
+            include/shunya/core/domain/observability.hpp
 )
 
 target_include_directories(shunya_core_domain

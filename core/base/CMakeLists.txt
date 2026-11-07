@@ -23,6 +23,7 @@ target_sources(shunya_core_base
             include/shunya/core/base/thread_pool.hpp
             include/shunya/core/base/app_context.hpp
             include/shunya/core/base/units.hpp
+            include/shunya/core/base/ring_buffer.hpp
 )
 
 target_include_directories(shunya_core_base
