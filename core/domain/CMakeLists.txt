@@ -38,6 +38,7 @@ target_sources(shunya_core_domain
         src/virtual_lab.cpp
         src/scripting.cpp
         src/security.cpp
+        src/library.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -77,6 +78,7 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/virtual_lab.hpp
             include/shunya/core/domain/scripting.hpp
             include/shunya/core/domain/security.hpp
+            include/shunya/core/domain/library.hpp
 )
 
 target_include_directories(shunya_core_domain

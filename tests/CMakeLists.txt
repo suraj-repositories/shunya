@@ -37,6 +37,7 @@ add_executable(shunya_unit_tests
     unit/test_virtual_lab.cpp
     unit/test_scripting.cpp
     unit/test_security.cpp
+    unit/test_library.cpp
 )
 
 target_include_directories(shunya_unit_tests
