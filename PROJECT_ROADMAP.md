@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 124 |
+| [ ] | Not started | 112 |
 | [~] | In progress | 0 |
-| [x] | Completed | 185 |
+| [x] | Completed | 197 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -80,7 +80,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **LOGIC** | Digital Logic & State Machines | Phase 6 / T3 | P1 | 9 | 9 | 100.0% |
 | **MEC** | Classical Mechanics & Rigid Bodies | Phase 3 / T5 | P1 | 10 | 10 | 100.0% |
 | **THM** | Thermal & Heat Transfer | Phase 3 / T5 | P1 | 9 | 9 | 100.0% |
-| **DEV** | Physical Device Construction | Phase 7 / T5 | P1 | 12 | 0 | 0.0% |
+| **DEV** | Physical Device Construction | Phase 7 / T5 | P1 | 12 | 12 | 100.0% |
 | **ENV** | Real-time Virtual Lab Environment | Phase 1 / T1 | P1 | 8 | 0 | 0.0% |
 | **CODE** | Programmability, Formulas & Scripting | Phase 4 / T6 | P1 | 12 | 0 | 0.0% |
 | **SEC** | Security, Sandboxing & Reliability | Phase 4 / T6 | P1 | 10 | 0 | 0.0% |
@@ -2257,124 +2257,124 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 7 / T5 | **Default Priority:** P1
 
 #### [DEV-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 7 / T5
 - **Dependencies:** Module Baseline
 - **Description:** Define a device as a hierarchical assembly of elements, materials, interfaces, ports and internal constraints.
 - **Implementation Details:** Implement DEV-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_device.cpp, 12/12 tasks passing, 239 total test cases, 2589 checks) & appshunya desktop build. Git commit: 9008a91
 
 #### [DEV-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 7 / T5
 - **Dependencies:** DEV-01
 - **Description:** Create geometry primitives and import pipeline for supported CAD/mesh formats.
 - **Implementation Details:** Implement DEV-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_device.cpp, 12/12 tasks passing, 239 total test cases, 2589 checks) & appshunya desktop build. Git commit: 9008a91
 
 #### [DEV-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 7 / T5
 - **Dependencies:** DEV-02
 - **Description:** Define geometry-to-physics mapping: body regions, surfaces, volumes, contacts and material assignments.
 - **Implementation Details:** Implement DEV-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_device.cpp, 12/12 tasks passing, 239 total test cases, 2589 checks) & appshunya desktop build. Git commit: 9008a91
 
 #### [DEV-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 7 / T5
 - **Dependencies:** DEV-03
 - **Description:** Support layered and composite construction: substrate, conductor, dielectric, semiconductor, coating and enclosure.
 - **Implementation Details:** Implement DEV-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_device.cpp, 12/12 tasks passing, 239 total test cases, 2589 checks) & appshunya desktop build. Git commit: 9008a91
 
 #### [DEV-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 7 / T5
 - **Dependencies:** DEV-04
 - **Description:** Define conductor paths and electrical connectivity separately from visual overlap.
 - **Implementation Details:** Implement DEV-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_device.cpp, 12/12 tasks passing, 239 total test cases, 2589 checks) & appshunya desktop build. Git commit: 9008a91
 
 #### [DEV-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 7 / T5
 - **Dependencies:** DEV-05
 - **Description:** Add contact/interface models: electrical contact resistance, thermal contact and mechanical contact as separate model types.
 - **Implementation Details:** Implement DEV-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_device.cpp, 12/12 tasks passing, 239 total test cases, 2589 checks) & appshunya desktop build. Git commit: 9008a91
 
 #### [DEV-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 7 / T5
 - **Dependencies:** DEV-06
 - **Description:** Create a material/element editor with property validation and source references.
 - **Implementation Details:** Implement DEV-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_device.cpp, 12/12 tasks passing, 239 total test cases, 2589 checks) & appshunya desktop build. Git commit: 9008a91
 
 #### [DEV-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 7 / T5
 - **Dependencies:** DEV-07
 - **Description:** Create assembly constraints and attachment points for mechanical and electrical integration.
 - **Implementation Details:** Implement DEV-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_device.cpp, 12/12 tasks passing, 239 total test cases, 2589 checks) & appshunya desktop build. Git commit: 9008a91
 
 #### [DEV-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 7 / T5
 - **Dependencies:** DEV-08
 - **Description:** Add sensors and probes that read named physical quantities without altering the simulated system.
 - **Implementation Details:** Implement DEV-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_device.cpp, 12/12 tasks passing, 239 total test cases, 2589 checks) & appshunya desktop build. Git commit: 9008a91
 
 #### [DEV-10] 10
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 7 / T5
 - **Dependencies:** DEV-09
 - **Description:** Create device-level tests: continuity, connectivity, mass properties, thermal paths and model completeness.
 - **Implementation Details:** Implement DEV-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_device.cpp, 12/12 tasks passing, 239 total test cases, 2589 checks) & appshunya desktop build. Git commit: 9008a91
 
 #### [DEV-11] 11
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 7 / T5
 - **Dependencies:** DEV-10
 - **Description:** Support component variants and parameter sweeps.
 - **Implementation Details:** Implement DEV-11 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_device.cpp, 12/12 tasks passing, 239 total test cases, 2589 checks) & appshunya desktop build. Git commit: 9008a91
 
 #### [DEV-12] 12
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 7 / T5
 - **Dependencies:** DEV-11
 - **Description:** Document limitations when a geometric feature is not represented in the solver mesh/model. 8. Programmability: user-defined rules, formulas and code CODE – Code and rule execution system
 - **Implementation Details:** Implement DEV-12 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_device.cpp, 12/12 tasks passing, 239 total test cases, 2589 checks) & appshunya desktop build. Git commit: 9008a91
 
 ---
 
