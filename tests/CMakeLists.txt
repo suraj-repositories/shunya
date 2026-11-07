@@ -31,6 +31,7 @@ add_executable(shunya_unit_tests
     unit/test_rendering.cpp
     unit/test_circuit.cpp
     unit/test_digital_logic.cpp
+    unit/test_mechanics.cpp
 )
 
 target_include_directories(shunya_unit_tests
