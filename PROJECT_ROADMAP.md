@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 133 |
+| [ ] | Not started | 124 |
 | [~] | In progress | 0 |
-| [x] | Completed | 176 |
+| [x] | Completed | 185 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -79,7 +79,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **ELEC** | Electronics & Circuit Simulation | Phase 5 / T3 | P0 | 14 | 14 | 100.0% |
 | **LOGIC** | Digital Logic & State Machines | Phase 6 / T3 | P1 | 9 | 9 | 100.0% |
 | **MEC** | Classical Mechanics & Rigid Bodies | Phase 3 / T5 | P1 | 10 | 10 | 100.0% |
-| **THM** | Thermal & Heat Transfer | Phase 3 / T5 | P1 | 9 | 0 | 0.0% |
+| **THM** | Thermal & Heat Transfer | Phase 3 / T5 | P1 | 9 | 9 | 100.0% |
 | **DEV** | Physical Device Construction | Phase 7 / T5 | P1 | 12 | 0 | 0.0% |
 | **ENV** | Real-time Virtual Lab Environment | Phase 1 / T1 | P1 | 8 | 0 | 0.0% |
 | **CODE** | Programmability, Formulas & Scripting | Phase 4 / T6 | P1 | 12 | 0 | 0.0% |
@@ -2161,94 +2161,94 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 3 / T5 | **Default Priority:** P1
 
 #### [THM-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** Module Baseline
 - **Description:** Thermal state: temperature, internal energy and heat capacity.
 - **Implementation Details:** Implement THM-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_thermal.cpp, 9/9 tasks passing, 228 total test cases, 2545 checks) & appshunya desktop build. Git commit: 96f4cf8
 
 #### [THM-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** THM-01
 - **Description:** Conduction models and boundary conditions.
 - **Implementation Details:** Implement THM-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_thermal.cpp, 9/9 tasks passing, 228 total test cases, 2545 checks) & appshunya desktop build. Git commit: 96f4cf8
 
 #### [THM-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** THM-02
 - **Description:** Convection boundary models with declared coefficients or coupled fluid solution.
 - **Implementation Details:** Implement THM-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_thermal.cpp, 9/9 tasks passing, 228 total test cases, 2545 checks) & appshunya desktop build. Git commit: 96f4cf8
 
 #### [THM-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** THM-03
 - **Description:** Radiation model and emissivity support.
 - **Implementation Details:** Implement THM-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_thermal.cpp, 9/9 tasks passing, 228 total test cases, 2545 checks) & appshunya desktop build. Git commit: 96f4cf8
 
 #### [THM-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** THM-04
 - **Description:** Thermal contacts and interface resistance.
 - **Implementation Details:** Implement THM-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_thermal.cpp, 9/9 tasks passing, 228 total test cases, 2545 checks) & appshunya desktop build. Git commit: 96f4cf8
 
 #### [THM-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** THM-05
 - **Description:** Transient and steady-state analysis.
 - **Implementation Details:** Implement THM-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_thermal.cpp, 9/9 tasks passing, 228 total test cases, 2545 checks) & appshunya desktop build. Git commit: 96f4cf8
 
 #### [THM-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** THM-06
 - **Description:** Temperature-dependent material properties.
 - **Implementation Details:** Implement THM-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_thermal.cpp, 9/9 tasks passing, 228 total test cases, 2545 checks) & appshunya desktop build. Git commit: 96f4cf8
 
 #### [THM-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** THM-07
 - **Description:** Thermal visualisation: temperature maps, heat flux and probes.
 - **Implementation Details:** Implement THM-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_thermal.cpp, 9/9 tasks passing, 228 total test cases, 2545 checks) & appshunya desktop build. Git commit: 96f4cf8
 
 #### [THM-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 3 / T5
 - **Dependencies:** THM-08
 - **Description:** Validation against analytic slabs, rods and benchmark cases. FLD – Fluid mechanics and CFD
 - **Implementation Details:** Implement THM-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_thermal.cpp, 9/9 tasks passing, 228 total test cases, 2545 checks) & appshunya desktop build. Git commit: 96f4cf8
 
 ---
 
