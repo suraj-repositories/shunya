@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 258 |
+| [ ] | Not started | 246 |
 | [~] | In progress | 0 |
-| [x] | Completed | 51 |
+| [x] | Completed | 63 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -66,7 +66,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **ELM** | Elements and Object Model | Phase 1 / T2 | P0 | 8 | 8 | 100.0% |
 | **MAT** | Materials Foundation | Phase 1 / T2 | P0 | 8 | 8 | 100.0% |
 | **MATDB** | Periodic Elements & Material Database | Phase 1 / T2 | P0 | 10 | 10 | 100.0% |
-| **MATRT** | Element/Material Runtime & Properties | Phase 1 / T2 | P0 | 12 | 0 | 0.0% |
+| **MATRT** | Element/Material Runtime & Properties | Phase 1 / T2 | P0 | 12 | 12 | 100.0% |
 | **MATUI** | Material Editor & Periodic Table UI | Phase 1 / T2 | P1 | 10 | 0 | 0.0% |
 | **CMP** | Generic Component & Device Framework | Phase 1 / T1 | P0 | 8 | 0 | 0.0% |
 | **SIM** | Simulation Runtime and Scheduling | Phase 2 / T3 | P0 | 10 | 0 | 0.0% |
@@ -732,125 +732,125 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Scope & Objective:** Immutable element definitions, isotope definitions, material states, phase transitions, and domain adapters.  
 **Delivery Stage:** Phase 1 / T2 | **Default Priority:** P0
 
-#### [MATRT-01] 01
-- **Status:** [ ] Not started
+#### [MATRT-01] 01 – Immutable Chemical Element Definition
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** Module Baseline
 - **Description:** Implement ElementDefinition as immutable periodic-table identity and reference metadata.
-- **Implementation Details:** Implement MATRT-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented ChemicalElementDefinition in core/domain/include/shunya/core/domain/material_runtime.hpp and src/material_runtime.cpp holding atomic number Z (1 to 118), element symbol, canonical name, period, group, block ('s', 'p', 'd', 'f'), standard atomic weight, electron configuration string, and isotope collection with lookup queries.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_runtime.cpp: Chemical element and isotope definitions); Git Commit: 0a90ae5
 
-#### [MATRT-02] 02
-- **Status:** [ ] Not started
+#### [MATRT-02] 02 – Isotope Definition and Nuclear Data
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATRT-01
 - **Description:** Implement IsotopeDefinition and isotope-aware atomic/nuclear data.
-- **Implementation Details:** Implement MATRT-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented IsotopeDefinition holding atomic number Z, mass number A, precise atomic mass in Daltons/amu, natural abundance percentage, stability flag, optional radioactive half-life in seconds, decay mode ("Alpha", "BetaMinus", "EC", "None"), nuclear spin-parity quantum state, and thermal neutron capture cross-section in barns.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_runtime.cpp: Chemical element and isotope definitions); Git Commit: 0a90ae5
 
-#### [MATRT-03] 03
-- **Status:** [ ] Not started
+#### [MATRT-03] 03 – Material Definition for Pure Elements, Compounds, Alloys, and Mixtures
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATRT-02
 - **Description:** Implement MaterialDefinition for pure elements, compounds, alloys and mixtures.
-- **Implementation Details:** Implement MATRT-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented MaterialDefinition and MaterialConstituent supporting classifications (PureElement, ChemicalCompound, Alloy, Mixture, Composite), fraction bases (MassFraction, MoleFraction, VolumeFraction), molecular weight, reference density, composition validation (sum of fractions approx 1.0), scalar property dictionary, and multi-variable MaterialCurve storage.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_runtime.cpp: Material definition for pure elements, compounds, alloys and mixtures); Git Commit: 0a90ae5
 
-#### [MATRT-04] 04
-- **Status:** [ ] Not started
+#### [MATRT-04] 04 – Material Region Attached to Geometry
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATRT-03
 - **Description:** Implement MaterialRegion attached to geometry with material ID and local state.
-- **Implementation Details:** Implement MATRT-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented MaterialRegion with unique UUID, descriptive name, referenced material UUID, geometry topological reference tag (e.g. mesh volume patch), volume in m^3, orientation transform matrix, property multiplier overrides (e.g. conductivity/stiffness scaling factors), and local runtime MaterialState.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_runtime.cpp: Material region attachment to geometry and state persistence); Git Commit: 0a90ae5
 
-#### [MATRT-05] 05
-- **Status:** [ ] Not started
+#### [MATRT-05] 05 – MaterialState with Temperature, Pressure, Phase Fractions, and Strain
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATRT-04
 - **Description:** Implement MaterialState containing temperature, pressure, phase fraction, composition, strain and other domain state.
-- **Implementation Details:** Implement MATRT-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented MaterialState containing thermodynamic temperature T in Kelvin, hydrostatic pressure p in Pascals, primary MaterialPhase (Solid, Liquid, Gas, Supercritical, Plasma), multiphase fraction map (sum approx 1.0), accumulated plastic strain, specific internal energy u in J/kg, dynamic history variables map, and monotonic state_version incremented upon mutation.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_runtime.cpp: Material state mutation, phase fractions and version tracking); Git Commit: 0a90ae5
 
-#### [MATRT-06] 06
-- **Status:** [ ] Not started
+#### [MATRT-06] 06 – PropertyProvider Interface with Validity Ranges and Diagnostics
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATRT-05
 - **Description:** Implement PropertyProvider interface with validity ranges and diagnostic output.
-- **Implementation Details:** Implement MATRT-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented IPropertyProvider abstract interface with PropertyDiagnosticReport, evaluate(property_name, state) evaluating physical quantities at runtime thermodynamic state, and validating state variables against valid operational envelopes [T_min, T_max] and [p_min, p_max].
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_runtime.cpp: Property cache invalidation on state and model updates); Git Commit: 0a90ae5
 
-#### [MATRT-07] 07
-- **Status:** [ ] Not started
+#### [MATRT-07] 07 – Property Tables, Interpolation, Derivatives, and Controlled Extrapolation
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATRT-06
 - **Description:** Implement property tables, interpolation, derivatives and controlled extrapolation.
-- **Implementation Details:** Implement MATRT-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented MaterialPropertyEvaluator wrapping MaterialCurve tables with configurable interpolation algorithms (Linear, CubicSpline, NearestNeighbor), numerical derivative estimation df/dx, and controlled extrapolation policies (ClampToBoundary, LinearExtrapolation, FailThrow).
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_runtime.cpp: Phase transition model and apparent heat capacity); Git Commit: 0a90ae5
 
-#### [MATRT-08] 08
-- **Status:** [ ] Not started
+#### [MATRT-08] 08 – Phase Transition and Latent-Heat Interfaces
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
-- **Dependencies:** MATRT-07
+- **Dependencies:** MATRT-08
 - **Description:** Implement phase transition and latent-heat interfaces.
-- **Implementation Details:** Implement MATRT-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented PhaseTransitionModel defining solidus T_s and liquidus T_l temperatures, latent heat of fusion L_f (J/kg), smooth sinusoidal/linear mushy zone fraction evolution beta(T) in [0, 1], and effective apparent heat capacity c_p,eff(T) = c_p + L_f * (dbeta/dT).
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_runtime.cpp: Phase transition model and apparent heat capacity); Git Commit: 0a90ae5
 
-#### [MATRT-09] 09
-- **Status:** [ ] Not started
+#### [MATRT-09] 09 – Material-to-Domain Adapters for Multiphysics Solvers
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATRT-08
 - **Description:** Implement material-to-domain adapters for thermal, mechanical, electrical, fluid and optical solvers.
-- **Implementation Details:** Implement MATRT-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented ThermalDomainProperties, MechanicalDomainProperties, ElectricalDomainProperties, FluidDomainProperties, and MaterialDomainAdapter in core/domain/include/shunya/core/domain/material_adapters.hpp extracting typed, validated, SI-normalized property packages directly consumed by thermal, mechanical/structural, electrodynamic, and CFD/fluid physics solvers.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_runtime.cpp: Material domain solver adapters for multiphysics); Git Commit: 0a90ae5
 
-#### [MATRT-10] 10
-- **Status:** [ ] Not started
+#### [MATRT-10] 10 – Cache Invalidation on State, Composition, and Model Updates
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATRT-09
 - **Description:** Implement cache invalidation when state, composition, temperature or model version changes.
-- **Implementation Details:** Implement MATRT-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented CachedPropertyProvider with state-version and definition-version tracking; automatically detects mutations in temperature, pressure, phase fractions, or material definition updates, invalidating cached solver properties and maintaining cache hit/miss statistics.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_runtime.cpp: Property cache invalidation on state and model updates); Git Commit: 0a90ae5
 
-#### [MATRT-11] 11
-- **Status:** [ ] Not started
+#### [MATRT-11] 11 – State Serialisation and Restart without History Loss
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATRT-10
 - **Description:** Implement state serialisation and restart without losing phase or history variables.
-- **Implementation Details:** Implement MATRT-11 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented to_json() and from_json() serialization for MaterialState, MaterialDefinition, and MaterialRegion, encoding complete phase fraction distributions, accumulated plastic strain, internal energy, and arbitrary solver history variables for deterministic simulation restarts.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_runtime.cpp: Material region attachment to geometry and state persistence); Git Commit: 0a90ae5
 
-#### [MATRT-12] 12
-- **Status:** [ ] Not started
+#### [MATRT-12] 12 – Per-Region Diagnostics for Unsupported Conditions and Missing Properties
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATRT-11
 - **Description:** Implement per-region diagnostics for unsupported conditions and missing properties.
-- **Implementation Details:** Implement MATRT-12 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
+- **Implementation Details:** Implemented RegionDiagnosticEngine auditing attached MaterialRegion instances against target solver requirements, flagging missing essential properties, temperature/pressure excursions beyond material stability bounds, and non-normalized phase fraction anomalies into structured ValidationReport diagnostics.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_runtime.cpp: Per-region diagnostics for unsupported conditions and missing properties); Git Commit: 0a90ae5
 
 ---
 
@@ -3403,6 +3403,7 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** All Module FND Tasks [x] FND-01 through [x] FND-10 (**100% Completed**)
 - **Last Completed Tasks:** [x] UNIT-01, [x] UNIT-02, [x] UNIT-03
 - **Last Completed Tasks:** All Module UNIT Tasks [x] UNIT-01 through [x] UNIT-07 (**100% Completed**)
-- **Pending Immediate Task:** [ ] MAT-01: Material schema (Linear/nonlinear, isotropic/orthotropic, property groups, composition, phase state).
+- **Last Completed Tasks:** All Module MATRT Tasks [x] MATRT-01 through [x] MATRT-12 (**100% Completed**)
+- **Pending Immediate Task:** [ ] MATUI-01: Periodic table visualizer and explorer.
 - **Blockers:** None.
-- **Active Git Commit:** Baseline 92b20f.
+- **Active Git Commit:** 0a90ae5.
