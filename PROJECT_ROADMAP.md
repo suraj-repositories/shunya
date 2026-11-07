@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 228 |
+| [ ] | Not started | 218 |
 | [~] | In progress | 0 |
-| [x] | Completed | 81 |
+| [x] | Completed | 91 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -70,7 +70,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **MATUI** | Material Editor & Periodic Table UI | Phase 1 / T2 | P1 | 10 | 0 | 0.0% |
 | **CMP** | Generic Component & Device Framework | Phase 1 / T1 | P0 | 8 | 8 | 100.0% |
 | **SIM** | Simulation Runtime and Scheduling | Phase 2 / T3 | P0 | 10 | 10 | 100.0% |
-| **SOL** | Numerical Solver Framework | Phase 2 / T3 | P0 | 10 | 0 | 0.0% |
+| **SOL** | Numerical Solver Framework | Phase 2 / T3 | P0 | 10 | 10 | 100.0% |
 | **OBS** | Observability, Probes & Dashboards | Phase 2 / T4 | P0 | 10 | 0 | 0.0% |
 | **RUN** | Simulation Execution & Safe Modes | Phase 2 / T3 | P0 | 10 | 0 | 0.0% |
 | **IO** | Data Exchange, Formats & Persistence | Phase 1 / T2 | P0 | 10 | 0 | 0.0% |
@@ -1157,104 +1157,104 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 2 / T3 | **Default Priority:** P0
 
 #### [SOL-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** Module Baseline
 - **Description:** Define solver interfaces for linear, nonlinear, ODE, DAE, PDE and discrete-event problems.
 - **Implementation Details:** Implement SOL-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_numerical_solver.cpp, 10/10 tasks passing). Git commit: 8aa8dbd
 
 #### [SOL-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SOL-01
 - **Description:** Create sparse matrix/vector abstractions and select tested numerical backend.
 - **Implementation Details:** Implement SOL-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_numerical_solver.cpp, 10/10 tasks passing). Git commit: 8aa8dbd
 
 #### [SOL-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SOL-02
 - **Description:** Implement linear solve adapters, preconditioner interface and convergence reporting.
 - **Implementation Details:** Implement SOL-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_numerical_solver.cpp, 10/10 tasks passing). Git commit: 8aa8dbd
 
 #### [SOL-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SOL-03
 - **Description:** Implement nonlinear iteration interface with damping/line search and residual monitoring.
 - **Implementation Details:** Implement SOL-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_numerical_solver.cpp, 10/10 tasks passing). Git commit: 8aa8dbd
 
 #### [SOL-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SOL-04
 - **Description:** Implement ODE integration methods and adaptive error control.
 - **Implementation Details:** Implement SOL-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_numerical_solver.cpp, 10/10 tasks passing). Git commit: 8aa8dbd
 
 #### [SOL-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SOL-05
 - **Description:** Define mesh and discretization abstractions for PDE domains.
 - **Implementation Details:** Implement SOL-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_numerical_solver.cpp, 10/10 tasks passing). Git commit: 8aa8dbd
 
 #### [SOL-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SOL-06
 - **Description:** Create solver capability registry and compatibility checks.
 - **Implementation Details:** Implement SOL-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_numerical_solver.cpp, 10/10 tasks passing). Git commit: 8aa8dbd
 
 #### [SOL-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SOL-07
 - **Description:** Create numerical benchmark suite with reference solutions and tolerances.
 - **Implementation Details:** Implement SOL-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_numerical_solver.cpp, 10/10 tasks passing). Git commit: 8aa8dbd
 
 #### [SOL-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SOL-08
 - **Description:** Record solver diagnostics: iterations, residual, condition estimates, rejected steps and runtime.
 - **Implementation Details:** Implement SOL-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_numerical_solver.cpp, 10/10 tasks passing). Git commit: 8aa8dbd
 
 #### [SOL-10] 10
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T3
 - **Dependencies:** SOL-09
 - **Description:** Add numerical regression tests across supported compilers and platforms. EVT – Events, signals and co-simulation
 - **Implementation Details:** Implement SOL-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_numerical_solver.cpp, 10/10 tasks passing). Git commit: 8aa8dbd
 
 ---
 
