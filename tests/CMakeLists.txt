@@ -33,6 +33,7 @@ add_executable(shunya_unit_tests
     unit/test_digital_logic.cpp
     unit/test_mechanics.cpp
     unit/test_thermal.cpp
+    unit/test_device.cpp
 )
 
 target_include_directories(shunya_unit_tests

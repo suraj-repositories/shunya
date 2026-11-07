@@ -34,6 +34,7 @@ target_sources(shunya_core_domain
         src/digital_logic.cpp
         src/mechanics.cpp
         src/thermal.cpp
+        src/device.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -69,6 +70,7 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/digital_logic.hpp
             include/shunya/core/domain/mechanics.hpp
             include/shunya/core/domain/thermal.hpp
+            include/shunya/core/domain/device.hpp
 )
 
 target_include_directories(shunya_core_domain
