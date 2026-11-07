@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 218 |
+| [ ] | Not started | 208 |
 | [~] | In progress | 0 |
-| [x] | Completed | 91 |
+| [x] | Completed | 101 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -71,7 +71,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **CMP** | Generic Component & Device Framework | Phase 1 / T1 | P0 | 8 | 8 | 100.0% |
 | **SIM** | Simulation Runtime and Scheduling | Phase 2 / T3 | P0 | 10 | 10 | 100.0% |
 | **SOL** | Numerical Solver Framework | Phase 2 / T3 | P0 | 10 | 10 | 100.0% |
-| **OBS** | Observability, Probes & Dashboards | Phase 2 / T4 | P0 | 10 | 0 | 0.0% |
+| **OBS** | Observability, Probes & Dashboards | Phase 2 / T4 | P0 | 10 | 10 | 100.0% |
 | **RUN** | Simulation Execution & Safe Modes | Phase 2 / T3 | P0 | 10 | 0 | 0.0% |
 | **IO** | Data Exchange, Formats & Persistence | Phase 1 / T2 | P0 | 10 | 0 | 0.0% |
 | **UI** | User Interface & Workspaces | Phase 1 / T1 | P0 | 12 | 0 | 0.0% |
@@ -1263,104 +1263,104 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 2 / T4 | **Default Priority:** P0
 
 #### [OBS-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T4
 - **Dependencies:** Module Baseline
 - **Description:** Probe model for scalar, vector, tensor, field and event measurements.
 - **Implementation Details:** Implement OBS-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_observability.cpp, 10/10 tasks passing, 146 total tests). Git commit: 1191ab7
 
 #### [OBS-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T4
 - **Dependencies:** OBS-01
 - **Description:** Live dashboards with charts, gauges, tables and status indicators.
 - **Implementation Details:** Implement OBS-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_observability.cpp, 10/10 tasks passing, 146 total tests). Git commit: 1191ab7
 
 #### [OBS-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T4
 - **Dependencies:** OBS-02
 - **Description:** Time-series storage with sampling policies and compression.
 - **Implementation Details:** Implement OBS-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_observability.cpp, 10/10 tasks passing, 146 total tests). Git commit: 1191ab7
 
 #### [OBS-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T4
 - **Dependencies:** OBS-03
 - **Description:** Spatial visualisation: vector fields, heatmaps, contours, streamlines and particle traces as applicable.
 - **Implementation Details:** Implement OBS-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_observability.cpp, 10/10 tasks passing, 146 total tests). Git commit: 1191ab7
 
 #### [OBS-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T4
 - **Dependencies:** OBS-04
 - **Description:** Instrument models: oscilloscope, multimeter, thermometer, force sensor and flow meter.
 - **Implementation Details:** Implement OBS-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_observability.cpp, 10/10 tasks passing, 146 total tests). Git commit: 1191ab7
 
 #### [OBS-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T4
 - **Dependencies:** OBS-05
 - **Description:** Units, significant digits, axis scaling and export controls.
 - **Implementation Details:** Implement OBS-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_observability.cpp, 10/10 tasks passing, 146 total tests). Git commit: 1191ab7
 
 #### [OBS-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T4
 - **Dependencies:** OBS-06
 - **Description:** Result annotations, bookmarks and experiment notes.
 - **Implementation Details:** Implement OBS-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_observability.cpp, 10/10 tasks passing, 146 total tests). Git commit: 1191ab7
 
 #### [OBS-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T4
 - **Dependencies:** OBS-07
 - **Description:** Export data to CSV/JSON and plots to image/PDF; include metadata sidecar.
 - **Implementation Details:** Implement OBS-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_observability.cpp, 10/10 tasks passing, 146 total tests). Git commit: 1191ab7
 
 #### [OBS-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T4
 - **Dependencies:** OBS-08
 - **Description:** Result provenance: run ID, project hash, solver, model versions and environment.
 - **Implementation Details:** Implement OBS-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_observability.cpp, 10/10 tasks passing, 146 total tests). Git commit: 1191ab7
 
 #### [OBS-10] 10
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 2 / T4
 - **Dependencies:** OBS-09
 - **Description:** Large-result retention, cache policy and cleanup. 10. Component library, templates and sharing LIB – Reusable component library
 - **Implementation Details:** Implement OBS-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_observability.cpp, 10/10 tasks passing, 146 total tests). Git commit: 1191ab7
 
 ---
 
@@ -3380,7 +3380,7 @@ These improvements represent proactive technical optimizations identified during
 - **Benefits:** Prevents simulation thread stuttering and UI frame drops during intense data logging.
 - **Technical Impact:** Single-producer single-consumer lock-free ring buffer in core/base/ring_buffer.hpp.
 - **Dependencies:** FND-08, OBS-03
-- **Implementation Status:** [ ] Proposed
+- **Implementation Status:** [x] Completed (Commit: 1191ab7)
 
 ### [IMP-04] WebAssembly / Emscripten Headless Solver Target Readiness
 - **Purpose:** Architect core solvers and mathematical engines so they compile cleanly to WebAssembly for future browser-based demonstration or cloud sandboxing.
