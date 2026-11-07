@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 10 |
+| [ ] | Not started | 0 |
 | [~] | In progress | 0 |
-| [x] | Completed | 299 |
+| [x] | Completed | 309 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -67,7 +67,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **MAT** | Materials Foundation | Phase 1 / T2 | P0 | 8 | 8 | 100.0% |
 | **MATDB** | Periodic Elements & Material Database | Phase 1 / T2 | P0 | 10 | 10 | 100.0% |
 | **MATRT** | Element/Material Runtime & Properties | Phase 1 / T2 | P0 | 12 | 12 | 100.0% |
-| **MATUI** | Material Editor & Periodic Table UI | Phase 1 / T2 | P1 | 10 | 0 | 0.0% |
+| **MATUI** | Material Editor & Periodic Table UI | Phase 1 / T2 | P1 | 10 | 10 | 100.0% |
 | **CMP** | Generic Component & Device Framework | Phase 1 / T1 | P0 | 8 | 8 | 100.0% |
 | **SIM** | Simulation Runtime and Scheduling | Phase 2 / T3 | P0 | 10 | 10 | 100.0% |
 | **SOL** | Numerical Solver Framework | Phase 2 / T3 | P0 | 10 | 10 | 100.0% |
@@ -859,104 +859,104 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 1 / T2 | **Default Priority:** P1
 
 #### [MATUI-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** Module Baseline
 - **Description:** Create periodic-table browser with search, group/period filters and element detail panel.
 - **Implementation Details:** Implement MATUI-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_ui.cpp, 10/10 tasks passing, 322 total test cases, 3294 checks) & appshunya desktop build. Git commit: 1a1a84c
 
 #### [MATUI-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATUI-01
 - **Description:** Show the supplied property catalogue grouped by category, with unit, source, condition and missing-value status.
 - **Implementation Details:** Implement MATUI-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_ui.cpp, 10/10 tasks passing, 322 total test cases, 3294 checks) & appshunya desktop build. Git commit: 1a1a84c
 
 #### [MATUI-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATUI-02
 - **Description:** Allow users to create a material from an element, isotope, compound, alloy or mixture.
 - **Implementation Details:** Implement MATUI-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_ui.cpp, 10/10 tasks passing, 322 total test cases, 3294 checks) & appshunya desktop build. Git commit: 1a1a84c
 
 #### [MATUI-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATUI-03
 - **Description:** Allow users to assign material to a whole object, selected faces, volumes or layered regions.
 - **Implementation Details:** Implement MATUI-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_ui.cpp, 10/10 tasks passing, 322 total test cases, 3294 checks) & appshunya desktop build. Git commit: 1a1a84c
 
 #### [MATUI-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATUI-04
 - **Description:** Expose reference conditions and current simulated local conditions separately.
 - **Implementation Details:** Implement MATUI-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_ui.cpp, 10/10 tasks passing, 322 total test cases, 3294 checks) & appshunya desktop build. Git commit: 1a1a84c
 
 #### [MATUI-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATUI-05
 - **Description:** Show current phase, phase fraction and transition warnings in the viewport/inspector.
 - **Implementation Details:** Implement MATUI-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_ui.cpp, 10/10 tasks passing, 322 total test cases, 3294 checks) & appshunya desktop build. Git commit: 1a1a84c
 
 #### [MATUI-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATUI-06
 - **Description:** Provide property-vs-temperature and property-vs-pressure plots where source/model data supports them.
 - **Implementation Details:** Implement MATUI-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_ui.cpp, 10/10 tasks passing, 322 total test cases, 3294 checks) & appshunya desktop build. Git commit: 1a1a84c
 
 #### [MATUI-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATUI-07
 - **Description:** Provide a material validation report before a simulation starts.
 - **Implementation Details:** Implement MATUI-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_ui.cpp, 10/10 tasks passing, 322 total test cases, 3294 checks) & appshunya desktop build. Git commit: 1a1a84c
 
 #### [MATUI-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATUI-08
 - **Description:** Show where a property is used by active solver models and which missing values block a run.
 - **Implementation Details:** Implement MATUI-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_ui.cpp, 10/10 tasks passing, 322 total test cases, 3294 checks) & appshunya desktop build. Git commit: 1a1a84c
 
 #### [MATUI-10] 10
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P1
 - **Stage / Phase:** Phase 1 / T2
 - **Dependencies:** MATUI-09
 - **Description:** Provide a compare view for two materials or two model-fidelity levels.
 - **Implementation Details:** Implement MATUI-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_material_ui.cpp, 10/10 tasks passing, 322 total test cases, 3294 checks) & appshunya desktop build. Git commit: 1a1a84c
 
 ---
 
@@ -3412,6 +3412,7 @@ These improvements represent proactive technical optimizations identified during
 - **Last Completed Tasks:** All Module BIO Tasks [x] BIO-01 through [x] BIO-07 (**100% Completed**)
 - **Last Completed Tasks:** All Module PERF Tasks [x] PERF-01 through [x] PERF-10 (**100% Completed**)
 - **Last Completed Tasks:** All Module ADR Tasks [x] ADR-001 through [x] ADR-010 (**100% Completed**)
+- **Last Completed Tasks:** All Module MATUI Tasks [x] MATUI-01 through [x] MATUI-10 (**100% Completed**)
 - **Pending Immediate Task:** [ ] MATUI-01: Periodic table visualizer and explorer.
 - **Blockers:** None.
 - **Active Git Commit:** 418aa64.
