@@ -50,9 +50,9 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 
 | Status Indicator | Meaning | Task Count |
 |---|---|---|
-| [ ] | Not started | 166 |
+| [ ] | Not started | 152 |
 | [~] | In progress | 0 |
-| [x] | Completed | 143 |
+| [x] | Completed | 157 |
 | [!] | Blocked | 0 |
 | **Total** | **All catalogued tasks** | **309** |
 
@@ -76,7 +76,7 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 | **IO** | Data Exchange, Formats & Persistence | Phase 1 / T2 | P0 | 10 | 10 | 100.0% |
 | **UI** | User Interface & Workspaces | Phase 1 / T1 | P0 | 12 | 12 | 100.0% |
 | **REN** | Rendering & Graphics Engine | Phase 1 / T4 | P1 | 10 | 10 | 100.0% |
-| **ELEC** | Electronics & Circuit Simulation | Phase 5 / T3 | P0 | 14 | 0 | 0.0% |
+| **ELEC** | Electronics & Circuit Simulation | Phase 5 / T3 | P0 | 14 | 14 | 100.0% |
 | **LOGIC** | Digital Logic & State Machines | Phase 6 / T3 | P1 | 9 | 0 | 0.0% |
 | **MEC** | Classical Mechanics & Rigid Bodies | Phase 3 / T5 | P1 | 10 | 0 | 0.0% |
 | **THM** | Thermal & Heat Transfer | Phase 3 / T5 | P1 | 9 | 0 | 0.0% |
@@ -1813,144 +1813,144 @@ Shunya is a desktop-first, extensible virtual engineering laboratory and multiph
 **Delivery Stage:** Phase 5 / T3 | **Default Priority:** P0
 
 #### [ELEC-01] 01
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 5 / T3
 - **Dependencies:** Module Baseline
 - **Description:** Schematic graph: symbols, wires, nodes, junctions and netlist generation.
 - **Implementation Details:** Implement ELEC-01 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_circuit.cpp, 14/14 tasks passing, 200 total test cases, 2052 checks) & appshunya desktop build. Git commit: 6f0eb74
 
 #### [ELEC-02] 02
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 5 / T3
 - **Dependencies:** ELEC-01
 - **Description:** Terminal/pin model with polarity, electrical domain and connection rules.
 - **Implementation Details:** Implement ELEC-02 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_circuit.cpp, 14/14 tasks passing, 200 total test cases, 2052 checks) & appshunya desktop build. Git commit: 6f0eb74
 
 #### [ELEC-03] 03
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 5 / T3
 - **Dependencies:** ELEC-02
 - **Description:** Passive models: resistor, capacitor, inductor and transformer baseline.
 - **Implementation Details:** Implement ELEC-03 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_circuit.cpp, 14/14 tasks passing, 200 total test cases, 2052 checks) & appshunya desktop build. Git commit: 6f0eb74
 
 #### [ELEC-04] 04
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 5 / T3
 - **Dependencies:** ELEC-03
 - **Description:** Sources: independent/dependent voltage and current sources; waveform definitions.
 - **Implementation Details:** Implement ELEC-04 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_circuit.cpp, 14/14 tasks passing, 200 total test cases, 2052 checks) & appshunya desktop build. Git commit: 6f0eb74
 
 #### [ELEC-05] 05
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 5 / T3
 - **Dependencies:** ELEC-04
 - **Description:** Ground/reference nodes and floating-node detection.
 - **Implementation Details:** Implement ELEC-05 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_circuit.cpp, 14/14 tasks passing, 200 total test cases, 2052 checks) & appshunya desktop build. Git commit: 6f0eb74
 
 #### [ELEC-06] 06
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 5 / T3
 - **Dependencies:** ELEC-05
 - **Description:** Modified nodal analysis (MNA) assembly and sparse solve integration.
 - **Implementation Details:** Implement ELEC-06 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_circuit.cpp, 14/14 tasks passing, 200 total test cases, 2052 checks) & appshunya desktop build. Git commit: 6f0eb74
 
 #### [ELEC-07] 07
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 5 / T3
 - **Dependencies:** ELEC-06
 - **Description:** DC operating point analysis.
 - **Implementation Details:** Implement ELEC-07 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_circuit.cpp, 14/14 tasks passing, 200 total test cases, 2052 checks) & appshunya desktop build. Git commit: 6f0eb74
 
 #### [ELEC-08] 08
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 5 / T3
 - **Dependencies:** ELEC-07
 - **Description:** Transient analysis with capacitor voltage and inductor current state handling.
 - **Implementation Details:** Implement ELEC-08 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_circuit.cpp, 14/14 tasks passing, 200 total test cases, 2052 checks) & appshunya desktop build. Git commit: 6f0eb74
 
 #### [ELEC-09] 09
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 5 / T3
 - **Dependencies:** ELEC-08
 - **Description:** Diode and nonlinear device model integration; Newton iteration and convergence handling.
 - **Implementation Details:** Implement ELEC-09 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_circuit.cpp, 14/14 tasks passing, 200 total test cases, 2052 checks) & appshunya desktop build. Git commit: 6f0eb74
 
 #### [ELEC-10] 10
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 5 / T3
 - **Dependencies:** ELEC-09
 - **Description:** Transistor models: start with documented simplified models, then add validated SPICE-compatible models.
 - **Implementation Details:** Implement ELEC-10 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_circuit.cpp, 14/14 tasks passing, 200 total test cases, 2052 checks) & appshunya desktop build. Git commit: 6f0eb74
 
 #### [ELEC-11] 11
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 5 / T3
 - **Dependencies:** ELEC-10
 - **Description:** AC small-signal analysis and frequency response.
 - **Implementation Details:** Implement ELEC-11 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_circuit.cpp, 14/14 tasks passing, 200 total test cases, 2052 checks) & appshunya desktop build. Git commit: 6f0eb74
 
 #### [ELEC-12] 12
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 5 / T3
 - **Dependencies:** ELEC-11
 - **Description:** Waveform viewer, probes, current direction and power calculations.
 - **Implementation Details:** Implement ELEC-12 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_circuit.cpp, 14/14 tasks passing, 200 total test cases, 2052 checks) & appshunya desktop build. Git commit: 6f0eb74
 
 #### [ELEC-13] 13
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 5 / T3
 - **Dependencies:** ELEC-12
 - **Description:** Diagnostics: singular matrix, conflicting ideal sources, floating node and convergence failure.
 - **Implementation Details:** Implement ELEC-13 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_circuit.cpp, 14/14 tasks passing, 200 total test cases, 2052 checks) & appshunya desktop build. Git commit: 6f0eb74
 
 #### [ELEC-14] 14
-- **Status:** [ ] Not started
+- **Status:** [x] Completed
 - **Priority:** P0
 - **Stage / Phase:** Phase 5 / T3
 - **Dependencies:** ELEC-13
 - **Description:** Validation: divider, RC/RL, diode rectifier, transistor switch and amplifier benchmarks. LOGIC – Digital logic and computing devices
 - **Implementation Details:** Implement ELEC-14 according to the modular C++ architecture in core/ or engines/ or pps/, adhering to strict memory safety, exception/error handling, and zero-leakage interfaces.
 - **Acceptance Criteria:** Unit and integration test coverage verifying functionality under nominal and edge conditions; complete test execution log; documentation updated.
-- **Verification & Git Commit:** None (Pending)
+- **Verification & Git Commit:** Verified via unit tests (test_circuit.cpp, 14/14 tasks passing, 200 total test cases, 2052 checks) & appshunya desktop build. Git commit: 6f0eb74
 
 ---
 
