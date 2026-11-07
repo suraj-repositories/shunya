@@ -21,6 +21,7 @@ add_executable(shunya_unit_tests
     unit/test_material.cpp
     unit/test_material_database.cpp
     unit/test_material_runtime.cpp
+    unit/test_component.cpp
 )
 
 target_include_directories(shunya_unit_tests

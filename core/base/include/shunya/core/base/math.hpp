@@ -65,6 +65,8 @@ struct Vector2 {
     [[nodiscard]] bool approx_equals(const Vector2& rhs, T tol = static_cast<T>(DEFAULT_EPSILON)) const noexcept {
         return approx_equal(x, rhs.x, tol) && approx_equal(y, rhs.y, tol);
     }
+
+    constexpr bool operator==(const Vector2& rhs) const noexcept = default;
 };
 
 // -------------------------------------------------------------
@@ -115,6 +117,8 @@ struct Vector3 {
     [[nodiscard]] bool approx_equals(const Vector3& rhs, T tol = static_cast<T>(DEFAULT_EPSILON)) const noexcept {
         return approx_equal(x, rhs.x, tol) && approx_equal(y, rhs.y, tol) && approx_equal(z, rhs.z, tol);
     }
+
+    constexpr bool operator==(const Vector3& rhs) const noexcept = default;
 };
 
 // -------------------------------------------------------------
@@ -216,6 +220,8 @@ struct Quaternion {
                (approx_equal(w, -rhs.w, tol) && approx_equal(x, -rhs.x, tol) &&
                 approx_equal(y, -rhs.y, tol) && approx_equal(z, -rhs.z, tol));
     }
+
+    constexpr bool operator==(const Quaternion& rhs) const noexcept = default;
 };
 
 // -------------------------------------------------------------
@@ -299,6 +305,8 @@ struct Matrix4x4 {
             m[8] * v.x + m[9] * v.y + m[10] * v.z
         };
     }
+
+    constexpr bool operator==(const Matrix4x4& rhs) const noexcept = default;
 };
 
 // -------------------------------------------------------------

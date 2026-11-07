@@ -19,6 +19,8 @@ target_sources(shunya_core_domain
         src/dataset_release.cpp
         src/material_runtime.cpp
         src/material_adapters.cpp
+        src/component.cpp
+        src/component_runtime.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -39,6 +41,8 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/dataset_release.hpp
             include/shunya/core/domain/material_runtime.hpp
             include/shunya/core/domain/material_adapters.hpp
+            include/shunya/core/domain/component.hpp
+            include/shunya/core/domain/component_runtime.hpp
 )
 
 target_include_directories(shunya_core_domain

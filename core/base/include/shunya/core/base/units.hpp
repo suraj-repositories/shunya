@@ -163,6 +163,7 @@ public:
     }
 
     [[nodiscard]] std::string to_string() const;
+    constexpr bool operator==(const Quantity& rhs) const noexcept = default;
 };
 
 inline Quantity operator*(double scalar, const Quantity& q) noexcept {
