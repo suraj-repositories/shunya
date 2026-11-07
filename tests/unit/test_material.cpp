@@ -10,7 +10,7 @@ using namespace shunya::core::domain;
 
 TEST_CASE("Material schema, state, provenance and version metadata (MAT-01)") {
     auto id = base::Uuid::generate_random();
-    Material mat(id, "Titanium Alloy Ti-6Al-4V", MaterialState::Solid, 4430.0);
+    Material mat(id, "Titanium Alloy Ti-6Al-4V", MaterialPhysicalState::Solid, 4430.0);
     mat.set_description("Grade 5 titanium alloy");
     mat.set_composition("Ti 90%, Al 6%, V 4%");
     mat.set_provenance("ASTM B265");
@@ -19,7 +19,7 @@ TEST_CASE("Material schema, state, provenance and version metadata (MAT-01)") {
 
     REQUIRE(mat.id() == id);
     REQUIRE(mat.name() == "Titanium Alloy Ti-6Al-4V");
-    REQUIRE(mat.state() == MaterialState::Solid);
+    REQUIRE(mat.state() == MaterialPhysicalState::Solid);
     REQUIRE(std::abs(mat.density() - 4430.0) < 1e-6);
     REQUIRE(mat.description() == "Grade 5 titanium alloy");
     REQUIRE(mat.composition() == "Ti 90%, Al 6%, V 4%");
@@ -28,20 +28,20 @@ TEST_CASE("Material schema, state, provenance and version metadata (MAT-01)") {
     REQUIRE(mat.version() == base::Version(2, 1, 0));
 
     // Material state strings
-    REQUIRE(material_state_to_string(MaterialState::Solid) == "Solid");
-    REQUIRE(material_state_to_string(MaterialState::Liquid) == "Liquid");
-    REQUIRE(material_state_to_string(MaterialState::Gas) == "Gas");
-    REQUIRE(material_state_to_string(MaterialState::Plasma) == "Plasma");
+    REQUIRE(material_physical_state_to_string(MaterialPhysicalState::Solid) == "Solid");
+    REQUIRE(material_physical_state_to_string(MaterialPhysicalState::Liquid) == "Liquid");
+    REQUIRE(material_physical_state_to_string(MaterialPhysicalState::Gas) == "Gas");
+    REQUIRE(material_physical_state_to_string(MaterialPhysicalState::Plasma) == "Plasma");
 
-    auto s1 = material_state_from_string("Liquid");
+    auto s1 = material_physical_state_from_string("Liquid");
     REQUIRE(s1.is_ok());
-    REQUIRE(s1.value() == MaterialState::Liquid);
+    REQUIRE(s1.value() == MaterialPhysicalState::Liquid);
 
-    auto s2 = material_state_from_string("Gas");
+    auto s2 = material_physical_state_from_string("Gas");
     REQUIRE(s2.is_ok());
-    REQUIRE(s2.value() == MaterialState::Gas);
+    REQUIRE(s2.value() == MaterialPhysicalState::Gas);
 
-    auto s_invalid = material_state_from_string("BoseEinsteinCondensate");
+    auto s_invalid = material_physical_state_from_string("BoseEinsteinCondensate");
     REQUIRE(s_invalid.is_err());
 }
 
@@ -65,7 +65,7 @@ TEST_CASE("Mechanical properties and effective modulus calculations (MAT-02)") {
     mech.shear_modulus_pa = 82.0e9;
     REQUIRE(std::abs(mech.effective_shear_modulus() - 82.0e9) < 1e-6);
 
-    Material mat(base::Uuid::generate_random(), "Steel Test", MaterialState::Solid, 7800.0);
+    Material mat(base::Uuid::generate_random(), "Steel Test", MaterialPhysicalState::Solid, 7800.0);
     mat.set_mechanical(mech);
 
     // Elastic evaluation: strain = 0.001 -> stress = 200e9 * 0.001 = 200 MPa (< yield 400 MPa)
@@ -91,7 +91,7 @@ TEST_CASE("Thermal properties and scalar evaluation (MAT-03)") {
     therm.latent_heat_fusion = 2.5e5;
     therm.latent_heat_vaporization = 6.0e6;
 
-    Material mat(base::Uuid::generate_random(), "Thermal Alloy", MaterialState::Solid, 8000.0);
+    Material mat(base::Uuid::generate_random(), "Thermal Alloy", MaterialPhysicalState::Solid, 8000.0);
     mat.set_thermal(therm);
 
     auto k_res = mat.evaluate_thermal_conductivity(300.0);
@@ -115,7 +115,7 @@ TEST_CASE("Electrical and electromagnetic properties (MAT-04)") {
     double expected_rho = 2.0e-8;
     REQUIRE(std::abs(elec.effective_resistivity() - expected_rho) < 1e-12);
 
-    Material mat(base::Uuid::generate_random(), "Electrical Conductor", MaterialState::Solid, 8900.0);
+    Material mat(base::Uuid::generate_random(), "Electrical Conductor", MaterialPhysicalState::Solid, 8900.0);
     mat.set_electrical(elec);
 
     // Evaluate resistivity at T0 (293.15 K)
@@ -138,7 +138,7 @@ TEST_CASE("Fluid and chemical properties (MAT-05)") {
     fl.molecular_weight = 0.018015;      // kg/mol
     fl.chemical_formula = "H2O";
 
-    Material mat(base::Uuid::generate_random(), "Water Sample", MaterialState::Liquid, 1000.0);
+    Material mat(base::Uuid::generate_random(), "Water Sample", MaterialPhysicalState::Liquid, 1000.0);
     mat.set_fluid(fl);
 
     REQUIRE(mat.fluid().dynamic_viscosity.has_value());
@@ -210,7 +210,7 @@ TEST_CASE("Material curves and multi-mode interpolation/extrapolation (MAT-07)")
     REQUIRE(deserialized.value().point_count() == 4);
 
     // Material integration: evaluate property prefers curve over scalar
-    Material mat(base::Uuid::generate_random(), "Steel Curve Test", MaterialState::Solid, 7850.0);
+    Material mat(base::Uuid::generate_random(), "Steel Curve Test", MaterialPhysicalState::Solid, 7850.0);
     ThermalProperties tp;
     tp.thermal_conductivity = 100.0; // scalar default
     mat.set_thermal(tp);
@@ -294,7 +294,7 @@ TEST_CASE("Material validation and preset engineering catalog (MAT-08)") {
     REQUIRE(registry.has_material("Water (Pure Liquid 20 C)"));
 
     // 2. Anomaly Detection and Bounds Validation
-    Material invalid_mat(base::Uuid{}, "", MaterialState::Solid, -50.0);
+    Material invalid_mat(base::Uuid{}, "", MaterialPhysicalState::Solid, -50.0);
     auto rep = invalid_mat.validate();
     REQUIRE(rep.has_error("MAT_NIL_ID"));
     REQUIRE(rep.has_error("MAT_EMPTY_NAME"));

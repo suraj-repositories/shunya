@@ -21,12 +21,12 @@ base::Error make_error(std::string msg, int32_t code = 1) {
 
 } // namespace
 
-base::Result<MaterialState> material_state_from_string(std::string_view str) {
-    if (str == "Solid")  return MaterialState::Solid;
-    if (str == "Liquid") return MaterialState::Liquid;
-    if (str == "Gas")    return MaterialState::Gas;
-    if (str == "Plasma") return MaterialState::Plasma;
-    return make_error(std::string("Unknown MaterialState: ") + std::string(str));
+base::Result<MaterialPhysicalState> material_physical_state_from_string(std::string_view str) {
+    if (str == "Solid")  return MaterialPhysicalState::Solid;
+    if (str == "Liquid") return MaterialPhysicalState::Liquid;
+    if (str == "Gas")    return MaterialPhysicalState::Gas;
+    if (str == "Plasma") return MaterialPhysicalState::Plasma;
+    return make_error(std::string("Unknown MaterialPhysicalState: ") + std::string(str));
 }
 
 double MechanicalProperties::effective_shear_modulus() const noexcept {
@@ -111,7 +111,7 @@ Material::Material()
     : id_(base::Uuid::generate_random()),
       name_("Unnamed Material") {}
 
-Material::Material(base::Uuid id, std::string name, MaterialState state, double density_kg_m3)
+Material::Material(base::Uuid id, std::string name, MaterialPhysicalState state, double density_kg_m3)
     : id_(id),
       name_(std::move(name)),
       density_kg_m3_(density_kg_m3),
@@ -318,7 +318,7 @@ std::string Material::to_json() const {
     ss << "  \"description\": \"" << description_ << "\",\n";
     ss << "  \"composition\": \"" << composition_ << "\",\n";
     ss << "  \"density_kg_m3\": " << density_kg_m3_ << ",\n";
-    ss << "  \"state\": \"" << material_state_to_string(state_) << "\",\n";
+    ss << "  \"state\": \"" << material_physical_state_to_string(state_) << "\",\n";
     ss << "  \"provenance\": \"" << provenance_ << "\",\n";
     ss << "  \"source\": \"" << source_ << "\",\n";
     ss << "  \"version\": \"" << version_.as_string() << "\",\n";
@@ -419,10 +419,10 @@ base::Result<Material> Material::from_json(std::string_view json_str) {
     std::string comp = extract_str("composition");
     double rho = extract_num("density_kg_m3").value_or(0.0);
 
-    MaterialState state = MaterialState::Solid;
+    MaterialPhysicalState state = MaterialPhysicalState::Solid;
     std::string state_str = extract_str("state");
     if (!state_str.empty()) {
-        auto res = material_state_from_string(state_str);
+        auto res = material_physical_state_from_string(state_str);
         if (res.is_ok()) state = res.value();
     }
 
@@ -517,7 +517,7 @@ base::Result<Material> Material::from_json(std::string_view json_str) {
 
 // Preset standard engineering materials
 Material Material::structural_steel() {
-    Material mat(base::Uuid::generate_random(), "Structural Steel", MaterialState::Solid, 7850.0);
+    Material mat(base::Uuid::generate_random(), "Structural Steel", MaterialPhysicalState::Solid, 7850.0);
     mat.set_composition("Fe > 98%, C 0.2%, Mn 1.4%, Si 0.3%");
     mat.set_provenance("EN 10025-2 S275 / ASTM A36 standard engineering reference");
     mat.set_source("Engineering Databook");
@@ -555,7 +555,7 @@ Material Material::structural_steel() {
 }
 
 Material Material::aluminium_6061() {
-    Material mat(base::Uuid::generate_random(), "Aluminium 6061-T6", MaterialState::Solid, 2700.0);
+    Material mat(base::Uuid::generate_random(), "Aluminium 6061-T6", MaterialPhysicalState::Solid, 2700.0);
     mat.set_composition("Al 97.9%, Mg 1.0%, Si 0.6%, Cu 0.28%, Cr 0.2%");
     mat.set_provenance("ASM Aerospace Specification Metals");
     mat.set_source("MIL-HDBK-5J");
@@ -589,7 +589,7 @@ Material Material::aluminium_6061() {
 }
 
 Material Material::copper() {
-    Material mat(base::Uuid::generate_random(), "Copper (Electrolytic Tough Pitch)", MaterialState::Solid, 8960.0);
+    Material mat(base::Uuid::generate_random(), "Copper (Electrolytic Tough Pitch)", MaterialPhysicalState::Solid, 8960.0);
     mat.set_composition("Cu > 99.9%, O 0.04%");
     mat.set_provenance("CDA Alloy C11000 / ASTM B152");
     mat.set_source("Copper Development Association");
@@ -624,7 +624,7 @@ Material Material::copper() {
 }
 
 Material Material::silicon() {
-    Material mat(base::Uuid::generate_random(), "Silicon (Monocrystalline)", MaterialState::Solid, 2329.0);
+    Material mat(base::Uuid::generate_random(), "Silicon (Monocrystalline)", MaterialPhysicalState::Solid, 2329.0);
     mat.set_composition("Si > 99.9999%");
     mat.set_provenance("Semiconductor Grade Wafer");
     mat.set_source("Ioffe Institute");
@@ -660,7 +660,7 @@ Material Material::silicon() {
 }
 
 Material Material::air_standard() {
-    Material mat(base::Uuid::generate_random(), "Air (Standard Sea Level)", MaterialState::Gas, 1.225);
+    Material mat(base::Uuid::generate_random(), "Air (Standard Sea Level)", MaterialPhysicalState::Gas, 1.225);
     mat.set_composition("N2 78.08%, O2 20.95%, Ar 0.93%, CO2 0.04%");
     mat.set_provenance("US Standard Atmosphere 1976");
     mat.set_source("NASA-TM-X-74335");
@@ -692,7 +692,7 @@ Material Material::air_standard() {
 }
 
 Material Material::water_liquid() {
-    Material mat(base::Uuid::generate_random(), "Water (Pure Liquid 20 C)", MaterialState::Liquid, 998.2);
+    Material mat(base::Uuid::generate_random(), "Water (Pure Liquid 20 C)", MaterialPhysicalState::Liquid, 998.2);
     mat.set_composition("H2O");
     mat.set_provenance("IAPWS-95 Formulation");
     mat.set_source("NIST Chemistry WebBook");

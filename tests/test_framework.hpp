@@ -45,11 +45,20 @@ inline void check_impl(bool cond, std::string_view expr, std::string_view file, 
 
 
 #define CHECK(expr) ::shunya::test::check_impl(static_cast<bool>(expr), #expr, __FILE__, __LINE__)
+#define CHECK_FALSE(expr) ::shunya::test::check_impl(!static_cast<bool>(expr), "!(" #expr ")", __FILE__, __LINE__)
 #define REQUIRE(expr) do { \
     bool req_cond = static_cast<bool>(expr); \
     ::shunya::test::check_impl(req_cond, #expr, __FILE__, __LINE__); \
     if (!req_cond) { \
         std::cerr << "[FATAL] Requirement (" #expr ") failed. Aborting test case.\n"; \
+        return; \
+    } \
+} while(false)
+#define REQUIRE_FALSE(expr) do { \
+    bool req_cond = !static_cast<bool>(expr); \
+    ::shunya::test::check_impl(req_cond, "!(" #expr ")", __FILE__, __LINE__); \
+    if (!req_cond) { \
+        std::cerr << "[FATAL] Requirement (!(" #expr ")) failed. Aborting test case.\n"; \
         return; \
     } \
 } while(false)

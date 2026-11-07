@@ -14,24 +14,24 @@
 
 namespace shunya::core::domain {
 
-enum class MaterialState {
+enum class MaterialPhysicalState {
     Solid,
     Liquid,
     Gas,
     Plasma
 };
 
-[[nodiscard]] constexpr std::string_view material_state_to_string(MaterialState s) noexcept {
+[[nodiscard]] constexpr std::string_view material_physical_state_to_string(MaterialPhysicalState s) noexcept {
     switch (s) {
-    case MaterialState::Solid:  return "Solid";
-    case MaterialState::Liquid: return "Liquid";
-    case MaterialState::Gas:    return "Gas";
-    case MaterialState::Plasma: return "Plasma";
+    case MaterialPhysicalState::Solid:  return "Solid";
+    case MaterialPhysicalState::Liquid: return "Liquid";
+    case MaterialPhysicalState::Gas:    return "Gas";
+    case MaterialPhysicalState::Plasma: return "Plasma";
     }
     return "Solid";
 }
 
-[[nodiscard]] base::Result<MaterialState> material_state_from_string(std::string_view str);
+[[nodiscard]] base::Result<MaterialPhysicalState> material_physical_state_from_string(std::string_view str);
 
 // MAT-02: Mechanical Properties
 struct MechanicalProperties {
@@ -97,7 +97,7 @@ struct FluidProperties {
 class Material {
 public:
     Material();
-    Material(base::Uuid id, std::string name, MaterialState state = MaterialState::Solid, double density_kg_m3 = 0.0);
+    Material(base::Uuid id, std::string name, MaterialPhysicalState state = MaterialPhysicalState::Solid, double density_kg_m3 = 0.0);
 
     // MAT-01 Attributes
     [[nodiscard]] const base::Uuid& id() const noexcept { return id_; }
@@ -115,8 +115,8 @@ public:
     [[nodiscard]] double density() const noexcept { return density_kg_m3_; }
     void set_density(double rho) noexcept { density_kg_m3_ = rho; }
 
-    [[nodiscard]] MaterialState state() const noexcept { return state_; }
-    void set_state(MaterialState s) noexcept { state_ = s; }
+    [[nodiscard]] MaterialPhysicalState state() const noexcept { return state_; }
+    void set_state(MaterialPhysicalState s) noexcept { state_ = s; }
 
     [[nodiscard]] const std::string& provenance() const noexcept { return provenance_; }
     void set_provenance(std::string prov) { provenance_ = std::move(prov); }
@@ -181,7 +181,7 @@ private:
     std::string description_;
     std::string composition_;
     double density_kg_m3_{0.0};
-    MaterialState state_{MaterialState::Solid};
+    MaterialPhysicalState state_{MaterialPhysicalState::Solid};
     std::string provenance_;
     std::string source_;
     base::Version version_{1, 0, 0};
