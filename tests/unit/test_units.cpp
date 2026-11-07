@@ -212,3 +212,67 @@ TEST_CASE("UNIT-07: Validation Suite: Round-trips and Error Rejection") {
     REQUIRE(back_psi.is_ok());
     CHECK(std::abs(back_psi.value() - test_psi) < 1e-9);
 }
+
+TEST_CASE("IMP-01: Compile-Time Dimensional Unit Analysis via C++20 NTTP") {
+    using namespace shunya::core::base::units::literals;
+
+    // 1. Fundamental scalar NTTP arithmetic: F = m * a
+    constexpr MassT mass{2.5};          // 2.5 kg
+    constexpr AccelerationT accel{9.8}; // 9.8 m/s^2
+    constexpr ForceT force = mass * accel;
+    CHECK(std::abs(force.value() - 24.5) < 1e-9);
+
+    // 2. Work / Energy: W = F * d
+    constexpr LengthT distance{10.0};   // 10 m
+    constexpr EnergyT work = force * distance; // 245 J
+    CHECK(std::abs(work.value() - 245.0) < 1e-9);
+
+    // 3. Power: P = W / t
+    constexpr TimeT duration{5.0};      // 5 s
+    constexpr PowerT power = work / duration;  // 49 W
+    CHECK(std::abs(power.value() - 49.0) < 1e-9);
+
+    // 4. Ohm's law: I = V / R, P = V * I
+    VoltageT v{12.0};
+    ResistanceT r{4.0};
+    ElectricCurrentT current = v / r;
+    CHECK(std::abs(current.value() - 3.0) < 1e-9);
+    PowerT p_elec = v * current;
+    CHECK(std::abs(p_elec.value() - 36.0) < 1e-9);
+
+    // 5. User-Defined Literals
+    auto dist_lit = 50.0_m;
+    auto time_lit = 2.0_s;
+    VelocityT vel = dist_lit / time_lit;
+    CHECK(std::abs(vel.value() - 25.0) < 1e-9);
+
+    auto m_lit = 500.0_g;
+    CHECK(std::abs(m_lit.value() - 0.5) < 1e-9);
+
+    // 6. Vector NTTP arithmetic
+    Position3DT pos{3.0, 4.0, 0.0};
+    CHECK(std::abs(pos.magnitude().value() - 5.0) < 1e-9);
+
+    Velocity3DT v3 = pos / 2.0_s;
+    CHECK(std::abs(v3.x() - 1.5) < 1e-9);
+    CHECK(std::abs(v3.y() - 2.0) < 1e-9);
+
+    Force3DT f3{10.0, 20.0, 30.0};
+    EnergyT dot_work = dot(f3, pos); // 10*3 + 20*4 + 30*0 = 110 J
+    CHECK(std::abs(dot_work.value() - 110.0) < 1e-9);
+
+    // 7. Dynamic <-> Compile-Time Interoperability
+    Quantity dyn_force = force.to_dynamic();
+    CHECK(dyn_force.dimension == Force);
+    CHECK(std::abs(dyn_force.value - 24.5) < 1e-9);
+
+    auto res_force = ForceT::from_dynamic(dyn_force);
+    REQUIRE(res_force.is_ok());
+    CHECK(std::abs(res_force.value().value() - 24.5) < 1e-9);
+
+    // Incompatible dynamic conversion failure
+    auto bad_convert = LengthT::from_dynamic(dyn_force);
+    CHECK(!bad_convert.is_ok());
+    CHECK(bad_convert.error().code == 3007);
+}
+

@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <vector>
 #include <array>
+#include <compare>
+#include <cmath>
 
 namespace shunya::core::base::units {
 
@@ -102,6 +104,9 @@ inline constexpr Dimension ElectricalConductance{-2, -1, 3, 2, 0, 0, 0};       /
 inline constexpr Dimension MagneticFlux{2, 1, -2, -1, 0, 0, 0};                // V*s (Weber, Wb)
 inline constexpr Dimension MagneticField{0, 1, -2, -1, 0, 0, 0};               // Wb/m^2 (Tesla, T)
 inline constexpr Dimension Inductance{2, 1, -2, -2, 0, 0, 0};                  // Wb/A (Henry, H)
+
+inline constexpr Dimension Resistance = ElectricalResistance;
+inline constexpr Dimension Capacitance = ElectricalCapacitance;
 
 // -------------------------------------------------------------
 // Quantity and Dimensional Analysis (UNIT-03)
@@ -305,5 +310,286 @@ public:
         return VectorQuantity(res, dimension);
     }
 };
+
+// -------------------------------------------------------------
+// Compile-Time NTTP Units and Quantities (IMP-01)
+// -------------------------------------------------------------
+
+template <Dimension Dim>
+class QuantityT {
+public:
+    static constexpr Dimension dimension = Dim;
+
+    constexpr explicit QuantityT(double val = 0.0) noexcept : value_(val) {}
+
+    [[nodiscard]] constexpr double value() const noexcept { return value_; }
+
+    constexpr QuantityT operator+() const noexcept { return *this; }
+    constexpr QuantityT operator-() const noexcept { return QuantityT(-value_); }
+
+    constexpr QuantityT& operator+=(const QuantityT& rhs) noexcept {
+        value_ += rhs.value_;
+        return *this;
+    }
+
+    constexpr QuantityT& operator-=(const QuantityT& rhs) noexcept {
+        value_ -= rhs.value_;
+        return *this;
+    }
+
+    constexpr QuantityT& operator*=(double scalar) noexcept {
+        value_ *= scalar;
+        return *this;
+    }
+
+    constexpr QuantityT& operator/=(double scalar) {
+        if (scalar == 0.0) throw std::domain_error("Division by zero in QuantityT");
+        value_ /= scalar;
+        return *this;
+    }
+
+    constexpr std::partial_ordering operator<=>(const QuantityT& rhs) const noexcept {
+        return value_ <=> rhs.value_;
+    }
+
+    constexpr bool operator==(const QuantityT& rhs) const noexcept {
+        return value_ == rhs.value_;
+    }
+
+    [[nodiscard]] Quantity to_dynamic() const noexcept {
+        return Quantity(value_, Dim);
+    }
+
+    [[nodiscard]] static Result<QuantityT> from_dynamic(const Quantity& q) noexcept {
+        if (q.dimension != Dim) {
+            return Result<QuantityT>::err({
+                .code = 3007,
+                .domain = ErrorDomain::Validation,
+                .severity = Severity::Error,
+                .message = "Dimensional mismatch converting dynamic Quantity to QuantityT",
+                .details = {}
+            });
+        }
+        return Result<QuantityT>::ok(QuantityT(q.value));
+    }
+
+private:
+    double value_{0.0};
+};
+
+template <Dimension D>
+constexpr QuantityT<D> operator+(QuantityT<D> lhs, QuantityT<D> rhs) noexcept {
+    return QuantityT<D>(lhs.value() + rhs.value());
+}
+
+template <Dimension D>
+constexpr QuantityT<D> operator-(QuantityT<D> lhs, QuantityT<D> rhs) noexcept {
+    return QuantityT<D>(lhs.value() - rhs.value());
+}
+
+template <Dimension D1, Dimension D2>
+constexpr QuantityT<D1 * D2> operator*(QuantityT<D1> lhs, QuantityT<D2> rhs) noexcept {
+    return QuantityT<D1 * D2>(lhs.value() * rhs.value());
+}
+
+template <Dimension D1, Dimension D2>
+constexpr QuantityT<D1 / D2> operator/(QuantityT<D1> lhs, QuantityT<D2> rhs) {
+    if (rhs.value() == 0.0) throw std::domain_error("Division by zero in QuantityT");
+    return QuantityT<D1 / D2>(lhs.value() / rhs.value());
+}
+
+template <Dimension D>
+constexpr QuantityT<D> operator*(QuantityT<D> q, double scalar) noexcept {
+    return QuantityT<D>(q.value() * scalar);
+}
+
+template <Dimension D>
+constexpr QuantityT<D> operator*(double scalar, QuantityT<D> q) noexcept {
+    return QuantityT<D>(q.value() * scalar);
+}
+
+template <Dimension D>
+constexpr QuantityT<D> operator/(QuantityT<D> q, double scalar) {
+    if (scalar == 0.0) throw std::domain_error("Division by zero in QuantityT");
+    return QuantityT<D>(q.value() / scalar);
+}
+
+template <Dimension D>
+constexpr QuantityT<Dimensionless / D> operator/(double scalar, QuantityT<D> q) {
+    if (q.value() == 0.0) throw std::domain_error("Division by zero in QuantityT");
+    return QuantityT<Dimensionless / D>(scalar / q.value());
+}
+
+// -------------------------------------------------------------
+// Compile-Time NTTP Vector Quantities (IMP-01)
+// -------------------------------------------------------------
+
+template <Dimension Dim>
+class VectorQuantityT {
+public:
+    static constexpr Dimension dimension = Dim;
+
+    constexpr explicit VectorQuantityT(math::Vec3 val = {}) noexcept : value_(val) {}
+    constexpr VectorQuantityT(double x, double y, double z) noexcept : value_(x, y, z) {}
+
+    [[nodiscard]] constexpr math::Vec3 value() const noexcept { return value_; }
+    [[nodiscard]] constexpr double x() const noexcept { return value_.x; }
+    [[nodiscard]] constexpr double y() const noexcept { return value_.y; }
+    [[nodiscard]] constexpr double z() const noexcept { return value_.z; }
+
+    [[nodiscard]] QuantityT<Dim> magnitude() const noexcept {
+        return QuantityT<Dim>(value_.length());
+    }
+
+    constexpr VectorQuantityT operator+() const noexcept { return *this; }
+    constexpr VectorQuantityT operator-() const noexcept { return VectorQuantityT(-value_); }
+
+    constexpr VectorQuantityT& operator+=(const VectorQuantityT& rhs) noexcept {
+        value_ += rhs.value_;
+        return *this;
+    }
+
+    constexpr VectorQuantityT& operator-=(const VectorQuantityT& rhs) noexcept {
+        value_ -= rhs.value_;
+        return *this;
+    }
+
+    [[nodiscard]] VectorQuantity to_dynamic() const noexcept {
+        return VectorQuantity(value_, Dim);
+    }
+
+    [[nodiscard]] static Result<VectorQuantityT> from_dynamic(const VectorQuantity& v) noexcept {
+        if (v.dimension != Dim) {
+            return Result<VectorQuantityT>::err({
+                .code = 3008,
+                .domain = ErrorDomain::Validation,
+                .severity = Severity::Error,
+                .message = "Dimensional mismatch converting dynamic VectorQuantity to VectorQuantityT",
+                .details = {}
+            });
+        }
+        return Result<VectorQuantityT>::ok(VectorQuantityT(v.value));
+    }
+
+private:
+    math::Vec3 value_{};
+};
+
+template <Dimension D>
+constexpr VectorQuantityT<D> operator+(VectorQuantityT<D> lhs, VectorQuantityT<D> rhs) noexcept {
+    return VectorQuantityT<D>(lhs.value() + rhs.value());
+}
+
+template <Dimension D>
+constexpr VectorQuantityT<D> operator-(VectorQuantityT<D> lhs, VectorQuantityT<D> rhs) noexcept {
+    return VectorQuantityT<D>(lhs.value() - rhs.value());
+}
+
+template <Dimension D>
+constexpr VectorQuantityT<D> operator*(VectorQuantityT<D> vec, double scalar) noexcept {
+    return VectorQuantityT<D>(vec.value() * scalar);
+}
+
+template <Dimension D>
+constexpr VectorQuantityT<D> operator*(double scalar, VectorQuantityT<D> vec) noexcept {
+    return VectorQuantityT<D>(vec.value() * scalar);
+}
+
+template <Dimension D1, Dimension D2>
+constexpr VectorQuantityT<D1 * D2> operator*(VectorQuantityT<D1> vec, QuantityT<D2> q) noexcept {
+    return VectorQuantityT<D1 * D2>(vec.value() * q.value());
+}
+
+template <Dimension D1, Dimension D2>
+constexpr VectorQuantityT<D1 * D2> operator*(QuantityT<D1> q, VectorQuantityT<D2> vec) noexcept {
+    return VectorQuantityT<D1 * D2>(vec.value() * q.value());
+}
+
+template <Dimension D1, Dimension D2>
+constexpr VectorQuantityT<D1 / D2> operator/(VectorQuantityT<D1> vec, QuantityT<D2> q) {
+    if (q.value() == 0.0) throw std::domain_error("Division by zero in VectorQuantityT");
+    return VectorQuantityT<D1 / D2>(vec.value() / q.value());
+}
+
+template <Dimension D1, Dimension D2>
+constexpr QuantityT<D1 * D2> dot(VectorQuantityT<D1> a, VectorQuantityT<D2> b) noexcept {
+    return QuantityT<D1 * D2>(a.value().dot(b.value()));
+}
+
+template <Dimension D1, Dimension D2>
+constexpr VectorQuantityT<D1 * D2> cross(VectorQuantityT<D1> a, VectorQuantityT<D2> b) noexcept {
+    return VectorQuantityT<D1 * D2>(a.value().cross(b.value()));
+}
+
+// -------------------------------------------------------------
+// Typed Dimensions and Aliases (IMP-01)
+// -------------------------------------------------------------
+
+using DimensionlessT = QuantityT<Dimensionless>;
+using LengthT = QuantityT<Length>;
+using MassT = QuantityT<Mass>;
+using TimeT = QuantityT<Time>;
+using ElectricCurrentT = QuantityT<ElectricCurrent>;
+using TemperatureT = QuantityT<Temperature>;
+using AmountOfSubstanceT = QuantityT<AmountOfSubstance>;
+using LuminousIntensityT = QuantityT<LuminousIntensity>;
+
+using FrequencyT = QuantityT<Frequency>;
+using AreaT = QuantityT<Area>;
+using VolumeT = QuantityT<Volume>;
+using VelocityT = QuantityT<Velocity>;
+using AccelerationT = QuantityT<Acceleration>;
+using ForceT = QuantityT<Force>;
+using PressureT = QuantityT<Pressure>;
+using EnergyT = QuantityT<Energy>;
+using PowerT = QuantityT<Power>;
+using VoltageT = QuantityT<Voltage>;
+using ResistanceT = QuantityT<Resistance>;
+using CapacitanceT = QuantityT<Capacitance>;
+using InductanceT = QuantityT<Inductance>;
+
+using Position3DT = VectorQuantityT<Length>;
+using Velocity3DT = VectorQuantityT<Velocity>;
+using Acceleration3DT = VectorQuantityT<Acceleration>;
+using Force3DT = VectorQuantityT<Force>;
+
+// -------------------------------------------------------------
+// User-Defined Literals (IMP-01)
+// -------------------------------------------------------------
+
+inline namespace literals {
+    constexpr LengthT operator""_m(long double val) { return LengthT(static_cast<double>(val)); }
+    constexpr LengthT operator""_m(unsigned long long val) { return LengthT(static_cast<double>(val)); }
+    constexpr LengthT operator""_cm(long double val) { return LengthT(static_cast<double>(val) * 1e-2); }
+    constexpr LengthT operator""_mm(long double val) { return LengthT(static_cast<double>(val) * 1e-3); }
+
+    constexpr MassT operator""_kg(long double val) { return MassT(static_cast<double>(val)); }
+    constexpr MassT operator""_kg(unsigned long long val) { return MassT(static_cast<double>(val)); }
+    constexpr MassT operator""_g(long double val) { return MassT(static_cast<double>(val) * 1e-3); }
+
+    constexpr TimeT operator""_s(long double val) { return TimeT(static_cast<double>(val)); }
+    constexpr TimeT operator""_s(unsigned long long val) { return TimeT(static_cast<double>(val)); }
+    constexpr TimeT operator""_ms(long double val) { return TimeT(static_cast<double>(val) * 1e-3); }
+
+    constexpr ForceT operator""_N(long double val) { return ForceT(static_cast<double>(val)); }
+    constexpr ForceT operator""_N(unsigned long long val) { return ForceT(static_cast<double>(val)); }
+
+    constexpr EnergyT operator""_J(long double val) { return EnergyT(static_cast<double>(val)); }
+    constexpr EnergyT operator""_J(unsigned long long val) { return EnergyT(static_cast<double>(val)); }
+
+    constexpr PowerT operator""_W(long double val) { return PowerT(static_cast<double>(val)); }
+    constexpr PowerT operator""_W(unsigned long long val) { return PowerT(static_cast<double>(val)); }
+
+    constexpr VoltageT operator""_V(long double val) { return VoltageT(static_cast<double>(val)); }
+    constexpr VoltageT operator""_V(unsigned long long val) { return VoltageT(static_cast<double>(val)); }
+
+    constexpr ElectricCurrentT operator""_A(long double val) { return ElectricCurrentT(static_cast<double>(val)); }
+    constexpr ElectricCurrentT operator""_A(unsigned long long val) { return ElectricCurrentT(static_cast<double>(val)); }
+
+    constexpr ResistanceT operator""_ohm(long double val) { return ResistanceT(static_cast<double>(val)); }
+    constexpr ResistanceT operator""_ohm(unsigned long long val) { return ResistanceT(static_cast<double>(val)); }
+}
+
+
 
 } // namespace shunya::core::base::units
