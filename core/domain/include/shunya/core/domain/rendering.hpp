@@ -591,6 +591,7 @@ enum class ColormapType {
     Jet,
     CoolWarm,
     Plasma,
+    Turbo,
     Grayscale
 };
 

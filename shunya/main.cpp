@@ -9,6 +9,8 @@
 #include "quantity_input_controller.hpp"
 #include "multi_property_controller.hpp"
 #include "viewport_controller.hpp"
+#include "colormap_legend_controller.hpp"
+#include "oscilloscope_controller.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -24,6 +26,8 @@ int main(int argc, char *argv[])
     auto* quantityCtrl = new shunya::gui::ShunyaQuantityInputController(&app);
     auto* multiPropCtrl = new shunya::gui::ShunyaMultiPropertyController(&app);
     auto* viewportCtrl = new shunya::gui::ShunyaViewportController(&app);
+    auto* colormapCtrl = new shunya::gui::ShunyaColormapLegendController(&app);
+    auto* scopeCtrl = new shunya::gui::ShunyaOscilloscopeController(&app);
 
     auto paramMgr = std::make_shared<shunya::core::domain::ParameterReferenceManager>();
     propTreeModel->setParameterReferenceManager(paramMgr);
@@ -50,6 +54,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("quantityController", quantityCtrl);
     engine.rootContext()->setContextProperty("multiPropertyController", multiPropCtrl);
     engine.rootContext()->setContextProperty("viewportController", viewportCtrl);
+    engine.rootContext()->setContextProperty("colormapController", colormapCtrl);
+    engine.rootContext()->setContextProperty("oscilloscopeController", scopeCtrl);
 
     QObject::connect(
         &engine,

@@ -39,6 +39,12 @@ qt_add_executable(appshunya
     multi_property_controller.cpp
     viewport_controller.hpp
     viewport_controller.cpp
+    scientific_plot_item.hpp
+    scientific_plot_item.cpp
+    colormap_legend_controller.hpp
+    colormap_legend_controller.cpp
+    oscilloscope_controller.hpp
+    oscilloscope_controller.cpp
 )
 
 qt_add_qml_module(appshunya
@@ -62,6 +68,10 @@ qt_add_qml_module(appshunya
         GizmoOverlay.qml
         ViewCube.qml
         ViewportHud.qml
+        ScientificPlot.qml
+        ColormapLegend.qml
+        OscilloscopePanel.qml
+        LogicAnalyzerTrack.qml
 )
 
 set_target_properties(appshunya PROPERTIES

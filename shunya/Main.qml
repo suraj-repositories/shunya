@@ -415,6 +415,31 @@ ApplicationWindow {
                                             }
                                         }
 
+                                        // Real-Time GPU Scientific Plotter & Scalar Field Colormap Legend
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            Layout.preferredHeight: 280
+                                            spacing: 10
+
+                                            ScientificPlot {
+                                                Layout.fillWidth: true
+                                                Layout.fillHeight: true
+                                            }
+
+                                            ColormapLegend {
+                                                Layout.preferredWidth: 170
+                                                Layout.fillHeight: true
+                                                controller: typeof colormapController !== "undefined" ? colormapController : null
+                                            }
+                                        }
+
+                                        // Mixed-Signal Oscilloscope & Logic Analyzer Viewport
+                                        OscilloscopePanel {
+                                            Layout.fillWidth: true
+                                            Layout.preferredHeight: 360
+                                            controller: typeof oscilloscopeController !== "undefined" ? oscilloscopeController : null
+                                        }
+
                                         Label {
                                             text: "Analytical Benchmark Verification Report:"
                                             font.bold: true
