@@ -153,6 +153,9 @@ target_sources(shunya_core_domain
         src/phy/radiation_solver.cpp
         src/phy/phase_change_solver.cpp
         src/phy/thermo_stress_solver.cpp
+        src/phy/sph_viscosity.cpp
+        src/phy/sph_surface_tension.cpp
+        src/phy/sph_solver_3d.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -304,6 +307,11 @@ target_sources(shunya_core_domain
             include/shunya/phy/phase_change_solver.hpp
             include/shunya/phy/von_mises_evaluator.hpp
             include/shunya/phy/thermo_stress_solver.hpp
+            include/shunya/phy/sph_kernels.hpp
+            include/shunya/phy/boundary_particles.hpp
+            include/shunya/phy/sph_viscosity.hpp
+            include/shunya/phy/sph_surface_tension.hpp
+            include/shunya/phy/sph_solver_3d.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
