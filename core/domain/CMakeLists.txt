@@ -78,6 +78,12 @@ target_sources(shunya_core_domain
         src/cad3d/trajectory_frame.cpp
         src/cad3d/sweep_feature.cpp
         src/cad3d/loft_feature.cpp
+        src/cad3d/bsp_tree.cpp
+        src/cad3d/csg_boolean.cpp
+        src/cad3d/polyhedral_brep.cpp
+        src/cad3d/solid_chamfer.cpp
+        src/cad3d/solid_fillet.cpp
+        src/cad3d/solid_shell.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -115,6 +121,12 @@ target_sources(shunya_core_domain
             include/shunya/cad3d/trajectory_frame.hpp
             include/shunya/cad3d/sweep_feature.hpp
             include/shunya/cad3d/loft_feature.hpp
+            include/shunya/cad3d/bsp_tree.hpp
+            include/shunya/cad3d/csg_boolean.hpp
+            include/shunya/cad3d/polyhedral_brep.hpp
+            include/shunya/cad3d/solid_chamfer.hpp
+            include/shunya/cad3d/solid_fillet.hpp
+            include/shunya/cad3d/solid_shell.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
