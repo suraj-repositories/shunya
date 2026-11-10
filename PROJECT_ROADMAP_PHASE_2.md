@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 129 | 79.6% |
+| `[ ]` | Not Started | 126 | 77.8% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 33 | 20.4% |
+| `[x]` | Completed | 36 | 22.2% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **20.4%** (33 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **22.2%** (36 / 162 leaf subtasks completed)
 
 
 ---
@@ -89,7 +89,7 @@ Every module is assigned a target development stage, priority classification (P0
 |---|---|---|---|---:|---:|---:|
 | **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 20 | 100.0% |
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
-| **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 0 | 0.0% |
+| **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 3 | 17.6% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **33** | **20.4%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **36** | **22.2%** |
 
 ---
 
@@ -189,12 +189,12 @@ SHUNYA NEXT PHASE PLATFORM WBS
 │   │   ├── Task [2D-03-002] [x] 2D Import/Export Pipeline
 │   │   │   ├── Subtask [2D-03-002-01] [x] Implement DXF (AutoCAD Drawing Exchange Format) R12/2000 reader and writer
 │   │   │   ├── Subtask [2D-03-002-02] [x] Implement SVG export and import with scale preservation and layer mapping
-├── Module [3D] 3D Modeling Engine (Stage 3 | P0)
-│   ├── Submodule [3D-01] 3D Parametric Features & Boundary Representation (B-Rep)
-│   │   ├── Task [3D-01-001] Sketch-to-3D Solid Feature Engine
-│   │   │   ├── Subtask [3D-01-001-01] Implement linear extrusion feature with draft angle, end conditions, and symmetric limits
-│   │   │   ├── Subtask [3D-01-001-02] Implement revolve feature about arbitrary 3D axes with angular constraints
-│   │   │   ├── Subtask [3D-01-001-03] Implement sweep and loft features along curved 3D guide trajectories
+├── Module [3D] [~] 3D Modeling Engine (Stage 3 | P0)
+│   ├── Submodule [3D-01] [~] 3D Parametric Features & Boundary Representation (B-Rep)
+│   │   ├── Task [3D-01-001] [x] Sketch-to-3D Solid Feature Engine
+│   │   │   ├── Subtask [3D-01-001-01] [x] Implement linear extrusion feature with draft angle, end conditions, and symmetric limits
+│   │   │   ├── Subtask [3D-01-001-02] [x] Implement revolve feature about arbitrary 3D axes with angular constraints
+│   │   │   ├── Subtask [3D-01-001-03] [x] Implement sweep and loft features along curved 3D guide trajectories
 │   │   ├── Task [3D-01-002] 3D Solid Boolean & Direct Modeling Operations
 │   │   │   ├── Subtask [3D-01-002-01] Implement robust 3D solid Boolean operations (CSG Union, Subtract, Intersect)
 │   │   │   ├── Subtask [3D-01-002-02] Implement 3D edge filleting, variable radius fillets, and planar/conical chamfers
@@ -452,12 +452,12 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module 3D: 3D Modeling Engine
-**Target Stage:** Stage 3 | **Priority:** P0 | **Status:** `[ ] Not Started`  
+**Target Stage:** Stage 3 | **Priority:** P0 | **Status:** `[~] In Progress` (17.6% completed: 3/17 subtasks)  
 **Scope Summary:** Parametric 3D solid feature modeling (B-Rep), solid Booleans, mesh processing, half-edge topology, spatial partitioning, hardware RHI rendering, and PBR materials.
 
 #### Submodule 3D-01: 3D Parametric Features & Boundary Representation (B-Rep)
-**Status:** `[ ] Not Started`  
-**Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks.
+**Status:** `[~] In Progress` (50.0% completed: 3/6 subtasks)  
+**Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks (3 completed).
 
 #### Submodule 3D-02: Polygonal Mesh Processing & Computational Geometry
 **Status:** `[ ] Not Started`  
@@ -1114,17 +1114,17 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module 3D: 3D Modeling Engine
 
-**Status:** `[ ] Not Started` | **Stage:** Stage 3 | **Priority:** P0
+**Status:** `[~] In Progress` | **Stage:** Stage 3 | **Priority:** P0
 
 #### Submodule 3D-01: 3D Parametric Features & Boundary Representation (B-Rep)
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **3D-01-001: Sketch-to-3D Solid Feature Engine**
-  - **Status:** `[ ] Not Started`
+- [x] **3D-01-001: Sketch-to-3D Solid Feature Engine**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Transform 2D closed sketch profiles into 3D solid bodies via extrusion, revolution, sweep, and loft feature algorithms.
-  - [ ] **3D-01-001-01: Implement linear extrusion feature with draft angle, end conditions, and symmetric limits**
-    - **Status:** `[ ] Not Started`
+  - [x] **3D-01-001-01: Implement linear extrusion feature with draft angle, end conditions, and symmetric limits**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Generate 3D solid prismatic bodies by sweeping 2D profiles along normal vectors with draft angles, blind/through-all limits, and caps.
     - **Implementation Details:** ExtrusionEngine computing side quad strips and planar polygon cap triangulations (Ear Clipping / Constrained Delaunay).
@@ -1132,11 +1132,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** extrusion_feature.hpp/.cpp, polygon_tessellator.hpp, feature unit tests.
     - **Acceptance Criteria:** Extruding an arbitrary closed 2D polygon with internal holes produces a closed, watertight 2-manifold triangular boundary mesh.
     - **Testing & Verification Requirements:** Euler characteristic verification (V - E + F = 2*(1-g)); assert manifold watertightness on extruded complex gear profiles.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via test_cad3d_features.cpp: Euler V-E+F=-2 on 2-hole concave L-extrusion and V-E+F=0 on bore gear extrusion, strict 2-manifold watertightness, Symmetric/Blind limits, and drafted frustum analytical volume (<1e-6 rel error). ctest 386/386 (8533/8533 checks).`
+    - **Git Commit Reference:** `229e3e7`
 
-  - [ ] **3D-01-001-02: Implement revolve feature about arbitrary 3D axes with angular constraints**
-    - **Status:** `[ ] Not Started`
+  - [x] **3D-01-001-02: Implement revolve feature about arbitrary 3D axes with angular constraints**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Revolve planar 2D profiles around specified 3D rotation axes across configurable angular spans (0 to 360 deg) with end cap generation.
     - **Implementation Details:** RevolveEngine generating circular ring vertex loops with smooth normal vector generation and degenerate apex handling.
@@ -1144,11 +1144,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** revolve_feature.hpp/.cpp, revolve_test.cpp.
     - **Acceptance Criteria:** Revolving a rectangle produces a cylinder; revolving a circle produces a torus with correct volume and analytical surface area.
     - **Testing & Verification Requirements:** Compare computed mesh volume against analytical calculus volume for cylinders, cones, and tori (< 0.1% tessellation error).
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via test_cad3d_features.cpp: Cylinder, Cone (pole vertex welding), Torus (volume & surface area <0.4% error, V-E+F=0), and 90-degree partial revolve with closed watertight caps (386/386 tests, 8533/8533 checks).`
+    - **Git Commit Reference:** `229e3e7`
 
-  - [ ] **3D-01-001-03: Implement sweep and loft features along curved 3D guide trajectories**
-    - **Status:** `[ ] Not Started`
+  - [x] **3D-01-001-03: Implement sweep and loft features along curved 3D guide trajectories**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Sweep cross-sections along 3D spline guide paths with Frenet-Serret / Rotation-Minimizing Frames (RMF) and loft multiple cross-sections.
     - **Implementation Details:** SweepEngine with Double Reflection RMF to prevent axial twisting along high-curvature 3D trajectories.
@@ -1156,8 +1156,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** sweep_feature.hpp/.cpp, loft_feature.hpp/.cpp, trajectory_frame.hpp.
     - **Acceptance Criteria:** Swept pipes along helical 3D curves maintain constant normal cross-section without pinching or self-intersection artifacts.
     - **Testing & Verification Requirements:** Verify orthogonality of tangent/normal/binormal frame vectors along 3D space curves; test lofting circles to squares.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via test_cad3d_features.cpp: Double Reflection RMF orthogonality (<1e-12 dot/cross error along helix), watertight genus-1 swept helical tube (V=4608, E=13824, F=9216, bnd=0, nm=0), and Circle->Square->Circle multi-section loft.`
+    - **Git Commit Reference:** `229e3e7`
 
 - [ ] **3D-01-002: 3D Solid Boolean & Direct Modeling Operations**
   - **Status:** `[ ] Not Started`
