@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 30 | 18.5% |
+| `[ ]` | Not Started | 27 | 16.7% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 132 | 81.5% |
+| `[x]` | Completed | 135 | 83.3% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **81.5%** (132 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **83.3%** (135 / 162 leaf subtasks completed)
 
 
 ---
@@ -96,10 +96,10 @@ Every module is assigned a target development stage, priority classification (P0
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 15 | 100.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 13 | 100.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 9 | 100.0% |
-| **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
+| **INT** | System Integration | Stage 9 | P0 | 11 | 3 | 27.3% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **132** | **81.5%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **135** | **83.3%** |
 
 ---
 
@@ -574,11 +574,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module INT: System Integration
-**Target Stage:** Stage 9 | **Priority:** P0 | **Status:** `[ ] Not Started`  
+**Target Stage:** Stage 9 | **Priority:** P0 | **Status:** `[~] In Progress` (3 / 11 subtasks, 27.3%)  
 **Scope Summary:** Multi-rate co-simulation orchestrator, master time coordinator, adaptive time-stepping, cross-domain coupling (electro-thermal, thermo-mechanical, fluid-structure, chemo-thermal), FMI 2.0/3.0 FMU support, and low-latency shared-memory telemetry IPC.
 
 #### Submodule INT-01: Multi-Rate Co-Simulation Orchestrator
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (3 / 7 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 7 canonical leaf subtasks.
 
 #### Submodule INT-02: Standard Co-Simulation Interfaces & Data Bus
@@ -2608,17 +2608,17 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module INT: System Integration
 
-**Status:** `[ ] Not Started` | **Stage:** Stage 9 | **Priority:** P0
+**Status:** `[~] In Progress` | **Stage:** Stage 9 | **Priority:** P0
 
 #### Submodule INT-01: Multi-Rate Co-Simulation Orchestrator
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **INT-01-001: Master Time Coordinator & Adaptive Stepping**
-  - **Status:** `[ ] Not Started`
+- [x] **INT-01-001: Master Time Coordinator & Adaptive Stepping**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Master execution coordinator executing disparate physics domains at independent rates (e.g. 100 kHz circuit, 1 kHz mechanics, 100 Hz thermal) with error-based time negotiation.
-  - [ ] **INT-01-001-01: Implement master simulation executive with multi-rate domain clock scheduling**
-    - **Status:** `[ ] Not Started`
+  - [x] **INT-01-001-01: Implement master simulation executive with multi-rate domain clock scheduling**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Design MasterCoSimulationExecutive coordinating domain sub-clocks with fractional integer step multipliers and causal synchronization barriers.
     - **Implementation Details:** MasterCoSimulationExecutive maintaining prioritized event queue and domain stepping scheduler without blocking slow domains.
@@ -2626,11 +2626,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** master_co_simulation.hpp/.cpp, domain_scheduler.hpp, multi_rate_tests.cpp.
     - **Acceptance Criteria:** High-frequency SPICE circuit executes 1,000 sub-steps while thermal diffusion executes 1 macro-step with exact temporal synchronization.
     - **Testing & Verification Requirements:** Test synchronization timing jitter across 3 concurrent domains running at 100 kHz, 1 kHz, and 10 Hz.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 490 passed, 0 failed (35339/35339 checks passed); verified 100kHz/1kHz/10Hz exact rational scheduling & 1000:1 sub-step sync in test_int_co_simulation.cpp`
+    - **Git Commit Reference:** `27d4e93`
 
-  - [ ] **INT-01-001-02: Implement adaptive time-step negotiation based on local truncation error**
-    - **Status:** `[ ] Not Started`
+  - [x] **INT-01-001-02: Implement adaptive time-step negotiation based on local truncation error**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Negotiate simulation time step dt dynamically by evaluating local truncation error (LTE) and Courant-Friedrichs-Lewy (CFL) stability bounds across all active solvers.
     - **Implementation Details:** AdaptiveStepNegotiator selecting dt_master = min(dt_elec, dt_mech, dt_therm, dt_fluid, dt_cfl) with smooth ramping to prevent step chattering.
@@ -2638,11 +2638,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** adaptive_step_negotiator.hpp/.cpp, cfl_calculator.hpp, step_negotiation_tests.cpp.
     - **Acceptance Criteria:** During abrupt electrical switching or mechanical collision impact, time step automatically contracts by 3 orders of magnitude in < 1 step.
     - **Testing & Verification Requirements:** Simulate sudden impact contact; assert time step shrinks to resolve collision and expands back during quiescent flight.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 490 passed, 0 failed (35339/35339 checks passed); verified >1000x instant contraction via CFL/LTE & <=1.25x smooth recovery in test_int_co_simulation.cpp`
+    - **Git Commit Reference:** `27d4e93`
 
-  - [ ] **INT-01-001-03: Implement deterministic discrete event queue and rollback mechanism**
-    - **Status:** `[ ] Not Started`
+  - [x] **INT-01-001-03: Implement deterministic discrete event queue and rollback mechanism**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Provide state checkpointing and rollback capabilities across all coupled domains to recover from solver divergence or non-convergence.
     - **Implementation Details:** StateCheckpointManager capturing lightweight domain state snapshots; triggers rollback to t_last_converged when solver fails to converge.
@@ -2650,8 +2650,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** state_checkpoint.hpp/.cpp, rollback_manager.hpp, rollback_tests.cpp.
     - **Acceptance Criteria:** When an implicit solver detects divergence (NaN or residual norm explosion), state rolls back cleanly and retries with halved dt.
     - **Testing & Verification Requirements:** Induce intentional singularity in stiff ODE solver; assert rollback recovery, step halving, and successful completion.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 490 passed, 0 failed (35339/35339 checks passed); verified NaN/divergence checkpoint rollback & binary step halving recovery in test_int_co_simulation.cpp`
+    - **Git Commit Reference:** `27d4e93`
 
 - [ ] **INT-01-002: Cross-Domain Physical Coupling Connectors**
   - **Status:** `[ ] Not Started`
