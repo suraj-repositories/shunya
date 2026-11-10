@@ -98,6 +98,9 @@ target_sources(shunya_core_domain
         src/matdb/elements_118_catalog.cpp
         src/matdb/isotope_repository.cpp
         src/matdb/periodic_table_extended.cpp
+        src/matdb/orbital_engine.cpp
+        src/matdb/ionization_repository.cpp
+        src/matdb/spectral_catalog.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -164,6 +167,10 @@ target_sources(shunya_core_domain
             include/shunya/matdb/elements_118_catalog.hpp
             include/shunya/matdb/isotope_repository.hpp
             include/shunya/matdb/periodic_table_extended.hpp
+            include/shunya/matdb/electron_config_parser.hpp
+            include/shunya/matdb/orbital_engine.hpp
+            include/shunya/matdb/ionization_repository.hpp
+            include/shunya/matdb/spectral_catalog.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
