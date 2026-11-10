@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 34 | 21.0% |
+| `[ ]` | Not Started | 32 | 19.8% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 128 | 79.0% |
+| `[x]` | Completed | 130 | 80.2% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **79.0%** (128 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **80.2%** (130 / 162 leaf subtasks completed)
 
 
 ---
@@ -95,11 +95,11 @@ Every module is assigned a target development stage, priority classification (P0
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 15 | 100.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 13 | 100.0% |
-| **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 5 | 55.6% |
+| **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 7 | 77.8% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **128** | **79.0%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **130** | **80.2%** |
 
 ---
 
@@ -560,7 +560,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module ENV: Virtual Environment
-**Target Stage:** Stage 8 | **Priority:** P0 | **Status:** `[~] In Progress` (5 / 9 subtasks, 55.6%)  
+**Target Stage:** Stage 8 | **Priority:** P0 | **Status:** `[~] In Progress` (7 / 9 subtasks, 77.8%)  
 **Scope Summary:** Configurable physical virtual environment including US Standard Atmosphere column, altitude pressure/density gradients, aerodynamic wind vectors, solar radiation, microgravity, vacuum test chambers, and deep-space radiation sinks.
 
 #### Submodule ENV-01: Environmental Physical Fields & Atmospheric Model
@@ -568,7 +568,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule ENV-02: Virtual Chamber & Environmental Boundary Enclosures
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (2 / 4 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 
@@ -2544,14 +2544,14 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule ENV-02: Virtual Chamber & Environmental Boundary Enclosures
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **ENV-02-001: Controlled Test Chamber & Wind Tunnel Rig**
-  - **Status:** `[ ] Not Started`
+- [x] **ENV-02-001: Controlled Test Chamber & Wind Tunnel Rig**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Virtual laboratory fixtures including hermetic climatic thermal chambers, vacuum pumps, and aerodynamic wind tunnel test sections.
-  - [ ] **ENV-02-001-01: Implement hermetic thermal/pressure test chamber boundary conditions**
-    - **Status:** `[ ] Not Started`
+  - [x] **ENV-02-001-01: Implement hermetic thermal/pressure test chamber boundary conditions**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Enclosed test chamber simulating environmental stress screening (temperature cycling -40 degC to +125 degC, vacuum down to 1e-4 Pa).
     - **Implementation Details:** ClimaticChamberModel applying boundary conditions to contained simulation components with thermal soaking ramp rates.
@@ -2559,11 +2559,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** climatic_chamber.hpp/.cpp, ChamberControlPanel.qml, chamber_tests.cpp.
     - **Acceptance Criteria:** Electronics placed inside chamber track configured thermal profile according to chamber heat transfer coefficient and component thermal mass.
     - **Testing & Verification Requirements:** Test MIL-STD-810 thermal shock profile simulation on PCB assembly in virtual test chamber.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 485 passed, 0 failed (35296/35296 checks passed); verified MIL-STD-810 -40 C to +125 C cycling, 1e-4 Pa vacuum suppression, and ThermalSolver3D BCs in test_env_chambers.cpp & ChamberControlPanel.qml`
+    - **Git Commit Reference:** `dee743b`
 
-  - [ ] **ENV-02-001-02: Implement virtual wind tunnel boundary enclosure with laminar inlet and outlet**
-    - **Status:** `[ ] Not Started`
+  - [x] **ENV-02-001-02: Implement virtual wind tunnel boundary enclosure with laminar inlet and outlet**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Aerodynamic testing rig applying uniform velocity inlet, zero-gradient pressure outlet, and slip/no-slip wall boundary conditions to fluid grid.
     - **Implementation Details:** WindTunnelFixture setting Dirichlet boundary velocity at inlet and coupling fluid pressure forces to solid test model.
@@ -2571,8 +2571,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** wind_tunnel_fixture.hpp/.cpp, WindTunnelView.qml, wind_tunnel_test.cpp.
     - **Acceptance Criteria:** Airfoil placed in wind tunnel generates lift and drag forces matching aerodynamic handbook polar curves.
     - **Testing & Verification Requirements:** Simulate NACA 0012 airfoil in virtual wind tunnel; compare lift coefficient C_L vs angle of attack alpha against NASA wind tunnel data.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 485 passed, 0 failed (35296/35296 checks passed); verified NACA 0012 symmetric 0 deg, +/-8 deg lift reversal, drag, div(u)<1e-3 & polar curve in test_env_chambers.cpp & WindTunnelView.qml`
+    - **Git Commit Reference:** `dee743b`
 
 - [ ] **ENV-02-002: Ambient Energy Exchange & Radiation Sinks**
   - **Status:** `[ ] Not Started`
