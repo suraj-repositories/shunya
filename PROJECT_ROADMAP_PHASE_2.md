@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 89 | 54.9% |
+| `[ ]` | Not Started | 87 | 53.7% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 73 | 45.1% |
+| `[x]` | Completed | 75 | 46.3% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **45.1%** (73 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **46.3%** (75 / 162 leaf subtasks completed)
 
 
 ---
@@ -91,7 +91,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
-| **MAT** | Material Modeling | Stage 4 | P0 | 14 | 9 | 64.3% |
+| **MAT** | Material Modeling | Stage 4 | P0 | 14 | 11 | 78.6% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **73** | **45.1%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **75** | **46.3%** |
 
 ---
 
@@ -488,7 +488,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module MAT: Material Modeling
-**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (9 / 14 subtasks, 64.3%)  
+**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (11 / 14 subtasks, 78.6%)  
 **Scope Summary:** Atomic and molecular modeling, molecular graph topology, VSEPR geometry, composite/alloy synthesis, Voigt-Reuss-Hashin-Shtrikman homogenization, and temperature/pressure-dependent nonlinear constitutive tensor models.
 
 #### Submodule MAT-01: Atomic & Molecular Structural Modeling
@@ -500,7 +500,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 #### Submodule MAT-03: Temperature & Pressure Dependent Material Properties
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (2 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 
@@ -1713,14 +1713,14 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule MAT-03: Temperature & Pressure Dependent Material Properties
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **MAT-03-001: Non-Linear Thermal Property Functions**
-  - **Status:** `[ ] Not Started`
+- [x] **MAT-03-001: Non-Linear Thermal Property Functions**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Implement continuous temperature-dependent thermal conductivity k(T), specific heat cp(T), and thermal expansion alpha(T) functions.
-  - [ ] **MAT-03-001-01: Implement temperature-dependent thermal conductivity and specific heat interpolators**
-    - **Status:** `[ ] Not Started`
+  - [x] **MAT-03-001-01: Implement temperature-dependent thermal conductivity and specific heat interpolators**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** High-performance monotonic spline interpolator evaluating k(T) and cp(T) curves across cryogenic to melting temperatures without negative values.
     - **Implementation Details:** MonotonicCubicSpline (Fritsch-Carlson algorithm) enforcing positivity and preventing oscillatory overshoot between experimental sample points.
@@ -1728,11 +1728,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** monotonic_spline.hpp/.cpp, thermal_property_evaluator.hpp/.cpp, spline_tests.cpp.
     - **Acceptance Criteria:** Evaluated thermal conductivity remains strictly positive (> 0.0) across all valid temperature ranges; zero oscillations.
     - **Testing & Verification Requirements:** Test spline interpolation on copper thermal conductivity curve from 4 K to 1356 K against NIST cryogenics standard data.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `MonotonicCubicSpline` (Fritsch-Carlson PCHIP) & `ThermalPropertyEvaluator` implemented in `core/domain/include/shunya/mat/{monotonic_spline.hpp,thermal_property_evaluator.hpp}` & `.cpp` (step-data zero overshoot, strictly positive NIST cryogenic Cu & Al k(T)/cp(T) 4..1356 K); verified in `tests/unit/test_mat_thermal_curves.cpp` (`ctest` 425/425 cases, 19940/19940 checks passed).
+    - **Git Commit Reference:** `3eed907`
 
-  - [ ] **MAT-03-001-02: Implement linear and volumetric thermal expansion coefficients and thermal stress coupling**
-    - **Status:** `[ ] Not Started`
+  - [x] **MAT-03-001-02: Implement linear and volumetric thermal expansion coefficients and thermal stress coupling**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Evaluate instantaneous thermal expansion coefficient alpha(T) and compute thermal expansion strain epsilon_th = integral alpha(T) dT.
     - **Implementation Details:** ThermalStrainEvaluator computing numerical integral of alpha(T) relative to reference temperature T_ref (293.15 K).
@@ -1740,8 +1740,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** thermal_strain.hpp/.cpp, thermal_expansion_tests.cpp.
     - **Acceptance Criteria:** Thermal strain equals zero at T = T_ref; expansion of aluminum and steel bars matches handbook thermal expansion rates to < 0.1%.
     - **Testing & Verification Requirements:** Verify thermal strain integration for linear and non-linear alpha(T) profiles; test bimetallic strip deflection.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ThermalStrainEvaluator` implemented in `core/domain/include/shunya/mat/thermal_strain.hpp` & `thermal_strain.cpp` (exact `0.0` at `T_ref`, linear & spline integral `epsilon_th`, `constrained_thermal_stress_pa`, and Timoshenko 1925 bimetallic strip curvature/deflection); verified in `tests/unit/test_mat_thermal_curves.cpp`.
+    - **Git Commit Reference:** `3eed907`
 
 - [ ] **MAT-03-002: Phase Change & Non-Linear Rheology Models**
   - **Status:** `[ ] Not Started`
