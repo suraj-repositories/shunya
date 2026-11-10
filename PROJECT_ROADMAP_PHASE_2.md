@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 47 | 29.0% |
+| `[ ]` | Not Started | 45 | 27.8% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 115 | 71.0% |
+| `[x]` | Completed | 117 | 72.2% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **71.0%** (115 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **72.2%** (117 / 162 leaf subtasks completed)
 
 
 ---
@@ -94,12 +94,12 @@ Every module is assigned a target development stage, priority classification (P0
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 15 | 100.0% |
-| **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 5 | 38.5% |
+| **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 7 | 53.8% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **115** | **71.0%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **117** | **72.2%** |
 
 ---
 
@@ -542,7 +542,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module CHEM: Chemistry Simulation
-**Target Stage:** Stage 7 | **Priority:** P1 | **Status:** `[~] In Progress` (5 / 13 subtasks, 38.5%)  
+**Target Stage:** Stage 7 | **Priority:** P1 | **Status:** `[~] In Progress` (7 / 13 subtasks, 53.8%)  
 **Scope Summary:** Chemical reaction kinetics, stoichiometric network balancing, Law of Mass Action, Arrhenius temperature dependence, Gibbs energy minimization, thermochemical combustion, aqueous electrochemistry, and battery cells.
 
 #### Submodule CHEM-01: Reaction Kinetics & Stoichiometric Networks
@@ -550,7 +550,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule CHEM-02: Thermochemistry & Energy Balances
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (2 / 4 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 #### Submodule CHEM-03: Molecular Interactions & Solution Chemistry
@@ -2343,14 +2343,14 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule CHEM-02: Thermochemistry & Energy Balances
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **CHEM-02-001: Reaction Enthalpy & Heat of Combustion**
-  - **Status:** `[ ] Not Started`
+- [x] **CHEM-02-001: Reaction Enthalpy & Heat of Combustion**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Compute standard enthalpy of reaction, exothermic/endothermic heat generation, and bidirectional coupling to thermal solver.
-  - [ ] **CHEM-02-001-01: Implement standard enthalpy of reaction calculator and Hess's Law**
-    - **Status:** `[ ] Not Started`
+  - [x] **CHEM-02-001-01: Implement standard enthalpy of reaction calculator and Hess's Law**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Calculate Delta H_rxn(T) = sum nu_i * Delta_f H_i(T) using temperature-dependent formation enthalpies and Kirchhoff's law of thermochemistry.
     - **Implementation Details:** ReactionEnthalpyCalculator retrieving species enthalpies from MATDB Shomate polynomials and summing by stoichiometric coefficients.
@@ -2358,11 +2358,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** reaction_enthalpy.hpp/.cpp, thermochem_tests.cpp.
     - **Acceptance Criteria:** Standard heat of combustion of methane CH4 + 2 O2 -> CO2 + 2 H2O matches reference value (-890.7 kJ/mol) to < 0.1%.
     - **Testing & Verification Requirements:** Test combustion enthalpies of hydrocarbons (methane, propane, octane, ethanol) against NIST Chemistry WebBook.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ReactionEnthalpyCalculator` implemented in `reaction_enthalpy.hpp/.cpp` with ShomateEvaluator & NIST standard formation enthalpies; methane (-890.7 kJ/mol < 0.1%), propane, ethanol, and octane verified in `tests/unit/test_chem_thermochemistry.cpp` (`ctest` 470/470).
+    - **Git Commit Reference:** `ffba35a`
 
-  - [ ] **CHEM-02-001-02: Implement exothermic/endothermic heat generation coupling to thermodynamics solver**
-    - **Status:** `[ ] Not Started`
+  - [x] **CHEM-02-001-02: Implement exothermic/endothermic heat generation coupling to thermodynamics solver**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Couple instantaneous chemical reaction heat release Q_gen = -r * Delta H_rxn directly into thermal conduction solver source term.
     - **Implementation Details:** ChemoThermalCoupler injecting volumetric heat generation rate into thermal finite element / finite difference mesh cells.
@@ -2370,8 +2370,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** chemo_thermal_coupler.hpp/.cpp, thermal_runaway_test.cpp.
     - **Acceptance Criteria:** Exothermic reaction in an insulated container produces exact adiabatic temperature rise Delta T = -Delta H_rxn / (rho * c_p).
     - **Testing & Verification Requirements:** Simulate thermal runaway of decomposition reaction; verify explosive temperature rise matches kinetic auto-ignition model.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ChemoThermalCoupler` implemented in `chemo_thermal_coupler.hpp/.cpp`; adiabatic temperature rise + 3D `ThermalSolver3D` heat coupling verified in `tests/unit/test_chem_thermochemistry.cpp`.
+    - **Git Commit Reference:** `ffba35a`
 
 - [ ] **CHEM-02-002: Combustion, Flame Propagation & Explosion Modeling**
   - **Status:** `[ ] Not Started`
