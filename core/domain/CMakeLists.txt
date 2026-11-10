@@ -54,6 +54,11 @@ target_sources(shunya_core_domain
         src/scientific_plot.cpp
         src/colormap_tables.cpp
         src/oscilloscope.cpp
+        src/cad2d/curve_2d.cpp
+        src/cad2d/bezier_spline.cpp
+        src/cad2d/polygon_boolean.cpp
+        src/cad2d/profile_offset.cpp
+        src/cad2d/fillet_chamfer.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -66,6 +71,11 @@ target_sources(shunya_core_domain
             include/shunya/core/domain/scientific_plot.hpp
             include/shunya/core/domain/colormap_tables.hpp
             include/shunya/core/domain/oscilloscope.hpp
+            include/shunya/cad2d/curve_2d.hpp
+            include/shunya/cad2d/bezier_spline.hpp
+            include/shunya/cad2d/polygon_boolean.hpp
+            include/shunya/cad2d/profile_offset.hpp
+            include/shunya/cad2d/fillet_chamfer.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

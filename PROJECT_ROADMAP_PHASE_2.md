@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 142 | 87.7% |
+| `[ ]` | Not Started | 139 | 85.8% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 20 | 12.3% |
+| `[x]` | Completed | 23 | 14.2% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **12.3%** (20 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **14.2%** (23 / 162 leaf subtasks completed)
 
 
 ---
@@ -88,7 +88,7 @@ Every module is assigned a target development stage, priority classification (P0
 | Module ID | Module Name | Phase / Stage | Priority | Total Subtasks | Completed | Progress |
 |---|---|---|---|---:|---:|---:|
 | **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 20 | 100.0% |
-| **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 0 | 0.0% |
+| **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 3 | 23.1% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 0 | 0.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **20** | **12.3%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **23** | **14.2%** |
 
 ---
 
@@ -167,12 +167,12 @@ SHUNYA NEXT PHASE PLATFORM WBS
 │   │   │   ├── Subtask [UI-03-002-01] [x] Implement high-framerate GPU-accelerated 2D line and scatter plot widget
 │   │   │   ├── Subtask [UI-03-002-02] [x] Implement scalar field contour colormap legend and probe tooltips
 │   │   │   ├── Subtask [UI-03-002-03] [x] Implement multi-channel oscilloscope & logic analyzer viewports
-├── Module [2D] 2D Modeling Engine (Stage 2 | P0)
-│   ├── Submodule [2D-01] 2D Geometric Primitives & Vector Drawing
-│   │   ├── Task [2D-01-001] Parametric 2D Primitives Engine
-│   │   │   ├── Subtask [2D-01-001-01] Implement point, line, polyline, arc, circle, ellipse, and cubic Bézier spline primitives
-│   │   │   ├── Subtask [2D-01-001-02] Implement polygon boolean operations (Union, Difference, Intersection, XOR via Clipper2)
-│   │   │   ├── Subtask [2D-01-001-03] Implement offset curve generation and filleting/chamfering algorithms for 2D profiles
+├── Module [2D] [~] 2D Modeling Engine (Stage 2 | P0)
+│   ├── Submodule [2D-01] [~] 2D Geometric Primitives & Vector Drawing
+│   │   ├── Task [2D-01-001] [x] Parametric 2D Primitives Engine
+│   │   │   ├── Subtask [2D-01-001-01] [x] Implement point, line, polyline, arc, circle, ellipse, and cubic Bézier spline primitives
+│   │   │   ├── Subtask [2D-01-001-02] [x] Implement polygon boolean operations (Union, Difference, Intersection, XOR via Clipper2)
+│   │   │   ├── Subtask [2D-01-001-03] [x] Implement offset curve generation and filleting/chamfering algorithms for 2D profiles
 │   │   ├── Task [2D-01-002] Interactive Drawing Tools & Snapping System
 │   │   │   ├── Subtask [2D-01-002-01] Implement interactive sketch canvas with zoom, pan, grid raster, and coordinate readout
 │   │   │   ├── Subtask [2D-01-002-02] Implement geometric object snapping (endpoints, midpoints, centers, quadrants, intersections)
@@ -434,12 +434,12 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module 2D: 2D Modeling Engine
-**Target Stage:** Stage 2 | **Priority:** P0 | **Status:** `[ ] Not Started`  
+**Target Stage:** Stage 2 | **Priority:** P0 | **Status:** `[~] In Progress` (23.1% completed: 3/13 subtasks)  
 **Scope Summary:** Parametric 2D vector geometry engine, interactive drafting tools, geometric snapping, non-linear 2D constraint solver, layer management, and CAD vector exchange.
 
 #### Submodule 2D-01: 2D Geometric Primitives & Vector Drawing
-**Status:** `[ ] Not Started`  
-**Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks.
+**Status:** `[~] In Progress` (50.0% completed: 3/6 subtasks)  
+**Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks (3 completed).
 
 #### Submodule 2D-02: 2D Geometric Constraint Solver
 **Status:** `[ ] Not Started`  
@@ -917,50 +917,50 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module 2D: 2D Modeling Engine
 
-**Status:** `[ ] Not Started` | **Stage:** Stage 2 | **Priority:** P0
+**Status:** `[~] In Progress` | **Stage:** Stage 2 | **Priority:** P0
 
 #### Submodule 2D-01: 2D Geometric Primitives & Vector Drawing
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **2D-01-001: Parametric 2D Primitives Engine**
-  - **Status:** `[ ] Not Started`
+- [x] **2D-01-001: Parametric 2D Primitives Engine**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Develop core mathematical representations and algorithms for 2D geometric curves, polygons, boolean operations, and profile filleting.
-  - [ ] **2D-01-001-01: Implement point, line, polyline, arc, circle, ellipse, and cubic Bézier spline primitives**
-    - **Status:** `[ ] Not Started`
+  - [x] **2D-01-001-01: Implement point, line, polyline, arc, circle, ellipse, and cubic Bézier spline primitives**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Mathematical curve classes with exact analytical arc length, tangent, curvature, bounding box, and closest point projection routines.
-    - **Implementation Details:** shunya::cad2d::Curve2D hierarchy (LineSegment2D, Arc2D, Circle2D, Ellipse2D, BezierCubic2D) with Eigen::Vector2d vector math.
+    - **Implementation Details:** shunya::cad2d::Curve2D hierarchy (LineSegment2D, Polyline2D, Arc2D, Circle2D, Ellipse2D, BezierCubic2D, BezierSpline2D) with 16-point composite Gauss-Legendre arc length quadrature, analytical quadratic extremum tight bounding boxes, de Casteljau splitting, and Newton-Raphson closest-point projection.
     - **Dependencies:** core/base/math.hpp
     - **Expected Deliverables:** curve_2d.hpp/.cpp, bezier_spline.hpp/.cpp, unit tests for curve evaluation.
     - **Acceptance Criteria:** Arc length integration and closest point queries accurate to 1e-9 tolerance across all curve classes.
     - **Testing & Verification Requirements:** Analytical verification against circular circumference, elliptical perimeter Ramanujan approximation, and Bézier convex hull bounds.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_primitives.cpp (LineSegment2D, Polyline2D, Circle2D, Arc2D, Ellipse2D Gauss-Legendre vs Ramanujan + rotated bounds, BezierCubic2D derivatives, de Casteljau split invariance, convex hull bounds, and < 1e-9 closest-point orthogonality).
+    - **Git Commit Reference:** Pending Commit
 
-  - [ ] **2D-01-001-02: Implement polygon boolean operations (Union, Difference, Intersection, XOR via Clipper2)**
-    - **Status:** `[ ] Not Started`
+  - [x] **2D-01-001-02: Implement polygon boolean operations (Union, Difference, Intersection, XOR via Clipper2)**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
-    - **Description:** Integrate robust polygon clipping and set operations using integer-coordinate Clipper2 library with floating-point scaling preservation.
-    - **Implementation Details:** PolygonBooleanEngine mapping floating-point 2D paths to int64 Clipper2 paths with 1e-6 coordinate scale; performs BooleanOp and converts back.
+    - **Description:** Integrate robust polygon clipping and set operations using integer-coordinate Clipper2-compatible pipeline with floating-point scaling preservation.
+    - **Implementation Details:** PolygonBooleanEngine mapping floating-point 2D paths onto 1e6-scaled int64_t integer grid with 128-bit exact intersection splitting, winding-number Boolean arrangement, EvenOdd/NonZero fill rules, signed shoelace area, and nested hole hierarchy extraction.
     - **Dependencies:** 2D-01-001-01
     - **Expected Deliverables:** polygon_boolean.hpp/.cpp, clipper2_adapter.hpp, unit tests for multi-contour unions and holes.
     - **Acceptance Criteria:** Complex intersecting polygons with holes produce valid, non-self-intersecting planar orientation results (EvenOdd / NonZero fill rules).
     - **Testing & Verification Requirements:** Test overlapping circles, nested doughnut contours, and degenerated edge-touching polygon booleans.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_primitives.cpp (Overlapping rectangles Union/Intersection/Difference/Xor, nested doughnut hole subtraction & hierarchy extraction, EvenOdd vs NonZero fill rules, overlapping 64-gon circles against exact lens area, and edge-touching square merging).
+    - **Git Commit Reference:** Pending Commit
 
-  - [ ] **2D-01-001-03: Implement offset curve generation and filleting/chamfering algorithms for 2D profiles**
-    - **Status:** `[ ] Not Started`
+  - [x] **2D-01-001-03: Implement offset curve generation and filleting/chamfering algorithms for 2D profiles**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Compute interior and exterior offset curves with miter, round, and square joins; implement circular arc corner filleting with tangent continuity.
-    - **Implementation Details:** ProfileOffsetEngine utilizing ClipperOffset for polygons; analytical arc trimming for filleting adjacent non-parallel lines.
+    - **Implementation Details:** ProfileOffsetEngine (Miter, Round, Square joins with Eikonal boundary distance validation for inward erosion) in profile_offset.hpp/.cpp; FilletChamferEngine analytical corner filleting/chamfering and polygon profile filleting in fillet_chamfer.hpp/.cpp.
     - **Dependencies:** 2D-01-001-02
     - **Expected Deliverables:** profile_offset.hpp/.cpp, fillet_chamfer.hpp/.cpp, geometric unit tests.
     - **Acceptance Criteria:** Filleting two perpendicular lines with radius R generates tangent circular arc with G1 continuity smoothly joining endpoints.
     - **Testing & Verification Requirements:** Verify G1 derivative continuity at fillet transitions and offset distances along normal vectors.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_primitives.cpp (Miter +2/-2/collapsed -6 offsets, Round +2 offset area, 90-degree & 60-degree analytical corner filleting with G1 tangent dot == 1.0 to 1e-9, asymmetrical chamfer setback, and rounded rectangle perimeter area).
+    - **Git Commit Reference:** Pending Commit
 
 - [ ] **2D-01-002: Interactive Drawing Tools & Snapping System**
   - **Status:** `[ ] Not Started`
