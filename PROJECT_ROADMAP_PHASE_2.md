@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 95 | 58.6% |
+| `[ ]` | Not Started | 93 | 57.4% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 67 | 41.4% |
+| `[x]` | Completed | 69 | 42.6% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **41.4%** (67 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **42.6%** (69 / 162 leaf subtasks completed)
 
 
 ---
@@ -91,7 +91,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
-| **MAT** | Material Modeling | Stage 4 | P0 | 14 | 3 | 21.4% |
+| **MAT** | Material Modeling | Stage 4 | P0 | 14 | 5 | 35.7% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **67** | **41.4%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **69** | **42.6%** |
 
 ---
 
@@ -488,11 +488,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module MAT: Material Modeling
-**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (3 / 14 subtasks, 21.4%)  
+**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (5 / 14 subtasks, 35.7%)  
 **Scope Summary:** Atomic and molecular modeling, molecular graph topology, VSEPR geometry, composite/alloy synthesis, Voigt-Reuss-Hashin-Shtrikman homogenization, and temperature/pressure-dependent nonlinear constitutive tensor models.
 
 #### Submodule MAT-01: Atomic & Molecular Structural Modeling
-**Status:** `[~] In Progress` (3 / 5 subtasks)  
+**Status:** `[x] Completed` (5 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule MAT-02: Constitutive Material Creation & Alloy/Mixture Synthesis
@@ -1579,7 +1579,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 **Status:** `[~] In Progress` | **Stage:** Stage 4 | **Priority:** P0
 
 #### Submodule MAT-01: Atomic & Molecular Structural Modeling
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **MAT-01-001: Molecular Graph & Valence Bond Representation**
   - **Status:** `[x] Completed`
@@ -1621,12 +1621,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `MolecularMeshBuilder` & `CpkColorTable` implemented in `cpk_color_table.hpp`, `molecular_mesh_builder.hpp` & `.cpp` plus `shunya/MoleculeViewer.qml` (Ball-and-Stick & CPK Space-Filling modes verified on 24-atom Glucose and Caffeine molecules); verified in `tests/unit/test_mat_molecular.cpp`.
     - **Git Commit Reference:** `4c11d4c`
 
-- [ ] **MAT-01-002: Chemical Formula Parser & SMILES / InChI Import**
-  - **Status:** `[ ] Not Started`
+- [x] **MAT-01-002: Chemical Formula Parser & SMILES / InChI Import**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Parse empirical and molecular formula strings, hydrate notation, and standard chemical notation formats (SMILES) into molecular topologies.
-  - [ ] **MAT-01-002-01: Implement stoichiometric formula parser supporting hydrate notation**
-    - **Status:** `[ ] Not Started`
+  - [x] **MAT-01-002-01: Implement stoichiometric formula parser supporting hydrate notation**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Parse complex chemical formulas with nested parentheses, brackets, and dot hydrate multipliers (e.g. 'CuSO4.5H2O', 'K4[Fe(CN)6]').
     - **Implementation Details:** Recursive descent FormulaParser calculating net elemental stoichiometry, molecular weight, and mass fraction breakdown.
@@ -1634,11 +1634,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** formula_parser.hpp/.cpp, formula_test.cpp.
     - **Acceptance Criteria:** Correctly parses hydrates and complex ions; calculates molecular weight matching IUPAC standard values to 0.001 g/mol.
     - **Testing & Verification Requirements:** Test parsing 50 chemical formulas: ethanol, calcium nitrate tetrahydrate, ammonium sulfate, chlorophyll a.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `FormulaParser` implemented in `core/domain/include/shunya/mat/formula_parser.hpp` & `formula_parser.cpp` (nested `()/{}/[]`, dot-hydrate multipliers, Hill formula, mass fractions, IUPAC 2021 molecular weight accuracy); verified on `CuSO4.5H2O`, `K4[Fe(CN)6]`, `(NH4)2SO4`, `Ca(NO3)2.4H2O`, `C55H72MgN4O5`, etc. in `tests/unit/test_mat_parsers.cpp` (`ctest` 419/419 cases, 19527/19527 checks passed).
+    - **Git Commit Reference:** `1c753c7`
 
-  - [ ] **MAT-01-002-02: Implement simplified SMILES string parser for molecular graphs**
-    - **Status:** `[ ] Not Started`
+  - [x] **MAT-01-002-02: Implement simplified SMILES string parser for molecular graphs**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Parse Simplified Molecular Input Line Entry System (SMILES) strings into connected MolecularGraph structures with branch and ring closure support.
     - **Implementation Details:** SmilesParser with ring closure number tracking (e.g. 'c1ccccc1' for benzene, 'CC(=O)O' for acetic acid).
@@ -1646,8 +1646,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** smiles_parser.hpp/.cpp, smiles_tests.cpp.
     - **Acceptance Criteria:** Parses linear, branched, and cyclic organic molecules into valid MolecularGraph topologies with correct connectivity.
     - **Testing & Verification Requirements:** Verify graph isomorphism against reference molecular structures for alkanes, alcohols, aromatics, and carboxylic acids.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `SmilesParser` implemented in `core/domain/include/shunya/mat/smiles_parser.hpp` & `smiles_parser.cpp` (branches, aromatic rings, ring closures `1..9/%nn`, implicit H completion, bracketed ions); verified on benzene `c1ccccc1`, acetic acid, ethanol, aspirin, and naphthalene `c1ccc2ccccc2c1` in `tests/unit/test_mat_parsers.cpp`.
+    - **Git Commit Reference:** `1c753c7`
 
 
 
