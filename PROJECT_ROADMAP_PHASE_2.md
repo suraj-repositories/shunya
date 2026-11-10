@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 71 | 43.8% |
+| `[ ]` | Not Started | 69 | 42.6% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 91 | 56.2% |
+| `[x]` | Completed | 93 | 57.4% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **56.2%** (91 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **57.4%** (93 / 162 leaf subtasks completed)
 
 
 ---
@@ -92,14 +92,14 @@ Every module is assigned a target development stage, priority classification (P0
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
-| **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 13 | 76.5% |
+| **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 15 | 88.2% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **91** | **56.2%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **93** | **57.4%** |
 
 ---
 
@@ -506,7 +506,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module PCB: Circuit Board Design
-**Target Stage:** Stage 5 | **Priority:** P1 | **Status:** `[~] In Progress` (13 / 17 subtasks, 76.5%)  
+**Target Stage:** Stage 5 | **Priority:** P1 | **Status:** `[~] In Progress` (15 / 17 subtasks, 88.2%)  
 **Scope Summary:** Electronic Design Automation (EDA) suite including multi-sheet schematic capture, ERC, IPC footprint generator, multi-layer PCB stackup, 45-degree push-and-shove trace router, copper flood fill, DRC, Gerber RS-274X export, and mixed-signal SPICE/digital co-simulation.
 
 #### Submodule PCB-01: Schematic Capture & Symbol Management
@@ -518,7 +518,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 3 major engineering tasks, 8 canonical leaf subtasks.
 
 #### Submodule PCB-03: Electrical & Digital Logic Co-Simulation
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (2 / 4 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 
@@ -1978,14 +1978,14 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule PCB-03: Electrical & Digital Logic Co-Simulation
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **PCB-03-001: SPICE & Analog Circuit Simulation Integration**
-  - **Status:** `[ ] Not Started`
+- [x] **PCB-03-001: SPICE & Analog Circuit Simulation Integration**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Extract netlists with parasitic trace resistance and capacitance and simulate circuit dynamics using Modified Nodal Analysis (MNA).
-  - [ ] **PCB-03-001-01: Implement netlist compilation from schematic/PCB with parasitic extraction**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-03-001-01: Implement netlist compilation from schematic/PCB with parasitic extraction**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Extract electrical circuit netlist from routed PCB geometry, computing parasitic trace resistance R = rho * L / (W * t) and microstrip capacitance C.
     - **Implementation Details:** ParasiticExtractor annotating ideal schematic netlist with lumped RLC segment pi-models along routed copper traces.
@@ -1993,11 +1993,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** parasitic_extractor.hpp/.cpp, netlist_compiler.hpp, extraction_test.cpp.
     - **Acceptance Criteria:** Long traces exhibit realistic series resistance and parasitic shunt capacitance affecting high-frequency signal rise times.
     - **Testing & Verification Requirements:** Validate extracted resistance of 100mm copper trace (0.25mm wide, 1 oz copper) against analytical formula (approx 0.19 ohms).
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ParasiticExtractor` (trace `R = rho*L/(W*t)` = 0.192 Ohm for 100mm x 0.25mm x 1oz Cu, microstrip L/C, via barrel R/L/C) and `NetlistCompiler` implemented in `parasitic_extractor.hpp/.cpp`, `netlist_compiler.hpp/.cpp`; verified in `tests/unit/test_pcb_spice.cpp` (`ctest` 445/445).
+    - **Git Commit Reference:** `6ebabeb`
 
-  - [ ] **PCB-03-001-02: Implement transient analysis, DC operating point, and AC frequency sweep**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-03-001-02: Implement transient analysis, DC operating point, and AC frequency sweep**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Execute numerical SPICE simulations with adaptive trapezoidal / Gear integration for non-linear diodes, BJTs, and MOSFETs.
     - **Implementation Details:** SpiceSimulationEngine building dynamic Jacobian matrix G(v) + C * dv/dt = I; solves non-linear systems via Newton-Raphson iteration.
@@ -2005,8 +2005,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** spice_simulation_engine.hpp/.cpp, newton_solver_circuit.hpp, circuit_benchmarks.cpp.
     - **Acceptance Criteria:** RC transient response matches exact analytical formula V(t) = V_0 * (1 - exp(-t/RC)) to < 0.05% error.
     - **Testing & Verification Requirements:** Benchmark 10 SPICE circuits: RC filter, astable multivibrator, bridge rectifier, LC tank oscillator.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `SpiceSimulationEngine` (`solve_dc`, `solve_transient` BackwardEuler/Trapezoidal/Gear2, `solve_ac`) and `NewtonCircuitSolver` (`pnjlim` + Shockley/MOSFET/BJT stamps) implemented in `spice_simulation_engine.hpp/.cpp`, `newton_solver_circuit.hpp`; RC step < 0.05% error, 4-diode bridge rectifier, undamped LC tank, and AC -3 dB sweep verified in `tests/unit/test_pcb_spice.cpp`.
+    - **Git Commit Reference:** `6ebabeb`
 
 - [ ] **PCB-03-002: Digital Logic & Event-Driven Simulation**
   - **Status:** `[ ] Not Started`
