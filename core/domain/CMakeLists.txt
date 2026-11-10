@@ -169,6 +169,8 @@ target_sources(shunya_core_domain
         src/chem/adiabatic_flame.cpp
         src/chem/aqueous_solution.cpp
         src/chem/electrolyte_conductivity.cpp
+        src/chem/electrochemical_cell.cpp
+        src/chem/battery_cell_model.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -347,6 +349,9 @@ target_sources(shunya_core_domain
             include/shunya/chem/aqueous_solution.hpp
             include/shunya/chem/precipitation_checker.hpp
             include/shunya/chem/electrolyte_conductivity.hpp
+            include/shunya/chem/electrochemical_cell.hpp
+            include/shunya/chem/li_ion_soc_tables.hpp
+            include/shunya/chem/battery_cell_model.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
