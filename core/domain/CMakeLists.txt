@@ -111,6 +111,8 @@ target_sources(shunya_core_domain
         src/mat/molecular_graph.cpp
         src/mat/vsepr_conformation.cpp
         src/mat/molecular_mesh_builder.cpp
+        src/mat/formula_parser.cpp
+        src/mat/smiles_parser.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -195,6 +197,8 @@ target_sources(shunya_core_domain
             include/shunya/mat/vsepr_conformation.hpp
             include/shunya/mat/cpk_color_table.hpp
             include/shunya/mat/molecular_mesh_builder.hpp
+            include/shunya/mat/formula_parser.hpp
+            include/shunya/mat/smiles_parser.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

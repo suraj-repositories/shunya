@@ -206,7 +206,21 @@ double MolecularGraph::molecular_weight_amu() const noexcept {
 core::base::ValidationReport MolecularGraph::validate_valences() const {
     core::base::ValidationReport report;
     for (size_t i = 0; i < atoms_.size(); ++i) {
-        auto sub = ValenceValidator::validate_atom(atoms_[i], atom_bond_order_sum(i));
+        double bo_sum = atom_bond_order_sum(i);
+        // Delocalized fused aromatic junctions (e.g. naphthalene bridgehead C) share 1 pi-bond per atom
+        int arom_count = 0;
+        double non_arom_sum = 0.0;
+        for (size_t b_idx : adjacency_[i]) {
+            if (bonds_[b_idx].order == BondOrder::Aromatic) {
+                ++arom_count;
+            } else {
+                non_arom_sum += bond_order_value(bonds_[b_idx].order);
+            }
+        }
+        if (arom_count >= 2) {
+            bo_sum = non_arom_sum + static_cast<double>(arom_count) + 1.0;
+        }
+        auto sub = ValenceValidator::validate_atom(atoms_[i], bo_sum);
         for (const auto& issue : sub.issues()) {
             report.add_issue(issue);
         }
