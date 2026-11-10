@@ -171,6 +171,9 @@ target_sources(shunya_core_domain
         src/chem/electrolyte_conductivity.cpp
         src/chem/electrochemical_cell.cpp
         src/chem/battery_cell_model.cpp
+        src/env/atmospheric_model.cpp
+        src/env/psychrometric_model.cpp
+        src/env/wind_field_model.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -352,6 +355,11 @@ target_sources(shunya_core_domain
             include/shunya/chem/electrochemical_cell.hpp
             include/shunya/chem/li_ion_soc_tables.hpp
             include/shunya/chem/battery_cell_model.hpp
+            include/shunya/env/standard_atmosphere_1976.hpp
+            include/shunya/env/atmospheric_model.hpp
+            include/shunya/env/psychrometric_model.hpp
+            include/shunya/env/turbulence_generator.hpp
+            include/shunya/env/wind_field_model.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

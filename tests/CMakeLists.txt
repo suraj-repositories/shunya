@@ -77,6 +77,7 @@ add_executable(shunya_unit_tests
     unit/test_chem_combustion.cpp
     unit/test_chem_aqueous.cpp
     unit/test_chem_electrochemistry.cpp
+    unit/test_env_atmosphere.cpp
     unit/test_rendering.cpp
     unit/test_circuit.cpp
     unit/test_digital_logic.cpp
