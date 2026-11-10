@@ -178,6 +178,8 @@ target_sources(shunya_core_domain
         src/env/solar_position.cpp
         src/env/climatic_chamber.cpp
         src/env/wind_tunnel_fixture.cpp
+        src/env/ambient_convection.cpp
+        src/env/deep_space_sink.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -369,6 +371,8 @@ target_sources(shunya_core_domain
             include/shunya/env/solar_position.hpp
             include/shunya/env/climatic_chamber.hpp
             include/shunya/env/wind_tunnel_fixture.hpp
+            include/shunya/env/ambient_convection.hpp
+            include/shunya/env/deep_space_sink.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
