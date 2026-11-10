@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 59 | 36.4% |
+| `[ ]` | Not Started | 57 | 35.2% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 103 | 63.6% |
+| `[x]` | Completed | 105 | 64.8% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **63.6%** (103 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **64.8%** (105 / 162 leaf subtasks completed)
 
 
 ---
@@ -93,13 +93,13 @@ Every module is assigned a target development stage, priority classification (P0
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
-| **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 8 | 53.3% |
+| **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 10 | 66.7% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **103** | **63.6%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **105** | **64.8%** |
 
 ---
 
@@ -524,7 +524,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module PHY: Physics Simulation
-**Target Stage:** Stage 6 | **Priority:** P0 | **Status:** `[~] In Progress` (8 / 15 subtasks, 53.3%)  
+**Target Stage:** Stage 6 | **Priority:** P0 | **Status:** `[~] In Progress` (10 / 15 subtasks, 66.7%)  
 **Scope Summary:** Multi-domain physics simulation engine covering symplectic rigid-body dynamics, continuous collision detection (CCD), articulated joints, 3D transient heat conduction/radiation, phase transitions, SPH free-surface fluids, and Eulerian grid CFD.
 
 #### Submodule PHY-01: Classical Mechanics, Multi-Body Dynamics & Collisions
@@ -532,7 +532,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule PHY-02: Thermodynamics, Heat Transfer & Phase Transitions
-**Status:** `[~] In Progress` (3 / 5 subtasks)  
+**Status:** `[x] Completed` (5 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule PHY-03: Fluid Mechanics & Fluid Dynamics
@@ -2118,7 +2118,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule PHY-02: Thermodynamics, Heat Transfer & Phase Transitions
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **PHY-02-001: Conduction, Convection & Radiation Solvers**
   - **Status:** `[x] Completed`
@@ -2160,12 +2160,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `ViewFactorRaymarcher` (cosine-weighted hemisphere raymarcher + reciprocity) & `RadiationSolver` implemented in `view_factor_raymarcher.hpp`, `radiation_solver.hpp/.cpp`; unit-cube enclosure summation/reciprocity, F_01 = 0.199825, and Stefan-Boltzmann parallel plate equilibrium verified in `tests/unit/test_phy_thermal.cpp`.
     - **Git Commit Reference:** `060b494`
 
-- [ ] **PHY-02-002: Phase Change Enthalpy & Thermal Stress**
-  - **Status:** `[ ] Not Started`
+- [x] **PHY-02-002: Phase Change Enthalpy & Thermal Stress**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Coupled thermodynamic phase transitions (melting/freezing, boiling) with latent heat tracking and thermo-elastic stress generation.
-  - [ ] **PHY-02-002-01: Implement enthalpy-based phase change solver with latent heat tracking**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-02-002-01: Implement enthalpy-based phase change solver with latent heat tracking**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Track moving solid-liquid boundary fronts using apparent heat capacity enthalpy formulation without requiring interface mesh deformation.
     - **Implementation Details:** EnthalpyPhaseChangeSolver updating liquid volume fraction f_l(T) per cell and conserving total thermal energy.
@@ -2173,11 +2173,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** phase_change_solver.hpp/.cpp, stefan_validator.hpp, phase_tests.cpp.
     - **Acceptance Criteria:** Ice cube melting at room temperature absorbs exact latent heat (334 kJ/kg) and temperature plateaus at 0 degC until fully molten.
     - **Testing & Verification Requirements:** Simulate classic two-phase Stefan problem; compare solid-liquid boundary position vs square root of time against analytical solution.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `EnthalpyPhaseChangeSolver` & `StefanValidator` implemented in `phase_change_solver.hpp/.cpp`, `stefan_validator.hpp`; 0C latent melting plateau (334 kJ/kg) & 1D Stefan front sqrt(t) tracking verified in `tests/unit/test_phy_phase_stress.cpp` (`ctest` 459/459).
+    - **Git Commit Reference:** `4f914ee`
 
-  - [ ] **PHY-02-002-02: Implement coupled thermo-mechanical expansion and thermal stress tensor computation**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-02-002-02: Implement coupled thermo-mechanical expansion and thermal stress tensor computation**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Compute thermal strain tensor epsilon_th = alpha * Delta T * I and solve equilibrium div(sigma) = 0 for internal thermal stress and warp.
     - **Implementation Details:** ThermoMechanicalCoupler passing node temperatures to structural stiffness matrix; calculates von Mises thermal stress distribution.
@@ -2185,8 +2185,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** thermo_stress_solver.hpp/.cpp, von_mises_evaluator.hpp, stress_tests.cpp.
     - **Acceptance Criteria:** Constrained heated bar develops exact compressive thermal stress sigma = -E * alpha * Delta T.
     - **Testing & Verification Requirements:** Test bimetallic strip bending radius curvature under 100 K temperature elevation; verify against Timoshenko formula.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ThermoMechanicalCoupler` & `VonMisesEvaluator` implemented in `thermo_stress_solver.hpp/.cpp`, `von_mises_evaluator.hpp`; `-E*alpha*Delta T` axial thermal stress & Timoshenko bimetallic curvature `< 0.01%` verified in `tests/unit/test_phy_phase_stress.cpp`.
+    - **Git Commit Reference:** `4f914ee`
 
 
 
