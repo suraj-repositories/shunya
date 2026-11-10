@@ -120,6 +120,9 @@ target_sources(shunya_core_domain
         src/mat/monotonic_spline.cpp
         src/mat/thermal_property_evaluator.cpp
         src/mat/thermal_strain.cpp
+        src/mat/phase_change_enthalpy.cpp
+        src/mat/viscosity_evaluator.cpp
+        src/mat/electrical_properties.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -215,6 +218,12 @@ target_sources(shunya_core_domain
             include/shunya/mat/monotonic_spline.hpp
             include/shunya/mat/thermal_property_evaluator.hpp
             include/shunya/mat/thermal_strain.hpp
+            include/shunya/mat/mushy_zone.hpp
+            include/shunya/mat/phase_change_enthalpy.hpp
+            include/shunya/mat/rheology_models.hpp
+            include/shunya/mat/viscosity_evaluator.hpp
+            include/shunya/mat/varshni_model.hpp
+            include/shunya/mat/electrical_properties.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
