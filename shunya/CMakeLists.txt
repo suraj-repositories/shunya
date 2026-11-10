@@ -82,6 +82,7 @@ qt_add_qml_module(appshunya
         DimensionDisplayWidget.qml
         LayerPanel.qml
         BlockLibraryPanel.qml
+        UnitCellViewer.qml
 )
 
 set_target_properties(appshunya PROPERTIES
