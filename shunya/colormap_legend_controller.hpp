@@ -24,16 +24,16 @@ public:
     ~ShunyaColormapLegendController() override = default;
 
     QString colormapName() const { return QString::fromStdString(std::string(core::domain::colormap_type_to_string(type_))); }
-    void setColormapName(const QString& name);
+    Q_INVOKABLE void setColormapName(const QString& name);
 
     double minValue() const { return min_val_; }
-    void setMinValue(double v);
+    Q_INVOKABLE void setMinValue(double v);
 
     double maxValue() const { return max_val_; }
-    void setMaxValue(double v);
+    Q_INVOKABLE void setMaxValue(double v);
 
     QString unitSymbol() const { return unit_symbol_; }
-    void setUnitSymbol(const QString& unit);
+    Q_INVOKABLE void setUnitSymbol(const QString& unit);
 
     bool probeActive() const { return probe_active_; }
     double probeValue() const { return probe_result_.raw_value; }

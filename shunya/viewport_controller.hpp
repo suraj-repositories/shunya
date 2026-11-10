@@ -43,18 +43,18 @@ public:
     ~ShunyaViewportController() override = default;
 
     QString gizmoMode() const { return gizmo_mode_; }
-    void setGizmoMode(const QString& mode);
+    Q_INVOKABLE void setGizmoMode(const QString& mode);
 
     QString activeAxis() const { return active_axis_; }
 
     bool snapEnabled() const { return snapping_.enabled; }
-    void setSnapEnabled(bool enabled);
+    Q_INVOKABLE void setSnapEnabled(bool enabled);
 
     double gridStep() const { return snapping_.grid_step; }
-    void setGridStep(double step);
+    Q_INVOKABLE void setGridStep(double step);
 
     double angleStepDeg() const { return snapping_.angle_step_deg; }
-    void setAngleStepDeg(double angle);
+    Q_INVOKABLE void setAngleStepDeg(double angle);
 
     QString currentView() const { return current_view_; }
     bool isOrthographic() const { return camera_.projection_type == core::domain::CameraProjectionType::Orthographic; }

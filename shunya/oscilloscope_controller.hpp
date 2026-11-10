@@ -28,10 +28,10 @@ public:
     ~ShunyaOscilloscopeController() override = default;
 
     QString triggerEdge() const;
-    void setTriggerEdge(const QString& edge);
+    Q_INVOKABLE void setTriggerEdge(const QString& edge);
 
     double triggerLevel() const { return trigger_cfg_.level; }
-    void setTriggerLevel(double lvl);
+    Q_INVOKABLE void setTriggerLevel(double lvl);
 
     bool triggered() const { return last_trig_.triggered; }
     double triggerTime() const { return last_trig_.trigger_time; }
@@ -43,7 +43,7 @@ public:
     double ch2FreqHz() const { return ch2_metrics_.frequency_hz; }
 
     double timeSpanMs() const { return time_span_s_ * 1000.0; }
-    void setTimeSpanMs(double ms);
+    Q_INVOKABLE void setTimeSpanMs(double ms);
 
     Q_INVOKABLE void loadDemoCapture(const QString& mode = "mixed_signal");
     Q_INVOKABLE QVariantList getAnalogTraceNormalized(int channelIdx) const;

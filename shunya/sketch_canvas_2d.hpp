@@ -43,16 +43,16 @@ public:
     ~ShunyaSketchCanvas2D() override = default;
 
     QString activeTool() const { return active_tool_; }
-    void setActiveTool(const QString& tool);
+    Q_INVOKABLE void setActiveTool(const QString& tool);
 
     bool snapEnabled() const { return snap_enabled_; }
-    void setSnapEnabled(bool v);
+    Q_INVOKABLE void setSnapEnabled(bool v);
 
     bool polarEnabled() const { return polar_.enabled; }
-    void setPolarEnabled(bool v);
+    Q_INVOKABLE void setPolarEnabled(bool v);
 
     bool constructionMode() const { return construction_mode_; }
-    void setConstructionMode(bool v);
+    Q_INVOKABLE void setConstructionMode(bool v);
 
     QString cursorCoordText() const { return cursor_coord_text_; }
     int entityCount() const { return static_cast<int>(doc_.entities().size()); }

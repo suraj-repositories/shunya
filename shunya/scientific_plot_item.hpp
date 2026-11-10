@@ -44,13 +44,13 @@ public:
     int decimatedCount() const { return static_cast<int>(decimated_.size()); }
 
     QString plotMode() const { return plot_mode_; }
-    void setPlotMode(const QString& mode);
+    Q_INVOKABLE void setPlotMode(const QString& mode);
 
     QColor lineColor() const { return line_color_; }
-    void setLineColor(const QColor& color);
+    Q_INVOKABLE void setLineColor(const QColor& color);
 
     bool autoScale() const { return auto_scale_; }
-    void setAutoScale(bool enabled);
+    Q_INVOKABLE void setAutoScale(bool enabled);
 
     bool crosshairValid() const { return crosshair_valid_; }
     double crosshairDataX() const { return crosshair_pt_.x; }

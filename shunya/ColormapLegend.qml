@@ -54,7 +54,7 @@ Rectangle {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
-                            if (root.controller) root.controller.setColormapName(modelData);
+                            if (root.controller) root.controller.colormapName = modelData;
                         }
                     }
                 }
