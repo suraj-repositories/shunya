@@ -87,6 +87,8 @@ target_sources(shunya_core_domain
         src/cad3d/half_edge_mesh.cpp
         src/cad3d/mesh_decimator.cpp
         src/cad3d/subdivision.cpp
+        src/cad3d/bvh_tree.cpp
+        src/cad3d/tetrahedral_mesher.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -135,6 +137,10 @@ target_sources(shunya_core_domain
             include/shunya/cad3d/qem_quadric.hpp
             include/shunya/cad3d/mesh_decimator.hpp
             include/shunya/cad3d/subdivision.hpp
+            include/shunya/cad3d/raycast_query.hpp
+            include/shunya/cad3d/bvh_tree.hpp
+            include/shunya/cad3d/tet_quality.hpp
+            include/shunya/cad3d/tetrahedral_mesher.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

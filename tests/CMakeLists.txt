@@ -43,6 +43,7 @@ add_executable(shunya_unit_tests
     unit/test_cad3d_features.cpp
     unit/test_cad3d_booleans_ops.cpp
     unit/test_cad3d_mesh_processing.cpp
+    unit/test_cad3d_spatial_tet.cpp
     unit/test_rendering.cpp
     unit/test_circuit.cpp
     unit/test_digital_logic.cpp
