@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 93 | 57.4% |
+| `[ ]` | Not Started | 91 | 56.2% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 69 | 42.6% |
+| `[x]` | Completed | 71 | 43.8% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **42.6%** (69 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **43.8%** (71 / 162 leaf subtasks completed)
 
 
 ---
@@ -91,7 +91,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
-| **MAT** | Material Modeling | Stage 4 | P0 | 14 | 5 | 35.7% |
+| **MAT** | Material Modeling | Stage 4 | P0 | 14 | 7 | 50.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **69** | **42.6%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **71** | **43.8%** |
 
 ---
 
@@ -488,7 +488,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module MAT: Material Modeling
-**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (5 / 14 subtasks, 35.7%)  
+**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (7 / 14 subtasks, 50.0%)  
 **Scope Summary:** Atomic and molecular modeling, molecular graph topology, VSEPR geometry, composite/alloy synthesis, Voigt-Reuss-Hashin-Shtrikman homogenization, and temperature/pressure-dependent nonlinear constitutive tensor models.
 
 #### Submodule MAT-01: Atomic & Molecular Structural Modeling
@@ -496,7 +496,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule MAT-02: Constitutive Material Creation & Alloy/Mixture Synthesis
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (2 / 4 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 #### Submodule MAT-03: Temperature & Pressure Dependent Material Properties
@@ -1652,14 +1652,14 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule MAT-02: Constitutive Material Creation & Alloy/Mixture Synthesis
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **MAT-02-001: Multi-Phase Mixture & Solid Solution Rules**
-  - **Status:** `[ ] Not Started`
+- [x] **MAT-02-001: Multi-Phase Mixture & Solid Solution Rules**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Synthesize macroscopic composite and alloy materials by blending elemental and compound constituents with homogenization bounds.
-  - [ ] **MAT-02-001-01: Implement mixture homogenization rules (Voigt, Reuss, Hashin-Shtrikman bounds)**
-    - **Status:** `[ ] Not Started`
+  - [x] **MAT-02-001-01: Implement mixture homogenization rules (Voigt, Reuss, Hashin-Shtrikman bounds)**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Compute effective macroscopic bulk modulus (K) and shear modulus (G) of multi-phase composites from phase volume fractions.
     - **Implementation Details:** CompositeHomogenizer evaluating Voigt upper bound (isostrain), Reuss lower bound (isostress), and Hashin-Shtrikman variational limits.
@@ -1667,11 +1667,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** composite_homogenizer.hpp/.cpp, homogenization_tests.cpp.
     - **Acceptance Criteria:** Computed Hashin-Shtrikman bounds strictly lie between Voigt and Reuss limits for arbitrary two-phase solid mixtures.
     - **Testing & Verification Requirements:** Verify bounds on tungsten-copper composite across volume fractions from 0% to 100% Cu.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `CompositeHomogenizer` implemented in `core/domain/include/shunya/mat/composite_homogenizer.hpp` & `.cpp` (Reuss <= HS- <= HS+ <= Voigt for K & G, Hill average E & nu); verified across 0%..100% W-Cu composites in `tests/unit/test_mat_alloys_composites.cpp` (`ctest` 421/421 cases, 19638/19638 checks passed).
+    - **Git Commit Reference:** `3b09851`
 
-  - [ ] **MAT-02-001-02: Implement alloy composition builder with mass/molar fraction balancing**
-    - **Status:** `[ ] Not Started`
+  - [x] **MAT-02-001-02: Implement alloy composition builder with mass/molar fraction balancing**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Interactive tool to define custom alloys (e.g. Ti-6Al-4V, Stainless Steel 316L, Brass) by specifying weight or molar percentages with auto-normalization.
     - **Implementation Details:** AlloyBuilder calculating aggregate density, atomic volume, rule-of-mixtures thermal expansion, and electrical resistivity.
@@ -1679,8 +1679,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** alloy_builder.hpp/.cpp, AlloyComposer.qml, standard_alloys.json.
     - **Acceptance Criteria:** Allows entering element weight fractions; auto-balances remaining percentage to 100.0%; accurately computes theoretical density.
     - **Testing & Verification Requirements:** Verify Ti-6Al-4V theoretical density calculation against experimental value (4430 kg/m3 +- 0.5%).
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `AlloyBuilder` implemented in `core/domain/include/shunya/mat/alloy_builder.hpp` & `.cpp` plus `shunya/AlloyComposer.qml` (wt%/mol% auto-balancing, Ti-6Al-4V within 0.5% of 4430 kg/m^3, SS 316L, Brass C260, CTE & resistivity); verified in `tests/unit/test_mat_alloys_composites.cpp`.
+    - **Git Commit Reference:** `3b09851`
 
 - [ ] **MAT-02-002: Porosity, Microstructure & Anisotropic Formulations**
   - **Status:** `[ ] Not Started`
