@@ -133,6 +133,10 @@ target_sources(shunya_core_domain
         src/pcb/trace_router.cpp
         src/pcb/via_manager.cpp
         src/pcb/copper_pour.cpp
+        src/pcb/drc_engine.cpp
+        src/pcb/gerber_exporter.cpp
+        src/pcb/excellon_exporter.cpp
+        src/pcb/pcb_3d_exporter.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -251,6 +255,11 @@ target_sources(shunya_core_domain
             include/shunya/pcb/via_manager.hpp
             include/shunya/pcb/thermal_relief.hpp
             include/shunya/pcb/copper_pour.hpp
+            include/shunya/pcb/drc_engine.hpp
+            include/shunya/pcb/gerber_exporter.hpp
+            include/shunya/pcb/excellon_exporter.hpp
+            include/shunya/pcb/step_mesh_assembler.hpp
+            include/shunya/pcb/pcb_3d_exporter.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

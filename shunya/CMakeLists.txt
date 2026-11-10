@@ -101,6 +101,7 @@ qt_add_qml_module(appshunya
         StackupEditor.qml
         PcbRoutingCanvas.qml
         ViaDialog.qml
+        DrcReportView.qml
 )
 
 set_target_properties(appshunya PROPERTIES
