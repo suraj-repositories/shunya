@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 36 | 22.2% |
+| `[ ]` | Not Started | 34 | 21.0% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 126 | 77.8% |
+| `[x]` | Completed | 128 | 79.0% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **77.8%** (126 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **79.0%** (128 / 162 leaf subtasks completed)
 
 
 ---
@@ -95,11 +95,11 @@ Every module is assigned a target development stage, priority classification (P0
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 15 | 100.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 13 | 100.0% |
-| **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 3 | 33.3% |
+| **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 5 | 55.6% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **126** | **77.8%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **128** | **79.0%** |
 
 ---
 
@@ -560,11 +560,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module ENV: Virtual Environment
-**Target Stage:** Stage 8 | **Priority:** P0 | **Status:** `[~] In Progress` (3 / 9 subtasks, 33.3%)  
+**Target Stage:** Stage 8 | **Priority:** P0 | **Status:** `[~] In Progress` (5 / 9 subtasks, 55.6%)  
 **Scope Summary:** Configurable physical virtual environment including US Standard Atmosphere column, altitude pressure/density gradients, aerodynamic wind vectors, solar radiation, microgravity, vacuum test chambers, and deep-space radiation sinks.
 
 #### Submodule ENV-01: Environmental Physical Fields & Atmospheric Model
-**Status:** `[~] In Progress` (3 / 5 subtasks)  
+**Status:** `[x] Completed` (5 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule ENV-02: Virtual Chamber & Environmental Boundary Enclosures
@@ -2471,7 +2471,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 **Status:** `[~] In Progress` | **Stage:** Stage 8 | **Priority:** P0
 
 #### Submodule ENV-01: Environmental Physical Fields & Atmospheric Model
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **ENV-01-001: Barometric & Atmospheric Column Modeling**
   - **Status:** `[x] Completed`
@@ -2513,12 +2513,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `ctest CoreUnitTests: 481 passed, 0 failed (35248/35248 checks passed); verified log-law surface shear and Dryden turbulence PSD/RMS in test_env_atmosphere.cpp`
     - **Git Commit Reference:** `7909789`
 
-- [ ] **ENV-01-002: Gravitational & Celestial Radiation Fields**
-  - **Status:** `[ ] Not Started`
+- [x] **ENV-01-002: Gravitational & Celestial Radiation Fields**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Configurable planetary gravity fields (Earth, Moon, Mars, microgravity) and astronomical solar irradiance calculations.
-  - [ ] **ENV-01-002-01: Implement configurable planetary gravity fields and gravity gradient**
-    - **Status:** `[ ] Not Started`
+  - [x] **ENV-01-002-01: Implement configurable planetary gravity fields and gravity gradient**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Uniform or Newtonian central gravity field g(r) = -G * M / r^2 with configurable presets (Earth 9.80665 m/s2, Moon 1.62 m/s2, Mars 3.72 m/s2, Zero-G).
     - **Implementation Details:** GravityFieldModel providing vector acceleration field g(x, y, z) queryable by physics and fluid solvers.
@@ -2526,11 +2526,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** gravity_field.hpp/.cpp, gravity_tests.cpp.
     - **Acceptance Criteria:** Switching environment to 'Lunar' scales gravitational free-fall trajectory acceleration to exactly 1.62 m/s2 immediately.
     - **Testing & Verification Requirements:** Test pendulum oscillation period under Earth, Moon, and Jupiter gravity presets.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 483 passed, 0 failed (35269/35269 checks passed); verified Earth/Moon/Mars/Jupiter/ZeroG presets, pendulum period, and LEO gravity lapse in test_env_fields.cpp`
+    - **Git Commit Reference:** `6d5aede`
 
-  - [ ] **ENV-01-002-02: Implement solar position calculator and direct/diffuse solar irradiance**
-    - **Status:** `[ ] Not Started`
+  - [x] **ENV-01-002-02: Implement solar position calculator and direct/diffuse solar irradiance**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Calculate astronomical sun position (azimuth, elevation) based on latitude, longitude, day of year, and time; compute direct normal and diffuse solar flux.
     - **Implementation Details:** SolarPositionModel evaluating solar zenith angle and clear-sky solar irradiance using Haurwitz or Perez diffuse radiation models.
@@ -2538,8 +2538,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** solar_position.hpp/.cpp, solar_flux.hpp, solar_tests.cpp.
     - **Acceptance Criteria:** Solar noon at equator on equinox yields solar elevation 90 degrees with peak direct irradiance approx 1000 W/m2.
     - **Testing & Verification Requirements:** Verify solar azimuth and elevation calculation against NOAA Solar Calculator to within 0.05 degrees.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 483 passed, 0 failed (35269/35269 checks passed); verified NOAA solar elevation/azimuth (<0.05 deg) & equinox ~1000 W/m2 clear-sky irradiance in test_env_fields.cpp`
+    - **Git Commit Reference:** `6d5aede`
 
 
 
