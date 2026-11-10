@@ -128,6 +128,8 @@ target_sources(shunya_core_domain
         src/pcb/erc_engine.cpp
         src/pcb/symbol_library.cpp
         src/pcb/footprint_generator.cpp
+        src/pcb/board_stackup.cpp
+        src/pcb/board_outline.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -237,6 +239,10 @@ target_sources(shunya_core_domain
             include/shunya/pcb/symbol_library.hpp
             include/shunya/pcb/ipc7351_tables.hpp
             include/shunya/pcb/footprint_generator.hpp
+            include/shunya/pcb/impedance_calculator.hpp
+            include/shunya/pcb/board_stackup.hpp
+            include/shunya/pcb/keepout_manager.hpp
+            include/shunya/pcb/board_outline.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

@@ -98,6 +98,7 @@ qt_add_qml_module(appshunya
         ErcReportPanel.qml
         SymbolEditorView.qml
         FootprintPreview.qml
+        StackupEditor.qml
 )
 
 set_target_properties(appshunya PROPERTIES
