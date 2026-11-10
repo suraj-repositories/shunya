@@ -84,6 +84,9 @@ target_sources(shunya_core_domain
         src/cad3d/solid_chamfer.cpp
         src/cad3d/solid_fillet.cpp
         src/cad3d/solid_shell.cpp
+        src/cad3d/half_edge_mesh.cpp
+        src/cad3d/mesh_decimator.cpp
+        src/cad3d/subdivision.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -127,6 +130,11 @@ target_sources(shunya_core_domain
             include/shunya/cad3d/solid_chamfer.hpp
             include/shunya/cad3d/solid_fillet.hpp
             include/shunya/cad3d/solid_shell.hpp
+            include/shunya/cad3d/half_edge_mesh.hpp
+            include/shunya/cad3d/mesh_circulator.hpp
+            include/shunya/cad3d/qem_quadric.hpp
+            include/shunya/cad3d/mesh_decimator.hpp
+            include/shunya/cad3d/subdivision.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
