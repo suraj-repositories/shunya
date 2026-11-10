@@ -69,6 +69,8 @@ target_sources(shunya_core_domain
         src/cad2d/sketch_solver_2d.cpp
         src/cad2d/layer_manager.cpp
         src/cad2d/block_manager.cpp
+        src/cad2d/dxf_io.cpp
+        src/cad2d/svg_io.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -97,6 +99,8 @@ target_sources(shunya_core_domain
             include/shunya/cad2d/sketch_solver_2d.hpp
             include/shunya/cad2d/layer_manager.hpp
             include/shunya/cad2d/block_manager.hpp
+            include/shunya/cad2d/dxf_io.hpp
+            include/shunya/cad2d/svg_io.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
