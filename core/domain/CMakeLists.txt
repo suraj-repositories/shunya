@@ -163,6 +163,8 @@ target_sources(shunya_core_domain
         src/chem/catalysis_model.cpp
         src/chem/gibbs_minimizer.cpp
         src/chem/equilibrium_shifter.cpp
+        src/chem/reaction_enthalpy.cpp
+        src/chem/chemo_thermal_coupler.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -331,6 +333,8 @@ target_sources(shunya_core_domain
             include/shunya/chem/nasa_cea_algorithm.hpp
             include/shunya/chem/gibbs_minimizer.hpp
             include/shunya/chem/equilibrium_shifter.hpp
+            include/shunya/chem/reaction_enthalpy.hpp
+            include/shunya/chem/chemo_thermal_coupler.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
