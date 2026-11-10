@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 126 | 77.8% |
+| `[ ]` | Not Started | 123 | 75.9% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 36 | 22.2% |
+| `[x]` | Completed | 39 | 24.1% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **22.2%** (36 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **24.1%** (39 / 162 leaf subtasks completed)
 
 
 ---
@@ -89,7 +89,7 @@ Every module is assigned a target development stage, priority classification (P0
 |---|---|---|---|---:|---:|---:|
 | **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 20 | 100.0% |
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
-| **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 3 | 17.6% |
+| **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 6 | 35.3% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **36** | **22.2%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **39** | **24.1%** |
 
 ---
 
@@ -190,15 +190,15 @@ SHUNYA NEXT PHASE PLATFORM WBS
 │   │   │   ├── Subtask [2D-03-002-01] [x] Implement DXF (AutoCAD Drawing Exchange Format) R12/2000 reader and writer
 │   │   │   ├── Subtask [2D-03-002-02] [x] Implement SVG export and import with scale preservation and layer mapping
 ├── Module [3D] [~] 3D Modeling Engine (Stage 3 | P0)
-│   ├── Submodule [3D-01] [~] 3D Parametric Features & Boundary Representation (B-Rep)
+│   ├── Submodule [3D-01] [x] 3D Parametric Features & Boundary Representation (B-Rep)
 │   │   ├── Task [3D-01-001] [x] Sketch-to-3D Solid Feature Engine
 │   │   │   ├── Subtask [3D-01-001-01] [x] Implement linear extrusion feature with draft angle, end conditions, and symmetric limits
 │   │   │   ├── Subtask [3D-01-001-02] [x] Implement revolve feature about arbitrary 3D axes with angular constraints
 │   │   │   ├── Subtask [3D-01-001-03] [x] Implement sweep and loft features along curved 3D guide trajectories
-│   │   ├── Task [3D-01-002] 3D Solid Boolean & Direct Modeling Operations
-│   │   │   ├── Subtask [3D-01-002-01] Implement robust 3D solid Boolean operations (CSG Union, Subtract, Intersect)
-│   │   │   ├── Subtask [3D-01-002-02] Implement 3D edge filleting, variable radius fillets, and planar/conical chamfers
-│   │   │   ├── Subtask [3D-01-002-03] Implement thin-wall shelling and uniform/directional offsetting
+│   │   ├── Task [3D-01-002] [x] 3D Solid Boolean & Direct Modeling Operations
+│   │   │   ├── Subtask [3D-01-002-01] [x] Implement robust 3D solid Boolean operations (CSG Union, Subtract, Intersect)
+│   │   │   ├── Subtask [3D-01-002-02] [x] Implement 3D edge filleting, variable radius fillets, and planar/conical chamfers
+│   │   │   ├── Subtask [3D-01-002-03] [x] Implement thin-wall shelling and uniform/directional offsetting
 │   ├── Submodule [3D-02] Polygonal Mesh Processing & Computational Geometry
 │   │   ├── Task [3D-02-001] Half-Edge Data Structure & Mesh Topology
 │   │   │   ├── Subtask [3D-02-001-01] Implement half-edge mesh representation supporting manifold topology and boundary queries
@@ -452,12 +452,12 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module 3D: 3D Modeling Engine
-**Target Stage:** Stage 3 | **Priority:** P0 | **Status:** `[~] In Progress` (17.6% completed: 3/17 subtasks)  
+**Target Stage:** Stage 3 | **Priority:** P0 | **Status:** `[~] In Progress` (35.3% completed: 6/17 subtasks)  
 **Scope Summary:** Parametric 3D solid feature modeling (B-Rep), solid Booleans, mesh processing, half-edge topology, spatial partitioning, hardware RHI rendering, and PBR materials.
 
 #### Submodule 3D-01: 3D Parametric Features & Boundary Representation (B-Rep)
-**Status:** `[~] In Progress` (50.0% completed: 3/6 subtasks)  
-**Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks (3 completed).
+**Status:** `[x] Completed` (100.0% completed: 6/6 subtasks)  
+**Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks (6 completed).
 
 #### Submodule 3D-02: Polygonal Mesh Processing & Computational Geometry
 **Status:** `[ ] Not Started`  
@@ -1117,7 +1117,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 **Status:** `[~] In Progress` | **Stage:** Stage 3 | **Priority:** P0
 
 #### Submodule 3D-01: 3D Parametric Features & Boundary Representation (B-Rep)
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **3D-01-001: Sketch-to-3D Solid Feature Engine**
   - **Status:** `[x] Completed`
@@ -1159,12 +1159,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `Verified via test_cad3d_features.cpp: Double Reflection RMF orthogonality (<1e-12 dot/cross error along helix), watertight genus-1 swept helical tube (V=4608, E=13824, F=9216, bnd=0, nm=0), and Circle->Square->Circle multi-section loft.`
     - **Git Commit Reference:** `229e3e7`
 
-- [ ] **3D-01-002: 3D Solid Boolean & Direct Modeling Operations**
-  - **Status:** `[ ] Not Started`
+- [x] **3D-01-002: 3D Solid Boolean & Direct Modeling Operations**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Constructive Solid Geometry (CSG) 3D Booleans (Union, Difference, Intersection) and direct feature modifiers (Fillet, Chamfer, Shell).
-  - [ ] **3D-01-002-01: Implement robust 3D solid Boolean operations (CSG Union, Subtract, Intersect)**
-    - **Status:** `[ ] Not Started`
+  - [x] **3D-01-002-01: Implement robust 3D solid Boolean operations (CSG Union, Subtract, Intersect)**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Perform exact 3D mesh Boolean set operations using BSP (Binary Space Partitioning) trees or robust exact-predicates mesh intersection.
     - **Implementation Details:** CsgBooleanEngine splitting triangles along intersection coplanar segments, classifying fragments (INSIDE, OUTSIDE, BOUNDARY).
@@ -1172,11 +1172,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** csg_boolean.hpp/.cpp, bsp_tree.hpp/.cpp, boolean_test.cpp.
     - **Acceptance Criteria:** Subtracting a cylinder from a cube cuts a clean cylindrical hole with watertight edges and zero inverted triangle normals.
     - **Testing & Verification Requirements:** Verify volume conservation: Vol(A) + Vol(B) = Vol(A U B) + Vol(A ∩ B) to within tessellation accuracy.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via test_cad3d_booleans_ops.cpp: BSP tree + T-junction repair producing watertight 2-manifold Union/Intersect/Subtract, genus-1 cylindrical through-hole (V-E+F=0), and exact inclusion-exclusion volume conservation (<1e-4). ctest 389/389 (8565/8565 checks).`
+    - **Git Commit Reference:** `9db02f4`
 
-  - [ ] **3D-01-002-02: Implement 3D edge filleting, variable radius fillets, and planar/conical chamfers**
-    - **Status:** `[ ] Not Started`
+  - [x] **3D-01-002-02: Implement 3D edge filleting, variable radius fillets, and planar/conical chamfers**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Generate constant and variable-radius rolling-ball fillets along 3D solid edges with corner vertex sphere blends and edge chamfers.
     - **Implementation Details:** FilletChamferEngine identifying adjacent face normals, trimming boundary faces, and generating bridging toroidal/cylindrical blend patches.
@@ -1184,11 +1184,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** solid_fillet.hpp/.cpp, solid_chamfer.hpp/.cpp, fillet_test.cpp.
     - **Acceptance Criteria:** Filleting edges of a cube produces smooth rounded transitions without degenerate sliver triangles.
     - **Testing & Verification Requirements:** Test filleting right angles, obtuse angles, and 3-edge corner junctions; assert mesh manifold validity.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via test_cad3d_booleans_ops.cpp: watertight 2-manifold chamfered box, constant & variable-radius (0.5->1.5) filleted boxes, and obtuse 60-deg hexagonal prism fillet with spherical 3-edge corner blends (Euler=2, 0 boundary/non-manifold edges).`
+    - **Git Commit Reference:** `9db02f4`
 
-  - [ ] **3D-01-002-03: Implement thin-wall shelling and uniform/directional offsetting**
-    - **Status:** `[ ] Not Started`
+  - [x] **3D-01-002-03: Implement thin-wall shelling and uniform/directional offsetting**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Hollow out solid bodies with configurable wall thickness, optional open face selection, and inward/outward offset normal propagation.
     - **Implementation Details:** ShellEngine offsetting all interior faces by thickness along inverted surface normals and performing self-intersection trimming.
@@ -1196,8 +1196,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** solid_shell.hpp/.cpp, shell_test.cpp.
     - **Acceptance Criteria:** Shelling a cube with open top produces an open box with exact specified wall thickness.
     - **Testing & Verification Requirements:** Measure distance between inner and outer shells; verify uniform normal thickness within 1e-5.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via test_cad3d_booleans_ops.cpp: open-top (+Z) 10x10x10 cube shelled to 0.75 wall thickness produces watertight 2-manifold box matching analytical cavity volume (331.6875, <1e-6 error) and inner wall coordinates within 1e-6, plus uniform +1.0 solid offset.`
+    - **Git Commit Reference:** `9db02f4`
 
 
 
