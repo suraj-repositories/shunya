@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 87 | 53.7% |
+| `[ ]` | Not Started | 84 | 51.9% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 75 | 46.3% |
+| `[x]` | Completed | 78 | 48.1% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **46.3%** (75 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **48.1%** (78 / 162 leaf subtasks completed)
 
 
 ---
@@ -91,7 +91,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
-| **MAT** | Material Modeling | Stage 4 | P0 | 14 | 11 | 78.6% |
+| **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **75** | **46.3%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **78** | **48.1%** |
 
 ---
 
@@ -488,7 +488,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module MAT: Material Modeling
-**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (11 / 14 subtasks, 78.6%)  
+**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[x] Completed` (14 / 14 subtasks, 100.0%)  
 **Scope Summary:** Atomic and molecular modeling, molecular graph topology, VSEPR geometry, composite/alloy synthesis, Voigt-Reuss-Hashin-Shtrikman homogenization, and temperature/pressure-dependent nonlinear constitutive tensor models.
 
 #### Submodule MAT-01: Atomic & Molecular Structural Modeling
@@ -500,7 +500,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 #### Submodule MAT-03: Temperature & Pressure Dependent Material Properties
-**Status:** `[~] In Progress` (2 / 5 subtasks)  
+**Status:** `[x] Completed` (5 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 
@@ -1576,7 +1576,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module MAT: Material Modeling
 
-**Status:** `[~] In Progress` | **Stage:** Stage 4 | **Priority:** P0
+**Status:** `[x] Completed` | **Stage:** Stage 4 | **Priority:** P0
 
 #### Submodule MAT-01: Atomic & Molecular Structural Modeling
 **Status:** `[x] Completed`
@@ -1713,7 +1713,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule MAT-03: Temperature & Pressure Dependent Material Properties
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **MAT-03-001: Non-Linear Thermal Property Functions**
   - **Status:** `[x] Completed`
@@ -1743,12 +1743,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `ThermalStrainEvaluator` implemented in `core/domain/include/shunya/mat/thermal_strain.hpp` & `thermal_strain.cpp` (exact `0.0` at `T_ref`, linear & spline integral `epsilon_th`, `constrained_thermal_stress_pa`, and Timoshenko 1925 bimetallic strip curvature/deflection); verified in `tests/unit/test_mat_thermal_curves.cpp`.
     - **Git Commit Reference:** `3eed907`
 
-- [ ] **MAT-03-002: Phase Change & Non-Linear Rheology Models**
-  - **Status:** `[ ] Not Started`
+- [x] **MAT-03-002: Phase Change & Non-Linear Rheology Models**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Formulate enthalpy-based phase change latent heat models, temperature-dependent dynamic viscosity, and electrical resistivity curves.
-  - [ ] **MAT-03-002-01: Implement melting/solidification enthalpy curves with latent heat mushy-zone tracking**
-    - **Status:** `[ ] Not Started`
+  - [x] **MAT-03-002-01: Implement melting/solidification enthalpy curves with latent heat mushy-zone tracking**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Formulate temperature-enthalpy H(T) relationship incorporating latent heat of fusion L_f with continuous mushy-zone solid fraction f_s(T).
     - **Implementation Details:** PhaseChangeEnthalpyModel evaluating apparent heat capacity C_app = C_p + L_f * df_l/dT across solidus (T_s) and liquidus (T_l) temperatures.
@@ -1756,11 +1756,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** phase_change_enthalpy.hpp/.cpp, mushy_zone.hpp, phase_change_tests.cpp.
     - **Acceptance Criteria:** Integrating C_app over mushy-zone interval [T_s, T_l] recovers exact latent heat of fusion L_f.
     - **Testing & Verification Requirements:** Stefan problem verification: test solidification front propagation of liquid water freezing into ice against analytical Neumann solution.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `PhaseChangeEnthalpyModel` implemented in `core/domain/include/shunya/mat/{mushy_zone.hpp,phase_change_enthalpy.hpp}` & `.cpp` (latent heat recovery `< 1e-4`, 1D Neumann Stefan solidification analytical depth); verified in `tests/unit/test_mat_phase_rheology_electrical.cpp` (`ctest` 428/428 cases, 19955/19955 checks passed).
+    - **Git Commit Reference:** `d4224db`
 
-  - [ ] **MAT-03-002-02: Implement temperature-dependent dynamic viscosity (Arrhenius & Andrade liquid models)**
-    - **Status:** `[ ] Not Started`
+  - [x] **MAT-03-002-02: Implement temperature-dependent dynamic viscosity (Arrhenius & Andrade liquid models)**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Model dynamic viscosity mu(T) for liquids (water, oils, molten metals) using Andrade exponential equation ln(mu) = A + B/T.
     - **Implementation Details:** ViscosityEvaluator providing temperature-dependent viscosity functions with shear-rate thinning non-Newtonian Power Law options.
@@ -1768,11 +1768,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** viscosity_evaluator.hpp/.cpp, rheology_models.hpp, viscosity_tests.cpp.
     - **Acceptance Criteria:** Water viscosity matches experimental data across 0 degC (1.787 mPa.s) to 100 degC (0.282 mPa.s) to < 1.0% error.
     - **Testing & Verification Requirements:** Validate viscosity curves for water, SAE 10W-30 engine oil, and liquid gallium.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ViscosityEvaluator` implemented in `rheology_models.hpp`, `viscosity_evaluator.hpp` & `.cpp` (water VFT `< 1%` across 0–100 °C, SAE 10W-30 shear-thinning Power Law, Ga Andrade); verified in `tests/unit/test_mat_phase_rheology_electrical.cpp`.
+    - **Git Commit Reference:** `d4224db`
 
-  - [ ] **MAT-03-002-03: Implement temperature-dependent electrical resistivity and semiconductor bandgap variation**
-    - **Status:** `[ ] Not Started`
+  - [x] **MAT-03-002-03: Implement temperature-dependent electrical resistivity and semiconductor bandgap variation**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Model metallic resistivity rho(T) = rho_0 * (1 + alpha * Delta T) and semiconductor bandgap E_g(T) using empirical Varshni equation.
     - **Implementation Details:** ElectricalPropertyEvaluator calculating metal resistivity and intrinsic semiconductor carrier concentration n_i(T) (Si, Ge, GaAs).
@@ -1780,8 +1780,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** electrical_properties.hpp/.cpp, varshni_model.hpp, semiconductor_tests.cpp.
     - **Acceptance Criteria:** Silicon bandgap matches Varshni equation (E_g = 1.17 eV at 0 K, 1.12 eV at 300 K); copper resistivity tracks linear alpha.
     - **Testing & Verification Requirements:** Test copper resistor thermal runaway behavior; verify intrinsic carrier concentration exponential increase with temperature.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ElectricalPropertyEvaluator` implemented in `varshni_model.hpp`, `electrical_properties.hpp` & `.cpp` (Cu TCR & Joule self-heating step, Si/Ge/GaAs Varshni bandgaps & `n_i(T)`); verified in `tests/unit/test_mat_phase_rheology_electrical.cpp`.
+    - **Git Commit Reference:** `d4224db`
 
 
 
