@@ -189,6 +189,8 @@ target_sources(shunya_core_domain
         src/integ/chemo_thermal_connector.cpp
         src/integ/fmu_importer.cpp
         src/integ/fmu_exporter.cpp
+        src/integ/shared_memory_bus.cpp
+        src/integ/telemetry_stream_server.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -395,6 +397,8 @@ target_sources(shunya_core_domain
             include/shunya/integ/fmi_wrapper.hpp
             include/shunya/integ/fmu_importer.hpp
             include/shunya/integ/fmu_exporter.hpp
+            include/shunya/integ/shared_memory_bus.hpp
+            include/shunya/integ/telemetry_stream_server.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
