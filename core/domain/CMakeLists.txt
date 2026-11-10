@@ -165,6 +165,8 @@ target_sources(shunya_core_domain
         src/chem/equilibrium_shifter.cpp
         src/chem/reaction_enthalpy.cpp
         src/chem/chemo_thermal_coupler.cpp
+        src/chem/combustion_model.cpp
+        src/chem/adiabatic_flame.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -335,6 +337,10 @@ target_sources(shunya_core_domain
             include/shunya/chem/equilibrium_shifter.hpp
             include/shunya/chem/reaction_enthalpy.hpp
             include/shunya/chem/chemo_thermal_coupler.hpp
+            include/shunya/chem/flammability_limits.hpp
+            include/shunya/chem/combustion_model.hpp
+            include/shunya/chem/adiabatic_flame.hpp
+            include/shunya/chem/explosion_pressure.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
