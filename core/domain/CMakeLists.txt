@@ -105,6 +105,7 @@ target_sources(shunya_core_domain
         src/matdb/unit_cell_builder.cpp
         src/matdb/thermo_registry.cpp
         src/matdb/shomate_evaluator.cpp
+        src/matdb/periodic_heatmap_filter.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -179,6 +180,7 @@ target_sources(shunya_core_domain
             include/shunya/matdb/unit_cell_builder.hpp
             include/shunya/matdb/thermo_registry.hpp
             include/shunya/matdb/shomate_evaluator.hpp
+            include/shunya/matdb/periodic_heatmap_filter.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

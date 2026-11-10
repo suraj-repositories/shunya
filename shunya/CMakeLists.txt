@@ -49,6 +49,8 @@ qt_add_executable(appshunya
     sketch_canvas_2d.cpp
     layer_panel_controller.hpp
     layer_panel_controller.cpp
+    periodic_table_controller.hpp
+    periodic_table_controller.cpp
 )
 
 qt_add_qml_module(appshunya
@@ -83,6 +85,9 @@ qt_add_qml_module(appshunya
         LayerPanel.qml
         BlockLibraryPanel.qml
         UnitCellViewer.qml
+        ElementCell.qml
+        HeatmapLegend.qml
+        PeriodicTableWindow.qml
 )
 
 set_target_properties(appshunya PROPERTIES
