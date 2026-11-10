@@ -196,7 +196,9 @@ core::base::Result<PoissonSolveStats> PressurePoissonSolver::project(
     std::vector<double>& v,
     std::vector<double>& w,
     std::vector<double>& p,
-    double tolerance) {
+    double tolerance,
+    double inlet_left_u_m_s,
+    bool open_right_outlet) {
 
     const size_t N = nx * ny * nz;
     if (N == 0 || dx_m <= 0.0 || dt_s <= 0.0 || density_kg_m3 <= 0.0 || cell_types.size() != N) {
@@ -231,6 +233,52 @@ core::base::Result<PoissonSolveStats> PressurePoissonSolver::project(
         if (cell_types[c] == CellFluidKind::OpenAir) return true;
         return (!has_open_air && c == first_fluid);
     };
+
+    // Zero all Solid-adjacent normal velocities before divergence RHS computation so RHS matches projected BCs
+    for (size_t k = 0; k < nz; ++k) {
+        for (size_t j = 0; j < ny; ++j) {
+            for (size_t i = 0; i <= nx; ++i) {
+                if (i == 0) {
+                    const bool fluid_left = (cell_types[idx(0, j, k)] == CellFluidKind::Fluid);
+                    u[uidx(0, j, k)] = (fluid_left && inlet_left_u_m_s != 0.0) ? inlet_left_u_m_s : 0.0;
+                } else if (i == nx) {
+                    if (open_right_outlet && nx >= 2 &&
+                        cell_types[idx(nx - 1, j, k)] != CellFluidKind::Solid) {
+                        u[uidx(nx, j, k)] = u[uidx(nx - 1, j, k)];
+                    } else {
+                        u[uidx(nx, j, k)] = 0.0;
+                    }
+                } else if (cell_types[idx(i - 1, j, k)] == CellFluidKind::Solid ||
+                           cell_types[idx(i, j, k)] == CellFluidKind::Solid) {
+                    u[uidx(i, j, k)] = 0.0;
+                }
+            }
+        }
+    }
+    for (size_t k = 0; k < nz; ++k) {
+        for (size_t j = 0; j <= ny; ++j) {
+            for (size_t i = 0; i < nx; ++i) {
+                if (j == 0 || j == ny ||
+                    cell_types[idx(i, j - 1, k)] == CellFluidKind::Solid ||
+                    cell_types[idx(i, j, k)] == CellFluidKind::Solid) {
+                    v[vidx(i, j, k)] = 0.0;
+                }
+            }
+        }
+    }
+    if (nz > 1) {
+        for (size_t k = 0; k <= nz; ++k) {
+            for (size_t j = 0; j < ny; ++j) {
+                for (size_t i = 0; i < nx; ++i) {
+                    if (k == 0 || k == nz ||
+                        cell_types[idx(i, j, k - 1)] == CellFluidKind::Solid ||
+                        cell_types[idx(i, j, k)] == CellFluidKind::Solid) {
+                        w[widx(i, j, k)] = 0.0;
+                    }
+                }
+            }
+        }
+    }
 
     std::vector<double> diag(N, 0.0), plus_x(N, 0.0), plus_y(N, 0.0), plus_z(N, 0.0), rhs(N, 0.0);
     const double scale = (density_kg_m3 * dx_m) / dt_s;
@@ -287,8 +335,18 @@ core::base::Result<PoissonSolveStats> PressurePoissonSolver::project(
     for (size_t k = 0; k < nz; ++k) {
         for (size_t j = 0; j < ny; ++j) {
             for (size_t i = 0; i <= nx; ++i) {
-                if (i == 0 || i == nx) {
-                    u[uidx(i, j, k)] = 0.0;
+                if (i == 0) {
+                    const bool fluid_left = (cell_types[idx(0, j, k)] == CellFluidKind::Fluid);
+                    u[uidx(0, j, k)] = (fluid_left && inlet_left_u_m_s != 0.0) ? inlet_left_u_m_s : 0.0;
+                    continue;
+                }
+                if (i == nx) {
+                    if (open_right_outlet && nx >= 2 &&
+                        cell_types[idx(nx - 1, j, k)] != CellFluidKind::Solid) {
+                        u[uidx(nx, j, k)] = u[uidx(nx - 1, j, k)];
+                    } else {
+                        u[uidx(nx, j, k)] = 0.0;
+                    }
                     continue;
                 }
                 const auto ca = cell_types[idx(i - 1, j, k)];

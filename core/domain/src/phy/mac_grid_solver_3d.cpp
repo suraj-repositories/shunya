@@ -82,8 +82,13 @@ Vector3<double> MacGridFluidSolver3D::sample_velocity(double x, double y, double
 void MacGridFluidSolver3D::apply_wall_bcs() {
     for (size_t k = 0; k < cfg_.nz; ++k) {
         for (size_t j = 0; j < cfg_.ny; ++j) {
-            u_[(k * cfg_.ny + j) * (cfg_.nx + 1) + 0] = 0.0;
-            u_[(k * cfg_.ny + j) * (cfg_.nx + 1) + cfg_.nx] = 0.0;
+            const bool fluid_left = (cell_types_[(k * cfg_.ny + j) * cfg_.nx + 0] == CellFluidKind::Fluid);
+            u_[(k * cfg_.ny + j) * (cfg_.nx + 1) + 0] =
+                (fluid_left && cfg_.inlet_left_u_m_s != 0.0) ? cfg_.inlet_left_u_m_s : 0.0;
+            if (!cfg_.open_right_outlet ||
+                cell_types_[(k * cfg_.ny + j) * cfg_.nx + (cfg_.nx - 1)] == CellFluidKind::Solid) {
+                u_[(k * cfg_.ny + j) * (cfg_.nx + 1) + cfg_.nx] = 0.0;
+            }
         }
         for (size_t i = 0; i < cfg_.nx; ++i) {
             v_[(k * (cfg_.ny + 1) + 0) * cfg_.nx + i] = 0.0;
@@ -215,7 +220,8 @@ core::base::Result<PoissonSolveStats> MacGridFluidSolver3D::step(double dt_s) {
     // 2) Preconditioned Conjugate Gradient Poisson pressure projection enforcing div(u) = 0
     return PressurePoissonSolver::project(
         cfg_.nx, cfg_.ny, cfg_.nz, cfg_.dx_m, cfg_.density_kg_m3, dt_s,
-        cell_types_, u_, v_, w_, p_, 1e-10);
+        cell_types_, u_, v_, w_, p_, 1e-10,
+        cfg_.inlet_left_u_m_s, cfg_.open_right_outlet);
 }
 
 double MacGridFluidSolver3D::max_divergence() const noexcept {

@@ -102,6 +102,8 @@ qt_add_qml_module(appshunya
         PcbRoutingCanvas.qml
         ViaDialog.qml
         DrcReportView.qml
+        ChamberControlPanel.qml
+        WindTunnelView.qml
 )
 
 set_target_properties(appshunya PROPERTIES

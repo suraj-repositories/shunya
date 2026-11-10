@@ -30,7 +30,9 @@ public:
         std::vector<double>& v,
         std::vector<double>& w,
         std::vector<double>& p,
-        double tolerance = 1e-10);
+        double tolerance = 1e-10,
+        double inlet_left_u_m_s = 0.0,
+        bool open_right_outlet = false);
 
     [[nodiscard]] static double compute_max_divergence(
         size_t nx, size_t ny, size_t nz,

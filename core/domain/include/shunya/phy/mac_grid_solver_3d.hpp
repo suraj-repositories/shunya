@@ -18,6 +18,8 @@ struct MacGridConfig {
     double density_kg_m3{1.0};
     double kinematic_viscosity_m2_s{0.01};
     double lid_top_u_m_s{0.0}; // Optional moving top lid velocity (for lid-driven cavity benchmark)
+    double inlet_left_u_m_s{0.0}; // Optional wind tunnel uniform inlet velocity on x = 0 faces
+    bool open_right_outlet{false}; // Optional zero-gradient / open pressure outflow on x = nx
 };
 
 /**
