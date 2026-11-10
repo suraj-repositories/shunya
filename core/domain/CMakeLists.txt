@@ -95,6 +95,9 @@ target_sources(shunya_core_domain
         src/cad3d/pbr_material.cpp
         src/cad3d/ibl_processor.cpp
         src/cad3d/volume_renderer.cpp
+        src/matdb/elements_118_catalog.cpp
+        src/matdb/isotope_repository.cpp
+        src/matdb/periodic_table_extended.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -158,6 +161,9 @@ target_sources(shunya_core_domain
             include/shunya/cad3d/ibl_processor.hpp
             include/shunya/cad3d/3d_texture_cache.hpp
             include/shunya/cad3d/volume_renderer.hpp
+            include/shunya/matdb/elements_118_catalog.hpp
+            include/shunya/matdb/isotope_repository.hpp
+            include/shunya/matdb/periodic_table_extended.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
