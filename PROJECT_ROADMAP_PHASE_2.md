@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 67 | 41.4% |
+| `[ ]` | Not Started | 65 | 40.1% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 95 | 58.6% |
+| `[x]` | Completed | 97 | 59.9% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **58.6%** (95 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **59.9%** (97 / 162 leaf subtasks completed)
 
 
 ---
@@ -93,13 +93,13 @@ Every module is assigned a target development stage, priority classification (P0
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
-| **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
+| **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 2 | 13.3% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **95** | **58.6%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **97** | **59.9%** |
 
 ---
 
@@ -524,11 +524,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module PHY: Physics Simulation
-**Target Stage:** Stage 6 | **Priority:** P0 | **Status:** `[ ] Not Started`  
+**Target Stage:** Stage 6 | **Priority:** P0 | **Status:** `[~] In Progress` (2 / 15 subtasks, 13.3%)  
 **Scope Summary:** Multi-domain physics simulation engine covering symplectic rigid-body dynamics, continuous collision detection (CCD), articulated joints, 3D transient heat conduction/radiation, phase transitions, SPH free-surface fluids, and Eulerian grid CFD.
 
 #### Submodule PHY-01: Classical Mechanics, Multi-Body Dynamics & Collisions
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (2 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule PHY-02: Thermodynamics, Heat Transfer & Phase Transitions
@@ -2042,17 +2042,17 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module PHY: Physics Simulation
 
-**Status:** `[ ] Not Started` | **Stage:** Stage 6 | **Priority:** P0
+**Status:** `[~] In Progress` | **Stage:** Stage 6 | **Priority:** P0
 
 #### Submodule PHY-01: Classical Mechanics, Multi-Body Dynamics & Collisions
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **PHY-01-001: Rigid Body Kinematics & Numerical Integrators**
-  - **Status:** `[ ] Not Started`
+- [x] **PHY-01-001: Rigid Body Kinematics & Numerical Integrators**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Formulate rigid body equations of motion with inertia tensors and energy-conserving symplectic time integrators.
-  - [ ] **PHY-01-001-01: Implement symplectic integrators preserving mechanical energy**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-01-001-01: Implement symplectic integrators preserving mechanical energy**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Implement Velocity Verlet, Leapfrog, and symplectic Runge-Kutta 4th order integrators for Hamiltonian dynamical systems.
     - **Implementation Details:** SymplecticIntegrator maintaining position x, velocity v, and acceleration a = F(x)/m with zero long-term artificial energy drift.
@@ -2060,11 +2060,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** symplectic_integrator.hpp/.cpp, energy_auditor.hpp, integrator_tests.cpp.
     - **Acceptance Criteria:** Simulating an undamped harmonic oscillator or planetary orbit for 10,000 steps maintains total energy within 0.01% of initial value.
     - **Testing & Verification Requirements:** Test Kepler two-body orbit eccentricities and energy conservation over 100 complete orbital revolutions.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `SymplecticIntegrator` (`VelocityVerlet`, `Leapfrog`, `YoshidaRk4`) & `EnergyAuditor` implemented in `symplectic_integrator.hpp/.cpp`, `energy_auditor.hpp`; 10,000-step harmonic oscillator & 100-orbit Kepler e=0/0.5/0.75 < 0.01% drift verified in `tests/unit/test_phy_symplectic_rigid.cpp` (`ctest` 451/451).
+    - **Git Commit Reference:** `4564f55`
 
-  - [ ] **PHY-01-001-02: Implement spatial inertia tensors and rotational quaternion kinematics**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-01-001-02: Implement spatial inertia tensors and rotational quaternion kinematics**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Compute 3x3 rotational inertia matrix I_body from closed triangular boundary meshes; integrate angular velocity omega using unit quaternions.
     - **Implementation Details:** RigidBodyKinematics integrating dq/dt = 0.5 * omega * q with quaternion normalization to eliminate rotational drift.
@@ -2072,8 +2072,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** rigid_body_kinematics.hpp/.cpp, inertia_tensor_calculator.hpp, rotation_tests.cpp.
     - **Acceptance Criteria:** Rigid bodies tumble freely according to Euler's equations of rotational motion; exhibits Dzhanibekov intermediate axis instability.
     - **Testing & Verification Requirements:** Verify Dzhanibekov effect simulation on asymmetric rigid body (I1 < I2 < I3); check angular momentum conservation.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `InertiaTensorCalculator` (exact closed-mesh tetrahedron moments + CoM parallel axis shift) & `RigidBodyKinematics` (`step_rk4` + unit-quaternion normalization) implemented in `inertia_tensor_calculator.hpp`, `rigid_body_kinematics.hpp/.cpp`; box mesh CoM inertia and Dzhanibekov flip verified in `tests/unit/test_phy_symplectic_rigid.cpp`.
+    - **Git Commit Reference:** `4564f55`
 
 - [ ] **PHY-01-002: Collision Detection & Constraint Solving**
   - **Status:** `[ ] Not Started`
