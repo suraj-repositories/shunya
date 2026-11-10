@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 109 | 67.3% |
+| `[ ]` | Not Started | 106 | 65.4% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 53 | 32.7% |
+| `[x]` | Completed | 56 | 34.6% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **32.7%** (53 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **34.6%** (56 / 162 leaf subtasks completed)
 
 
 ---
@@ -90,7 +90,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 20 | 100.0% |
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
-| **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 3 | 21.4% |
+| **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 6 | 42.9% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **53** | **32.7%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **56** | **34.6%** |
 
 ---
 
@@ -470,11 +470,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module MATDB: Periodic Elements Database
-**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (3 / 14 subtasks, 21.4%)  
+**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (6 / 14 subtasks, 42.9%)  
 **Scope Summary:** Exhaustive physicochemical database for all 118 IUPAC elements, isotopic abundances, electronic shell structures, crystal lattices, thermodynamic Shomate polynomials, and interactive periodic table visualization.
 
 #### Submodule MATDB-01: Comprehensive 118-Element Scientific Dataset
-**Status:** `[~] In Progress` (3 / 6 subtasks)  
+**Status:** `[x] Completed` (6 / 6 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks.
 
 #### Submodule MATDB-02: Solid-State, Crystallographic & Thermodynamic Baseline Data
@@ -1366,7 +1366,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 **Status:** `[~] In Progress` | **Stage:** Stage 4 | **Priority:** P0
 
 #### Submodule MATDB-01: Comprehensive 118-Element Scientific Dataset
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **MATDB-01-001: Element Physicochemical & Isotopic Registry**
   - **Status:** `[x] Completed`
@@ -1408,12 +1408,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `PeriodicTableExtended` implemented in `core/domain/include/shunya/matdb/periodic_table_extended.hpp` & `periodic_table_extended.cpp` (`ElectronegativityScales`, `AtomicRadiiPm`, Z=1..118 records, F Pauling == 3.98, noble gas vdW radii, JSON export); verified in `tests/unit/test_matdb_registry.cpp`.
     - **Git Commit Reference:** `ab95219`
 
-- [ ] **MATDB-01-002: Electronic Shell Structure & Spectral Data**
-  - **Status:** `[ ] Not Started`
+- [x] **MATDB-01-002: Electronic Shell Structure & Spectral Data**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Quantum electronic shell filling configurations, ionization energies (1st to nth), electron affinities, and emission spectral line datasets.
-  - [ ] **MATDB-01-002-01: Implement Aufbau principle and Hund's rule shell filling validator**
-    - **Status:** `[ ] Not Started`
+  - [x] **MATDB-01-002-01: Implement Aufbau principle and Hund's rule shell filling validator**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Parse electron orbital occupancy strings (e.g. '[Ar] 3d10 4s1' for Cu) and validate against Hund's maximum multiplicity and Aufbau filling exceptions.
     - **Implementation Details:** OrbitalFillingEngine parsing principal (n) and azimuthal (l = s,p,d,f) quantum subshells; computes total valence electrons.
@@ -1421,11 +1421,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** orbital_engine.hpp/.cpp, electron_config_parser.hpp, orbital_tests.cpp.
     - **Acceptance Criteria:** Correctly parses all 118 ground-state electron configurations including anomalous d/f subshell fill states (Cr, Cu, Nb, Mo, Ru, Rh, Pd, Ag, Pt, Au).
     - **Testing & Verification Requirements:** Unit tests verifying electron configuration for transition metals and lanthanides/actinides.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ElectronConfigParser` & `OrbitalFillingEngine` implemented in `core/domain/include/shunya/matdb/electron_config_parser.hpp`, `orbital_engine.hpp` & `orbital_engine.cpp`; validates all 118 IUPAC elements including d/f exceptions (`Cr, Cu, Nb, Mo, Ru, Rh, Pd, Ag, Gd, Pt, Au, U`, etc.) and Hund multiplicity in `tests/unit/test_matdb_electronic_spectral.cpp` (`ctest` 406/406 cases, 18716/18716 checks passed).
+    - **Git Commit Reference:** `0d2bb75`
 
-  - [ ] **MATDB-01-002-02: Ingest sequential ionization energies and electron affinity values**
-    - **Status:** `[ ] Not Started`
+  - [x] **MATDB-01-002-02: Ingest sequential ionization energies and electron affinity values**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Ingest 1st through 8th ionization potentials (in kJ/mol and eV) and electron affinity values for gas-phase neutral atoms from NIST ASD.
     - **Implementation Details:** IonizationEnergyRepository storing vector of double values per element with eV to SI J conversion.
@@ -1433,11 +1433,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** ionization_data.json, ionization_repository.hpp/.cpp, test_ionization.cpp.
     - **Acceptance Criteria:** Noble gas 1st ionization peaks match NIST reference values; alkali metals show lowest 1st ionization energies.
     - **Testing & Verification Requirements:** Verify strictly increasing sequential ionization energies (IE_1 < IE_2 < ... < IE_n) for all elements.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `IonizationEnergyRepository` implemented in `core/domain/include/shunya/matdb/ionization_repository.hpp` & `ionization_repository.cpp` (all 118 elements, 1st–8th IE strict monotonicity audit, electron affinities, `ev_to_kj_per_mol`/`ev_to_joules`, JSON export); verified in `tests/unit/test_matdb_electronic_spectral.cpp`.
+    - **Git Commit Reference:** `0d2bb75`
 
-  - [ ] **MATDB-01-002-03: Ingest atomic emission/absorption spectral lines for optical radiation**
-    - **Status:** `[ ] Not Started`
+  - [x] **MATDB-01-002-03: Ingest atomic emission/absorption spectral lines for optical radiation**
+    - **Status:** `[x] Completed`
     - **Priority:** P2
     - **Description:** Store characteristic optical wavelengths (vacuum nm), transition probabilities (Einstein A coefficients), and relative intensities for spectroscopy modeling.
     - **Implementation Details:** SpectralLineCatalog indexing prominent emission lines for common elements (H-alpha 656.28 nm, Na-D doublet 589.0/589.6 nm, Hg lines).
@@ -1445,8 +1445,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** spectral_lines.json, spectral_catalog.hpp/.cpp, spectrum_tests.cpp.
     - **Acceptance Criteria:** Balmer series emission lines for hydrogen match Rydberg formula calculations to 4 significant figures.
     - **Testing & Verification Requirements:** Compare computed wavelength transitions against analytical Rydberg constant equation.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `SpectralLineCatalog` implemented in `core/domain/include/shunya/matdb/spectral_catalog.hpp` & `spectral_catalog.cpp` (Rydberg vacuum formula, Edlen air-refraction helper, H Balmer/Lyman, Na D doublet, Hg calibration, JSON export); verified in `tests/unit/test_matdb_electronic_spectral.cpp`.
+    - **Git Commit Reference:** `0d2bb75`
 
 
 
