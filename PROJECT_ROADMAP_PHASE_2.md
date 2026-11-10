@@ -976,7 +976,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Smooth 60 FPS panning and zooming from sub-micron scale to kilometer scale without integer overflow or jitter.
     - **Testing & Verification Requirements:** Stress test rendering 10,000 lines while panning and zooming; verify coordinate transform inverses.
     - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_snapping_sketch.cpp (sub-micron 1e8 px/m and kilometer 0.05 px/m roundtrip transform inverses to 1e-12/1e-9, zoom anchor invariance, adaptive grid calculation, and 10,000-line spatial indexing benchmark) plus offscreen SketchCanvas.qml launch.
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit 27f1fb8 (feat(cad2d): implement GPU 2D sketch canvas, object snapping, polar guides, and construction layer)
 
   - [x] **2D-01-002-02: Implement geometric object snapping (endpoints, midpoints, centers, quadrants, intersections)**
     - **Status:** `[x] Completed`
@@ -988,7 +988,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Cursor snaps to intersection of line and circle when within 10 screen pixels; visually highlights intersection glyph.
     - **Testing & Verification Requirements:** Unit test snap query returns exact analytical intersection point for all supported curve combinations.
     - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_snapping_sketch.cpp (Line-Line, Line-Circle chord, Line-Arc sweep filtering, Circle-Circle radical intersections, external Tangent orthogonality to < 1e-9, and pixel-radius candidate selection/rejection within 10px).
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit 27f1fb8 (feat(cad2d): implement GPU 2D sketch canvas, object snapping, polar guides, and construction layer)
 
   - [x] **2D-01-002-03: Implement dynamic polar guides and construction geometry layer**
     - **Status:** `[x] Completed`
@@ -1000,7 +1000,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Drawing lines along 45 degree angle snaps smoothly; construction entities appear dashed and are ignored by extrusion mesher.
     - **Testing & Verification Requirements:** Verify angle detection within 0.5 degree snapping threshold; verify construction entities are excluded from profile loops.
     - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_snapping_sketch.cpp (45.3 deg polar snap locking onto exact 45 deg ray, non-guide 18 deg rejection, and SketchDocument2D solid profile loop stitching excluding construction circles/squares).
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit 27f1fb8 (feat(cad2d): implement GPU 2D sketch canvas, object snapping, polar guides, and construction layer)
 
 
 
