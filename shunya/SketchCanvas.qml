@@ -10,6 +10,8 @@ Rectangle {
     radius: 6
     clip: true
 
+    property bool showSidebar: false
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 6
@@ -19,6 +21,11 @@ Rectangle {
             Layout.fillWidth: true
             canvasNode: canvas2d
         }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            spacing: 4
 
         Rectangle {
             Layout.fillWidth: true
@@ -114,8 +121,45 @@ Rectangle {
                         font.pixelSize: 10
                         font.family: "Monospace"
                     }
+
+                    Rectangle {
+                        width: 96
+                        height: 16
+                        radius: 2
+                        color: root.showSidebar ? "#2c3e50" : "#21262d"
+                        border.color: root.showSidebar ? "#61afef" : "#30363d"
+                        Text {
+                            anchors.centerIn: parent
+                            text: root.showSidebar ? "Hide Layers/Blocks" : "Layers & Blocks"
+                            color: "#abb2bf"
+                            font.pixelSize: 8
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.showSidebar = !root.showSidebar
+                        }
+                    }
                 }
             }
+        }
+
+        ColumnLayout {
+            Layout.fillHeight: true
+            Layout.preferredWidth: 240
+            visible: root.showSidebar
+            spacing: 4
+
+            LayerPanel {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
+
+            BlockLibraryPanel {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
+        }
         }
     }
 }

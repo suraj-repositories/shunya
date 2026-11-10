@@ -67,6 +67,8 @@ target_sources(shunya_core_domain
         src/cad2d/geometric_constraints.cpp
         src/cad2d/dimensional_constraints.cpp
         src/cad2d/sketch_solver_2d.cpp
+        src/cad2d/layer_manager.cpp
+        src/cad2d/block_manager.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -93,6 +95,8 @@ target_sources(shunya_core_domain
             include/shunya/cad2d/dimensional_constraints.hpp
             include/shunya/cad2d/dof_analyzer.hpp
             include/shunya/cad2d/sketch_solver_2d.hpp
+            include/shunya/cad2d/layer_manager.hpp
+            include/shunya/cad2d/block_manager.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

@@ -47,6 +47,8 @@ qt_add_executable(appshunya
     oscilloscope_controller.cpp
     sketch_canvas_2d.hpp
     sketch_canvas_2d.cpp
+    layer_panel_controller.hpp
+    layer_panel_controller.cpp
 )
 
 qt_add_qml_module(appshunya
@@ -78,6 +80,8 @@ qt_add_qml_module(appshunya
         SnapGlyphOverlay.qml
         SketchToolbar.qml
         DimensionDisplayWidget.qml
+        LayerPanel.qml
+        BlockLibraryPanel.qml
 )
 
 set_target_properties(appshunya PROPERTIES

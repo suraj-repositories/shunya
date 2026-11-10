@@ -11,6 +11,7 @@
 #include "viewport_controller.hpp"
 #include "colormap_legend_controller.hpp"
 #include "oscilloscope_controller.hpp"
+#include "layer_panel_controller.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -28,6 +29,7 @@ int main(int argc, char *argv[])
     auto* viewportCtrl = new shunya::gui::ShunyaViewportController(&app);
     auto* colormapCtrl = new shunya::gui::ShunyaColormapLegendController(&app);
     auto* scopeCtrl = new shunya::gui::ShunyaOscilloscopeController(&app);
+    auto* layerCtrl = new shunya::gui::ShunyaLayerPanelController(&app);
 
     auto paramMgr = std::make_shared<shunya::core::domain::ParameterReferenceManager>();
     propTreeModel->setParameterReferenceManager(paramMgr);
@@ -56,6 +58,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("viewportController", viewportCtrl);
     engine.rootContext()->setContextProperty("colormapController", colormapCtrl);
     engine.rootContext()->setContextProperty("oscilloscopeController", scopeCtrl);
+    engine.rootContext()->setContextProperty("layerController", layerCtrl);
 
     QObject::connect(
         &engine,

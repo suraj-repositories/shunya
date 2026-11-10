@@ -35,6 +35,7 @@ public:
 
     [[nodiscard]] const SketchEntity* find_entity(std::string_view id) const noexcept;
     [[nodiscard]] const std::vector<SketchEntity>& entities() const noexcept { return entities_; }
+    [[nodiscard]] std::vector<SketchEntity>& mutable_entities() noexcept { return entities_; }
     [[nodiscard]] std::vector<const SketchEntity*> solid_entities() const;
     [[nodiscard]] std::vector<const SketchEntity*> construction_entities() const;
 
