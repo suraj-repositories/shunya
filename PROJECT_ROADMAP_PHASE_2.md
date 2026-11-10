@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 41 | 25.3% |
+| `[ ]` | Not Started | 39 | 24.1% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 121 | 74.7% |
+| `[x]` | Completed | 123 | 75.9% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **74.7%** (121 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **75.9%** (123 / 162 leaf subtasks completed)
 
 
 ---
@@ -94,12 +94,12 @@ Every module is assigned a target development stage, priority classification (P0
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 15 | 100.0% |
-| **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 11 | 84.6% |
+| **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 13 | 100.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **121** | **74.7%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **123** | **75.9%** |
 
 ---
 
@@ -542,7 +542,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module CHEM: Chemistry Simulation
-**Target Stage:** Stage 7 | **Priority:** P1 | **Status:** `[~] In Progress` (11 / 13 subtasks, 84.6%)  
+**Target Stage:** Stage 7 | **Priority:** P1 | **Status:** `[x] Completed` (13 / 13 subtasks, 100.0%)  
 **Scope Summary:** Chemical reaction kinetics, stoichiometric network balancing, Law of Mass Action, Arrhenius temperature dependence, Gibbs energy minimization, thermochemical combustion, aqueous electrochemistry, and battery cells.
 
 #### Submodule CHEM-01: Reaction Kinetics & Stoichiometric Networks
@@ -554,7 +554,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 #### Submodule CHEM-03: Molecular Interactions & Solution Chemistry
-**Status:** `[~] In Progress` (2 / 4 subtasks)  
+**Status:** `[x] Completed` (4 / 4 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 
@@ -2267,7 +2267,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module CHEM: Chemistry Simulation
 
-**Status:** `[~] In Progress` | **Stage:** Stage 7 | **Priority:** P1
+**Status:** `[x] Completed` | **Stage:** Stage 7 | **Priority:** P1
 
 #### Submodule CHEM-01: Reaction Kinetics & Stoichiometric Networks
 **Status:** `[x] Completed`
@@ -2404,7 +2404,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule CHEM-03: Molecular Interactions & Solution Chemistry
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **CHEM-03-001: Aqueous Solutions, Electrolytes & pH**
   - **Status:** `[x] Completed`
@@ -2434,12 +2434,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `ElectrolyteConductivityModel` (Kohlrausch law) & `PrecipitationChecker` implemented in `electrolyte_conductivity.hpp/.cpp`, `precipitation_checker.hpp`; AgCl, BaSO4, CaCO3 & NaCl conductivity verified in `tests/unit/test_chem_aqueous.cpp`.
     - **Git Commit Reference:** `a59a4fe`
 
-- [ ] **CHEM-03-002: Electrochemistry & Galvanic Cells**
-  - **Status:** `[ ] Not Started`
+- [x] **CHEM-03-002: Electrochemistry & Galvanic Cells**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Electrochemical half-cell reduction potentials, Nernst equation cell voltage, Faraday's laws of electrolysis, and lithium-ion battery cell models.
-  - [ ] **CHEM-03-002-01: Implement Nernst equation for half-cell and full-cell electrochemical potentials**
-    - **Status:** `[ ] Not Started`
+  - [x] **CHEM-03-002-01: Implement Nernst equation for half-cell and full-cell electrochemical potentials**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Compute open-circuit voltage E_cell = E deg - (R * T / (z * F)) * ln(Q) from standard reduction potentials and species activities.
     - **Implementation Details:** ElectrochemicalCellModel indexing standard reduction potential table (E deg); evaluates Daniell cell (Zn-Cu) and galvanic potentials.
@@ -2447,11 +2447,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** electrochemical_cell.hpp/.cpp, reduction_potentials.json, nernst_tests.cpp.
     - **Acceptance Criteria:** Standard Daniell cell Zn(s) + Cu2+(aq) -> Zn2+(aq) + Cu(s) generates exact standard potential 1.103 V at 298.15 K.
     - **Testing & Verification Requirements:** Verify Nernst voltage shifts with varying Cu2+ and Zn2+ ion concentrations; assert zero potential at thermodynamic equilibrium.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 478 passed, 0 failed (35212/35212 checks passed); verified Daniell cell E0 = 1.1037 V, Nernst concentration shift, zero equilibrium potential, and Faraday mass deposition in test_chem_electrochemistry.cpp`
+    - **Git Commit Reference:** `c9261cb`
 
-  - [ ] **CHEM-03-002-02: Implement battery charge/discharge cell model coupled to circuit and thermal solvers**
-    - **Status:** `[ ] Not Started`
+  - [x] **CHEM-03-002-02: Implement battery charge/discharge cell model coupled to circuit and thermal solvers**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Equivalent Circuit Model (Thevenin dual-RC model) for Li-ion battery cells with state-of-charge (SOC) tracking, internal resistance R_int(T), and heat release.
     - **Implementation Details:** BatteryCellRuntime computing terminal voltage V_term = OCV(SOC) - I * R_0 - V_RC; injects I^2 * R Joule heating into thermal mesh.
@@ -2459,8 +2459,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** battery_cell_model.hpp/.cpp, li_ion_soc_tables.hpp, battery_tests.cpp.
     - **Acceptance Criteria:** Constant-current 1C discharge of 18650 cell displays realistic voltage plateau and temperature rise matching manufacturer spec sheets.
     - **Testing & Verification Requirements:** Validate discharge curves at 0.5C, 1C, and 2C rates; test thermal runaway feedback loop under external short circuit.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 478 passed, 0 failed (35212/35212 checks passed); verified 0.5C/1C/2C 18650 discharge curves, Arrhenius R0(T) & Joule self-heating, short-circuit runaway (>450 K), and ThermalSolver3D coupling in test_chem_electrochemistry.cpp`
+    - **Git Commit Reference:** `c9261cb`
 
 
 
