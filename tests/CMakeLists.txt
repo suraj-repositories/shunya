@@ -72,6 +72,7 @@ add_executable(shunya_unit_tests
     unit/test_phy_sph.cpp
     unit/test_phy_cfd_mac.cpp
     unit/test_chem_kinetics.cpp
+    unit/test_chem_equilibrium.cpp
     unit/test_rendering.cpp
     unit/test_circuit.cpp
     unit/test_digital_logic.cpp

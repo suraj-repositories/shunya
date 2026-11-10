@@ -161,6 +161,8 @@ target_sources(shunya_core_domain
         src/chem/reaction_network.cpp
         src/chem/arrhenius_evaluator.cpp
         src/chem/catalysis_model.cpp
+        src/chem/gibbs_minimizer.cpp
+        src/chem/equilibrium_shifter.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -326,6 +328,9 @@ target_sources(shunya_core_domain
             include/shunya/chem/arrhenius_evaluator.hpp
             include/shunya/chem/michaelis_menten.hpp
             include/shunya/chem/catalysis_model.hpp
+            include/shunya/chem/nasa_cea_algorithm.hpp
+            include/shunya/chem/gibbs_minimizer.hpp
+            include/shunya/chem/equilibrium_shifter.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
