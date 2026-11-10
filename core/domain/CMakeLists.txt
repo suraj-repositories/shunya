@@ -113,6 +113,8 @@ target_sources(shunya_core_domain
         src/mat/molecular_mesh_builder.cpp
         src/mat/formula_parser.cpp
         src/mat/smiles_parser.cpp
+        src/mat/composite_homogenizer.cpp
+        src/mat/alloy_builder.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -199,6 +201,8 @@ target_sources(shunya_core_domain
             include/shunya/mat/molecular_mesh_builder.hpp
             include/shunya/mat/formula_parser.hpp
             include/shunya/mat/smiles_parser.hpp
+            include/shunya/mat/composite_homogenizer.hpp
+            include/shunya/mat/alloy_builder.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

@@ -92,6 +92,7 @@ qt_add_qml_module(appshunya
         OrbitalPreviewItem.qml
         IsotopeDecayView.qml
         MoleculeViewer.qml
+        AlloyComposer.qml
 )
 
 set_target_properties(appshunya PROPERTIES
