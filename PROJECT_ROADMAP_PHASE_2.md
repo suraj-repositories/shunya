@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 102 | 63.0% |
+| `[ ]` | Not Started | 100 | 61.7% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 60 | 37.0% |
+| `[x]` | Completed | 62 | 38.3% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **37.0%** (60 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **38.3%** (62 / 162 leaf subtasks completed)
 
 
 ---
@@ -90,7 +90,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 20 | 100.0% |
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
-| **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 10 | 71.4% |
+| **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 12 | 85.7% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **60** | **37.0%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **62** | **38.3%** |
 
 ---
 
@@ -470,7 +470,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module MATDB: Periodic Elements Database
-**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (10 / 14 subtasks, 71.4%)  
+**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (12 / 14 subtasks, 85.7%)  
 **Scope Summary:** Exhaustive physicochemical database for all 118 IUPAC elements, isotopic abundances, electronic shell structures, crystal lattices, thermodynamic Shomate polynomials, and interactive periodic table visualization.
 
 #### Submodule MATDB-01: Comprehensive 118-Element Scientific Dataset
@@ -482,7 +482,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 #### Submodule MATDB-03: Interactive Periodic Table UI & Element Inspector
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (2 / 4 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 
@@ -1512,14 +1512,14 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule MATDB-03: Interactive Periodic Table UI & Element Inspector
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **MATDB-03-001: Dynamic Vector Periodic Table Component**
-  - **Status:** `[ ] Not Started`
+- [x] **MATDB-03-001: Dynamic Vector Periodic Table Component**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** High-fidelity interactive QML periodic table component with color-coded families, block filtering, and property heatmaps.
-  - [ ] **MATDB-03-001-01: Build interactive 118-element periodic grid with family and block colormaps**
-    - **Status:** `[ ] Not Started`
+  - [x] **MATDB-03-001-01: Build interactive 118-element periodic grid with family and block colormaps**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Responsive vector-rendered 18-column by 7-row grid (with detached Lanthanide/Actinide rows) highlighting s, p, d, f blocks and chemical families.
     - **Implementation Details:** PeriodicTableGridView.qml with custom QML ElementCell delegate displaying Z, Symbol, Name, and Atomic Mass.
@@ -1527,11 +1527,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** PeriodicTableWindow.qml, ElementCell.qml, PeriodicTableController.hpp/.cpp.
     - **Acceptance Criteria:** Clicking an element cell selects it globally across studio; hover displays rich tooltip preview with 60 FPS fluidity.
     - **Testing & Verification Requirements:** Verify UI layout positioning for all 118 cells; verify block filter toggles (hide f-block, highlight halogens).
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ShunyaPeriodicTableController`, `PeriodicTableWindow.qml`, `ElementCell.qml`, & `PeriodicHeatmapFilter` grid layout covering all 118 cells with zero overlap and s/p/d/f block filters; verified in `tests/unit/test_matdb_periodic_grid.cpp` (`ctest` 412/412 cases, 19412/19412 checks passed) & `appshunya` AOT QML build.
+    - **Git Commit Reference:** `d8e5fe3`
 
-  - [ ] **MATDB-03-001-02: Implement dynamic property heatmap overlay across periodic table**
-    - **Status:** `[ ] Not Started`
+  - [x] **MATDB-03-001-02: Implement dynamic property heatmap overlay across periodic table**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Gradient heatmap coloring cells dynamically based on selected property: density, melting point, electronegativity, first ionization energy, or thermal conductivity.
     - **Implementation Details:** PeriodicHeatmapFilter normalizing scalar properties to [0.0, 1.0] and mapping to selected color ramps.
@@ -1539,8 +1539,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** periodic_heatmap_filter.hpp/.cpp, HeatmapLegend.qml, property_ranges.json.
     - **Acceptance Criteria:** Toggling 'Melting Point' colors Carbon and Tungsten red/bright while Mercury and Cesium appear blue/dark.
     - **Testing & Verification Requirements:** Assert min/max scalar normalization prevents divide-by-zero on elements with missing experimental values.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `PeriodicHeatmapFilter` implemented in `core/domain/include/shunya/matdb/periodic_heatmap_filter.hpp` & `periodic_heatmap_filter.cpp` plus `HeatmapLegend.qml` (`CoolWarm` ramp, safe zero-span normalization, `property_ranges_json()`); verified in `tests/unit/test_matdb_periodic_grid.cpp`.
+    - **Git Commit Reference:** `d8e5fe3`
 
 - [ ] **MATDB-03-002: Element Detail Inspector & Isotope Visualizer**
   - **Status:** `[ ] Not Started`
