@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 100 | 61.7% |
+| `[ ]` | Not Started | 98 | 60.5% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 62 | 38.3% |
+| `[x]` | Completed | 64 | 39.5% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **38.3%** (62 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **39.5%** (64 / 162 leaf subtasks completed)
 
 
 ---
@@ -90,7 +90,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 20 | 100.0% |
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
-| **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 12 | 85.7% |
+| **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **62** | **38.3%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **64** | **39.5%** |
 
 ---
 
@@ -470,7 +470,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module MATDB: Periodic Elements Database
-**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (12 / 14 subtasks, 85.7%)  
+**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[x] Completed` (14 / 14 subtasks, 100.0%)  
 **Scope Summary:** Exhaustive physicochemical database for all 118 IUPAC elements, isotopic abundances, electronic shell structures, crystal lattices, thermodynamic Shomate polynomials, and interactive periodic table visualization.
 
 #### Submodule MATDB-01: Comprehensive 118-Element Scientific Dataset
@@ -482,7 +482,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 #### Submodule MATDB-03: Interactive Periodic Table UI & Element Inspector
-**Status:** `[~] In Progress` (2 / 4 subtasks)  
+**Status:** `[x] Completed` (4 / 4 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 
@@ -1363,7 +1363,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module MATDB: Periodic Elements Database
 
-**Status:** `[~] In Progress` | **Stage:** Stage 4 | **Priority:** P0
+**Status:** `[x] Completed` | **Stage:** Stage 4 | **Priority:** P0
 
 #### Submodule MATDB-01: Comprehensive 118-Element Scientific Dataset
 **Status:** `[x] Completed`
@@ -1512,7 +1512,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule MATDB-03: Interactive Periodic Table UI & Element Inspector
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **MATDB-03-001: Dynamic Vector Periodic Table Component**
   - **Status:** `[x] Completed`
@@ -1542,12 +1542,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `PeriodicHeatmapFilter` implemented in `core/domain/include/shunya/matdb/periodic_heatmap_filter.hpp` & `periodic_heatmap_filter.cpp` plus `HeatmapLegend.qml` (`CoolWarm` ramp, safe zero-span normalization, `property_ranges_json()`); verified in `tests/unit/test_matdb_periodic_grid.cpp`.
     - **Git Commit Reference:** `d8e5fe3`
 
-- [ ] **MATDB-03-002: Element Detail Inspector & Isotope Visualizer**
-  - **Status:** `[ ] Not Started`
+- [x] **MATDB-03-002: Element Detail Inspector & Isotope Visualizer**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Deep-dive inspector panel for selected element showing atomic structure, electron shells, decay chains, and crystallographic unit cell.
-  - [ ] **MATDB-03-002-01: Implement Bohr orbital visualization and electron cloud probability density display**
-    - **Status:** `[ ] Not Started`
+  - [x] **MATDB-03-002-01: Implement Bohr orbital visualization and electron cloud probability density display**
+    - **Status:** `[x] Completed`
     - **Priority:** P2
     - **Description:** 2D animated Bohr model with electron dots circulating in concentric principal quantum shells, plus spherical harmonic orbital shape preview.
     - **Implementation Details:** BohrModelItem.qml with animated rotation angles; shader rendering hydrogenic orbital cross-sections |psi(r, theta, phi)|^2.
@@ -1555,11 +1555,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** BohrModelView.qml, OrbitalPreviewItem.qml, orbital_harmonic_shader.frag.
     - **Acceptance Criteria:** Displays correct electron counts per shell (2, 8, 18, 32...) matching configured element occupancy.
     - **Testing & Verification Requirements:** Verify orbital count matches atomic number Z for all neutral atoms from Z=1 to Z=118.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `BohrOrbitalModel` implemented in `core/domain/include/shunya/matdb/bohr_orbital_model.hpp` & `bohr_orbital_model.cpp` plus `BohrModelView.qml` & `OrbitalPreviewItem.qml` (118-element shell count sum == Z audit, spherical harmonics |Y_l^m|^2, GLSL 440 fragment shader); verified in `tests/unit/test_matdb_inspector.cpp` (`ctest` 414/414 cases, 19437/19437 checks passed).
+    - **Git Commit Reference:** `60d00c8`
 
-  - [ ] **MATDB-03-002-02: Implement decay chain visualizer for radioactive isotopes with branching ratios**
-    - **Status:** `[ ] Not Started`
+  - [x] **MATDB-03-002-02: Implement decay chain visualizer for radioactive isotopes with branching ratios**
+    - **Status:** `[x] Completed`
     - **Priority:** P2
     - **Description:** Interactive Segre chart / isotope tree visualizer showing radioactive decay pathways (alpha drops Z by 2 and A by 4; beta- increases Z by 1).
     - **Implementation Details:** DecayChainGraphBuilder generating directed graph nodes for Uranium-238, Thorium-232, and Carbon-14 decay series.
@@ -1567,8 +1567,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** decay_chain_builder.hpp/.cpp, IsotopeDecayView.qml, decay_graph_tests.cpp.
     - **Acceptance Criteria:** Tracing U-238 decay chain navigates correctly through 14 intermediate steps to terminal stable Pb-206.
     - **Testing & Verification Requirements:** Verify conservation of nucleon number A and charge number Z across all simulated decay steps.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `DecayChainGraphBuilder` implemented in `core/domain/include/shunya/matdb/decay_chain_builder.hpp` & `decay_chain_builder.cpp` plus `IsotopeDecayView.qml` (U-238 14-step chain to Pb-206, Th-232 branched chain to Pb-208, C-14 beta- to N-14, strict Z/A & branching-ratio sum audit); verified in `tests/unit/test_matdb_inspector.cpp`.
+    - **Git Commit Reference:** `60d00c8`
 
 
 
