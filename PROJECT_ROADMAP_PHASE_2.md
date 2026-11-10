@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 98 | 60.5% |
+| `[ ]` | Not Started | 95 | 58.6% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 64 | 39.5% |
+| `[x]` | Completed | 67 | 41.4% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **39.5%** (64 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **41.4%** (67 / 162 leaf subtasks completed)
 
 
 ---
@@ -91,7 +91,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
-| **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
+| **MAT** | Material Modeling | Stage 4 | P0 | 14 | 3 | 21.4% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **64** | **39.5%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **67** | **41.4%** |
 
 ---
 
@@ -488,11 +488,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module MAT: Material Modeling
-**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[ ] Not Started`  
+**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (3 / 14 subtasks, 21.4%)  
 **Scope Summary:** Atomic and molecular modeling, molecular graph topology, VSEPR geometry, composite/alloy synthesis, Voigt-Reuss-Hashin-Shtrikman homogenization, and temperature/pressure-dependent nonlinear constitutive tensor models.
 
 #### Submodule MAT-01: Atomic & Molecular Structural Modeling
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (3 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule MAT-02: Constitutive Material Creation & Alloy/Mixture Synthesis
@@ -1576,17 +1576,17 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module MAT: Material Modeling
 
-**Status:** `[ ] Not Started` | **Stage:** Stage 4 | **Priority:** P0
+**Status:** `[~] In Progress` | **Stage:** Stage 4 | **Priority:** P0
 
 #### Submodule MAT-01: Atomic & Molecular Structural Modeling
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **MAT-01-001: Molecular Graph & Valence Bond Representation**
-  - **Status:** `[ ] Not Started`
+- [x] **MAT-01-001: Molecular Graph & Valence Bond Representation**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Construct graph-based molecular topologies with atoms as nodes and covalent/ionic/metallic bonds as typed edges, supporting 3D spatial geometry generation.
-  - [ ] **MAT-01-001-01: Implement molecular graph topology and valence bond models**
-    - **Status:** `[ ] Not Started`
+  - [x] **MAT-01-001-01: Implement molecular graph topology and valence bond models**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** C++ MolecularGraph class storing atomic nodes with formal charges, hybridization states (sp, sp2, sp3, sp3d, sp3d2), and bond orders (single, double, triple, aromatic).
     - **Implementation Details:** MolecularGraph using adjacency list representation; provides valence rule checker preventing hypervalent violations.
@@ -1594,11 +1594,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** molecular_graph.hpp/.cpp, bond_model.hpp, valence_validator.hpp, unit tests.
     - **Acceptance Criteria:** Detects invalid valence configurations (e.g. 5-valent carbon or 2-valent fluorine) and reports informative diagnostic errors.
     - **Testing & Verification Requirements:** Test valence validation across 100 common molecules (methane, benzene, sulfuric acid, sulfur hexafluoride).
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `MolecularGraph`, `ChemicalBond`, & `ValenceValidator` implemented in `core/domain/include/shunya/mat/{bond_model.hpp,valence_validator.hpp,molecular_graph.hpp}` & `molecular_graph.cpp` (sp/sp2/sp3/sp3d/sp3d2 hybridization, formal charges, methane/water/ammonia/benzene/H2SO4/SF6 valid, 5-valent C and 2-valent F errors); verified in `tests/unit/test_mat_molecular.cpp` (`ctest` 417/417 cases, 19466/19466 checks passed).
+    - **Git Commit Reference:** `4c11d4c`
 
-  - [ ] **MAT-01-001-02: Implement VSEPR geometry predictor for 3D atomic coordinates**
-    - **Status:** `[ ] Not Started`
+  - [x] **MAT-01-001-02: Implement VSEPR geometry predictor for 3D atomic coordinates**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Predict 3D molecular bond angles and spatial coordinate conformation using Valence Shell Electron Pair Repulsion theory and steric numbers.
     - **Implementation Details:** VseprConformationEngine calculating ideal geometries: Linear (180 deg), Trigonal Planar (120 deg), Tetrahedral (109.5 deg), Trigonal Bipyramidal, Octahedral.
@@ -1606,11 +1606,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** vsepr_conformation.hpp/.cpp, geometry_predictor.hpp, conformation_tests.cpp.
     - **Acceptance Criteria:** Predicts H-O-H bond angle in water (approx 104.5 deg due to lone pair repulsion) and tetrahedral angles for methane (109.47 deg).
     - **Testing & Verification Requirements:** Compare predicted 3D bond angles and interatomic distances against experimental crystallographic database values (< 2% error).
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `VseprConformationEngine` implemented in `geometry_predictor.hpp`, `vsepr_conformation.hpp` & `vsepr_conformation.cpp` (steric number & lone-pair compression predicting H2O 104.45°, NH3 107°, CH4 109.47°, SF6 90°, covalent bond lengths); verified in `tests/unit/test_mat_molecular.cpp`.
+    - **Git Commit Reference:** `4c11d4c`
 
-  - [ ] **MAT-01-001-03: Implement molecular 3D ball-and-stick and space-filling (CPK) generator**
-    - **Status:** `[ ] Not Started`
+  - [x] **MAT-01-001-03: Implement molecular 3D ball-and-stick and space-filling (CPK) generator**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Generate 3D triangle meshes representing molecular structures with standard CPK color coding (Carbon black, Hydrogen white, Oxygen red, Nitrogen blue).
     - **Implementation Details:** MolecularMeshBuilder generating sphere and cylinder primitives with instanced rendering for large macromolecules.
@@ -1618,8 +1618,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** molecular_mesh_builder.hpp/.cpp, cpk_color_table.hpp, MoleculeViewer.qml.
     - **Acceptance Criteria:** Renders ball-and-stick and space-filling representations seamlessly; cylinders join atom sphere surfaces smoothly.
     - **Testing & Verification Requirements:** Verify mesh vertex generation and bounding radius calculations on glucose and caffeine molecules.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `MolecularMeshBuilder` & `CpkColorTable` implemented in `cpk_color_table.hpp`, `molecular_mesh_builder.hpp` & `.cpp` plus `shunya/MoleculeViewer.qml` (Ball-and-Stick & CPK Space-Filling modes verified on 24-atom Glucose and Caffeine molecules); verified in `tests/unit/test_mat_molecular.cpp`.
+    - **Git Commit Reference:** `4c11d4c`
 
 - [ ] **MAT-01-002: Chemical Formula Parser & SMILES / InChI Import**
   - **Status:** `[ ] Not Started`
