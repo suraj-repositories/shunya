@@ -174,6 +174,8 @@ target_sources(shunya_core_domain
         src/env/atmospheric_model.cpp
         src/env/psychrometric_model.cpp
         src/env/wind_field_model.cpp
+        src/env/gravity_field.cpp
+        src/env/solar_position.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -360,6 +362,9 @@ target_sources(shunya_core_domain
             include/shunya/env/psychrometric_model.hpp
             include/shunya/env/turbulence_generator.hpp
             include/shunya/env/wind_field_model.hpp
+            include/shunya/env/gravity_field.hpp
+            include/shunya/env/solar_flux.hpp
+            include/shunya/env/solar_position.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
