@@ -99,6 +99,8 @@ qt_add_qml_module(appshunya
         SymbolEditorView.qml
         FootprintPreview.qml
         StackupEditor.qml
+        PcbRoutingCanvas.qml
+        ViaDialog.qml
 )
 
 set_target_properties(appshunya PROPERTIES

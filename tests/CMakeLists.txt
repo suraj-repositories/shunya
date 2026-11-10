@@ -61,6 +61,7 @@ add_executable(shunya_unit_tests
     unit/test_pcb_schematic.cpp
     unit/test_pcb_symbol_footprint.cpp
     unit/test_pcb_stackup_outline.cpp
+    unit/test_pcb_routing_pour.cpp
     unit/test_rendering.cpp
     unit/test_circuit.cpp
     unit/test_digital_logic.cpp

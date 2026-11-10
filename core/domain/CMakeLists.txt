@@ -130,6 +130,9 @@ target_sources(shunya_core_domain
         src/pcb/footprint_generator.cpp
         src/pcb/board_stackup.cpp
         src/pcb/board_outline.cpp
+        src/pcb/trace_router.cpp
+        src/pcb/via_manager.cpp
+        src/pcb/copper_pour.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -243,6 +246,11 @@ target_sources(shunya_core_domain
             include/shunya/pcb/board_stackup.hpp
             include/shunya/pcb/keepout_manager.hpp
             include/shunya/pcb/board_outline.hpp
+            include/shunya/pcb/push_shove_engine.hpp
+            include/shunya/pcb/trace_router.hpp
+            include/shunya/pcb/via_manager.hpp
+            include/shunya/pcb/thermal_relief.hpp
+            include/shunya/pcb/copper_pour.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
