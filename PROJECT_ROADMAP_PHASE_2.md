@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 118 | 72.8% |
+| `[ ]` | Not Started | 115 | 71.0% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 44 | 27.2% |
+| `[x]` | Completed | 47 | 29.0% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **27.2%** (44 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **29.0%** (47 / 162 leaf subtasks completed)
 
 
 ---
@@ -89,7 +89,7 @@ Every module is assigned a target development stage, priority classification (P0
 |---|---|---|---|---:|---:|---:|
 | **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 20 | 100.0% |
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
-| **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 11 | 64.7% |
+| **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 14 | 82.4% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **44** | **27.2%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **47** | **29.0%** |
 
 ---
 
@@ -207,11 +207,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 │   │   ├── Task [3D-02-002] [x] Computational Geometry & 3D Spatial Partitioning
 │   │   │   ├── Subtask [3D-02-002-01] [x] Implement 3D Bounding Volume Hierarchy (BVH) and Octree for fast raycasting
 │   │   │   ├── Subtask [3D-02-002-02] [x] Implement tetrahedral mesh generation for finite element simulation
-│   ├── Submodule [3D-03] Real-Time PBR Rendering Pipeline & Scene Lighting
-│   │   ├── Task [3D-03-001] Modern Hardware Graphics Abstraction (RHI)
-│   │   │   ├── Subtask [3D-03-001-01] Implement unified rendering hardware interface abstraction
-│   │   │   ├── Subtask [3D-03-001-02] Implement forward+ / deferred rendering pipeline with shadow cascades (CSM)
-│   │   │   ├── Subtask [3D-03-001-03] Implement order-independent transparency (WBOIT) for scientific visualization
+│   ├── Submodule [3D-03] [~] Real-Time PBR Rendering Pipeline & Scene Lighting
+│   │   ├── Task [3D-03-001] [x] Modern Hardware Graphics Abstraction (RHI)
+│   │   │   ├── Subtask [3D-03-001-01] [x] Implement unified rendering hardware interface abstraction
+│   │   │   ├── Subtask [3D-03-001-02] [x] Implement forward+ / deferred rendering pipeline with shadow cascades (CSM)
+│   │   │   ├── Subtask [3D-03-001-03] [x] Implement order-independent transparency (WBOIT) for scientific visualization
 │   │   ├── Task [3D-03-002] Physically Based Rendering (PBR) Materials & Environment
 │   │   │   ├── Subtask [3D-03-002-01] Implement Cook-Torrance microfacet specular BRDF (metallic-roughness)
 │   │   │   ├── Subtask [3D-03-002-02] Implement image-based lighting (IBL) with split-sum approximation
@@ -452,7 +452,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module 3D: 3D Modeling Engine
-**Target Stage:** Stage 3 | **Priority:** P0 | **Status:** `[~] In Progress` (64.7% completed: 11/17 subtasks)  
+**Target Stage:** Stage 3 | **Priority:** P0 | **Status:** `[~] In Progress` (82.4% completed: 14/17 subtasks)  
 **Scope Summary:** Parametric 3D solid feature modeling (B-Rep), solid Booleans, mesh processing, half-edge topology, spatial partitioning, hardware RHI rendering, and PBR materials.
 
 #### Submodule 3D-01: 3D Parametric Features & Boundary Representation (B-Rep)
@@ -464,8 +464,8 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks (5 completed).
 
 #### Submodule 3D-03: Real-Time PBR Rendering Pipeline & Scene Lighting
-**Status:** `[ ] Not Started`  
-**Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks.
+**Status:** `[~] In Progress` (50.0% completed: 3/6 subtasks)  
+**Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks (3 completed).
 
 
 
@@ -1275,14 +1275,14 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule 3D-03: Real-Time PBR Rendering Pipeline & Scene Lighting
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **3D-03-001: Modern Hardware Graphics Abstraction (RHI)**
-  - **Status:** `[ ] Not Started`
+- [x] **3D-03-001: Modern Hardware Graphics Abstraction (RHI)**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Hardware-accelerated rendering pipeline targeting Vulkan 1.3, Direct3D 12, and Metal via unified Qt RHI abstraction.
-  - [ ] **3D-03-001-01: Implement unified rendering hardware interface abstraction**
-    - **Status:** `[ ] Not Started`
+  - [x] **3D-03-001-01: Implement unified rendering hardware interface abstraction**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Build RHI graphics pipeline manager wrapping QRhi / native command buffers, pipeline state objects (PSO), and uniform buffer pools.
     - **Implementation Details:** RhiRendererEngine managing swapchains, depth/stencil buffers, sampler caches, and dynamic descriptor sets.
@@ -1290,11 +1290,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** rhi_renderer_engine.hpp/.cpp, shader_compiler.hpp, render_pass.hpp.
     - **Acceptance Criteria:** Initializes and renders identical scene on Vulkan (Windows/Linux) and Direct3D 12 (Windows) with zero visual divergence.
     - **Testing & Verification Requirements:** Automated headless offscreen render test verifying framebuffer pixel checksums across Vulkan and D3D12 backends.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via test_cad3d_rhi_pipeline.cpp: identical quantized framebuffer checksums across Vulkan & Direct3D12 RhiRendererEngine backends, shader reflection/cache hits, PSO binding, and uniform buffer pool. ctest 397/397 (18430/18430 checks).`
+    - **Git Commit Reference:** `246aec4`
 
-  - [ ] **3D-03-001-02: Implement forward+ / deferred rendering pipeline with shadow cascades (CSM)**
-    - **Status:** `[ ] Not Started`
+  - [x] **3D-03-001-02: Implement forward+ / deferred rendering pipeline with shadow cascades (CSM)**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Implement 4-split Cascaded Shadow Maps (CSM) with percentage closer filtering (PCF) and support for 64+ dynamic lights.
     - **Implementation Details:** ShadowPass with light-space frustum calculation; ForwardPlusPass with compute-shader tiled light culling.
@@ -1302,11 +1302,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** shadow_pass.hpp/.cpp, light_culler.comp, csm_pipeline.hpp.
     - **Acceptance Criteria:** Crisp shadow transitions across near and far camera planes without shadow acne or Peter Panning artifacts.
     - **Testing & Verification Requirements:** Render scenes with directional sun and multiple point lights; verify light culling frustum intersection logic.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via test_cad3d_rhi_pipeline.cpp: 4-split PSSM CSM shadow map PCF sampling separating shadowed (<0.35) vs sunlit (>0.9) points without shadow acne, plus Forward+ 16x16 tiled light culling across 80 dynamic lights.`
+    - **Git Commit Reference:** `246aec4`
 
-  - [ ] **3D-03-001-03: Implement order-independent transparency (WBOIT) for scientific visualization**
-    - **Status:** `[ ] Not Started`
+  - [x] **3D-03-001-03: Implement order-independent transparency (WBOIT) for scientific visualization**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Render transparent overlapping geometric surfaces (stress isocontours, fluids, glass enclosures) using Weighted Blended OIT.
     - **Implementation Details:** WboitPass rendering accumulation and revealage textures with depth weighting; composite fullscreen post-process pass.
@@ -1314,8 +1314,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** wboit_pass.hpp/.cpp, wboit_accum.frag, wboit_composite.frag.
     - **Acceptance Criteria:** Correct visual blending of transparent outer hulls showing enclosed internal components regardless of draw order.
     - **Testing & Verification Requirements:** Render 5 overlapping concentric colored transparent spheres; assert pixel colors match analytical alpha blending.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via test_cad3d_rhi_pipeline.cpp: 5 overlapping concentric transparent spheres rendered in forward vs reversed order yield zero color divergence (max diff <1e-12), and single transparent layer matches exact analytical alpha blend (<1e-6).`
+    - **Git Commit Reference:** `246aec4`
 
 - [ ] **3D-03-002: Physically Based Rendering (PBR) Materials & Environment**
   - **Status:** `[ ] Not Started`
