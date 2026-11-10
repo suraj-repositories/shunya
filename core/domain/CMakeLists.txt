@@ -89,6 +89,9 @@ target_sources(shunya_core_domain
         src/cad3d/subdivision.cpp
         src/cad3d/bvh_tree.cpp
         src/cad3d/tetrahedral_mesher.cpp
+        src/cad3d/rhi_renderer_engine.cpp
+        src/cad3d/shadow_pass.cpp
+        src/cad3d/wboit_pass.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -141,6 +144,12 @@ target_sources(shunya_core_domain
             include/shunya/cad3d/bvh_tree.hpp
             include/shunya/cad3d/tet_quality.hpp
             include/shunya/cad3d/tetrahedral_mesher.hpp
+            include/shunya/cad3d/shader_compiler.hpp
+            include/shunya/cad3d/render_pass.hpp
+            include/shunya/cad3d/rhi_renderer_engine.hpp
+            include/shunya/cad3d/csm_pipeline.hpp
+            include/shunya/cad3d/shadow_pass.hpp
+            include/shunya/cad3d/wboit_pass.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
