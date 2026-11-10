@@ -140,6 +140,8 @@ target_sources(shunya_core_domain
         src/pcb/parasitic_extractor.cpp
         src/pcb/netlist_compiler.cpp
         src/pcb/spice_simulation_engine.cpp
+        src/pcb/digital_event_engine.cpp
+        src/pcb/mixed_signal_bridge.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -267,6 +269,10 @@ target_sources(shunya_core_domain
             include/shunya/pcb/netlist_compiler.hpp
             include/shunya/pcb/newton_solver_circuit.hpp
             include/shunya/pcb/spice_simulation_engine.hpp
+            include/shunya/pcb/ieee1164_resolver.hpp
+            include/shunya/pcb/digital_event_engine.hpp
+            include/shunya/pcb/dac_adc_models.hpp
+            include/shunya/pcb/mixed_signal_bridge.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
