@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 52 | 32.1% |
+| `[ ]` | Not Started | 49 | 30.2% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 110 | 67.9% |
+| `[x]` | Completed | 113 | 69.8% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **67.9%** (110 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **69.8%** (113 / 162 leaf subtasks completed)
 
 
 ---
@@ -94,12 +94,12 @@ Every module is assigned a target development stage, priority classification (P0
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 15 | 100.0% |
-| **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
+| **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 3 | 23.1% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **110** | **67.9%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **113** | **69.8%** |
 
 ---
 
@@ -542,11 +542,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module CHEM: Chemistry Simulation
-**Target Stage:** Stage 7 | **Priority:** P1 | **Status:** `[ ] Not Started`  
+**Target Stage:** Stage 7 | **Priority:** P1 | **Status:** `[~] In Progress` (3 / 13 subtasks, 23.1%)  
 **Scope Summary:** Chemical reaction kinetics, stoichiometric network balancing, Law of Mass Action, Arrhenius temperature dependence, Gibbs energy minimization, thermochemical combustion, aqueous electrochemistry, and battery cells.
 
 #### Submodule CHEM-01: Reaction Kinetics & Stoichiometric Networks
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (3 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule CHEM-02: Thermochemistry & Energy Balances
@@ -2267,17 +2267,17 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module CHEM: Chemistry Simulation
 
-**Status:** `[ ] Not Started` | **Stage:** Stage 7 | **Priority:** P1
+**Status:** `[~] In Progress` | **Stage:** Stage 7 | **Priority:** P1
 
 #### Submodule CHEM-01: Reaction Kinetics & Stoichiometric Networks
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **CHEM-01-001: Law of Mass Action & Rate Law Engine**
-  - **Status:** `[ ] Not Started`
+- [x] **CHEM-01-001: Law of Mass Action & Rate Law Engine**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Formulate coupled ordinary differential equations (ODEs) for multi-step chemical reaction networks with forward and reverse rate constants.
-  - [ ] **CHEM-01-001-01: Implement rate equation solver for elementary and multi-step reactions**
-    - **Status:** `[ ] Not Started`
+  - [x] **CHEM-01-001-01: Implement rate equation solver for elementary and multi-step reactions**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Translate stoichiometric reaction mechanisms into stiff ODE system d[C_i]/dt = sum nu_ij * r_j; solve with implicit Rosenbrock or Radau IIA integrator.
     - **Implementation Details:** ReactionNetworkEngine compiling stoichiometry matrix N; integrates species molar concentrations with non-negativity constraints.
@@ -2285,11 +2285,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** reaction_network.hpp/.cpp, stiff_ode_solver.hpp, reaction_tests.cpp.
     - **Acceptance Criteria:** Conserves total atomic mass of each element to machine precision; concentration values remain strictly non-negative.
     - **Testing & Verification Requirements:** Test Oregonator / Belousov-Zhabotinsky oscillating chemical reaction; assert limit cycle concentration oscillations.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `StiffOdeSolver` (L-stable 2-stage Rosenbrock ROS2) & `ReactionNetworkEngine` implemented in `stiff_ode_solver.hpp`, `reaction_network.hpp/.cpp`; stiff Oregonator BZ oscillations & H2-O2 element mass conservation (`< 1e-12`) verified in `tests/unit/test_chem_kinetics.cpp` (`ctest` 466/466).
+    - **Git Commit Reference:** `a466715`
 
-  - [ ] **CHEM-01-001-02: Implement temperature-dependent Arrhenius and modified Eyring reaction rates**
-    - **Status:** `[ ] Not Started`
+  - [x] **CHEM-01-001-02: Implement temperature-dependent Arrhenius and modified Eyring reaction rates**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Evaluate forward/backward rate coefficients k(T) = A * T^n * exp(-E_a / (R * T)) with pre-exponential factor A and activation energy E_a.
     - **Implementation Details:** ArrheniusRateEvaluator computing reaction velocity constants and reverse rates via equilibrium constant K_eq = k_f / k_r.
@@ -2297,11 +2297,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** arrhenius_evaluator.hpp/.cpp, rate_coefficients.json, kinetics_tests.cpp.
     - **Acceptance Criteria:** Reaction rate increases exponentially with temperature according to activation energy; doubling temperature matches Arrhenius slope.
     - **Testing & Verification Requirements:** Verify temperature sensitivity of hydrogen-oxygen radical combustion steps against NIST Chemical Kinetics database.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ArrheniusRateEvaluator` (Modified Arrhenius, Eyring TST, K_eq reverse rate) implemented in `arrhenius_evaluator.hpp/.cpp`; verified in `tests/unit/test_chem_kinetics.cpp`.
+    - **Git Commit Reference:** `a466715`
 
-  - [ ] **CHEM-01-001-03: Implement catalytic rate modification and enzyme Michaelis-Menten kinetics**
-    - **Status:** `[ ] Not Started`
+  - [x] **CHEM-01-001-03: Implement catalytic rate modification and enzyme Michaelis-Menten kinetics**
+    - **Status:** `[x] Completed`
     - **Priority:** P2
     - **Description:** Model heterogeneous surface catalysis and biological enzymatic reactions v = V_max * [S] / (K_m + [S]) with competitive inhibition.
     - **Implementation Details:** CatalysisModel modifying apparent activation energy E_a and evaluating Langmuir-Hinshelwood surface adsorption kinetics.
@@ -2309,8 +2309,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** catalysis_model.hpp/.cpp, michaelis_menten.hpp, enzyme_tests.cpp.
     - **Acceptance Criteria:** Enzymatic reaction rate saturates at V_max at high substrate concentrations; inhibitor correctly shifts apparent K_m or V_max.
     - **Testing & Verification Requirements:** Verify Lineweaver-Burk double reciprocal plot linearity for competitive and non-competitive enzyme inhibition.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `CatalysisModel` (Langmuir-Hinshelwood & activation barrier lowering) & `MichaelisMentenModel` (Lineweaver-Burk competitive/non-competitive/uncompetitive) implemented in `catalysis_model.hpp/.cpp`, `michaelis_menten.hpp`; verified in `tests/unit/test_chem_kinetics.cpp`.
+    - **Git Commit Reference:** `a466715`
 
 - [ ] **CHEM-01-002: Chemical Equilibrium & Gibbs Free Energy Minimization**
   - **Status:** `[ ] Not Started`
