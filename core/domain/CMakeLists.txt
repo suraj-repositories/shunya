@@ -180,6 +180,9 @@ target_sources(shunya_core_domain
         src/env/wind_tunnel_fixture.cpp
         src/env/ambient_convection.cpp
         src/env/deep_space_sink.cpp
+        src/integ/adaptive_step_negotiator.cpp
+        src/integ/state_checkpoint.cpp
+        src/integ/master_co_simulation.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -373,6 +376,12 @@ target_sources(shunya_core_domain
             include/shunya/env/wind_tunnel_fixture.hpp
             include/shunya/env/ambient_convection.hpp
             include/shunya/env/deep_space_sink.hpp
+            include/shunya/integ/cfl_calculator.hpp
+            include/shunya/integ/state_checkpoint.hpp
+            include/shunya/integ/rollback_manager.hpp
+            include/shunya/integ/adaptive_step_negotiator.hpp
+            include/shunya/integ/domain_scheduler.hpp
+            include/shunya/integ/master_co_simulation.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
