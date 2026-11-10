@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 84 | 51.9% |
+| `[ ]` | Not Started | 81 | 50.0% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 78 | 48.1% |
+| `[x]` | Completed | 81 | 50.0% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **48.1%** (78 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **50.0%** (81 / 162 leaf subtasks completed)
 
 
 ---
@@ -92,14 +92,14 @@ Every module is assigned a target development stage, priority classification (P0
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
-| **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
+| **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 3 | 17.6% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **78** | **48.1%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **81** | **50.0%** |
 
 ---
 
@@ -506,11 +506,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module PCB: Circuit Board Design
-**Target Stage:** Stage 5 | **Priority:** P1 | **Status:** `[ ] Not Started`  
+**Target Stage:** Stage 5 | **Priority:** P1 | **Status:** `[~] In Progress` (3 / 17 subtasks, 17.6%)  
 **Scope Summary:** Electronic Design Automation (EDA) suite including multi-sheet schematic capture, ERC, IPC footprint generator, multi-layer PCB stackup, 45-degree push-and-shove trace router, copper flood fill, DRC, Gerber RS-274X export, and mixed-signal SPICE/digital co-simulation.
 
 #### Submodule PCB-01: Schematic Capture & Symbol Management
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (3 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule PCB-02: PCB Layout, Stackup & Interactive Routing
@@ -1789,17 +1789,17 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module PCB: Circuit Board Design
 
-**Status:** `[ ] Not Started` | **Stage:** Stage 5 | **Priority:** P1
+**Status:** `[~] In Progress` | **Stage:** Stage 5 | **Priority:** P1
 
 #### Submodule PCB-01: Schematic Capture & Symbol Management
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **PCB-01-001: Multi-Sheet Schematic Editor**
-  - **Status:** `[ ] Not Started`
+- [x] **PCB-01-001: Multi-Sheet Schematic Editor**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Interactive schematic drafting environment supporting multi-sheet hierarchical designs, orthogonal auto-wiring, net naming, and Electrical Rule Checking.
-  - [ ] **PCB-01-001-01: Implement hierarchical schematic sheets with inter-sheet ports and buses**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-01-001-01: Implement hierarchical schematic sheets with inter-sheet ports and buses**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Hierarchical document architecture allowing sub-sheets, global nets, and multi-wire buses (e.g. DATA[0..7]) with automatic sheet-to-sheet port mapping.
     - **Implementation Details:** SchematicDocument and SchematicSheet C++ classes managing net connectivity graphs across hierarchical child blocks.
@@ -1807,11 +1807,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** schematic_sheet.hpp/.cpp, schematic_hierarchy.hpp, SchematicView.qml.
     - **Acceptance Criteria:** Creating a net named 'CLK' on Sheet 1 connects cleanly to 'CLK' on Sheet 2; bus wires expand to individual indexed nets.
     - **Testing & Verification Requirements:** Hierarchical connectivity unit tests: build nested 3-level schematic; verify extracted netlist graph topology.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `SchematicDocument` & `SchematicSheet` implemented in `core/domain/include/shunya/pcb/{schematic_hierarchy.hpp,schematic_sheet.hpp}` & `schematic_sheet.cpp` + `shunya/SchematicView.qml` (3-level sheet flattening, global `CLK` nets, `DATA[0..7]` bus expansion); verified in `tests/unit/test_pcb_schematic.cpp` (`ctest` 431/431 cases, 19990/19990 checks passed).
+    - **Git Commit Reference:** `b4b60fe`
 
-  - [ ] **PCB-01-001-02: Build interactive schematic wiring tool with orthogonal auto-routing and junctions**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-01-001-02: Build interactive schematic wiring tool with orthogonal auto-routing and junctions**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Interactive wire placement tool that snaps to component pins, constrains routes to 90-degree orthogonal paths, and places 4-way connection dots.
     - **Implementation Details:** OrthogonalWireRouter using A* grid pathfinding on 2.54mm / 1.27mm schematic grid with pin obstacle avoidance.
@@ -1819,11 +1819,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** wire_router_2d.hpp/.cpp, WireInteractionTool.qml, wiring_test.cpp.
     - **Acceptance Criteria:** Dragging a wire between two pins routes cleanly around intermediate components without crossing pins; inserts solder dots at T-junctions.
     - **Testing & Verification Requirements:** Test pathfinding around 10 randomly placed IC symbols; assert zero diagonal line segments.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `OrthogonalWireRouter` implemented in `wire_router_2d.hpp` & `wire_router_2d.cpp` + `WireInteractionTool.qml` (A* 2.54mm/1.27mm obstacle-avoiding router, 0 diagonal segments across 10 random IC blocks, T-junction dot insertion); verified in `tests/unit/test_pcb_schematic.cpp`.
+    - **Git Commit Reference:** `b4b60fe`
 
-  - [ ] **PCB-01-001-03: Implement real-time Electrical Rule Checking (ERC) engine**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-01-001-03: Implement real-time Electrical Rule Checking (ERC) engine**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Rule checker validating schematic netlist against standard ERC matrix: Output connected to Output, floating Input pins, unconnected nets, missing power flags.
     - **Implementation Details:** ErcEngine evaluating pin electrical types (Input, Output, Bidirectional, Tri-State, Power Input, Power Output, Passive) against compatibility lookup table.
@@ -1831,8 +1831,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** erc_engine.hpp/.cpp, erc_matrix.hpp, ErcReportPanel.qml, erc_tests.cpp.
     - **Acceptance Criteria:** Connecting two totem-pole Output pins flags a critical ERC Error; unconnected Input pin flags an ERC Warning.
     - **Testing & Verification Requirements:** Run ERC against intentional test netlist errors; assert 100% detection of shorted power rails and floating CMOS inputs.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ErcEngine` & `ErcMatrix` implemented in `erc_matrix.hpp`, `erc_engine.hpp` & `.cpp` + `ErcReportPanel.qml` (detects Output-Output, shorted PowerOutput rails, floating CMOS Inputs); verified in `tests/unit/test_pcb_schematic.cpp`.
+    - **Git Commit Reference:** `b4b60fe`
 
 - [ ] **PCB-01-002: Component Symbol & Footprint Library Manager**
   - **Status:** `[ ] Not Started`
