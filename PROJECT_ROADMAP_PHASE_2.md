@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 139 | 85.8% |
+| `[ ]` | Not Started | 136 | 84.0% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 23 | 14.2% |
+| `[x]` | Completed | 26 | 16.0% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **14.2%** (23 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **16.0%** (26 / 162 leaf subtasks completed)
 
 
 ---
@@ -88,7 +88,7 @@ Every module is assigned a target development stage, priority classification (P0
 | Module ID | Module Name | Phase / Stage | Priority | Total Subtasks | Completed | Progress |
 |---|---|---|---|---:|---:|---:|
 | **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 20 | 100.0% |
-| **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 3 | 23.1% |
+| **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 6 | 46.2% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 0 | 0.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **23** | **14.2%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **26** | **16.0%** |
 
 ---
 
@@ -168,15 +168,15 @@ SHUNYA NEXT PHASE PLATFORM WBS
 │   │   │   ├── Subtask [UI-03-002-02] [x] Implement scalar field contour colormap legend and probe tooltips
 │   │   │   ├── Subtask [UI-03-002-03] [x] Implement multi-channel oscilloscope & logic analyzer viewports
 ├── Module [2D] [~] 2D Modeling Engine (Stage 2 | P0)
-│   ├── Submodule [2D-01] [~] 2D Geometric Primitives & Vector Drawing
+│   ├── Submodule [2D-01] [x] 2D Geometric Primitives & Vector Drawing
 │   │   ├── Task [2D-01-001] [x] Parametric 2D Primitives Engine
 │   │   │   ├── Subtask [2D-01-001-01] [x] Implement point, line, polyline, arc, circle, ellipse, and cubic Bézier spline primitives
 │   │   │   ├── Subtask [2D-01-001-02] [x] Implement polygon boolean operations (Union, Difference, Intersection, XOR via Clipper2)
 │   │   │   ├── Subtask [2D-01-001-03] [x] Implement offset curve generation and filleting/chamfering algorithms for 2D profiles
-│   │   ├── Task [2D-01-002] Interactive Drawing Tools & Snapping System
-│   │   │   ├── Subtask [2D-01-002-01] Implement interactive sketch canvas with zoom, pan, grid raster, and coordinate readout
-│   │   │   ├── Subtask [2D-01-002-02] Implement geometric object snapping (endpoints, midpoints, centers, quadrants, intersections)
-│   │   │   ├── Subtask [2D-01-002-03] Implement dynamic polar guides and construction geometry layer
+│   │   ├── Task [2D-01-002] [x] Interactive Drawing Tools & Snapping System
+│   │   │   ├── Subtask [2D-01-002-01] [x] Implement interactive sketch canvas with zoom, pan, grid raster, and coordinate readout
+│   │   │   ├── Subtask [2D-01-002-02] [x] Implement geometric object snapping (endpoints, midpoints, centers, quadrants, intersections)
+│   │   │   ├── Subtask [2D-01-002-03] [x] Implement dynamic polar guides and construction geometry layer
 │   ├── Submodule [2D-02] 2D Geometric Constraint Solver
 │   │   ├── Task [2D-02-001] Degrees of Freedom & 2D Constraint Formulation
 │   │   │   ├── Subtask [2D-02-001-01] Define constraint graph (Coincident, Collinear, Parallel, Perpendicular, Tangent, Concentric)
@@ -434,12 +434,12 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module 2D: 2D Modeling Engine
-**Target Stage:** Stage 2 | **Priority:** P0 | **Status:** `[~] In Progress` (23.1% completed: 3/13 subtasks)  
+**Target Stage:** Stage 2 | **Priority:** P0 | **Status:** `[~] In Progress` (46.2% completed: 6/13 subtasks)  
 **Scope Summary:** Parametric 2D vector geometry engine, interactive drafting tools, geometric snapping, non-linear 2D constraint solver, layer management, and CAD vector exchange.
 
 #### Submodule 2D-01: 2D Geometric Primitives & Vector Drawing
-**Status:** `[~] In Progress` (50.0% completed: 3/6 subtasks)  
-**Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks (3 completed).
+**Status:** `[x] Completed` (100.0% completed: 6/6 subtasks)  
+**Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks (6 completed).
 
 #### Submodule 2D-02: 2D Geometric Constraint Solver
 **Status:** `[ ] Not Started`  
@@ -920,7 +920,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 **Status:** `[~] In Progress` | **Stage:** Stage 2 | **Priority:** P0
 
 #### Submodule 2D-01: 2D Geometric Primitives & Vector Drawing
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **2D-01-001: Parametric 2D Primitives Engine**
   - **Status:** `[x] Completed`
@@ -962,45 +962,45 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_primitives.cpp (Miter +2/-2/collapsed -6 offsets, Round +2 offset area, 90-degree & 60-degree analytical corner filleting with G1 tangent dot == 1.0 to 1e-9, asymmetrical chamfer setback, and rounded rectangle perimeter area).
     - **Git Commit Reference:** Commit 72d2084 (feat(cad2d): implement parametric 2D curves, polygon booleans, offsetting, and fillets)
 
-- [ ] **2D-01-002: Interactive Drawing Tools & Snapping System**
-  - **Status:** `[ ] Not Started`
+- [x] **2D-01-002: Interactive Drawing Tools & Snapping System**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Interactive viewport tools for drawing 2D vector primitives, visual snap markers, dynamic polar guides, and construction geometry.
-  - [ ] **2D-01-002-01: Implement interactive sketch canvas with zoom, pan, grid raster, and coordinate readout**
-    - **Status:** `[ ] Not Started`
+  - [x] **2D-01-002-01: Implement interactive sketch canvas with zoom, pan, grid raster, and coordinate readout**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Hardware-accelerated 2D drafting canvas with adaptive sub-millimeter grid division, infinite canvas panning, and real-time cursor coordinate readout.
-    - **Implementation Details:** SketchCanvas2D inheriting QQuickPaintedItem / RhiItem with viewport transform matrix and grid shader.
+    - **Implementation Details:** SketchViewport2D double-precision zoom/pan camera and adaptive 1-2-5x10^n SI grid generator in sketch_viewport_2d.hpp/.cpp, driving GPU RHI scene-graph item ShunyaSketchCanvas2D (QSGGeometryNode DrawLines batching) and SketchCanvas.qml.
     - **Dependencies:** 2D-01-001-01, UI-03-001-01
     - **Expected Deliverables:** sketch_canvas_2d.hpp/.cpp, SketchCanvas.qml, GridShader.frag.
     - **Acceptance Criteria:** Smooth 60 FPS panning and zooming from sub-micron scale to kilometer scale without integer overflow or jitter.
     - **Testing & Verification Requirements:** Stress test rendering 10,000 lines while panning and zooming; verify coordinate transform inverses.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_snapping_sketch.cpp (sub-micron 1e8 px/m and kilometer 0.05 px/m roundtrip transform inverses to 1e-12/1e-9, zoom anchor invariance, adaptive grid calculation, and 10,000-line spatial indexing benchmark) plus offscreen SketchCanvas.qml launch.
+    - **Git Commit Reference:** Pending Commit
 
-  - [ ] **2D-01-002-02: Implement geometric object snapping (endpoints, midpoints, centers, quadrants, intersections)**
-    - **Status:** `[ ] Not Started`
+  - [x] **2D-01-002-02: Implement geometric object snapping (endpoints, midpoints, centers, quadrants, intersections)**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Real-time spatial snapping engine detecting candidate snap targets within configurable pixel radius and rendering magnetic glyphs.
-    - **Implementation Details:** SnapTargetManager with 2D spatial hash grid; tests candidate geometry for Endpoint, Midpoint, Center, Quadrant, Intersection, Tangent.
+    - **Implementation Details:** SnapTargetManager 2D spatial hash grid and analytical intersection/tangent solver (Line-Line, Line-Circle, Line-Arc, Circle-Circle, Circle-Arc, Arc-Arc, Polyline) in snap_manager.hpp/.cpp with magnetic CAD glyph rendering in SnapGlyphOverlay.qml.
     - **Dependencies:** 2D-01-002-01
     - **Expected Deliverables:** snap_manager.hpp/.cpp, SnapGlyphOverlay.qml, snap_test.cpp.
     - **Acceptance Criteria:** Cursor snaps to intersection of line and circle when within 10 screen pixels; visually highlights intersection glyph.
     - **Testing & Verification Requirements:** Unit test snap query returns exact analytical intersection point for all supported curve combinations.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_snapping_sketch.cpp (Line-Line, Line-Circle chord, Line-Arc sweep filtering, Circle-Circle radical intersections, external Tangent orthogonality to < 1e-9, and pixel-radius candidate selection/rejection within 10px).
+    - **Git Commit Reference:** Pending Commit
 
-  - [ ] **2D-01-002-03: Implement dynamic polar guides and construction geometry layer**
-    - **Status:** `[ ] Not Started`
+  - [x] **2D-01-002-03: Implement dynamic polar guides and construction geometry layer**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Provide angular polar snapping lines (0, 30, 45, 60, 90 deg) and allow tagging any 2D primitive as non-rendering Construction Geometry.
-    - **Implementation Details:** PolarTrackingEngine emitting guide rays; SketchEntity flags is_construction to exclude from 3D profile extrusion operations.
+    - **Implementation Details:** PolarTrackingEngine angular guide snapper in polar_guide.hpp/.cpp; SketchDocument2D/SketchEntity separating construction geometry (dashed yellow lines) from extract_solid_profile_loops() in construction_layer.hpp/.cpp with SketchToolbar.qml toggles.
     - **Dependencies:** 2D-01-002-02
     - **Expected Deliverables:** polar_guide.hpp/.cpp, construction_layer.hpp, UI integration in SketchToolbar.qml.
     - **Acceptance Criteria:** Drawing lines along 45 degree angle snaps smoothly; construction entities appear dashed and are ignored by extrusion mesher.
     - **Testing & Verification Requirements:** Verify angle detection within 0.5 degree snapping threshold; verify construction entities are excluded from profile loops.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_snapping_sketch.cpp (45.3 deg polar snap locking onto exact 45 deg ray, non-guide 18 deg rejection, and SketchDocument2D solid profile loop stitching excluding construction circles/squares).
+    - **Git Commit Reference:** Pending Commit
 
 
 

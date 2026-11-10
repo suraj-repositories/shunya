@@ -471,10 +471,16 @@ ApplicationWindow {
                                     }
                                 }
 
+                                // 2D SKETCH & SCHEMATIC VIEWPORT
+                                SketchCanvas {
+                                    anchors.fill: parent
+                                    visible: window.currentPreset === "Schematic"
+                                }
+
                                 // MODELING & 3D VIEWPORT WITH GIZMO, VIEWCUBE, AND HUD
                                 Item {
                                     anchors.fill: parent
-                                    visible: window.currentPreset === "Modeling" || window.currentPreset === "Schematic" || window.currentPreset === "Scripting"
+                                    visible: window.currentPreset === "Modeling" || window.currentPreset === "Scripting"
 
                                     // Viewport background grid canvas
                                     Canvas {

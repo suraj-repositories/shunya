@@ -59,6 +59,10 @@ target_sources(shunya_core_domain
         src/cad2d/polygon_boolean.cpp
         src/cad2d/profile_offset.cpp
         src/cad2d/fillet_chamfer.cpp
+        src/cad2d/sketch_viewport_2d.cpp
+        src/cad2d/construction_layer.cpp
+        src/cad2d/snap_manager.cpp
+        src/cad2d/polar_guide.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -76,6 +80,10 @@ target_sources(shunya_core_domain
             include/shunya/cad2d/polygon_boolean.hpp
             include/shunya/cad2d/profile_offset.hpp
             include/shunya/cad2d/fillet_chamfer.hpp
+            include/shunya/cad2d/sketch_viewport_2d.hpp
+            include/shunya/cad2d/construction_layer.hpp
+            include/shunya/cad2d/snap_manager.hpp
+            include/shunya/cad2d/polar_guide.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
