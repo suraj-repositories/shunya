@@ -1021,7 +1021,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Jacobian matrix matches numerical finite-difference gradient to < 1e-7 error for all constraint types.
     - **Testing & Verification Requirements:** Gradient verification tests comparing analytical Jacobian against central differences across random geometric states.
     - **Actual Verification Evidence:** Verified via central finite-difference gradient comparison tests across all 10 geometric constraints in test_cad2d_constraints.cpp (< 1e-7 max Jacobian error across all variables).
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit eadd24f (feat(cad2d): implement non-linear 2D geometric & dimensional constraint solver with DOF analysis)
 
   - [x] **2D-02-001-02: Implement dimensional constraints (Distance, Angle, Radius, Diameter, Horizontal/Vertical)**
     - **Status:** `[x] Completed`
@@ -1033,7 +1033,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Applying a 50mm distance constraint between two points forces the solver to converge to exactly 50.000000mm separation.
     - **Testing & Verification Requirements:** Test distance, angle, and radius constraint solving on simple triangles, quadrilaterals, and off-axis tangents.
     - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_constraints.cpp (finite-difference Jacobian validation < 1e-7 across all 9 dimensional types, 50.000000mm separation convergence, 3-4-5 right triangle with tangent circle, and 60-deg equilateral angle solve).
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit eadd24f (feat(cad2d): implement non-linear 2D geometric & dimensional constraint solver with DOF analysis)
 
   - [x] **2D-02-001-03: Implement non-linear Newton-Raphson / Levenberg-Marquardt solver for sketch DOF analysis**
     - **Status:** `[x] Completed`
@@ -1045,7 +1045,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Solves a 20-constraint sketch in < 5ms with residual norm < 1e-8; flags over-constrained red conflicting dimensions.
     - **Testing & Verification Requirements:** Benchmark suite solving sketches (rectangles with fillets, constrained linkages, tangent arcs); verify DOF count.
     - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_constraints.cpp (Under-constrained DOF tracking, consistent redundant count detection, conflicting over-constrained ID flagging, and 20-constraint closed 10-gon polygon convergence to residual < 1e-8 in < 5ms).
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit eadd24f (feat(cad2d): implement non-linear 2D geometric & dimensional constraint solver with DOF analysis)
 
 
 
