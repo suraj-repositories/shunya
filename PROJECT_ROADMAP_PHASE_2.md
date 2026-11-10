@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 54 | 33.3% |
+| `[ ]` | Not Started | 52 | 32.1% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 108 | 66.7% |
+| `[x]` | Completed | 110 | 67.9% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **66.7%** (108 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **67.9%** (110 / 162 leaf subtasks completed)
 
 
 ---
@@ -93,13 +93,13 @@ Every module is assigned a target development stage, priority classification (P0
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
-| **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 13 | 86.7% |
+| **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 15 | 100.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **108** | **66.7%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **110** | **67.9%** |
 
 ---
 
@@ -524,7 +524,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module PHY: Physics Simulation
-**Target Stage:** Stage 6 | **Priority:** P0 | **Status:** `[~] In Progress` (13 / 15 subtasks, 86.7%)  
+**Target Stage:** Stage 6 | **Priority:** P0 | **Status:** `[x] Completed` (15 / 15 subtasks, 100.0%)  
 **Scope Summary:** Multi-domain physics simulation engine covering symplectic rigid-body dynamics, continuous collision detection (CCD), articulated joints, 3D transient heat conduction/radiation, phase transitions, SPH free-surface fluids, and Eulerian grid CFD.
 
 #### Submodule PHY-01: Classical Mechanics, Multi-Body Dynamics & Collisions
@@ -536,7 +536,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule PHY-03: Fluid Mechanics & Fluid Dynamics
-**Status:** `[~] In Progress` (3 / 5 subtasks)  
+**Status:** `[x] Completed` (5 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 
@@ -2042,7 +2042,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module PHY: Physics Simulation
 
-**Status:** `[~] In Progress` | **Stage:** Stage 6 | **Priority:** P0
+**Status:** `[x] Completed` | **Stage:** Stage 6 | **Priority:** P0
 
 #### Submodule PHY-01: Classical Mechanics, Multi-Body Dynamics & Collisions
 **Status:** `[x] Completed`
@@ -2191,7 +2191,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule PHY-03: Fluid Mechanics & Fluid Dynamics
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **PHY-03-001: Smoothed Particle Hydrodynamics (SPH) Free-Surface Solver**
   - **Status:** `[x] Completed`
@@ -2233,12 +2233,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `SphSurfaceTensionModule` implemented in `sph_surface_tension.hpp/.cpp`; 0-g droplet spherification, Rayleigh l=2 mode frequency, and Jurin's capillary law verified in `tests/unit/test_phy_sph.cpp`.
     - **Git Commit Reference:** `dce2d73`
 
-- [ ] **PHY-03-002: Eulerian Grid-Based Incompressible Fluid Solver**
-  - **Status:** `[ ] Not Started`
+- [x] **PHY-03-002: Eulerian Grid-Based Incompressible Fluid Solver**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Grid-based Navier-Stokes solver on staggered Marker-and-Cell (MAC) grids for laminar/turbulent flow and pressure Poisson projection.
-  - [ ] **PHY-03-002-01: Implement staggered MAC grid advection-diffusion solver (Stable Fluids)**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-03-002-01: Implement staggered MAC grid advection-diffusion solver (Stable Fluids)**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Discretize velocity field on cell faces (u, v, w) to prevent checkerboard pressure oscillations; perform unconditionally stable semi-Lagrangian advection.
     - **Implementation Details:** MacGridFluidSolver3D with BFECC (Back and Forth Error Compensation and Correction) high-order advection scheme.
@@ -2246,11 +2246,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** mac_grid_solver_3d.hpp/.cpp, semi_lagrangian.hpp, advection_test.cpp.
     - **Acceptance Criteria:** Advects vortex smoke rings and dye plumes with minimal numerical dissipation; preserves sharp velocity gradients.
     - **Testing & Verification Requirements:** Vortex leapfrogging verification: two coaxial smoke rings pass through each other periodically as predicted by fluid theory.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `MacGridFluidSolver3D` (staggered MAC + RK2 BFECC advection-diffusion) implemented in `semi_lagrangian.hpp`, `mac_grid_solver_3d.hpp/.cpp`; 3D vortex plume conservation verified in `tests/unit/test_phy_cfd_mac.cpp` (`ctest` 464/464).
+    - **Git Commit Reference:** `948f2e6`
 
-  - [ ] **PHY-03-002-02: Implement Conjugate Gradient Poisson pressure solver with boundary conditions**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-03-002-02: Implement Conjugate Gradient Poisson pressure solver with boundary conditions**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Enforce incompressibility div(u) = 0 by solving Poisson equation Laplace(p) = rho/dt * div(u_star) using Preconditioned Conjugate Gradient (PCG).
     - **Implementation Details:** PressurePoissonSolver with Incomplete Cholesky preconditioner; applies Dirichlet (open) and Neumann (solid wall) boundary conditions.
@@ -2258,8 +2258,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** pressure_poisson.hpp/.cpp, pcg_solver.hpp, lid_driven_cavity_test.cpp.
     - **Acceptance Criteria:** Velocity divergence norm reduces to < 1e-6 per time step; produces exact recirculating vortices in lid-driven cavity flow.
     - **Testing & Verification Requirements:** Lid-driven cavity flow benchmark at Re=100 and Re=400; compare primary vortex center coordinates against Ghia et al. benchmark data.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `GridPcgSolver` (Bridson MIC(0) PCG) & `PressurePoissonSolver` implemented in `pcg_solver.hpp`, `pressure_poisson.hpp/.cpp`; Ghia et al. Re=100 & Re=400 lid-driven cavity `< 1e-6` div(u) verified in `tests/unit/test_phy_cfd_mac.cpp`.
+    - **Git Commit Reference:** `948f2e6`
 
 
 
