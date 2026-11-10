@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 32 | 19.8% |
+| `[ ]` | Not Started | 30 | 18.5% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 130 | 80.2% |
+| `[x]` | Completed | 132 | 81.5% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **80.2%** (130 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **81.5%** (132 / 162 leaf subtasks completed)
 
 
 ---
@@ -95,11 +95,11 @@ Every module is assigned a target development stage, priority classification (P0
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 15 | 100.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 13 | 100.0% |
-| **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 7 | 77.8% |
+| **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 9 | 100.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **130** | **80.2%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **132** | **81.5%** |
 
 ---
 
@@ -560,7 +560,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module ENV: Virtual Environment
-**Target Stage:** Stage 8 | **Priority:** P0 | **Status:** `[~] In Progress` (7 / 9 subtasks, 77.8%)  
+**Target Stage:** Stage 8 | **Priority:** P0 | **Status:** `[x] Completed` (9 / 9 subtasks, 100.0%)  
 **Scope Summary:** Configurable physical virtual environment including US Standard Atmosphere column, altitude pressure/density gradients, aerodynamic wind vectors, solar radiation, microgravity, vacuum test chambers, and deep-space radiation sinks.
 
 #### Submodule ENV-01: Environmental Physical Fields & Atmospheric Model
@@ -568,7 +568,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule ENV-02: Virtual Chamber & Environmental Boundary Enclosures
-**Status:** `[~] In Progress` (2 / 4 subtasks)  
+**Status:** `[x] Completed` (4 / 4 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 
@@ -2468,7 +2468,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module ENV: Virtual Environment
 
-**Status:** `[~] In Progress` | **Stage:** Stage 8 | **Priority:** P0
+**Status:** `[x] Completed` | **Stage:** Stage 8 | **Priority:** P0
 
 #### Submodule ENV-01: Environmental Physical Fields & Atmospheric Model
 **Status:** `[x] Completed`
@@ -2544,7 +2544,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule ENV-02: Virtual Chamber & Environmental Boundary Enclosures
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **ENV-02-001: Controlled Test Chamber & Wind Tunnel Rig**
   - **Status:** `[x] Completed`
@@ -2574,12 +2574,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `ctest CoreUnitTests: 485 passed, 0 failed (35296/35296 checks passed); verified NACA 0012 symmetric 0 deg, +/-8 deg lift reversal, drag, div(u)<1e-3 & polar curve in test_env_chambers.cpp & WindTunnelView.qml`
     - **Git Commit Reference:** `dee743b`
 
-- [ ] **ENV-02-002: Ambient Energy Exchange & Radiation Sinks**
-  - **Status:** `[ ] Not Started`
+- [x] **ENV-02-002: Ambient Energy Exchange & Radiation Sinks**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Far-field thermal exchange with ambient atmosphere and deep-space effective blackbody radiation sink for satellite and outdoor equipment simulation.
-  - [ ] **ENV-02-002-01: Implement ambient thermal convective boundary exchange with dynamic h**
-    - **Status:** `[ ] Not Started`
+  - [x] **ENV-02-002-01: Implement ambient thermal convective boundary exchange with dynamic h**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Calculate real-time convective heat exchange between exposed simulated surfaces and ambient atmosphere based on local wind speed.
     - **Implementation Details:** AmbientConvectionBoundary evaluating McAdams correlation h = 5.7 + 3.8 * v_wind for outdoor exposed surfaces.
@@ -2587,11 +2587,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** ambient_convection.hpp/.cpp, heat_sink_test.cpp.
     - **Acceptance Criteria:** Increasing wind speed from 0 m/s to 10 m/s accelerates cooling rate of hot heatsink by a factor of 4.
     - **Testing & Verification Requirements:** Verify cooling curve of heated aluminum block exposed to varying wind speeds against analytical lumped capacitance model.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 487 passed, 0 failed (35311/35311 checks passed); verified McAdams h (5.7 -> 43.7 W/m^2K) & analytical lumped capacitance match in test_env_radiation.cpp`
+    - **Git Commit Reference:** `4bcd897`
 
-  - [ ] **ENV-02-002-02: Implement night-sky deep space radiative cooling sink model**
-    - **Status:** `[ ] Not Started`
+  - [x] **ENV-02-002-02: Implement night-sky deep space radiative cooling sink model**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Model radiative exchange to night sky with effective sky temperature T_sky = T_amb * (0.711 + 0.0056 * T_dp + 0.000073 * T_dp^2)^0.25 for nocturnal cooling.
     - **Implementation Details:** DeepSpaceRadiationSink evaluating net radiative heat loss to cold sky during nighttime and orbital vacuum environments (T_space = 2.7 K).
@@ -2599,8 +2599,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** deep_space_sink.hpp/.cpp, nocturnal_cooling_test.cpp.
     - **Acceptance Criteria:** Surfaces exposed to clear night sky cool below ambient air temperature due to infrared radiation through atmospheric window (8-13 um).
     - **Testing & Verification Requirements:** Simulate nocturnal sub-ambient radiative cooling of blackbody radiator; compare temperature drop against Berdahl-Martin sky model.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 487 passed, 0 failed (35311/35311 checks passed); verified Berdahl-Martin sub-ambient nocturnal cooling (>8 K below Tamb) & 2.7 K T^4 cooling in test_env_radiation.cpp`
+    - **Git Commit Reference:** `4bcd897`
 
 
 
