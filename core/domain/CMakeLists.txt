@@ -115,6 +115,8 @@ target_sources(shunya_core_domain
         src/mat/smiles_parser.cpp
         src/mat/composite_homogenizer.cpp
         src/mat/alloy_builder.cpp
+        src/mat/porous_material.cpp
+        src/mat/anisotropic_tensor.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -203,6 +205,10 @@ target_sources(shunya_core_domain
             include/shunya/mat/smiles_parser.hpp
             include/shunya/mat/composite_homogenizer.hpp
             include/shunya/mat/alloy_builder.hpp
+            include/shunya/mat/gibson_ashby.hpp
+            include/shunya/mat/porous_material.hpp
+            include/shunya/mat/tensor_validator.hpp
+            include/shunya/mat/anisotropic_tensor.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
