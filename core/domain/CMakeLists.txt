@@ -117,6 +117,9 @@ target_sources(shunya_core_domain
         src/mat/alloy_builder.cpp
         src/mat/porous_material.cpp
         src/mat/anisotropic_tensor.cpp
+        src/mat/monotonic_spline.cpp
+        src/mat/thermal_property_evaluator.cpp
+        src/mat/thermal_strain.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -209,6 +212,9 @@ target_sources(shunya_core_domain
             include/shunya/mat/porous_material.hpp
             include/shunya/mat/tensor_validator.hpp
             include/shunya/mat/anisotropic_tensor.hpp
+            include/shunya/mat/monotonic_spline.hpp
+            include/shunya/mat/thermal_property_evaluator.hpp
+            include/shunya/mat/thermal_strain.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
