@@ -183,6 +183,10 @@ target_sources(shunya_core_domain
         src/integ/adaptive_step_negotiator.cpp
         src/integ/state_checkpoint.cpp
         src/integ/master_co_simulation.cpp
+        src/integ/electro_thermal_connector.cpp
+        src/integ/thermo_mechanical_connector.cpp
+        src/integ/fsi_connector.cpp
+        src/integ/chemo_thermal_connector.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -382,6 +386,10 @@ target_sources(shunya_core_domain
             include/shunya/integ/adaptive_step_negotiator.hpp
             include/shunya/integ/domain_scheduler.hpp
             include/shunya/integ/master_co_simulation.hpp
+            include/shunya/integ/electro_thermal_connector.hpp
+            include/shunya/integ/thermo_mechanical_connector.hpp
+            include/shunya/integ/fsi_connector.hpp
+            include/shunya/integ/chemo_thermal_connector.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
