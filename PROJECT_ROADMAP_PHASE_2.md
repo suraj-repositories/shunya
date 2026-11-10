@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 133 | 82.1% |
+| `[ ]` | Not Started | 131 | 80.9% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 29 | 17.9% |
+| `[x]` | Completed | 31 | 19.1% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **17.9%** (29 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **19.1%** (31 / 162 leaf subtasks completed)
 
 
 ---
@@ -88,7 +88,7 @@ Every module is assigned a target development stage, priority classification (P0
 | Module ID | Module Name | Phase / Stage | Priority | Total Subtasks | Completed | Progress |
 |---|---|---|---|---:|---:|---:|
 | **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 20 | 100.0% |
-| **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 9 | 69.2% |
+| **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 11 | 84.6% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 0 | 0.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **29** | **17.9%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **31** | **19.1%** |
 
 ---
 
@@ -182,10 +182,10 @@ SHUNYA NEXT PHASE PLATFORM WBS
 │   │   │   ├── Subtask [2D-02-001-01] [x] Define constraint graph (Coincident, Collinear, Parallel, Perpendicular, Tangent, Concentric)
 │   │   │   ├── Subtask [2D-02-001-02] [x] Implement dimensional constraints (Distance, Angle, Radius, Diameter, Horizontal/Vertical)
 │   │   │   ├── Subtask [2D-02-001-03] [x] Implement non-linear Newton-Raphson / Levenberg-Marquardt solver for sketch DOF analysis
-│   ├── Submodule [2D-03] Layer Management & CAD Vector Exchange
-│   │   ├── Task [2D-03-001] Multi-Layer CAD Organization & Styles
-│   │   │   ├── Subtask [2D-03-001-01] Implement hierarchical layer system (visibility, locking, line weights, dash patterns, color)
-│   │   │   ├── Subtask [2D-03-001-02] Implement grouping, compound 2D blocks, and instancing
+│   ├── Submodule [2D-03] [~] Layer Management & CAD Vector Exchange
+│   │   ├── Task [2D-03-001] [x] Multi-Layer CAD Organization & Styles
+│   │   │   ├── Subtask [2D-03-001-01] [x] Implement hierarchical layer system (visibility, locking, line weights, dash patterns, color)
+│   │   │   ├── Subtask [2D-03-001-02] [x] Implement grouping, compound 2D blocks, and instancing
 │   │   ├── Task [2D-03-002] 2D Import/Export Pipeline
 │   │   │   ├── Subtask [2D-03-002-01] Implement DXF (AutoCAD Drawing Exchange Format) R12/2000 reader and writer
 │   │   │   ├── Subtask [2D-03-002-02] Implement SVG export and import with scale preservation and layer mapping
@@ -434,7 +434,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module 2D: 2D Modeling Engine
-**Target Stage:** Stage 2 | **Priority:** P0 | **Status:** `[~] In Progress` (69.2% completed: 9/13 subtasks)  
+**Target Stage:** Stage 2 | **Priority:** P0 | **Status:** `[~] In Progress` (84.6% completed: 11/13 subtasks)  
 **Scope Summary:** Parametric 2D vector geometry engine, interactive drafting tools, geometric snapping, non-linear 2D constraint solver, layer management, and CAD vector exchange.
 
 #### Submodule 2D-01: 2D Geometric Primitives & Vector Drawing
@@ -446,8 +446,8 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 1 major engineering task, 3 canonical leaf subtasks (3 completed).
 
 #### Submodule 2D-03: Layer Management & CAD Vector Exchange
-**Status:** `[ ] Not Started`  
-**Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
+**Status:** `[~] In Progress` (50.0% completed: 2/4 subtasks)  
+**Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks (2 completed).
 
 
 
@@ -1050,14 +1050,14 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule 2D-03: Layer Management & CAD Vector Exchange
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **2D-03-001: Multi-Layer CAD Organization & Styles**
-  - **Status:** `[ ] Not Started`
+- [x] **2D-03-001: Multi-Layer CAD Organization & Styles**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Multi-layer organization system for 2D engineering drawings, line weights, dash patterns, colors, and compound block instancing.
-  - [ ] **2D-03-001-01: Implement hierarchical layer system (visibility, locking, line weights, dash patterns, color)**
-    - **Status:** `[ ] Not Started`
+  - [x] **2D-03-001-01: Implement hierarchical layer system (visibility, locking, line weights, dash patterns, color)**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Design LayerManager maintaining named layers with independent visibility, edit-lock flags, stroke colors, ISO line weights, and stipple patterns.
     - **Implementation Details:** shunya::cad2d::LayerManager with QAbstractListModel interface for UI binding; styles applied in render pass.
@@ -1065,11 +1065,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** layer_manager.hpp/.cpp, LayerPanel.qml, layer_tests.cpp.
     - **Acceptance Criteria:** Locking a layer prevents mouse selection or modification of its entities; hiding hides entities instantly in viewport.
     - **Testing & Verification Requirements:** Test layer visibility toggles, property inheritance, and entity re-assignment across layers.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via unit test "LayerManager: hierarchical visibility, locking inheritance, and entity reassignment" (ctest 379/379 cases, 7734/7734 checks) and offscreen appshunya QML load with 0 errors.`
+    - **Git Commit Reference:** `70f294f`
 
-  - [ ] **2D-03-001-02: Implement grouping, compound 2D blocks, and instancing**
-    - **Status:** `[ ] Not Started`
+  - [x] **2D-03-001-02: Implement grouping, compound 2D blocks, and instancing**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Enable grouping geometric entities into reusable 2D blocks with insertion base points, scaling, rotation, and instanced rendering.
     - **Implementation Details:** BlockDefinition and BlockReference entities with affine 2D transform matrices and hierarchical bounding box computation.
@@ -1077,8 +1077,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** block_manager.hpp/.cpp, BlockLibraryPanel.qml, unit tests for nested blocks.
     - **Acceptance Criteria:** Editing a block definition updates all 50 placed block instances across the drawing instantaneously.
     - **Testing & Verification Requirements:** Test block creation, instantiation, nested transformation matrices, and explode operations.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via unit tests in test_cad2d_layers_blocks.cpp confirming 55-instance live update on block edit, nested 2D affine transforms, explode into SketchDocument2D, and entity grouping (7734/7734 checks passed).`
+    - **Git Commit Reference:** `70f294f`
 
 - [ ] **2D-03-002: 2D Import/Export Pipeline**
   - **Status:** `[ ] Not Started`
