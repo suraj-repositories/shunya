@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 69 | 42.6% |
+| `[ ]` | Not Started | 67 | 41.4% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 93 | 57.4% |
+| `[x]` | Completed | 95 | 58.6% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **57.4%** (93 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **58.6%** (95 / 162 leaf subtasks completed)
 
 
 ---
@@ -92,14 +92,14 @@ Every module is assigned a target development stage, priority classification (P0
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
-| **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 15 | 88.2% |
+| **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **93** | **57.4%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **95** | **58.6%** |
 
 ---
 
@@ -506,7 +506,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module PCB: Circuit Board Design
-**Target Stage:** Stage 5 | **Priority:** P1 | **Status:** `[~] In Progress` (15 / 17 subtasks, 88.2%)  
+**Target Stage:** Stage 5 | **Priority:** P1 | **Status:** `[x] Completed` (17 / 17 subtasks, 100.0%)  
 **Scope Summary:** Electronic Design Automation (EDA) suite including multi-sheet schematic capture, ERC, IPC footprint generator, multi-layer PCB stackup, 45-degree push-and-shove trace router, copper flood fill, DRC, Gerber RS-274X export, and mixed-signal SPICE/digital co-simulation.
 
 #### Submodule PCB-01: Schematic Capture & Symbol Management
@@ -518,7 +518,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 3 major engineering tasks, 8 canonical leaf subtasks.
 
 #### Submodule PCB-03: Electrical & Digital Logic Co-Simulation
-**Status:** `[~] In Progress` (2 / 4 subtasks)  
+**Status:** `[x] Completed` (4 / 4 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 
@@ -1978,7 +1978,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule PCB-03: Electrical & Digital Logic Co-Simulation
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **PCB-03-001: SPICE & Analog Circuit Simulation Integration**
   - **Status:** `[x] Completed`
@@ -2008,12 +2008,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `SpiceSimulationEngine` (`solve_dc`, `solve_transient` BackwardEuler/Trapezoidal/Gear2, `solve_ac`) and `NewtonCircuitSolver` (`pnjlim` + Shockley/MOSFET/BJT stamps) implemented in `spice_simulation_engine.hpp/.cpp`, `newton_solver_circuit.hpp`; RC step < 0.05% error, 4-diode bridge rectifier, undamped LC tank, and AC -3 dB sweep verified in `tests/unit/test_pcb_spice.cpp`.
     - **Git Commit Reference:** `6ebabeb`
 
-- [ ] **PCB-03-002: Digital Logic & Event-Driven Simulation**
-  - **Status:** `[ ] Not Started`
+- [x] **PCB-03-002: Digital Logic & Event-Driven Simulation**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** IEEE 1164 9-state discrete-event digital logic simulator and mixed-signal ADC/DAC co-simulation interfaces.
-  - [ ] **PCB-03-002-01: Implement IEEE 1164 9-state digital logic simulation engine with delays**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-03-002-01: Implement IEEE 1164 9-state digital logic simulation engine with delays**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Discrete event queue simulator supporting standard 9 logic states ('U', 'X', '0', '1', 'Z', 'W', 'L', 'H', '-') with inertial and transport gate delays.
     - **Implementation Details:** DigitalEventEngine maintaining priority queue of scheduled signal events; evaluates resolution tables for wired-AND / bus lines.
@@ -2021,11 +2021,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** digital_event_engine.hpp/.cpp, ieee1164_resolver.hpp, logic_benchmark.cpp.
     - **Acceptance Criteria:** Correctly models race conditions, glitch filters via inertial rejection, and high-impedance tri-state bus contention.
     - **Testing & Verification Requirements:** Simulate 4-bit synchronous binary counter, D flip-flops, and ALU; verify waveform transitions against truth tables.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Ieee1164Resolver` (9x9 IEEE 1164 resolution & 9-state gates) & `DigitalEventEngine` (inertial glitch rejection, transport delay, multi-driver resolution, DFFs) implemented in `ieee1164_resolver.hpp`, `digital_event_engine.hpp/.cpp`; 4-bit synchronous counter 0..10 verified in `tests/unit/test_pcb_digital_mixed.cpp` (`ctest` 448/448).
+    - **Git Commit Reference:** `c43c80a`
 
-  - [ ] **PCB-03-002-02: Implement mixed-signal ADC/DAC co-simulation bridges**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-03-002-02: Implement mixed-signal ADC/DAC co-simulation bridges**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Synchronize continuous-time analog MNA voltage nodes with discrete-event digital logic signals via configurable threshold voltage bridges.
     - **Implementation Details:** MixedSignalBridge converting analog voltages to digital logic states based on V_IL, V_IH thresholds and DAC digital words to analog voltages.
@@ -2033,8 +2033,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** mixed_signal_bridge.hpp/.cpp, dac_adc_models.hpp, mixed_signal_test.cpp.
     - **Acceptance Criteria:** Seamless bidirectionality: analog sine wave through comparator triggers digital counter; counter output through R-2R DAC reproduces analog ramp.
     - **Testing & Verification Requirements:** Test closed-loop delta-sigma modulator combining continuous integrator and discrete clocked comparator.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `MixedSignalBridge`, `ThresholdComparatorAdc`, `NBitAdcModel`, and `R2RDacModel` implemented in `dac_adc_models.hpp`, `mixed_signal_bridge.hpp/.cpp`; sine->comparator->counter->R-2R DAC staircase ramp and closed-loop 1st-order MNA Delta-Sigma modulator verified in `tests/unit/test_pcb_digital_mixed.cpp`.
+    - **Git Commit Reference:** `c43c80a`
 
 
 
