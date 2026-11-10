@@ -71,6 +71,13 @@ target_sources(shunya_core_domain
         src/cad2d/block_manager.cpp
         src/cad2d/dxf_io.cpp
         src/cad2d/svg_io.cpp
+        src/cad3d/solid_mesh.cpp
+        src/cad3d/polygon_tessellator.cpp
+        src/cad3d/extrusion_feature.cpp
+        src/cad3d/revolve_feature.cpp
+        src/cad3d/trajectory_frame.cpp
+        src/cad3d/sweep_feature.cpp
+        src/cad3d/loft_feature.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -101,6 +108,13 @@ target_sources(shunya_core_domain
             include/shunya/cad2d/block_manager.hpp
             include/shunya/cad2d/dxf_io.hpp
             include/shunya/cad2d/svg_io.hpp
+            include/shunya/cad3d/solid_mesh.hpp
+            include/shunya/cad3d/polygon_tessellator.hpp
+            include/shunya/cad3d/extrusion_feature.hpp
+            include/shunya/cad3d/revolve_feature.hpp
+            include/shunya/cad3d/trajectory_frame.hpp
+            include/shunya/cad3d/sweep_feature.hpp
+            include/shunya/cad3d/loft_feature.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
