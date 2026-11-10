@@ -126,6 +126,8 @@ target_sources(shunya_core_domain
         src/pcb/schematic_sheet.cpp
         src/pcb/wire_router_2d.cpp
         src/pcb/erc_engine.cpp
+        src/pcb/symbol_library.cpp
+        src/pcb/footprint_generator.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -232,6 +234,9 @@ target_sources(shunya_core_domain
             include/shunya/pcb/wire_router_2d.hpp
             include/shunya/pcb/erc_matrix.hpp
             include/shunya/pcb/erc_engine.hpp
+            include/shunya/pcb/symbol_library.hpp
+            include/shunya/pcb/ipc7351_tables.hpp
+            include/shunya/pcb/footprint_generator.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
