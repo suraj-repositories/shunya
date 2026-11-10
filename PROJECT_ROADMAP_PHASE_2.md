@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 49 | 30.2% |
+| `[ ]` | Not Started | 47 | 29.0% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 113 | 69.8% |
+| `[x]` | Completed | 115 | 71.0% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **69.8%** (113 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **71.0%** (115 / 162 leaf subtasks completed)
 
 
 ---
@@ -94,12 +94,12 @@ Every module is assigned a target development stage, priority classification (P0
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 15 | 100.0% |
-| **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 3 | 23.1% |
+| **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 5 | 38.5% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **113** | **69.8%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **115** | **71.0%** |
 
 ---
 
@@ -542,11 +542,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module CHEM: Chemistry Simulation
-**Target Stage:** Stage 7 | **Priority:** P1 | **Status:** `[~] In Progress` (3 / 13 subtasks, 23.1%)  
+**Target Stage:** Stage 7 | **Priority:** P1 | **Status:** `[~] In Progress` (5 / 13 subtasks, 38.5%)  
 **Scope Summary:** Chemical reaction kinetics, stoichiometric network balancing, Law of Mass Action, Arrhenius temperature dependence, Gibbs energy minimization, thermochemical combustion, aqueous electrochemistry, and battery cells.
 
 #### Submodule CHEM-01: Reaction Kinetics & Stoichiometric Networks
-**Status:** `[~] In Progress` (3 / 5 subtasks)  
+**Status:** `[x] Completed` (5 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule CHEM-02: Thermochemistry & Energy Balances
@@ -2270,7 +2270,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 **Status:** `[~] In Progress` | **Stage:** Stage 7 | **Priority:** P1
 
 #### Submodule CHEM-01: Reaction Kinetics & Stoichiometric Networks
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **CHEM-01-001: Law of Mass Action & Rate Law Engine**
   - **Status:** `[x] Completed`
@@ -2312,12 +2312,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `CatalysisModel` (Langmuir-Hinshelwood & activation barrier lowering) & `MichaelisMentenModel` (Lineweaver-Burk competitive/non-competitive/uncompetitive) implemented in `catalysis_model.hpp/.cpp`, `michaelis_menten.hpp`; verified in `tests/unit/test_chem_kinetics.cpp`.
     - **Git Commit Reference:** `a466715`
 
-- [ ] **CHEM-01-002: Chemical Equilibrium & Gibbs Free Energy Minimization**
-  - **Status:** `[ ] Not Started`
+- [x] **CHEM-01-002: Chemical Equilibrium & Gibbs Free Energy Minimization**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Calculate equilibrium species distributions for complex multi-phase mixtures by minimizing total Gibbs free energy G(T, P, n).
-  - [ ] **CHEM-01-002-01: Implement chemical equilibrium composition solver using Gibbs energy minimization**
-    - **Status:** `[ ] Not Started`
+  - [x] **CHEM-01-002-01: Implement chemical equilibrium composition solver using Gibbs energy minimization**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Solve equilibrium compositions using Lagrange multipliers subject to atomic mass conservation constraints without requiring predefined reactions.
     - **Implementation Details:** GibbsMinimizer implementing NASA CEA (Chemical Equilibrium with Applications) algorithm; minimizes G = sum n_i * mu_i.
@@ -2325,11 +2325,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** gibbs_minimizer.hpp/.cpp, nasa_cea_algorithm.hpp, equilibrium_tests.cpp.
     - **Acceptance Criteria:** Haber-Bosch ammonia synthesis equilibrium composition at 450 degC and 200 atm matches industrial chemical data to < 1.0%.
     - **Testing & Verification Requirements:** Verify water gas shift reaction equilibrium CO + H2O <=> CO2 + H2 across temperatures from 400 K to 1500 K.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `GibbsMinimizer` (NASA CEA Lagrange-multiplier solver with independent element basis reduction) implemented in `nasa_cea_algorithm.hpp`, `gibbs_minimizer.hpp/.cpp`; Haber-Bosch 450C/200atm & Water-Gas Shift 400-1500 K `< 1e-6` Kp verified in `tests/unit/test_chem_equilibrium.cpp` (`ctest` 468/468).
+    - **Git Commit Reference:** `c9d5f8e`
 
-  - [ ] **CHEM-01-002-02: Implement Le Chatelier equilibrium shift response to temperature, pressure, and volume**
-    - **Status:** `[ ] Not Started`
+  - [x] **CHEM-01-002-02: Implement Le Chatelier equilibrium shift response to temperature, pressure, and volume**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Simulate dynamic equilibrium re-balancing when external conditions change: temperature increase shifts endothermic direction; pressure shifts to fewer moles.
     - **Implementation Details:** EquilibriumShiftController perturbing state variables and verifying van 't Hoff equation d(ln K)/dT = Delta H / (R * T^2).
@@ -2337,8 +2337,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** equilibrium_shifter.hpp/.cpp, le_chatelier_tests.cpp.
     - **Acceptance Criteria:** Compressing N2O4 <=> 2 NO2 gas mixture increases fraction of colorless dimer N2O4; heating shifts to brown NO2.
     - **Testing & Verification Requirements:** Validate van 't Hoff slope against standard reaction enthalpy for dinitrogen tetroxide dissociation.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `EquilibriumShiftController` implemented in `equilibrium_shifter.hpp/.cpp`; N2O4 <=> 2 NO2 pressure/temperature shifts and van 't Hoff enthalpy (~57.1 kJ/mol) verified in `tests/unit/test_chem_equilibrium.cpp`.
+    - **Git Commit Reference:** `c9d5f8e`
 
 
 
