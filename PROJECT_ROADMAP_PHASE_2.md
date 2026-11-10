@@ -936,7 +936,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Arc length integration and closest point queries accurate to 1e-9 tolerance across all curve classes.
     - **Testing & Verification Requirements:** Analytical verification against circular circumference, elliptical perimeter Ramanujan approximation, and Bézier convex hull bounds.
     - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_primitives.cpp (LineSegment2D, Polyline2D, Circle2D, Arc2D, Ellipse2D Gauss-Legendre vs Ramanujan + rotated bounds, BezierCubic2D derivatives, de Casteljau split invariance, convex hull bounds, and < 1e-9 closest-point orthogonality).
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit 72d2084 (feat(cad2d): implement parametric 2D curves, polygon booleans, offsetting, and fillets)
 
   - [x] **2D-01-001-02: Implement polygon boolean operations (Union, Difference, Intersection, XOR via Clipper2)**
     - **Status:** `[x] Completed`
@@ -948,7 +948,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Complex intersecting polygons with holes produce valid, non-self-intersecting planar orientation results (EvenOdd / NonZero fill rules).
     - **Testing & Verification Requirements:** Test overlapping circles, nested doughnut contours, and degenerated edge-touching polygon booleans.
     - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_primitives.cpp (Overlapping rectangles Union/Intersection/Difference/Xor, nested doughnut hole subtraction & hierarchy extraction, EvenOdd vs NonZero fill rules, overlapping 64-gon circles against exact lens area, and edge-touching square merging).
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit 72d2084 (feat(cad2d): implement parametric 2D curves, polygon booleans, offsetting, and fillets)
 
   - [x] **2D-01-001-03: Implement offset curve generation and filleting/chamfering algorithms for 2D profiles**
     - **Status:** `[x] Completed`
@@ -960,7 +960,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Filleting two perpendicular lines with radius R generates tangent circular arc with G1 continuity smoothly joining endpoints.
     - **Testing & Verification Requirements:** Verify G1 derivative continuity at fillet transitions and offset distances along normal vectors.
     - **Actual Verification Evidence:** Verified via unit tests in test_cad2d_primitives.cpp (Miter +2/-2/collapsed -6 offsets, Round +2 offset area, 90-degree & 60-degree analytical corner filleting with G1 tangent dot == 1.0 to 1e-9, asymmetrical chamfer setback, and rounded rectangle perimeter area).
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit 72d2084 (feat(cad2d): implement parametric 2D curves, polygon booleans, offsetting, and fillets)
 
 - [ ] **2D-01-002: Interactive Drawing Tools & Snapping System**
   - **Status:** `[ ] Not Started`
