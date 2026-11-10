@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 79 | 48.8% |
+| `[ ]` | Not Started | 77 | 47.5% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 83 | 51.2% |
+| `[x]` | Completed | 85 | 52.5% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **51.2%** (83 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **52.5%** (85 / 162 leaf subtasks completed)
 
 
 ---
@@ -92,14 +92,14 @@ Every module is assigned a target development stage, priority classification (P0
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
-| **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 5 | 29.4% |
+| **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 7 | 41.2% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **83** | **51.2%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **85** | **52.5%** |
 
 ---
 
@@ -506,7 +506,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module PCB: Circuit Board Design
-**Target Stage:** Stage 5 | **Priority:** P1 | **Status:** `[~] In Progress` (5 / 17 subtasks, 29.4%)  
+**Target Stage:** Stage 5 | **Priority:** P1 | **Status:** `[~] In Progress` (7 / 17 subtasks, 41.2%)  
 **Scope Summary:** Electronic Design Automation (EDA) suite including multi-sheet schematic capture, ERC, IPC footprint generator, multi-layer PCB stackup, 45-degree push-and-shove trace router, copper flood fill, DRC, Gerber RS-274X export, and mixed-signal SPICE/digital co-simulation.
 
 #### Submodule PCB-01: Schematic Capture & Symbol Management
@@ -514,7 +514,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule PCB-02: PCB Layout, Stackup & Interactive Routing
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (2 / 8 subtasks)  
 **Submodule Task Inventory:** 3 major engineering tasks, 8 canonical leaf subtasks.
 
 #### Submodule PCB-03: Electrical & Digital Logic Co-Simulation
@@ -1865,14 +1865,14 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule PCB-02: PCB Layout, Stackup & Interactive Routing
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **PCB-02-001: Multi-Layer Board Stackup Architecture**
-  - **Status:** `[ ] Not Started`
+- [x] **PCB-02-001: Multi-Layer Board Stackup Architecture**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Define physical board substrate stackup, layer thicknesses, copper weights, dielectric constants, board outline, and keep-out zones.
-  - [ ] **PCB-02-001-01: Implement layer stackup editor (copper layers, core, prepreg, dielectric)**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-02-001-01: Implement layer stackup editor (copper layers, core, prepreg, dielectric)**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Multi-layer stackup model (1 to 32 layers) defining layer types (Signal, Power Plane, Ground Plane, Mixed), thickness, copper ounce weight, and substrate epsilon_r.
     - **Implementation Details:** BoardStackupManager calculating overall board thickness, characteristic microstrip/stripline trace impedance Z_0, and layer pairings.
@@ -1880,11 +1880,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** board_stackup.hpp/.cpp, impedance_calculator.hpp, StackupEditor.qml.
     - **Acceptance Criteria:** Computes single-ended microstrip impedance Z_0 using IPC-2141 formula matching reference field solver to < 2% error.
     - **Testing & Verification Requirements:** Verify 50-ohm microstrip width calculation on standard 1.6mm FR-4 board (epsilon_r = 4.4).
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `BoardStackupManager` & `ImpedanceCalculator` implemented in `core/domain/include/shunya/pcb/{impedance_calculator.hpp,board_stackup.hpp}` & `.cpp` + `shunya/StackupEditor.qml` (1–32 layers, FR-4 microstrip/stripline IPC-2141 Z0 & width solver); verified in `tests/unit/test_pcb_stackup_outline.cpp` (`ctest` 435/435 cases, 20062/20062 checks passed).
+    - **Git Commit Reference:** `7d9a637`
 
-  - [ ] **PCB-02-001-02: Implement board outline definition with cutouts and keep-out zones**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-02-001-02: Implement board outline definition with cutouts and keep-out zones**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Define complex planar board contours with internal milled slots, mounting hole drill centers, and component/trace keep-out boundary zones.
     - **Implementation Details:** BoardOutline using 2D closed polygon representation; performs point-in-polygon containment checks for placed components.
@@ -1892,8 +1892,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** board_outline.hpp/.cpp, keepout_manager.hpp, outline_tests.cpp.
     - **Acceptance Criteria:** Prevent placing components or routing traces inside defined keep-out zones or closer than edge clearance to board outline.
     - **Testing & Verification Requirements:** Test board outline polygon clipping with circular mounting hole cutouts; assert edge clearance violation detection.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `BoardOutline` & `KeepoutZone` implemented in `keepout_manager.hpp`, `board_outline.hpp` & `.cpp` (milled slots, M3 holes, edge clearance & keepout blocking); verified in `tests/unit/test_pcb_stackup_outline.cpp`.
+    - **Git Commit Reference:** `7d9a637`
 
 - [ ] **PCB-02-002: Interactive & Semi-Automated Trace Routing**
   - **Status:** `[ ] Not Started`
