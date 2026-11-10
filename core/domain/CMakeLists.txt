@@ -167,6 +167,8 @@ target_sources(shunya_core_domain
         src/chem/chemo_thermal_coupler.cpp
         src/chem/combustion_model.cpp
         src/chem/adiabatic_flame.cpp
+        src/chem/aqueous_solution.cpp
+        src/chem/electrolyte_conductivity.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -341,6 +343,10 @@ target_sources(shunya_core_domain
             include/shunya/chem/combustion_model.hpp
             include/shunya/chem/adiabatic_flame.hpp
             include/shunya/chem/explosion_pressure.hpp
+            include/shunya/chem/ph_calculator.hpp
+            include/shunya/chem/aqueous_solution.hpp
+            include/shunya/chem/precipitation_checker.hpp
+            include/shunya/chem/electrolyte_conductivity.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
