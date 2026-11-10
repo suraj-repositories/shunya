@@ -103,6 +103,8 @@ target_sources(shunya_core_domain
         src/matdb/spectral_catalog.cpp
         src/matdb/crystal_database.cpp
         src/matdb/unit_cell_builder.cpp
+        src/matdb/thermo_registry.cpp
+        src/matdb/shomate_evaluator.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -175,6 +177,8 @@ target_sources(shunya_core_domain
             include/shunya/matdb/spectral_catalog.hpp
             include/shunya/matdb/crystal_database.hpp
             include/shunya/matdb/unit_cell_builder.hpp
+            include/shunya/matdb/thermo_registry.hpp
+            include/shunya/matdb/shomate_evaluator.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
