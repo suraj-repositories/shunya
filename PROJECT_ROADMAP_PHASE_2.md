@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 57 | 35.2% |
+| `[ ]` | Not Started | 54 | 33.3% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 105 | 64.8% |
+| `[x]` | Completed | 108 | 66.7% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **64.8%** (105 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **66.7%** (108 / 162 leaf subtasks completed)
 
 
 ---
@@ -93,13 +93,13 @@ Every module is assigned a target development stage, priority classification (P0
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
-| **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 10 | 66.7% |
+| **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 13 | 86.7% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **105** | **64.8%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **108** | **66.7%** |
 
 ---
 
@@ -524,7 +524,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module PHY: Physics Simulation
-**Target Stage:** Stage 6 | **Priority:** P0 | **Status:** `[~] In Progress` (10 / 15 subtasks, 66.7%)  
+**Target Stage:** Stage 6 | **Priority:** P0 | **Status:** `[~] In Progress` (13 / 15 subtasks, 86.7%)  
 **Scope Summary:** Multi-domain physics simulation engine covering symplectic rigid-body dynamics, continuous collision detection (CCD), articulated joints, 3D transient heat conduction/radiation, phase transitions, SPH free-surface fluids, and Eulerian grid CFD.
 
 #### Submodule PHY-01: Classical Mechanics, Multi-Body Dynamics & Collisions
@@ -536,7 +536,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule PHY-03: Fluid Mechanics & Fluid Dynamics
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (3 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 
@@ -2191,14 +2191,14 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule PHY-03: Fluid Mechanics & Fluid Dynamics
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **PHY-03-001: Smoothed Particle Hydrodynamics (SPH) Free-Surface Solver**
-  - **Status:** `[ ] Not Started`
+- [x] **PHY-03-001: Smoothed Particle Hydrodynamics (SPH) Free-Surface Solver**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Lagrangian particle-based fluid solver for splashing, pouring, free surfaces, viscosity, and surface tension.
-  - [ ] **PHY-03-001-01: Implement weakly compressible SPH formulation with Tait equation of state**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-03-001-01: Implement weakly compressible SPH formulation with Tait equation of state**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Compute particle densities via cubic spline kernel smoothing W(r, h); evaluate pressure P = B * ((rho/rho_0)^gamma - 1).
     - **Implementation Details:** SphSolver3D with compact support Wendland C2 kernel; evaluates density summation and pressure gradient forces.
@@ -2206,11 +2206,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** sph_solver_3d.hpp/.cpp, sph_kernels.hpp, dam_break_test.cpp.
     - **Acceptance Criteria:** Classic 3D dam break experiment produces realistic fluid wave front propagation speed matching experimental laboratory video data.
     - **Testing & Verification Requirements:** Validate dam break front arrival time and impact pressure against Martin and Moyce empirical benchmark experiments.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `SphSolver3D` (Wendland C2 / cubic spline kernels, Tait EOS, spatial hash grid) implemented in `sph_kernels.hpp`, `sph_solver_3d.hpp/.cpp`; 3D dam break surge front & zero wall leakage verified in `tests/unit/test_phy_sph.cpp` (`ctest` 462/462).
+    - **Git Commit Reference:** `dce2d73`
 
-  - [ ] **PHY-03-001-02: Implement artificial and physical viscosity models with boundary interaction**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-03-001-02: Implement artificial and physical viscosity models with boundary interaction**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Model shear stress dissipation using Monaghan artificial viscosity and physical Newtonian viscous shear tensor; enforce no-slip walls.
     - **Implementation Details:** SphViscosityModule evaluating Laplacian of velocity; employs Akinci ghost-particle boundary representation for solid walls.
@@ -2218,11 +2218,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** sph_viscosity.hpp/.cpp, boundary_particles.hpp, viscosity_tests.cpp.
     - **Acceptance Criteria:** Fluid particles flowing through a pipe develop parabolic Hagen-Poiseuille velocity profile; zero fluid penetration through rigid walls.
     - **Testing & Verification Requirements:** Poiseuille flow velocity profile verification: assert maximum centerline velocity matches analytical value.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `SphViscosityModule` (Morris Newtonian + Monaghan artificial) & `BoundaryParticleGenerator` (3-layer Akinci boundaries) implemented in `sph_viscosity.hpp/.cpp`, `boundary_particles.hpp`; Poiseuille parabolic profile verified in `tests/unit/test_phy_sph.cpp`.
+    - **Git Commit Reference:** `dce2d73`
 
-  - [ ] **PHY-03-001-03: Implement surface tension models and wetting contact angle**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-03-001-03: Implement surface tension models and wetting contact angle**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Model microscopic intermolecular cohesion using Continuum Surface Force (CSF) or pairwise attractive forces; simulate droplet beads and capillary rise.
     - **Implementation Details:** SphSurfaceTensionModule evaluating surface normals and curvature kappa = -div(n); enforces Young's contact angle on solid boundaries.
@@ -2230,8 +2230,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** sph_surface_tension.hpp/.cpp, capillary_rise_test.cpp.
     - **Acceptance Criteria:** Water droplet in zero gravity naturally pulls itself into a spherical shape; capillary rise in narrow tube matches Jurin's law.
     - **Testing & Verification Requirements:** Validate oscillating liquid droplet frequency against Rayleigh's analytical formula; verify Jurin's capillary height.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `SphSurfaceTensionModule` implemented in `sph_surface_tension.hpp/.cpp`; 0-g droplet spherification, Rayleigh l=2 mode frequency, and Jurin's capillary law verified in `tests/unit/test_phy_sph.cpp`.
+    - **Git Commit Reference:** `dce2d73`
 
 - [ ] **PHY-03-002: Eulerian Grid-Based Incompressible Fluid Solver**
   - **Status:** `[ ] Not Started`
