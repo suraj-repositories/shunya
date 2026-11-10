@@ -158,6 +158,9 @@ target_sources(shunya_core_domain
         src/phy/sph_solver_3d.cpp
         src/phy/pressure_poisson.cpp
         src/phy/mac_grid_solver_3d.cpp
+        src/chem/reaction_network.cpp
+        src/chem/arrhenius_evaluator.cpp
+        src/chem/catalysis_model.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -318,6 +321,11 @@ target_sources(shunya_core_domain
             include/shunya/phy/pcg_solver.hpp
             include/shunya/phy/pressure_poisson.hpp
             include/shunya/phy/mac_grid_solver_3d.hpp
+            include/shunya/chem/stiff_ode_solver.hpp
+            include/shunya/chem/reaction_network.hpp
+            include/shunya/chem/arrhenius_evaluator.hpp
+            include/shunya/chem/michaelis_menten.hpp
+            include/shunya/chem/catalysis_model.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
