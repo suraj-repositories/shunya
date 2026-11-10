@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 112 | 69.1% |
+| `[ ]` | Not Started | 109 | 67.3% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 50 | 30.9% |
+| `[x]` | Completed | 53 | 32.7% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **30.9%** (50 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **32.7%** (53 / 162 leaf subtasks completed)
 
 
 ---
@@ -90,7 +90,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 20 | 100.0% |
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
-| **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 0 | 0.0% |
+| **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 3 | 21.4% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **50** | **30.9%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **53** | **32.7%** |
 
 ---
 
@@ -470,11 +470,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module MATDB: Periodic Elements Database
-**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[ ] Not Started`  
+**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (3 / 14 subtasks, 21.4%)  
 **Scope Summary:** Exhaustive physicochemical database for all 118 IUPAC elements, isotopic abundances, electronic shell structures, crystal lattices, thermodynamic Shomate polynomials, and interactive periodic table visualization.
 
 #### Submodule MATDB-01: Comprehensive 118-Element Scientific Dataset
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (3 / 6 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks.
 
 #### Submodule MATDB-02: Solid-State, Crystallographic & Thermodynamic Baseline Data
@@ -1363,17 +1363,17 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module MATDB: Periodic Elements Database
 
-**Status:** `[ ] Not Started` | **Stage:** Stage 4 | **Priority:** P0
+**Status:** `[~] In Progress` | **Stage:** Stage 4 | **Priority:** P0
 
 #### Submodule MATDB-01: Comprehensive 118-Element Scientific Dataset
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **MATDB-01-001: Element Physicochemical & Isotopic Registry**
-  - **Status:** `[ ] Not Started`
+- [x] **MATDB-01-001: Element Physicochemical & Isotopic Registry**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Ingest and validate scientific parameters for all 118 chemical elements (Hydrogen through Oganesson) including isotopic masses, natural abundances, half-lives, and radii.
-  - [ ] **MATDB-01-001-01: Complete data ingestion for all 118 IUPAC elements**
-    - **Status:** `[ ] Not Started`
+  - [x] **MATDB-01-001-01: Complete data ingestion for all 118 IUPAC elements**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Populate atomic number Z (1-118), standard atomic weight, symbol, name, standard state, electron configuration, and common oxidation states from NIST/CODATA standards.
     - **Implementation Details:** Compile comprehensive SQLite table elements_v2 with primary key atomic_number; cross-validate against core/domain/periodic_table.hpp.
@@ -1381,11 +1381,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** elements_118_dataset.json, sqlite_element_importer.cpp, element_validation_test.cpp.
     - **Acceptance Criteria:** Zero missing values for atomic weights (1-118); atomic weights match IUPAC 2021 standard recommendations to 5 decimal places.
     - **Testing & Verification Requirements:** Automated dataset audit asserting all 118 elements possess valid symbols, names, and non-zero positive atomic numbers.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Elements118Catalog` implemented in `core/domain/include/shunya/matdb/elements_118_catalog.hpp` & `elements_118_catalog.cpp` (all 118 IUPAC 2021 elements, SQLite `elements_v2` DDL, JSON export, `PeriodicTableDatabase` population); verified in `tests/unit/test_matdb_registry.cpp` (`ctest` 403/403 cases, 18667/18667 checks passed).
+    - **Git Commit Reference:** `ab95219`
 
-  - [ ] **MATDB-01-001-02: Compile comprehensive isotope table with half-lives and decay modes**
-    - **Status:** `[ ] Not Started`
+  - [x] **MATDB-01-001-02: Compile comprehensive isotope table with half-lives and decay modes**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Ingest isotopic mass table (3,000+ known isotopes) with mass number A, exact atomic mass in amu, terrestrial isotopic abundance percentage, nuclear spin, and decay modes.
     - **Implementation Details:** Create isotopes table with relational foreign key to elements_v2; encode alpha, beta-, beta+, electron capture, gamma, and spontaneous fission modes.
@@ -1393,11 +1393,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** isotopes_dataset.json, isotope_repository.hpp/.cpp, isotope_query_tests.cpp.
     - **Acceptance Criteria:** Terrestrial isotopic abundances sum to 100.0% (+-0.01%) for all naturally occurring multi-isotope elements.
     - **Testing & Verification Requirements:** Assert abundance sums for H, C, O, Fe, Cu, U; test half-life decay unit conversion to SI seconds.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `IsotopeRepository` implemented in `core/domain/include/shunya/matdb/isotope_repository.hpp` & `isotope_repository.cpp` (`DecayMode`, `half_life_to_seconds`, `isotopes` SQLite DDL, JSON export, 100.00% natural abundance audit across naturally occurring elements); verified in `tests/unit/test_matdb_registry.cpp`.
+    - **Git Commit Reference:** `ab95219`
 
-  - [ ] **MATDB-01-001-03: Encode electronegativity scales and atomic radii**
-    - **Status:** `[ ] Not Started`
+  - [x] **MATDB-01-001-03: Encode electronegativity scales and atomic radii**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Store Pauling, Allen, and Mulliken electronegativity values along with empirical, covalent (single/double/triple), and van der Waals radii in picometers.
     - **Implementation Details:** Extend PeriodicElement struct with ElectronegativityScales and AtomicRadii sub-structs.
@@ -1405,8 +1405,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** element_radii_data.json, periodic_table_extended.hpp, radii_consistency_test.cpp.
     - **Acceptance Criteria:** Fluorine Pauling electronegativity equals 3.98; noble gas van der Waals radii correctly populate.
     - **Testing & Verification Requirements:** Verify monotonic periodic trends (electronegativity decreases down groups, increases across periods).
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `PeriodicTableExtended` implemented in `core/domain/include/shunya/matdb/periodic_table_extended.hpp` & `periodic_table_extended.cpp` (`ElectronegativityScales`, `AtomicRadiiPm`, Z=1..118 records, F Pauling == 3.98, noble gas vdW radii, JSON export); verified in `tests/unit/test_matdb_registry.cpp`.
+    - **Git Commit Reference:** `ab95219`
 
 - [ ] **MATDB-01-002: Electronic Shell Structure & Spectral Data**
   - **Status:** `[ ] Not Started`
