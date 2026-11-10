@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 43 | 26.5% |
+| `[ ]` | Not Started | 41 | 25.3% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 119 | 73.5% |
+| `[x]` | Completed | 121 | 74.7% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **73.5%** (119 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **74.7%** (121 / 162 leaf subtasks completed)
 
 
 ---
@@ -94,12 +94,12 @@ Every module is assigned a target development stage, priority classification (P0
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 15 | 100.0% |
-| **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 9 | 69.2% |
+| **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 11 | 84.6% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **119** | **73.5%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **121** | **74.7%** |
 
 ---
 
@@ -542,7 +542,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module CHEM: Chemistry Simulation
-**Target Stage:** Stage 7 | **Priority:** P1 | **Status:** `[~] In Progress` (9 / 13 subtasks, 69.2%)  
+**Target Stage:** Stage 7 | **Priority:** P1 | **Status:** `[~] In Progress` (11 / 13 subtasks, 84.6%)  
 **Scope Summary:** Chemical reaction kinetics, stoichiometric network balancing, Law of Mass Action, Arrhenius temperature dependence, Gibbs energy minimization, thermochemical combustion, aqueous electrochemistry, and battery cells.
 
 #### Submodule CHEM-01: Reaction Kinetics & Stoichiometric Networks
@@ -554,7 +554,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 #### Submodule CHEM-03: Molecular Interactions & Solution Chemistry
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (2 / 4 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 
@@ -2404,14 +2404,14 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule CHEM-03: Molecular Interactions & Solution Chemistry
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **CHEM-03-001: Aqueous Solutions, Electrolytes & pH**
-  - **Status:** `[ ] Not Started`
+- [x] **CHEM-03-001: Aqueous Solutions, Electrolytes & pH**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Aqueous electrolyte equilibria, polyprotic acid-base dissociation, buffer solutions, dynamic pH calculation, and solubility products.
-  - [ ] **CHEM-03-001-01: Implement acid-base dissociation equilibrium, buffer solutions, and dynamic pH**
-    - **Status:** `[ ] Not Started`
+  - [x] **CHEM-03-001-01: Implement acid-base dissociation equilibrium, buffer solutions, and dynamic pH**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Solve simultaneous non-linear equilibrium equations for [H+], [OH-], and acid/base conjugate ions using charge neutrality and mass balance.
     - **Implementation Details:** AqueousSolutionEngine with Henderson-Hasselbalch buffer calculations and exact quartic polynomial solver for diprotic acids (H2SO4, H2CO3).
@@ -2419,11 +2419,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** aqueous_solution.hpp/.cpp, ph_calculator.hpp, titration_test.cpp.
     - **Acceptance Criteria:** Simulating titration of 0.1 M HCl with 0.1 M NaOH produces classic sigmoidal titration curve with steep inflection at pH 7.0.
     - **Testing & Verification Requirements:** Verify pH calculation for strong acids, weak acids (acetic acid pKa=4.76), polyprotic phosphate buffers, and pure water autoprotolysis.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `AqueousSolutionEngine` & `PhCalculator` implemented in `ph_calculator.hpp`, `aqueous_solution.hpp/.cpp`; pure water, acetic acid, phosphate buffer & HCl-NaOH titration verified in `tests/unit/test_chem_aqueous.cpp` (`ctest` 474/474).
+    - **Git Commit Reference:** `a59a4fe`
 
-  - [ ] **CHEM-03-001-02: Implement electrolyte ionic conductivity and precipitation checking (K_sp)**
-    - **Status:** `[ ] Not Started`
+  - [x] **CHEM-03-001-02: Implement electrolyte ionic conductivity and precipitation checking (K_sp)**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Calculate electrical conductivity of aqueous solutions using Kohlrausch's law of independent ion migration; check ion product against solubility product K_sp.
     - **Implementation Details:** ElectrolyteConductivityModel computing equivalent conductivity Lambda = Lambda_0 - K * sqrt(c); flags precipitate formation when Q > K_sp.
@@ -2431,8 +2431,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** electrolyte_conductivity.hpp/.cpp, precipitation_checker.hpp, electrolyte_tests.cpp.
     - **Acceptance Criteria:** Mixing AgNO3 and NaCl solutions triggers instantaneous precipitation of solid AgCl when ion product exceeds K_sp (1.8e-10).
     - **Testing & Verification Requirements:** Verify precipitation threshold and remaining aqueous ion concentrations for silver chloride, barium sulfate, and calcium carbonate.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ElectrolyteConductivityModel` (Kohlrausch law) & `PrecipitationChecker` implemented in `electrolyte_conductivity.hpp/.cpp`, `precipitation_checker.hpp`; AgCl, BaSO4, CaCO3 & NaCl conductivity verified in `tests/unit/test_chem_aqueous.cpp`.
+    - **Git Commit Reference:** `a59a4fe`
 
 - [ ] **CHEM-03-002: Electrochemistry & Galvanic Cells**
   - **Status:** `[ ] Not Started`
