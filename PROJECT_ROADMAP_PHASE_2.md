@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 65 | 40.1% |
+| `[ ]` | Not Started | 62 | 38.3% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 97 | 59.9% |
+| `[x]` | Completed | 100 | 61.7% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **59.9%** (97 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **61.7%** (100 / 162 leaf subtasks completed)
 
 
 ---
@@ -93,13 +93,13 @@ Every module is assigned a target development stage, priority classification (P0
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
-| **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 2 | 13.3% |
+| **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 5 | 33.3% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **97** | **59.9%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **100** | **61.7%** |
 
 ---
 
@@ -524,11 +524,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module PHY: Physics Simulation
-**Target Stage:** Stage 6 | **Priority:** P0 | **Status:** `[~] In Progress` (2 / 15 subtasks, 13.3%)  
+**Target Stage:** Stage 6 | **Priority:** P0 | **Status:** `[~] In Progress` (5 / 15 subtasks, 33.3%)  
 **Scope Summary:** Multi-domain physics simulation engine covering symplectic rigid-body dynamics, continuous collision detection (CCD), articulated joints, 3D transient heat conduction/radiation, phase transitions, SPH free-surface fluids, and Eulerian grid CFD.
 
 #### Submodule PHY-01: Classical Mechanics, Multi-Body Dynamics & Collisions
-**Status:** `[~] In Progress` (2 / 5 subtasks)  
+**Status:** `[x] Completed` (5 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule PHY-02: Thermodynamics, Heat Transfer & Phase Transitions
@@ -2045,7 +2045,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 **Status:** `[~] In Progress` | **Stage:** Stage 6 | **Priority:** P0
 
 #### Submodule PHY-01: Classical Mechanics, Multi-Body Dynamics & Collisions
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **PHY-01-001: Rigid Body Kinematics & Numerical Integrators**
   - **Status:** `[x] Completed`
@@ -2075,12 +2075,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `InertiaTensorCalculator` (exact closed-mesh tetrahedron moments + CoM parallel axis shift) & `RigidBodyKinematics` (`step_rk4` + unit-quaternion normalization) implemented in `inertia_tensor_calculator.hpp`, `rigid_body_kinematics.hpp/.cpp`; box mesh CoM inertia and Dzhanibekov flip verified in `tests/unit/test_phy_symplectic_rigid.cpp`.
     - **Git Commit Reference:** `4564f55`
 
-- [ ] **PHY-01-002: Collision Detection & Constraint Solving**
-  - **Status:** `[ ] Not Started`
+- [x] **PHY-01-002: Collision Detection & Constraint Solving**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Spatial broadphase culling, narrowphase GJK/EPA contact manifolds, Continuous Collision Detection (CCD), and projected Gauss-Seidel constraint solver.
-  - [ ] **PHY-01-002-01: Implement broadphase dynamic BVH and narrowphase GJK/EPA contact manifolds**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-01-002-01: Implement broadphase dynamic BVH and narrowphase GJK/EPA contact manifolds**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Cull non-colliding entity pairs using AABB bounding trees; compute exact contact normal, penetration depth, and contact points via GJK and EPA.
     - **Implementation Details:** CollisionEngine with Gilbert-Johnson-Keerthi (GJK) distance detector and Expanding Polytope Algorithm (EPA) for contact manifolds.
@@ -2088,11 +2088,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** collision_engine.hpp/.cpp, gjk_epa.hpp/.cpp, collision_benchmark.cpp.
     - **Acceptance Criteria:** Detects contact between complex convex hulls in < 10 microseconds per pair; generates stable multi-point contact manifolds.
     - **Testing & Verification Requirements:** Verify contact normal and penetration depth between rotated cubes, spheres, and capsule primitives.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `CollisionEngine` (SAH dynamic AABB BVH) & `GjkEpaSolver` implemented in `collision_engine.hpp/.cpp`, `gjk_epa.hpp/.cpp`; OBB, sphere, capsule distance/penetration & benchmark verified in `tests/unit/test_phy_collision_ccd_pgs.cpp` (`ctest` 454/454).
+    - **Git Commit Reference:** `4c65750`
 
-  - [ ] **PHY-01-002-02: Implement continuous collision detection (CCD) for high-velocity bodies**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-01-002-02: Implement continuous collision detection (CCD) for high-velocity bodies**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Prevent tunneling of thin, high-speed objects through obstacles using conservative advancement or swept-volume raymarching.
     - **Implementation Details:** CcdSolver evaluating time of impact (TOI in [0, 1]) via continuous swept sphere-mesh and capsule-mesh Minkowski tests.
@@ -2100,11 +2100,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** ccd_solver.hpp/.cpp, swept_volume.hpp, tunneling_test.cpp.
     - **Acceptance Criteria:** A small high-velocity sphere (v = 500 m/s) colliding with a 1mm thin sheet registers impact without tunneling through.
     - **Testing & Verification Requirements:** Tunneling stress test: shoot 1,000 randomized high-speed projectiles against thin barriers; verify zero pass-throughs.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `CcdSolver` (conservative advancement TOI) & `MotionTransformSweep` implemented in `ccd_solver.hpp/.cpp`, `swept_volume.hpp`; 1,000/1,000 high-speed projectiles vs 1mm barrier hit with 0 tunneling verified in `tests/unit/test_phy_collision_ccd_pgs.cpp`.
+    - **Git Commit Reference:** `4c65750`
 
-  - [ ] **PHY-01-002-03: Implement projected Gauss-Seidel constraint solver for articulated joints**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-01-002-03: Implement projected Gauss-Seidel constraint solver for articulated joints**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Solve kinematic equality and inequality constraints for mechanical joints (revolute, prismatic, cylindrical, spherical) and Coulomb friction.
     - **Implementation Details:** ConstraintSolver formulating J * M^-1 * J^T * lambda = -residual / dt; solves Lagrange multipliers via Projected Gauss-Seidel (PGS).
@@ -2112,8 +2112,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** constraint_solver.hpp/.cpp, joint_models.hpp, ragdoll_rig_test.cpp.
     - **Acceptance Criteria:** Articulated chains of 20 rigid bodies connected by revolute joints remain stable without explosive constraint violations.
     - **Testing & Verification Requirements:** Simulate double and triple pendulums; verify joint position constraints hold to < 1e-4 m error.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ConstraintSolver` (PGS + Symmetric Gauss-Seidel position projection + Coulomb friction) & `ArticulatedJoint` implemented in `constraint_solver.hpp/.cpp`, `joint_models.hpp`; triple pendulum and 20-link chain `< 1e-4 m` error verified in `tests/unit/test_phy_collision_ccd_pgs.cpp`.
+    - **Git Commit Reference:** `4c65750`
 
 
 
