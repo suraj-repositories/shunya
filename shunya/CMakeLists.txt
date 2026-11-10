@@ -93,6 +93,9 @@ qt_add_qml_module(appshunya
         IsotopeDecayView.qml
         MoleculeViewer.qml
         AlloyComposer.qml
+        SchematicView.qml
+        WireInteractionTool.qml
+        ErcReportPanel.qml
 )
 
 set_target_properties(appshunya PROPERTIES

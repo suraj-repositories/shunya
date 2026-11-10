@@ -123,6 +123,9 @@ target_sources(shunya_core_domain
         src/mat/phase_change_enthalpy.cpp
         src/mat/viscosity_evaluator.cpp
         src/mat/electrical_properties.cpp
+        src/pcb/schematic_sheet.cpp
+        src/pcb/wire_router_2d.cpp
+        src/pcb/erc_engine.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -224,6 +227,11 @@ target_sources(shunya_core_domain
             include/shunya/mat/viscosity_evaluator.hpp
             include/shunya/mat/varshni_model.hpp
             include/shunya/mat/electrical_properties.hpp
+            include/shunya/pcb/schematic_hierarchy.hpp
+            include/shunya/pcb/schematic_sheet.hpp
+            include/shunya/pcb/wire_router_2d.hpp
+            include/shunya/pcb/erc_matrix.hpp
+            include/shunya/pcb/erc_engine.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

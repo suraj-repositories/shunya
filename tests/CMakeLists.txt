@@ -58,6 +58,7 @@ add_executable(shunya_unit_tests
     unit/test_mat_porous_anisotropic.cpp
     unit/test_mat_thermal_curves.cpp
     unit/test_mat_phase_rheology_electrical.cpp
+    unit/test_pcb_schematic.cpp
     unit/test_rendering.cpp
     unit/test_circuit.cpp
     unit/test_digital_logic.cpp
