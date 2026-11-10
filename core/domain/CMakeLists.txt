@@ -142,6 +142,8 @@ target_sources(shunya_core_domain
         src/pcb/spice_simulation_engine.cpp
         src/pcb/digital_event_engine.cpp
         src/pcb/mixed_signal_bridge.cpp
+        src/phy/symplectic_integrator.cpp
+        src/phy/rigid_body_kinematics.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -273,6 +275,10 @@ target_sources(shunya_core_domain
             include/shunya/pcb/digital_event_engine.hpp
             include/shunya/pcb/dac_adc_models.hpp
             include/shunya/pcb/mixed_signal_bridge.hpp
+            include/shunya/phy/symplectic_integrator.hpp
+            include/shunya/phy/energy_auditor.hpp
+            include/shunya/phy/inertia_tensor_calculator.hpp
+            include/shunya/phy/rigid_body_kinematics.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
