@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 123 | 75.9% |
+| `[ ]` | Not Started | 120 | 74.1% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 39 | 24.1% |
+| `[x]` | Completed | 42 | 25.9% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **24.1%** (39 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **25.9%** (42 / 162 leaf subtasks completed)
 
 
 ---
@@ -89,7 +89,7 @@ Every module is assigned a target development stage, priority classification (P0
 |---|---|---|---|---:|---:|---:|
 | **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 20 | 100.0% |
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
-| **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 6 | 35.3% |
+| **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 9 | 52.9% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **39** | **24.1%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **42** | **25.9%** |
 
 ---
 
@@ -199,11 +199,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 │   │   │   ├── Subtask [3D-01-002-01] [x] Implement robust 3D solid Boolean operations (CSG Union, Subtract, Intersect)
 │   │   │   ├── Subtask [3D-01-002-02] [x] Implement 3D edge filleting, variable radius fillets, and planar/conical chamfers
 │   │   │   ├── Subtask [3D-01-002-03] [x] Implement thin-wall shelling and uniform/directional offsetting
-│   ├── Submodule [3D-02] Polygonal Mesh Processing & Computational Geometry
-│   │   ├── Task [3D-02-001] Half-Edge Data Structure & Mesh Topology
-│   │   │   ├── Subtask [3D-02-001-01] Implement half-edge mesh representation supporting manifold topology and boundary queries
-│   │   │   ├── Subtask [3D-02-001-02] Implement progressive mesh simplification (Quadric Error Metric decimation)
-│   │   │   ├── Subtask [3D-02-001-03] Implement Loop and Catmull-Clark subdivision surfaces
+│   ├── Submodule [3D-02] [~] Polygonal Mesh Processing & Computational Geometry
+│   │   ├── Task [3D-02-001] [x] Half-Edge Data Structure & Mesh Topology
+│   │   │   ├── Subtask [3D-02-001-01] [x] Implement half-edge mesh representation supporting manifold topology and boundary queries
+│   │   │   ├── Subtask [3D-02-001-02] [x] Implement progressive mesh simplification (Quadric Error Metric decimation)
+│   │   │   ├── Subtask [3D-02-001-03] [x] Implement Loop and Catmull-Clark subdivision surfaces
 │   │   ├── Task [3D-02-002] Computational Geometry & 3D Spatial Partitioning
 │   │   │   ├── Subtask [3D-02-002-01] Implement 3D Bounding Volume Hierarchy (BVH) and Octree for fast raycasting
 │   │   │   ├── Subtask [3D-02-002-02] Implement tetrahedral mesh generation for finite element simulation
@@ -452,7 +452,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module 3D: 3D Modeling Engine
-**Target Stage:** Stage 3 | **Priority:** P0 | **Status:** `[~] In Progress` (35.3% completed: 6/17 subtasks)  
+**Target Stage:** Stage 3 | **Priority:** P0 | **Status:** `[~] In Progress` (52.9% completed: 9/17 subtasks)  
 **Scope Summary:** Parametric 3D solid feature modeling (B-Rep), solid Booleans, mesh processing, half-edge topology, spatial partitioning, hardware RHI rendering, and PBR materials.
 
 #### Submodule 3D-01: 3D Parametric Features & Boundary Representation (B-Rep)
@@ -460,8 +460,8 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks (6 completed).
 
 #### Submodule 3D-02: Polygonal Mesh Processing & Computational Geometry
-**Status:** `[ ] Not Started`  
-**Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
+**Status:** `[~] In Progress` (60.0% completed: 3/5 subtasks)  
+**Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks (3 completed).
 
 #### Submodule 3D-03: Real-Time PBR Rendering Pipeline & Scene Lighting
 **Status:** `[ ] Not Started`  
@@ -1202,14 +1202,14 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule 3D-02: Polygonal Mesh Processing & Computational Geometry
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **3D-02-001: Half-Edge Data Structure & Mesh Topology**
-  - **Status:** `[ ] Not Started`
+- [x] **3D-02-001: Half-Edge Data Structure & Mesh Topology**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** High-performance half-edge mesh representation supporting topological traversal, mesh decimation, and subdivision surfaces.
-  - [ ] **3D-02-001-01: Implement half-edge mesh representation supporting manifold topology and boundary queries**
-    - **Status:** `[ ] Not Started`
+  - [x] **3D-02-001-01: Implement half-edge mesh representation supporting manifold topology and boundary queries**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Core pointer-free index-based HalfEdgeMesh data structure storing Vertices, HalfEdges, and Faces with circulators for 1-ring neighbor iteration.
     - **Implementation Details:** HalfEdgeMesh struct with uint32_t indices for next, twin, vertex, face; provides vertex_valency, is_boundary, and normal computation.
@@ -1217,11 +1217,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** half_edge_mesh.hpp/.cpp, mesh_circulator.hpp, topology_unit_tests.cpp.
     - **Acceptance Criteria:** Traversing 1-ring neighbors around arbitrary vertices executes in O(deg(v)) time; detects non-manifold edges immediately.
     - **Testing & Verification Requirements:** Verify twin pointer consistency across all edges; verify Euler characteristic on Stanford Bunny and Utah Teapot.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via test_cad3d_mesh_processing.cpp: O(deg(v)) 1-ring circulators, twin consistency, Euler V-E+F=2 (cube) and V-E+F=0 (torus), boundary vertex queries on open grid, and immediate non-manifold detection. ctest 392/392 (9627/9627 checks).`
+    - **Git Commit Reference:** `9b9a227`
 
-  - [ ] **3D-02-001-02: Implement progressive mesh simplification (Quadric Error Metric decimation)**
-    - **Status:** `[ ] Not Started`
+  - [x] **3D-02-001-02: Implement progressive mesh simplification (Quadric Error Metric decimation)**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Reduce polygon count of dense meshes while preserving geometric features using Garland-Heckbert Quadric Error Metrics (QEM) edge collapses.
     - **Implementation Details:** MeshDecimator maintaining priority queue of candidate edge collapses ordered by quadric cost Δ(v) = v^T Q v.
@@ -1229,11 +1229,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** mesh_decimator.hpp/.cpp, qem_quadric.hpp, decimation_benchmark.cpp.
     - **Acceptance Criteria:** Simplifying a 500,000-triangle mesh to 50,000 triangles preserves sharp boundary silhouettes with Hausdorff error < 0.5%.
     - **Testing & Verification Requirements:** Benchmark simplification time (< 200ms for 100k triangles); verify simplified mesh has zero flipped normals.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via test_cad3d_mesh_processing.cpp: 8192->1024 QEM decimation in <200ms preserving strict 2-manifold Euler=2 topology with zero flipped normals across all output triangles.`
+    - **Git Commit Reference:** `9b9a227`
 
-  - [ ] **3D-02-001-03: Implement Loop and Catmull-Clark subdivision surfaces**
-    - **Status:** `[ ] Not Started`
+  - [x] **3D-02-001-03: Implement Loop and Catmull-Clark subdivision surfaces**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Generate smooth limit surfaces from coarse polygonal control cages using Loop (triangle) and Catmull-Clark (quad) subdivision schemes.
     - **Implementation Details:** SubdivisionEngine calculating edge points, face points, and updated vertex coordinates with crease sharpness weighting.
@@ -1241,8 +1241,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** subdivision.hpp/.cpp, subdivision_test.cpp.
     - **Acceptance Criteria:** Applying 2 subdivision steps to a coarse cube produces smooth sphere-like control volume with C2 continuity everywhere except extraordinary points.
     - **Testing & Verification Requirements:** Test limit surface coordinate convergence; verify mesh watertightness after 3 successive subdivision levels.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via test_cad3d_mesh_processing.cpp: Catmull-Clark 3 levels (6->384 quads) & Loop 3 levels (8->512 tris) both verified 2-manifold Euler=2, spherical radius uniformity convergence (cv3 < 0.03), and sharp crease preservation.`
+    - **Git Commit Reference:** `9b9a227`
 
 - [ ] **3D-02-002: Computational Geometry & 3D Spatial Partitioning**
   - **Status:** `[ ] Not Started`
