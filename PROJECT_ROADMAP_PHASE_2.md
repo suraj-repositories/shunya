@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 131 | 80.9% |
+| `[ ]` | Not Started | 129 | 79.6% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 31 | 19.1% |
+| `[x]` | Completed | 33 | 20.4% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **19.1%** (31 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **20.4%** (33 / 162 leaf subtasks completed)
 
 
 ---
@@ -88,7 +88,7 @@ Every module is assigned a target development stage, priority classification (P0
 | Module ID | Module Name | Phase / Stage | Priority | Total Subtasks | Completed | Progress |
 |---|---|---|---|---:|---:|---:|
 | **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 20 | 100.0% |
-| **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 11 | 84.6% |
+| **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 0 | 0.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **31** | **19.1%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **33** | **20.4%** |
 
 ---
 
@@ -167,7 +167,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 │   │   │   ├── Subtask [UI-03-002-01] [x] Implement high-framerate GPU-accelerated 2D line and scatter plot widget
 │   │   │   ├── Subtask [UI-03-002-02] [x] Implement scalar field contour colormap legend and probe tooltips
 │   │   │   ├── Subtask [UI-03-002-03] [x] Implement multi-channel oscilloscope & logic analyzer viewports
-├── Module [2D] [~] 2D Modeling Engine (Stage 2 | P0)
+├── Module [2D] [x] 2D Modeling Engine (Stage 2 | P0)
 │   ├── Submodule [2D-01] [x] 2D Geometric Primitives & Vector Drawing
 │   │   ├── Task [2D-01-001] [x] Parametric 2D Primitives Engine
 │   │   │   ├── Subtask [2D-01-001-01] [x] Implement point, line, polyline, arc, circle, ellipse, and cubic Bézier spline primitives
@@ -182,13 +182,13 @@ SHUNYA NEXT PHASE PLATFORM WBS
 │   │   │   ├── Subtask [2D-02-001-01] [x] Define constraint graph (Coincident, Collinear, Parallel, Perpendicular, Tangent, Concentric)
 │   │   │   ├── Subtask [2D-02-001-02] [x] Implement dimensional constraints (Distance, Angle, Radius, Diameter, Horizontal/Vertical)
 │   │   │   ├── Subtask [2D-02-001-03] [x] Implement non-linear Newton-Raphson / Levenberg-Marquardt solver for sketch DOF analysis
-│   ├── Submodule [2D-03] [~] Layer Management & CAD Vector Exchange
+│   ├── Submodule [2D-03] [x] Layer Management & CAD Vector Exchange
 │   │   ├── Task [2D-03-001] [x] Multi-Layer CAD Organization & Styles
 │   │   │   ├── Subtask [2D-03-001-01] [x] Implement hierarchical layer system (visibility, locking, line weights, dash patterns, color)
 │   │   │   ├── Subtask [2D-03-001-02] [x] Implement grouping, compound 2D blocks, and instancing
-│   │   ├── Task [2D-03-002] 2D Import/Export Pipeline
-│   │   │   ├── Subtask [2D-03-002-01] Implement DXF (AutoCAD Drawing Exchange Format) R12/2000 reader and writer
-│   │   │   ├── Subtask [2D-03-002-02] Implement SVG export and import with scale preservation and layer mapping
+│   │   ├── Task [2D-03-002] [x] 2D Import/Export Pipeline
+│   │   │   ├── Subtask [2D-03-002-01] [x] Implement DXF (AutoCAD Drawing Exchange Format) R12/2000 reader and writer
+│   │   │   ├── Subtask [2D-03-002-02] [x] Implement SVG export and import with scale preservation and layer mapping
 ├── Module [3D] 3D Modeling Engine (Stage 3 | P0)
 │   ├── Submodule [3D-01] 3D Parametric Features & Boundary Representation (B-Rep)
 │   │   ├── Task [3D-01-001] Sketch-to-3D Solid Feature Engine
@@ -434,7 +434,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module 2D: 2D Modeling Engine
-**Target Stage:** Stage 2 | **Priority:** P0 | **Status:** `[~] In Progress` (84.6% completed: 11/13 subtasks)  
+**Target Stage:** Stage 2 | **Priority:** P0 | **Status:** `[x] Completed` (100.0% completed: 13/13 subtasks)  
 **Scope Summary:** Parametric 2D vector geometry engine, interactive drafting tools, geometric snapping, non-linear 2D constraint solver, layer management, and CAD vector exchange.
 
 #### Submodule 2D-01: 2D Geometric Primitives & Vector Drawing
@@ -446,8 +446,8 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 1 major engineering task, 3 canonical leaf subtasks (3 completed).
 
 #### Submodule 2D-03: Layer Management & CAD Vector Exchange
-**Status:** `[~] In Progress` (50.0% completed: 2/4 subtasks)  
-**Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks (2 completed).
+**Status:** `[x] Completed` (100.0% completed: 4/4 subtasks)  
+**Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks (4 completed).
 
 
 
@@ -1050,7 +1050,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule 2D-03: Layer Management & CAD Vector Exchange
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **2D-03-001: Multi-Layer CAD Organization & Styles**
   - **Status:** `[x] Completed`
@@ -1080,12 +1080,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `Verified via unit tests in test_cad2d_layers_blocks.cpp confirming 55-instance live update on block edit, nested 2D affine transforms, explode into SketchDocument2D, and entity grouping (7734/7734 checks passed).`
     - **Git Commit Reference:** `70f294f`
 
-- [ ] **2D-03-002: 2D Import/Export Pipeline**
-  - **Status:** `[ ] Not Started`
+- [x] **2D-03-002: 2D Import/Export Pipeline**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Industry standard 2D vector file interchange supporting DXF (AutoCAD Drawing Exchange Format) and SVG format import/export.
-  - [ ] **2D-03-002-01: Implement DXF (AutoCAD Drawing Exchange Format) R12/2000 reader and writer**
-    - **Status:** `[ ] Not Started`
+  - [x] **2D-03-002-01: Implement DXF (AutoCAD Drawing Exchange Format) R12/2000 reader and writer**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Parse and serialize DXF ASCII files supporting TABLES, BLOCKS, and ENTITIES sections (LINE, CIRCLE, ARC, LWPOLYLINE, SPLINE).
     - **Implementation Details:** DxfParser and DxfWriter mapping DXF group codes to 2D primitive curves with layer mapping and unit preservation.
@@ -1093,11 +1093,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** dxf_io.hpp/.cpp, libdxfrw/custom parser, DXF round-trip test suite.
     - **Acceptance Criteria:** Exporting a 2D sketch to DXF and importing into AutoCAD or LibreCAD matches coordinates and dimensions exactly.
     - **Testing & Verification Requirements:** Round-trip import/export tests on 20 standard mechanical DXF test drawings; verify entity counts and vertex tolerances.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via test_cad2d_io.cpp round-trip suite across 20 R12 & AC1015/2000 drawings plus Inches-to-Millimeters unit scaling conversion ($INSUNITS=1 -> mm). ctest 382/382 passed (8119/8119 checks).`
+    - **Git Commit Reference:** `cf5bfc1`
 
-  - [ ] **2D-03-002-02: Implement SVG export and import with scale preservation and layer mapping**
-    - **Status:** `[ ] Not Started`
+  - [x] **2D-03-002-02: Implement SVG export and import with scale preservation and layer mapping**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Generate clean SVG 1.1 XML with physical width/height attributes (mm/inches), viewbox scaling, CSS path styling, and layer grouping.
     - **Implementation Details:** SvgExchange mapping Curve2D entities to SVG path data d='M... C... A... Z' with stroke attributes.
@@ -1105,8 +1105,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** svg_io.hpp/.cpp, svg_test.cpp.
     - **Acceptance Criteria:** Exported SVG rendered in web browsers or Inkscape preserves exact 1:1 real-world physical dimensions when printed.
     - **Testing & Verification Requirements:** Validate generated SVG XML against W3C SVG validator; test SVG path parser with curved Bézier loops.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Verified via test_cad2d_io.cpp validating SVG 1.1 physical mm/in export scaling, layer group mapping & visibility, and cubic Bezier / circle path parser round-trip (382/382 cases, 8119/8119 checks passed).`
+    - **Git Commit Reference:** `cf5bfc1`
 
 
 
