@@ -187,6 +187,8 @@ target_sources(shunya_core_domain
         src/integ/thermo_mechanical_connector.cpp
         src/integ/fsi_connector.cpp
         src/integ/chemo_thermal_connector.cpp
+        src/integ/fmu_importer.cpp
+        src/integ/fmu_exporter.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -390,6 +392,9 @@ target_sources(shunya_core_domain
             include/shunya/integ/thermo_mechanical_connector.hpp
             include/shunya/integ/fsi_connector.hpp
             include/shunya/integ/chemo_thermal_connector.hpp
+            include/shunya/integ/fmi_wrapper.hpp
+            include/shunya/integ/fmu_importer.hpp
+            include/shunya/integ/fmu_exporter.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
