@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 39 | 24.1% |
+| `[ ]` | Not Started | 36 | 22.2% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 123 | 75.9% |
+| `[x]` | Completed | 126 | 77.8% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **75.9%** (123 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **77.8%** (126 / 162 leaf subtasks completed)
 
 
 ---
@@ -95,11 +95,11 @@ Every module is assigned a target development stage, priority classification (P0
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 15 | 100.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 13 | 100.0% |
-| **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
+| **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 3 | 33.3% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **123** | **75.9%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **126** | **77.8%** |
 
 ---
 
@@ -560,11 +560,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module ENV: Virtual Environment
-**Target Stage:** Stage 8 | **Priority:** P0 | **Status:** `[ ] Not Started`  
+**Target Stage:** Stage 8 | **Priority:** P0 | **Status:** `[~] In Progress` (3 / 9 subtasks, 33.3%)  
 **Scope Summary:** Configurable physical virtual environment including US Standard Atmosphere column, altitude pressure/density gradients, aerodynamic wind vectors, solar radiation, microgravity, vacuum test chambers, and deep-space radiation sinks.
 
 #### Submodule ENV-01: Environmental Physical Fields & Atmospheric Model
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (3 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule ENV-02: Virtual Chamber & Environmental Boundary Enclosures
@@ -2468,17 +2468,17 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module ENV: Virtual Environment
 
-**Status:** `[ ] Not Started` | **Stage:** Stage 8 | **Priority:** P0
+**Status:** `[~] In Progress` | **Stage:** Stage 8 | **Priority:** P0
 
 #### Submodule ENV-01: Environmental Physical Fields & Atmospheric Model
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **ENV-01-001: Barometric & Atmospheric Column Modeling**
-  - **Status:** `[ ] Not Started`
+- [x] **ENV-01-001: Barometric & Atmospheric Column Modeling**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Altitude-dependent atmospheric properties up to 86 km according to US Standard Atmosphere 1976, dynamic air density, humidity, and wind vectors.
-  - [ ] **ENV-01-001-01: Implement US Standard Atmosphere model from sea level to mesosphere**
-    - **Status:** `[ ] Not Started`
+  - [x] **ENV-01-001-01: Implement US Standard Atmosphere model from sea level to mesosphere**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Calculate temperature T(z), pressure P(z), density rho(z), and speed of sound c(z) across troposphere, stratosphere, and mesosphere layers.
     - **Implementation Details:** AtmosphericModel implementing piecewise standard lapse rates (-6.5 K/km in troposphere) and barometric formula with geopotential altitude.
@@ -2486,11 +2486,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** atmospheric_model.hpp/.cpp, standard_atmosphere_1976.hpp, atmosphere_test.cpp.
     - **Acceptance Criteria:** Sea level pressure is 101.325 kPa (density 1.225 kg/m3); at 11,000m tropopause, pressure equals 22.632 kPa and T = 216.65 K.
     - **Testing & Verification Requirements:** Verify atmospheric parameters against US Standard Atmosphere 1976 tabulated reference values from 0m to 80,000m.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 481 passed, 0 failed (35248/35248 checks passed); verified US Standard Atmosphere 1976 0-80 km T/P/rho/c in test_env_atmosphere.cpp`
+    - **Git Commit Reference:** `7909789`
 
-  - [ ] **ENV-01-001-02: Implement dynamic ambient humidity, dew point, and vapor pressure models**
-    - **Status:** `[ ] Not Started`
+  - [x] **ENV-01-001-02: Implement dynamic ambient humidity, dew point, and vapor pressure models**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Compute saturation vapor pressure e_sat(T) via Magnus-Tetens equation, relative humidity RH, dew point temperature, and moist air density.
     - **Implementation Details:** PsychrometricModel calculating absolute humidity, wet-bulb temperature, and moist air gas constant R_moist.
@@ -2498,11 +2498,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** psychrometric_model.hpp/.cpp, humidity_tests.cpp.
     - **Acceptance Criteria:** Computes moist air density accurately; calculates dew point within 0.1 degC of ASHRAE psychrometric chart values.
     - **Testing & Verification Requirements:** Test psychrometric state points: dry air, 50% RH at 20 degC, saturated air at 35 degC.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 481 passed, 0 failed (35248/35248 checks passed); verified Magnus-Tetens dew point (<0.1 C), wet-bulb bisection, dry/moist/saturated density in test_env_atmosphere.cpp`
+    - **Git Commit Reference:** `7909789`
 
-  - [ ] **ENV-01-001-03: Implement wind velocity vector fields and boundary layer shear**
-    - **Status:** `[ ] Not Started`
+  - [x] **ENV-01-001-03: Implement wind velocity vector fields and boundary layer shear**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Configurable 3D atmospheric wind field with logarithmic surface boundary layer shear profile v(z) = (u_star / kappa) * ln(z / z_0) and gust spectra.
     - **Implementation Details:** WindFieldModel evaluating mean horizontal wind vectors and Dryden / von Karman atmospheric turbulence velocity fluctuations.
@@ -2510,8 +2510,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** wind_field_model.hpp/.cpp, turbulence_generator.hpp, wind_tests.cpp.
     - **Acceptance Criteria:** Wind speed decreases gracefully near ground level according to surface roughness z_0; simulates realistic gust fluctuations.
     - **Testing & Verification Requirements:** Verify logarithmic profile velocity scaling against height; check energy spectral density of generated turbulence.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 481 passed, 0 failed (35248/35248 checks passed); verified log-law surface shear and Dryden turbulence PSD/RMS in test_env_atmosphere.cpp`
+    - **Git Commit Reference:** `7909789`
 
 - [ ] **ENV-01-002: Gravitational & Celestial Radiation Fields**
   - **Status:** `[ ] Not Started`
