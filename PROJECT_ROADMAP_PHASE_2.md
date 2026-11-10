@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 45 | 27.8% |
+| `[ ]` | Not Started | 43 | 26.5% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 117 | 72.2% |
+| `[x]` | Completed | 119 | 73.5% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **72.2%** (117 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **73.5%** (119 / 162 leaf subtasks completed)
 
 
 ---
@@ -94,12 +94,12 @@ Every module is assigned a target development stage, priority classification (P0
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 15 | 100.0% |
-| **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 7 | 53.8% |
+| **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 9 | 69.2% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **117** | **72.2%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **119** | **73.5%** |
 
 ---
 
@@ -542,7 +542,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module CHEM: Chemistry Simulation
-**Target Stage:** Stage 7 | **Priority:** P1 | **Status:** `[~] In Progress` (7 / 13 subtasks, 53.8%)  
+**Target Stage:** Stage 7 | **Priority:** P1 | **Status:** `[~] In Progress` (9 / 13 subtasks, 69.2%)  
 **Scope Summary:** Chemical reaction kinetics, stoichiometric network balancing, Law of Mass Action, Arrhenius temperature dependence, Gibbs energy minimization, thermochemical combustion, aqueous electrochemistry, and battery cells.
 
 #### Submodule CHEM-01: Reaction Kinetics & Stoichiometric Networks
@@ -550,7 +550,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule CHEM-02: Thermochemistry & Energy Balances
-**Status:** `[~] In Progress` (2 / 4 subtasks)  
+**Status:** `[x] Completed` (4 / 4 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 #### Submodule CHEM-03: Molecular Interactions & Solution Chemistry
@@ -2343,7 +2343,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule CHEM-02: Thermochemistry & Energy Balances
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **CHEM-02-001: Reaction Enthalpy & Heat of Combustion**
   - **Status:** `[x] Completed`
@@ -2373,12 +2373,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `ChemoThermalCoupler` implemented in `chemo_thermal_coupler.hpp/.cpp`; adiabatic temperature rise + 3D `ThermalSolver3D` heat coupling verified in `tests/unit/test_chem_thermochemistry.cpp`.
     - **Git Commit Reference:** `ffba35a`
 
-- [ ] **CHEM-02-002: Combustion, Flame Propagation & Explosion Modeling**
-  - **Status:** `[ ] Not Started`
+- [x] **CHEM-02-002: Combustion, Flame Propagation & Explosion Modeling**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Model fuel-air combustion mixtures, flammability limits, laminar flame speed, and deflagration pressure rise in enclosed volumes.
-  - [ ] **CHEM-02-002-01: Implement hydrocarbon combustion kinetics with ignition thresholds and oxygen depletion**
-    - **Status:** `[ ] Not Started`
+  - [x] **CHEM-02-002-01: Implement hydrocarbon combustion kinetics with ignition thresholds and oxygen depletion**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Multi-step combustion mechanism (Westbrook-Dryer 2-step model) for hydrocarbons, evaluating fuel oxidation and CO conversion.
     - **Implementation Details:** CombustionKineticsModel checking local temperature against auto-ignition threshold and limiting reaction by oxygen availability.
@@ -2386,11 +2386,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** combustion_model.hpp/.cpp, flammability_limits.hpp, flame_tests.cpp.
     - **Acceptance Criteria:** Methane will not ignite below its lower flammability limit (5% in air) or without reaching ignition temperature (600 degC).
     - **Testing & Verification Requirements:** Test ignition and stoichiometric burn of propane-air mixture; verify complete oxygen depletion at equivalence ratio phi = 1.0.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `CombustionKineticsModel` & `FlammabilityLimits` implemented in `flammability_limits.hpp`, `combustion_model.hpp/.cpp`; CH4 LFL/600C threshold checks and stoichiometric Propane O2 depletion verified in `tests/unit/test_chem_combustion.cpp` (`ctest` 472/472).
+    - **Git Commit Reference:** `210da02`
 
-  - [ ] **CHEM-02-002-02: Implement deflagration pressure rise and adiabatic flame temperature calculation**
-    - **Status:** `[ ] Not Started`
+  - [x] **CHEM-02-002-02: Implement deflagration pressure rise and adiabatic flame temperature calculation**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Compute constant-volume explosion pressure P_max and constant-pressure adiabatic flame temperature T_ad using enthalpy conservation.
     - **Implementation Details:** AdiabaticFlameCalculator iterating temperature until products enthalpy equals reactants enthalpy H_prod(T_ad) = H_react(T_0).
@@ -2398,8 +2398,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** adiabatic_flame.hpp/.cpp, explosion_pressure.hpp, explosion_tests.cpp.
     - **Acceptance Criteria:** Methane-air stoichiometric combustion calculates adiabatic flame temperature approx 2220 K matching experimental combustion literature.
     - **Testing & Verification Requirements:** Validate adiabatic flame temperature and maximum closed-vessel explosion pressure for hydrogen-air and methane-air.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `AdiabaticFlameCalculator` (NIST Shomate + equilibrium dissociation) & `ExplosionPressureCalculator` implemented in `adiabatic_flame.hpp/.cpp`, `explosion_pressure.hpp`; CH4 (~2220 K) & H2 adiabatic flames and closed-vessel P_max verified in `tests/unit/test_chem_combustion.cpp`.
+    - **Git Commit Reference:** `210da02`
 
 
 
