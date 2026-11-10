@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 104 | 64.2% |
+| `[ ]` | Not Started | 102 | 63.0% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 58 | 35.8% |
+| `[x]` | Completed | 60 | 37.0% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **35.8%** (58 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **37.0%** (60 / 162 leaf subtasks completed)
 
 
 ---
@@ -90,7 +90,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 20 | 100.0% |
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
-| **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 8 | 57.1% |
+| **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 10 | 71.4% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **58** | **35.8%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **60** | **37.0%** |
 
 ---
 
@@ -470,7 +470,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module MATDB: Periodic Elements Database
-**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (8 / 14 subtasks, 57.1%)  
+**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (10 / 14 subtasks, 71.4%)  
 **Scope Summary:** Exhaustive physicochemical database for all 118 IUPAC elements, isotopic abundances, electronic shell structures, crystal lattices, thermodynamic Shomate polynomials, and interactive periodic table visualization.
 
 #### Submodule MATDB-01: Comprehensive 118-Element Scientific Dataset
@@ -478,7 +478,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks.
 
 #### Submodule MATDB-02: Solid-State, Crystallographic & Thermodynamic Baseline Data
-**Status:** `[~] In Progress` (2 / 4 subtasks)  
+**Status:** `[x] Completed` (4 / 4 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 #### Submodule MATDB-03: Interactive Periodic Table UI & Element Inspector
@@ -1451,7 +1451,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule MATDB-02: Solid-State, Crystallographic & Thermodynamic Baseline Data
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **MATDB-02-001: Crystal Lattice Structures & Space Groups**
   - **Status:** `[x] Completed`
@@ -1481,12 +1481,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `UnitCellGeometryBuilder` implemented in `core/domain/include/shunya/matdb/unit_cell_builder.hpp` & `unit_cell_builder.cpp` plus AOT-compiled `shunya/UnitCellViewer.qml`; verified net atom counts SC=1, BCC=2, FCC=4, HCP=6, Diamond=8 & sphere `TriangleMesh`/wireframe output in `tests/unit/test_matdb_crystallography.cpp`.
     - **Git Commit Reference:** `2a82d9f`
 
-- [ ] **MATDB-02-002: Standard Thermodynamic State Quantities**
-  - **Status:** `[ ] Not Started`
+- [x] **MATDB-02-002: Standard Thermodynamic State Quantities**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Standard enthalpy of formation, standard molar entropy, and NIST Shomate polynomial coefficients for temperature-dependent heat capacity.
-  - [ ] **MATDB-02-002-01: Ingest standard enthalpy of formation, entropy, and Gibbs free energy at 298.15 K**
-    - **Status:** `[ ] Not Started`
+  - [x] **MATDB-02-002-01: Ingest standard enthalpy of formation, entropy, and Gibbs free energy at 298.15 K**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Populate standard thermodynamic quantities for elements in their reference standard states (Delta_f H deg = 0, S deg, Delta_f G deg = 0).
     - **Implementation Details:** ThermodynamicStateRegistry indexing standard thermodynamic values from CODATA / NIST-JANAF tables.
@@ -1494,11 +1494,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** thermodynamics_baseline.json, thermo_registry.hpp/.cpp, thermo_validation_test.cpp.
     - **Acceptance Criteria:** Standard enthalpies of elements in reference state equal 0.0 J/mol; non-reference allotropes (diamond vs graphite) have positive Delta H.
     - **Testing & Verification Requirements:** Check graphite vs diamond Delta_f H = 1.895 kJ/mol; verify O2(g), N2(g), Fe(s) reference state enthalpy zeros.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ThermodynamicStateRegistry` implemented in `core/domain/include/shunya/matdb/thermo_registry.hpp` & `thermo_registry.cpp` (CODATA/NIST-JANAF reference elements zero Delta_f H/G, diamond +1.895 kJ/mol, S deg_298, JSON export); verified in `tests/unit/test_matdb_thermodynamics.cpp` (`ctest` 410/410 cases, 18808/18808 checks passed).
+    - **Git Commit Reference:** `1ffa80f`
 
-  - [ ] **MATDB-02-002-02: Ingest NIST Shomate polynomial coefficients for heat capacity across 298 K - 6000 K**
-    - **Status:** `[ ] Not Started`
+  - [x] **MATDB-02-002-02: Ingest NIST Shomate polynomial coefficients for heat capacity across 298 K - 6000 K**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Store 7-term Shomate equation coefficients (A, B, C, D, E, F, G, H) across defined temperature ranges for accurate Cp(T), H(T), S(T) evaluation.
     - **Implementation Details:** ShomateEvaluator implementing Cp(T) = A + B*t + C*t^2 + D*t^3 + E/t^2 where t = T/1000 K; calculates enthalpy and entropy integrals.
@@ -1506,8 +1506,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** shomate_coefficients.json, shomate_evaluator.hpp/.cpp, shomate_benchmark.cpp.
     - **Acceptance Criteria:** Evaluated heat capacity for nitrogen, oxygen, iron, and copper matches NIST chemistry WebBook tabulated data to < 0.25% error.
     - **Testing & Verification Requirements:** Verify continuity of Cp(T) at piecewise temperature segment boundaries.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ShomateEvaluator` implemented in `core/domain/include/shunya/matdb/shomate_evaluator.hpp` & `shomate_evaluator.cpp` (`N2(g)`, `O2(g)`, `H2(g)`, `Fe(s/l)`, `Cu(s/l)`, `Al(s/l)` multi-segment polynomials, `Cp`, `Delta H`, `S`, mass `J/(kg*K)`, continuity audit, JSON export); verified in `tests/unit/test_matdb_thermodynamics.cpp`.
+    - **Git Commit Reference:** `1ffa80f`
 
 
 
