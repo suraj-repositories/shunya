@@ -148,6 +148,9 @@ target_sources(shunya_core_domain
         src/phy/collision_engine.cpp
         src/phy/ccd_solver.cpp
         src/phy/constraint_solver.cpp
+        src/phy/thermal_solver_3d.cpp
+        src/phy/convection_model.cpp
+        src/phy/radiation_solver.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -289,6 +292,12 @@ target_sources(shunya_core_domain
             include/shunya/phy/ccd_solver.hpp
             include/shunya/phy/joint_models.hpp
             include/shunya/phy/constraint_solver.hpp
+            include/shunya/phy/conjugate_gradient_sparse.hpp
+            include/shunya/phy/thermal_solver_3d.hpp
+            include/shunya/phy/nusselt_correlations.hpp
+            include/shunya/phy/convection_model.hpp
+            include/shunya/phy/view_factor_raymarcher.hpp
+            include/shunya/phy/radiation_solver.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
