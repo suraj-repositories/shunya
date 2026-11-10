@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 62 | 38.3% |
+| `[ ]` | Not Started | 59 | 36.4% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 100 | 61.7% |
+| `[x]` | Completed | 103 | 63.6% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **61.7%** (100 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **63.6%** (103 / 162 leaf subtasks completed)
 
 
 ---
@@ -93,13 +93,13 @@ Every module is assigned a target development stage, priority classification (P0
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 17 | 100.0% |
-| **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 5 | 33.3% |
+| **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 8 | 53.3% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **100** | **61.7%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **103** | **63.6%** |
 
 ---
 
@@ -524,7 +524,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module PHY: Physics Simulation
-**Target Stage:** Stage 6 | **Priority:** P0 | **Status:** `[~] In Progress` (5 / 15 subtasks, 33.3%)  
+**Target Stage:** Stage 6 | **Priority:** P0 | **Status:** `[~] In Progress` (8 / 15 subtasks, 53.3%)  
 **Scope Summary:** Multi-domain physics simulation engine covering symplectic rigid-body dynamics, continuous collision detection (CCD), articulated joints, 3D transient heat conduction/radiation, phase transitions, SPH free-surface fluids, and Eulerian grid CFD.
 
 #### Submodule PHY-01: Classical Mechanics, Multi-Body Dynamics & Collisions
@@ -532,7 +532,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule PHY-02: Thermodynamics, Heat Transfer & Phase Transitions
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (3 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule PHY-03: Fluid Mechanics & Fluid Dynamics
@@ -2118,14 +2118,14 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule PHY-02: Thermodynamics, Heat Transfer & Phase Transitions
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **PHY-02-001: Conduction, Convection & Radiation Solvers**
-  - **Status:** `[ ] Not Started`
+- [x] **PHY-02-001: Conduction, Convection & Radiation Solvers**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** 3D continuum heat diffusion, Newton cooling surface convection, and Stefan-Boltzmann radiative exchange with view factor calculations.
-  - [ ] **PHY-02-001-01: Implement 3D transient thermal conduction via finite difference / element solver**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-02-001-01: Implement 3D transient thermal conduction via finite difference / element solver**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Solve rho * c_p * dT/dt = div(k * grad(T)) + Q_gen over structured voxel or unstructured tetrahedral meshes with Crank-Nicolson implicit stepping.
     - **Implementation Details:** ThermalSolver3D assembling sparse conductivity matrix K and heat capacity matrix C; solves linear system via Conjugate Gradient.
@@ -2133,11 +2133,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** thermal_solver_3d.hpp/.cpp, conjugate_gradient_sparse.hpp, heat_diffusion_test.cpp.
     - **Acceptance Criteria:** Simulating a 3D bar heated at one end matches analytical Fourier series transient solution to < 0.2% error.
     - **Testing & Verification Requirements:** Validate 1D and 3D transient heat diffusion against analytical Green's function benchmark solutions.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ThermalSolver3D` (3D Crank-Nicolson finite-volume + Jacobi-PCG `SparseConjugateGradient`) implemented in `conjugate_gradient_sparse.hpp`, `thermal_solver_3d.hpp/.cpp`; analytical Fourier bar transient `< 0.2%` error verified in `tests/unit/test_phy_thermal.cpp` (`ctest` 457/457).
+    - **Git Commit Reference:** `060b494`
 
-  - [ ] **PHY-02-001-02: Implement surface convective heat transfer with empirical Nusselt correlations**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-02-001-02: Implement surface convective heat transfer with empirical Nusselt correlations**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Model heat loss to fluid q_conv = h * (T_surface - T_ambient) with dynamic h calculated from Churchill-Bernstein and Churchill-Chu equations.
     - **Implementation Details:** ConvectionBoundaryModel evaluating dimensionless numbers (Rayleigh, Grashof, Prandtl, Reynolds, Nusselt) to derive local h.
@@ -2145,11 +2145,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** convection_model.hpp/.cpp, nusselt_correlations.hpp, convection_test.cpp.
     - **Acceptance Criteria:** Natural convection from a vertical flat plate calculates correct heat transfer coefficient matching experimental empirical correlations.
     - **Testing & Verification Requirements:** Verify natural convection from horizontal cylinder and forced convection across cylinder bank.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ConvectionBoundaryModel` & `NusseltCorrelations` (Grashof, Rayleigh, Reynolds, Churchill-Chu, Churchill-Bernstein) implemented in `nusselt_correlations.hpp`, `convection_model.hpp/.cpp`; verified in `tests/unit/test_phy_thermal.cpp`.
+    - **Git Commit Reference:** `060b494`
 
-  - [ ] **PHY-02-001-03: Implement Stefan-Boltzmann radiation with diffuse gray-body view factor calculations**
-    - **Status:** `[ ] Not Started`
+  - [x] **PHY-02-001-03: Implement Stefan-Boltzmann radiation with diffuse gray-body view factor calculations**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Solve radiative exchange q_rad = epsilon * sigma * (T_1^4 - T_2^4) and calculate geometric view factors F_ij between surface patches.
     - **Implementation Details:** RadiationSolver with hemi-cube or Monte Carlo ray-tracing view factor integrator satisfying reciprocity A_i * F_ij = A_j * F_ji.
@@ -2157,8 +2157,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** radiation_solver.hpp/.cpp, view_factor_raymarcher.hpp, radiation_tests.cpp.
     - **Acceptance Criteria:** Two parallel blackbody plates in vacuum reach exact radiative equilibrium according to analytical Stefan-Boltzmann quartic equations.
     - **Testing & Verification Requirements:** Verify view factor summation rule (sum F_ij = 1.0 for closed enclosures) and reciprocity law across complex geometries.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ViewFactorRaymarcher` (cosine-weighted hemisphere raymarcher + reciprocity) & `RadiationSolver` implemented in `view_factor_raymarcher.hpp`, `radiation_solver.hpp/.cpp`; unit-cube enclosure summation/reciprocity, F_01 = 0.199825, and Stefan-Boltzmann parallel plate equilibrium verified in `tests/unit/test_phy_thermal.cpp`.
+    - **Git Commit Reference:** `060b494`
 
 - [ ] **PHY-02-002: Phase Change Enthalpy & Thermal Stress**
   - **Status:** `[ ] Not Started`
