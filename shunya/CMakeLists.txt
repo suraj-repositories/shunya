@@ -88,6 +88,9 @@ qt_add_qml_module(appshunya
         ElementCell.qml
         HeatmapLegend.qml
         PeriodicTableWindow.qml
+        BohrModelView.qml
+        OrbitalPreviewItem.qml
+        IsotopeDecayView.qml
 )
 
 set_target_properties(appshunya PROPERTIES

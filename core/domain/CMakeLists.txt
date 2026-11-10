@@ -106,6 +106,8 @@ target_sources(shunya_core_domain
         src/matdb/thermo_registry.cpp
         src/matdb/shomate_evaluator.cpp
         src/matdb/periodic_heatmap_filter.cpp
+        src/matdb/bohr_orbital_model.cpp
+        src/matdb/decay_chain_builder.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -181,6 +183,8 @@ target_sources(shunya_core_domain
             include/shunya/matdb/thermo_registry.hpp
             include/shunya/matdb/shomate_evaluator.hpp
             include/shunya/matdb/periodic_heatmap_filter.hpp
+            include/shunya/matdb/bohr_orbital_model.hpp
+            include/shunya/matdb/decay_chain_builder.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

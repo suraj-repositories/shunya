@@ -51,6 +51,7 @@ add_executable(shunya_unit_tests
     unit/test_matdb_crystallography.cpp
     unit/test_matdb_thermodynamics.cpp
     unit/test_matdb_periodic_grid.cpp
+    unit/test_matdb_inspector.cpp
     unit/test_rendering.cpp
     unit/test_circuit.cpp
     unit/test_digital_logic.cpp
