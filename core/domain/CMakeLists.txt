@@ -144,6 +144,10 @@ target_sources(shunya_core_domain
         src/pcb/mixed_signal_bridge.cpp
         src/phy/symplectic_integrator.cpp
         src/phy/rigid_body_kinematics.cpp
+        src/phy/gjk_epa.cpp
+        src/phy/collision_engine.cpp
+        src/phy/ccd_solver.cpp
+        src/phy/constraint_solver.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -279,6 +283,12 @@ target_sources(shunya_core_domain
             include/shunya/phy/energy_auditor.hpp
             include/shunya/phy/inertia_tensor_calculator.hpp
             include/shunya/phy/rigid_body_kinematics.hpp
+            include/shunya/phy/gjk_epa.hpp
+            include/shunya/phy/collision_engine.hpp
+            include/shunya/phy/swept_volume.hpp
+            include/shunya/phy/ccd_solver.hpp
+            include/shunya/phy/joint_models.hpp
+            include/shunya/phy/constraint_solver.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
