@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 81 | 50.0% |
+| `[ ]` | Not Started | 79 | 48.8% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 81 | 50.0% |
+| `[x]` | Completed | 83 | 51.2% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **50.0%** (81 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **51.2%** (83 / 162 leaf subtasks completed)
 
 
 ---
@@ -92,14 +92,14 @@ Every module is assigned a target development stage, priority classification (P0
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
-| **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 3 | 17.6% |
+| **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 5 | 29.4% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **81** | **50.0%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **83** | **51.2%** |
 
 ---
 
@@ -506,11 +506,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module PCB: Circuit Board Design
-**Target Stage:** Stage 5 | **Priority:** P1 | **Status:** `[~] In Progress` (3 / 17 subtasks, 17.6%)  
+**Target Stage:** Stage 5 | **Priority:** P1 | **Status:** `[~] In Progress` (5 / 17 subtasks, 29.4%)  
 **Scope Summary:** Electronic Design Automation (EDA) suite including multi-sheet schematic capture, ERC, IPC footprint generator, multi-layer PCB stackup, 45-degree push-and-shove trace router, copper flood fill, DRC, Gerber RS-274X export, and mixed-signal SPICE/digital co-simulation.
 
 #### Submodule PCB-01: Schematic Capture & Symbol Management
-**Status:** `[~] In Progress` (3 / 5 subtasks)  
+**Status:** `[x] Completed` (5 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule PCB-02: PCB Layout, Stackup & Interactive Routing
@@ -1792,7 +1792,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 **Status:** `[~] In Progress` | **Stage:** Stage 5 | **Priority:** P1
 
 #### Submodule PCB-01: Schematic Capture & Symbol Management
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **PCB-01-001: Multi-Sheet Schematic Editor**
   - **Status:** `[x] Completed`
@@ -1834,12 +1834,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `ErcEngine` & `ErcMatrix` implemented in `erc_matrix.hpp`, `erc_engine.hpp` & `.cpp` + `ErcReportPanel.qml` (detects Output-Output, shorted PowerOutput rails, floating CMOS Inputs); verified in `tests/unit/test_pcb_schematic.cpp`.
     - **Git Commit Reference:** `b4b60fe`
 
-- [ ] **PCB-01-002: Component Symbol & Footprint Library Manager**
-  - **Status:** `[ ] Not Started`
+- [x] **PCB-01-002: Component Symbol & Footprint Library Manager**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Standardized component symbol editor, IEEE/IEC symbol libraries, and IPC-7351 compliant footprint generator.
-  - [ ] **PCB-01-002-01: Implement IEEE/IEC compliant schematic symbol library and pin mapper**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-01-002-01: Implement IEEE/IEC compliant schematic symbol library and pin mapper**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Library of standard symbols (Resistor US/EU, Capacitor, Inductor, Diode, BJT, MOSFET, Op-Amp, Logic gates) with configurable pin mapping.
     - **Implementation Details:** SymbolLibraryManager storing XML/JSON symbol definitions with graphical primitives and pin polarity designations.
@@ -1847,11 +1847,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** symbol_library.hpp/.cpp, standard_symbols.json, SymbolEditorView.qml.
     - **Acceptance Criteria:** Selecting European vs American schematic standards toggles zigzag vs box resistor symbols across entire schematic instantly.
     - **Testing & Verification Requirements:** Test symbol instantiation, pin orientation rotation (0, 90, 180, 270 deg), and mirroring along X/Y axes.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `SymbolLibraryManager` implemented in `core/domain/include/shunya/pcb/symbol_library.hpp` & `.cpp` + `shunya/SymbolEditorView.qml` (IEEE US vs IEC EU resistor/inductor toggling, 0/90/180/270 rotation & X/Y mirror, JSON export); verified in `tests/unit/test_pcb_symbol_footprint.cpp` (`ctest` 433/433 cases, 20010/20010 checks passed).
+    - **Git Commit Reference:** `b37a352`
 
-  - [ ] **PCB-01-002-02: Implement IPC-7351 compliant SMD/THT footprint generator**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-01-002-02: Implement IPC-7351 compliant SMD/THT footprint generator**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Parametric footprint generator computing pad dimensions, spacing, solder mask expansion, and silkscreen outlines for standard IC packages.
     - **Implementation Details:** FootprintGenerator implementing IPC-7351B math for SOIC, TSSOP, QFP, QFN, BGA, and 0402/0603/0805 chip passives.
@@ -1859,8 +1859,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** footprint_generator.hpp/.cpp, ipc7351_tables.hpp, FootprintPreview.qml.
     - **Acceptance Criteria:** Generated pad sizes and heel/toe/side clearances match IPC-7351 nominal density level B recommendations to 0.01 mm.
     - **Testing & Verification Requirements:** Validate generated footprint dimensions against manufacturer recommended land patterns for SOIC-8 and QFP-48.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `FootprintGenerator` implemented in `ipc7351_tables.hpp`, `footprint_generator.hpp` & `.cpp` + `shunya/FootprintPreview.qml` (IPC-7351B Density A/B/C for SOIC-8, LQFP-48, 0402–1206 chips, and BGA-64 within 0.01 mm); verified in `tests/unit/test_pcb_symbol_footprint.cpp`.
+    - **Git Commit Reference:** `b37a352`
 
 
 
