@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 27 | 16.7% |
+| `[ ]` | Not Started | 23 | 14.2% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 135 | 83.3% |
+| `[x]` | Completed | 139 | 85.8% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **83.3%** (135 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **85.8%** (139 / 162 leaf subtasks completed)
 
 
 ---
@@ -96,10 +96,10 @@ Every module is assigned a target development stage, priority classification (P0
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 15 | 100.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 13 | 100.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 9 | 100.0% |
-| **INT** | System Integration | Stage 9 | P0 | 11 | 3 | 27.3% |
+| **INT** | System Integration | Stage 9 | P0 | 11 | 7 | 63.6% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **135** | **83.3%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **139** | **85.8%** |
 
 ---
 
@@ -574,11 +574,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module INT: System Integration
-**Target Stage:** Stage 9 | **Priority:** P0 | **Status:** `[~] In Progress` (3 / 11 subtasks, 27.3%)  
+**Target Stage:** Stage 9 | **Priority:** P0 | **Status:** `[~] In Progress` (7 / 11 subtasks, 63.6%)  
 **Scope Summary:** Multi-rate co-simulation orchestrator, master time coordinator, adaptive time-stepping, cross-domain coupling (electro-thermal, thermo-mechanical, fluid-structure, chemo-thermal), FMI 2.0/3.0 FMU support, and low-latency shared-memory telemetry IPC.
 
 #### Submodule INT-01: Multi-Rate Co-Simulation Orchestrator
-**Status:** `[~] In Progress` (3 / 7 subtasks)  
+**Status:** `[x] Completed` (7 / 7 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 7 canonical leaf subtasks.
 
 #### Submodule INT-02: Standard Co-Simulation Interfaces & Data Bus
@@ -2611,7 +2611,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 **Status:** `[~] In Progress` | **Stage:** Stage 9 | **Priority:** P0
 
 #### Submodule INT-01: Multi-Rate Co-Simulation Orchestrator
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **INT-01-001: Master Time Coordinator & Adaptive Stepping**
   - **Status:** `[x] Completed`
@@ -2653,12 +2653,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `ctest CoreUnitTests: 490 passed, 0 failed (35339/35339 checks passed); verified NaN/divergence checkpoint rollback & binary step halving recovery in test_int_co_simulation.cpp`
     - **Git Commit Reference:** `27d4e93`
 
-- [ ] **INT-01-002: Cross-Domain Physical Coupling Connectors**
-  - **Status:** `[ ] Not Started`
+- [x] **INT-01-002: Cross-Domain Physical Coupling Connectors**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Bidirectional multiphysics coupling interfaces passing physical variables, conservation flux exchange, and state mapping.
-  - [ ] **INT-01-002-01: Implement electro-thermal bidirectional coupling connector**
-    - **Status:** `[ ] Not Started`
+  - [x] **INT-01-002-01: Implement electro-thermal bidirectional coupling connector**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Map electrical power dissipation P = I^2 * R into thermal mesh heat generation Q_gen; interpolate temperature back to update electrical resistivity rho(T).
     - **Implementation Details:** ElectroThermalConnector executing bidirectional Gauss-Seidel or Jacobi coupling iteration per co-simulation macro-step.
@@ -2666,11 +2666,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** electro_thermal_connector.hpp/.cpp, joule_heating_test.cpp.
     - **Acceptance Criteria:** Simulating a current surge through a fuse accurately captures self-heating, resistance increase, and thermal melting open-circuit.
     - **Testing & Verification Requirements:** Test electrical fuse blowout: compare current cutoff time vs fuse I^2*t rating.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 494 passed, 0 failed (35540/35540 checks passed); verified Gauss-Seidel R(T) heating & I^2*t fuse blowout in test_int_connectors.cpp`
+    - **Git Commit Reference:** `956a867`
 
-  - [ ] **INT-01-002-02: Implement thermo-mechanical bidirectional coupling connector**
-    - **Status:** `[ ] Not Started`
+  - [x] **INT-01-002-02: Implement thermo-mechanical bidirectional coupling connector**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Pass 3D thermal field to mechanical solver to induce thermal stress/warp; pass mechanical plastic deformation work dissipation as heat.
     - **Implementation Details:** ThermoMechanicalConnector mapping nodal temperatures to mechanical finite elements with Taylor-Quinney factor (approx 0.9) plastic heating.
@@ -2678,11 +2678,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** thermo_mechanical_connector.hpp/.cpp, thermal_buckling_test.cpp.
     - **Acceptance Criteria:** Heated bi-material beam deflects smoothly; rapid plastic mechanical deformation generates measurable temperature rise.
     - **Testing & Verification Requirements:** Verify thermal buckling critical temperature of slender beam against Euler buckling thermal formula.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 494 passed, 0 failed (35540/35540 checks passed); verified Timoshenko bimetal warp, Euler buckling critical dT, and Taylor-Quinney beta=0.9 heating in test_int_connectors.cpp`
+    - **Git Commit Reference:** `956a867`
 
-  - [ ] **INT-01-002-03: Implement fluid-structure interaction (FSI) coupling connector**
-    - **Status:** `[ ] Not Started`
+  - [x] **INT-01-002-03: Implement fluid-structure interaction (FSI) coupling connector**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Transfer fluid pressure and shear forces from SPH particles or MAC grid cells to solid structural boundaries; transfer moving boundary velocities to fluid.
     - **Implementation Details:** FsiConnector projecting fluid pressure onto triangular boundary meshes and returning boundary surface velocity u_wall to fluid solver.
@@ -2690,11 +2690,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** fsi_connector.hpp/.cpp, floating_body_test.cpp.
     - **Acceptance Criteria:** Floating rigid body in water experiences buoyant Archimedes force equal to weight of displaced liquid; bobs up and down with correct buoyancy frequency.
     - **Testing & Verification Requirements:** Validate floating wooden cylinder oscillation frequency in water against analytical hydrometer equation.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 494 passed, 0 failed (35540/35540 checks passed); verified Archimedes buoyancy & hydrometer oscillation freq (~1.175 Hz) in test_int_connectors.cpp`
+    - **Git Commit Reference:** `956a867`
 
-  - [ ] **INT-01-002-04: Implement chemo-thermal coupling connector**
-    - **Status:** `[ ] Not Started`
+  - [x] **INT-01-002-04: Implement chemo-thermal coupling connector**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Transfer chemical reaction heat release into thermal solver; transfer local temperatures to update kinetic Arrhenius reaction rate coefficients.
     - **Implementation Details:** ChemoThermalConnector synchronizing chemical species concentration fields with temperature field in virtual test reactor.
@@ -2702,8 +2702,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** chemo_thermal_connector.hpp/.cpp, cstr_reactor_test.cpp.
     - **Acceptance Criteria:** Continuous Stirred-Tank Reactor (CSTR) captures multiple steady states and thermal runaway hysteresis behavior.
     - **Testing & Verification Requirements:** Verify upper and lower stable operating temperatures and unstable saddle point for exothermic CSTR reaction.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 494 passed, 0 failed (35540/35540 checks passed); verified CSTR 3 Van Heerden steady states & thermal ignition hysteresis in test_int_connectors.cpp`
+    - **Git Commit Reference:** `956a867`
 
 
 
