@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 77 | 47.5% |
+| `[ ]` | Not Started | 74 | 45.7% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 85 | 52.5% |
+| `[x]` | Completed | 88 | 54.3% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **52.5%** (85 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **54.3%** (88 / 162 leaf subtasks completed)
 
 
 ---
@@ -92,14 +92,14 @@ Every module is assigned a target development stage, priority classification (P0
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
-| **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 7 | 41.2% |
+| **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 10 | 58.8% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **85** | **52.5%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **88** | **54.3%** |
 
 ---
 
@@ -506,7 +506,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module PCB: Circuit Board Design
-**Target Stage:** Stage 5 | **Priority:** P1 | **Status:** `[~] In Progress` (7 / 17 subtasks, 41.2%)  
+**Target Stage:** Stage 5 | **Priority:** P1 | **Status:** `[~] In Progress` (10 / 17 subtasks, 58.8%)  
 **Scope Summary:** Electronic Design Automation (EDA) suite including multi-sheet schematic capture, ERC, IPC footprint generator, multi-layer PCB stackup, 45-degree push-and-shove trace router, copper flood fill, DRC, Gerber RS-274X export, and mixed-signal SPICE/digital co-simulation.
 
 #### Submodule PCB-01: Schematic Capture & Symbol Management
@@ -514,7 +514,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule PCB-02: PCB Layout, Stackup & Interactive Routing
-**Status:** `[~] In Progress` (2 / 8 subtasks)  
+**Status:** `[~] In Progress` (5 / 8 subtasks)  
 **Submodule Task Inventory:** 3 major engineering tasks, 8 canonical leaf subtasks.
 
 #### Submodule PCB-03: Electrical & Digital Logic Co-Simulation
@@ -1895,12 +1895,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `BoardOutline` & `KeepoutZone` implemented in `keepout_manager.hpp`, `board_outline.hpp` & `.cpp` (milled slots, M3 holes, edge clearance & keepout blocking); verified in `tests/unit/test_pcb_stackup_outline.cpp`.
     - **Git Commit Reference:** `7d9a637`
 
-- [ ] **PCB-02-002: Interactive & Semi-Automated Trace Routing**
-  - **Status:** `[ ] Not Started`
+- [x] **PCB-02-002: Interactive & Semi-Automated Trace Routing**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Interactive PCB trace routing with 45-degree angle constraints, real-time push-and-shove obstacle avoidance, via placement, and copper polygon fills.
-  - [ ] **PCB-02-002-01: Implement interactive 45-degree angle trace routing with push-and-shove**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-02-002-01: Implement interactive 45-degree angle trace routing with push-and-shove**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Interactive trace drawing tool snapping to component pads, constraining bends to 45-degree octilinear lines, and nudging obstacle traces aside.
     - **Implementation Details:** InteractiveTraceRouter with rubber-band preview and local spring-model push-and-shove collision resolver.
@@ -1908,11 +1908,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** trace_router.hpp/.cpp, push_shove_engine.hpp, PcbRoutingCanvas.qml.
     - **Acceptance Criteria:** Drawing a trace through a dense pin header pushes neighboring traces while respecting minimum clearance rules.
     - **Testing & Verification Requirements:** Test 45-degree angle constraint enforcement; test push-and-shove displacement on 10 parallel bus traces.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `InteractiveTraceRouter` & `PushShoveEngine` implemented in `push_shove_engine.hpp`, `trace_router.hpp` & `.cpp` + `PcbRoutingCanvas.qml` (octilinear 45° constraints, 10-trace bus push-and-shove keeping >= 0.15 mm clearance); verified in `tests/unit/test_pcb_routing_pour.cpp` (`ctest` 438/438 cases, 20135/20135 checks passed).
+    - **Git Commit Reference:** `2064a29`
 
-  - [ ] **PCB-02-002-02: Implement via placement (through-hole, blind, buried) and connectivity**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-02-002-02: Implement via placement (through-hole, blind, buried) and connectivity**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Allow placing vias during routing to switch active copper layers; track net connectivity across layers and handle annular rings.
     - **Implementation Details:** ViaManager managing via coordinates, drill diameter, pad diameter, start layer, and end layer with net assignation.
@@ -1920,11 +1920,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** via_manager.hpp/.cpp, via_dialog.qml, via_tests.cpp.
     - **Acceptance Criteria:** Pressing 'V' while routing places via, switches active layer to paired routing plane, and continues trace seamlessly.
     - **Testing & Verification Requirements:** Verify electrical netlist continuity check passes across multiple vias connecting Top and Bottom copper layers.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ViaManager` implemented in `via_manager.hpp` & `.cpp` + `ViaDialog.qml` (ThroughHole/Blind/Buried layer & annular ring rules, Top-Bottom multi-layer Union-Find continuity); verified in `tests/unit/test_pcb_routing_pour.cpp`.
+    - **Git Commit Reference:** `2064a29`
 
-  - [ ] **PCB-02-002-03: Implement copper pour polygon flood fill with thermal relief spokes**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-02-002-03: Implement copper pour polygon flood fill with thermal relief spokes**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Flood fill unrouted board regions with solid or hatched ground/power planes; generate 4-spoke thermal relief connections to tied pads.
     - **Implementation Details:** CopperPourEngine utilizing Clipper2 polygon subtraction to cut clearances around unrelated tracks/vias and add thermal relief crosses.
@@ -1932,8 +1932,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** copper_pour.hpp/.cpp, thermal_relief.hpp, copper_pour_benchmark.cpp.
     - **Acceptance Criteria:** Flooding a ground copper zone creates clean 0.2mm isolation gaps around signal nets and generates 4 thermal spokes on ground pads.
     - **Testing & Verification Requirements:** Benchmark copper pour on complex 4-layer board (< 100ms calculation time); verify zero acute-angle acid traps.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `CopperPourEngine` & `ThermalReliefPad` implemented in `thermal_relief.hpp`, `copper_pour.hpp` & `.cpp` (0.20 mm isolation voids, 4-spoke thermal reliefs, acid-trap angle check `< 100 ms`); verified in `tests/unit/test_pcb_routing_pour.cpp`.
+    - **Git Commit Reference:** `2064a29`
 
 - [ ] **PCB-02-003: Design Rule Checking (DRC) & Manufacturing Export**
   - **Status:** `[ ] Not Started`
