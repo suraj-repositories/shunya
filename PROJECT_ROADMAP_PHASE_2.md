@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 74 | 45.7% |
+| `[ ]` | Not Started | 71 | 43.8% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 88 | 54.3% |
+| `[x]` | Completed | 91 | 56.2% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **54.3%** (88 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **56.2%** (91 / 162 leaf subtasks completed)
 
 
 ---
@@ -92,14 +92,14 @@ Every module is assigned a target development stage, priority classification (P0
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
 | **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 14 | 100.0% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 14 | 100.0% |
-| **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 10 | 58.8% |
+| **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 13 | 76.5% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
 | **CHEM** | Chemistry Simulation | Stage 7 | P1 | 13 | 0 | 0.0% |
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 0 | 0.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **88** | **54.3%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **91** | **56.2%** |
 
 ---
 
@@ -506,7 +506,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module PCB: Circuit Board Design
-**Target Stage:** Stage 5 | **Priority:** P1 | **Status:** `[~] In Progress` (10 / 17 subtasks, 58.8%)  
+**Target Stage:** Stage 5 | **Priority:** P1 | **Status:** `[~] In Progress` (13 / 17 subtasks, 76.5%)  
 **Scope Summary:** Electronic Design Automation (EDA) suite including multi-sheet schematic capture, ERC, IPC footprint generator, multi-layer PCB stackup, 45-degree push-and-shove trace router, copper flood fill, DRC, Gerber RS-274X export, and mixed-signal SPICE/digital co-simulation.
 
 #### Submodule PCB-01: Schematic Capture & Symbol Management
@@ -514,7 +514,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule PCB-02: PCB Layout, Stackup & Interactive Routing
-**Status:** `[~] In Progress` (5 / 8 subtasks)  
+**Status:** `[x] Completed` (8 / 8 subtasks)  
 **Submodule Task Inventory:** 3 major engineering tasks, 8 canonical leaf subtasks.
 
 #### Submodule PCB-03: Electrical & Digital Logic Co-Simulation
@@ -1865,7 +1865,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule PCB-02: PCB Layout, Stackup & Interactive Routing
-**Status:** `[~] In Progress`
+**Status:** `[x] Completed`
 
 - [x] **PCB-02-001: Multi-Layer Board Stackup Architecture**
   - **Status:** `[x] Completed`
@@ -1935,12 +1935,12 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Actual Verification Evidence:** `CopperPourEngine` & `ThermalReliefPad` implemented in `thermal_relief.hpp`, `copper_pour.hpp` & `.cpp` (0.20 mm isolation voids, 4-spoke thermal reliefs, acid-trap angle check `< 100 ms`); verified in `tests/unit/test_pcb_routing_pour.cpp`.
     - **Git Commit Reference:** `2064a29`
 
-- [ ] **PCB-02-003: Design Rule Checking (DRC) & Manufacturing Export**
-  - **Status:** `[ ] Not Started`
+- [x] **PCB-02-003: Design Rule Checking (DRC) & Manufacturing Export**
+  - **Status:** `[x] Completed`
   - **Priority:** P1
   - **Description:** Comprehensive geometric DRC engine and production manufacturing exporters (Gerber RS-274X, Excellon drill, and 3D STEP/OBJ export).
-  - [ ] **PCB-02-003-01: Implement geometric DRC engine (clearance, trace width, annular ring)**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-02-003-01: Implement geometric DRC engine (clearance, trace width, annular ring)**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Spatial DRC checking track-to-track, track-to-pad, pad-to-pad clearances, minimum drill sizes, annular ring widths, and unconnected airwires.
     - **Implementation Details:** DrcEngine building spatial R-tree of copper primitives; executes pairwise geometric clearance tests and outputs violation markers.
@@ -1948,11 +1948,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** drc_engine.hpp/.cpp, DrcReportView.qml, drc_rules.json, drc_test.cpp.
     - **Acceptance Criteria:** Instantly detects traces violating minimum 0.15mm clearance; highlights exact violation coordinates in red on PCB canvas.
     - **Testing & Verification Requirements:** Run DRC on intentionally flawed board with 20 intentional clearance and trace width violations; assert 100% detection rate.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `DrcEngine::check_board` implemented in `drc_engine.hpp/.cpp` with `DrcReportView.qml` validating clearances, track widths, via drills, annular rings, and unconnected nets; verified in `tests/unit/test_pcb_drc_manufacturing.cpp` (`ctest` 441/441).
+    - **Git Commit Reference:** `644e5b6`
 
-  - [ ] **PCB-02-003-02: Implement Gerber (RS-274X) and Excellon drill file generator**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-02-003-02: Implement Gerber (RS-274X) and Excellon drill file generator**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Serialize PCB copper layers, solder masks, silkscreen, and board edge cuts to standard RS-274X Extended Gerber format and Excellon NC drill format.
     - **Implementation Details:** GerberExporter writing Aperture Definitions (ADD), flash commands (D03), linear interpolation (D01), and Excellon header coordinates.
@@ -1960,11 +1960,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** gerber_exporter.hpp/.cpp, excellon_exporter.hpp/.cpp, gerber_test.cpp.
     - **Acceptance Criteria:** Exported Gerber files load cleanly into open-source Gerbv and third-party PCB fab viewers (JLCPCB/OSH Park) without format warnings.
     - **Testing & Verification Requirements:** Verify syntax conformance of exported RS-274X files against Ucamco Gerber format specification rev 2023.08.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `GerberExporter` (RS-274X apertures, D01/D02/D03) & `ExcellonExporter` (METRIC,TZ T-tool definitions & XY drill hits) implemented in `gerber_exporter.hpp/.cpp` & `excellon_exporter.hpp/.cpp`; verified in `tests/unit/test_pcb_drc_manufacturing.cpp`.
+    - **Git Commit Reference:** `644e5b6`
 
-  - [ ] **PCB-02-003-03: Implement 3D PCB solid model exporter (STEP / OBJ) with placed 3D bodies**
-    - **Status:** `[ ] Not Started`
+  - [x] **PCB-02-003-03: Implement 3D PCB solid model exporter (STEP / OBJ) with placed 3D bodies**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Generate realistic 3D CAD solid model of fabricated PCB including substrate, silkscreen texture, copper pads, and placed 3D component STEP bodies.
     - **Implementation Details:** Pcb3DExporter synthesizing 3D triangular mesh / STEP boundary representation for electro-thermal multiphysics simulation.
@@ -1972,8 +1972,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** pcb_3d_exporter.hpp/.cpp, step_mesh_assembler.hpp, pcb_3d_tests.cpp.
     - **Acceptance Criteria:** Produces watertight 3D solid geometry of PCB assembly suitable for direct import into thermal finite element solver.
     - **Testing & Verification Requirements:** Export 3D PCB model to OBJ and STEP; verify volume and bounding box dimensions match PCB layer stackup.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `Pcb3DExporter` (`assemble_3d_model`, `export_obj`, `export_step_ap214`) & `StepMeshAssembler` implemented in `pcb_3d_exporter.hpp/.cpp` & `step_mesh_assembler.hpp`; verified watertight stackup bounding box & STEP AP214 output in `tests/unit/test_pcb_drc_manufacturing.cpp`.
+    - **Git Commit Reference:** `644e5b6`
 
 
 
