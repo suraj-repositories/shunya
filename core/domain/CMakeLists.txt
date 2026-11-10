@@ -92,6 +92,9 @@ target_sources(shunya_core_domain
         src/cad3d/rhi_renderer_engine.cpp
         src/cad3d/shadow_pass.cpp
         src/cad3d/wboit_pass.cpp
+        src/cad3d/pbr_material.cpp
+        src/cad3d/ibl_processor.cpp
+        src/cad3d/volume_renderer.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -150,6 +153,11 @@ target_sources(shunya_core_domain
             include/shunya/cad3d/csm_pipeline.hpp
             include/shunya/cad3d/shadow_pass.hpp
             include/shunya/cad3d/wboit_pass.hpp
+            include/shunya/cad3d/material_library.hpp
+            include/shunya/cad3d/pbr_material.hpp
+            include/shunya/cad3d/ibl_processor.hpp
+            include/shunya/cad3d/3d_texture_cache.hpp
+            include/shunya/cad3d/volume_renderer.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
