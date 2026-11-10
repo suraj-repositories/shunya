@@ -37,6 +37,7 @@ add_executable(shunya_unit_tests
     unit/test_ui_plotting.cpp
     unit/test_cad2d_primitives.cpp
     unit/test_cad2d_snapping_sketch.cpp
+    unit/test_cad2d_constraints.cpp
     unit/test_rendering.cpp
     unit/test_circuit.cpp
     unit/test_digital_logic.cpp

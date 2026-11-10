@@ -77,6 +77,7 @@ qt_add_qml_module(appshunya
         SketchCanvas.qml
         SnapGlyphOverlay.qml
         SketchToolbar.qml
+        DimensionDisplayWidget.qml
 )
 
 set_target_properties(appshunya PROPERTIES

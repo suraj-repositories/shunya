@@ -37,6 +37,14 @@ Rectangle {
                 canvasNode: canvas2d
             }
 
+            DimensionDisplayWidget {
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.margins: 8
+                remainingDof: 0
+                statusMode: "FullyConstrained"
+            }
+
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true

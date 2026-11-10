@@ -63,6 +63,10 @@ target_sources(shunya_core_domain
         src/cad2d/construction_layer.cpp
         src/cad2d/snap_manager.cpp
         src/cad2d/polar_guide.cpp
+        src/cad2d/constraint_graph.cpp
+        src/cad2d/geometric_constraints.cpp
+        src/cad2d/dimensional_constraints.cpp
+        src/cad2d/sketch_solver_2d.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -84,6 +88,11 @@ target_sources(shunya_core_domain
             include/shunya/cad2d/construction_layer.hpp
             include/shunya/cad2d/snap_manager.hpp
             include/shunya/cad2d/polar_guide.hpp
+            include/shunya/cad2d/constraint_graph.hpp
+            include/shunya/cad2d/geometric_constraints.hpp
+            include/shunya/cad2d/dimensional_constraints.hpp
+            include/shunya/cad2d/dof_analyzer.hpp
+            include/shunya/cad2d/sketch_solver_2d.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
