@@ -108,6 +108,9 @@ target_sources(shunya_core_domain
         src/matdb/periodic_heatmap_filter.cpp
         src/matdb/bohr_orbital_model.cpp
         src/matdb/decay_chain_builder.cpp
+        src/mat/molecular_graph.cpp
+        src/mat/vsepr_conformation.cpp
+        src/mat/molecular_mesh_builder.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -185,6 +188,13 @@ target_sources(shunya_core_domain
             include/shunya/matdb/periodic_heatmap_filter.hpp
             include/shunya/matdb/bohr_orbital_model.hpp
             include/shunya/matdb/decay_chain_builder.hpp
+            include/shunya/mat/bond_model.hpp
+            include/shunya/mat/valence_validator.hpp
+            include/shunya/mat/molecular_graph.hpp
+            include/shunya/mat/geometry_predictor.hpp
+            include/shunya/mat/vsepr_conformation.hpp
+            include/shunya/mat/cpk_color_table.hpp
+            include/shunya/mat/molecular_mesh_builder.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

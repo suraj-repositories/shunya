@@ -91,6 +91,7 @@ qt_add_qml_module(appshunya
         BohrModelView.qml
         OrbitalPreviewItem.qml
         IsotopeDecayView.qml
+        MoleculeViewer.qml
 )
 
 set_target_properties(appshunya PROPERTIES
