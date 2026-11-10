@@ -151,6 +151,8 @@ target_sources(shunya_core_domain
         src/phy/thermal_solver_3d.cpp
         src/phy/convection_model.cpp
         src/phy/radiation_solver.cpp
+        src/phy/phase_change_solver.cpp
+        src/phy/thermo_stress_solver.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -298,6 +300,10 @@ target_sources(shunya_core_domain
             include/shunya/phy/convection_model.hpp
             include/shunya/phy/view_factor_raymarcher.hpp
             include/shunya/phy/radiation_solver.hpp
+            include/shunya/phy/stefan_validator.hpp
+            include/shunya/phy/phase_change_solver.hpp
+            include/shunya/phy/von_mises_evaluator.hpp
+            include/shunya/phy/thermo_stress_solver.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
