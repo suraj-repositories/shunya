@@ -885,7 +885,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Plotting 500,000 points at 60 FPS consumes < 5% CPU on modern quad-core machine; smooth pan and pinch zoom.
     - **Testing & Verification Requirements:** Stress test plot item with 10M synthetic data points; assert frame rendering time < 16.6ms.
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_plotting.cpp (MinMaxDecimator 10M point decimation stress test verifying transient spike peak/valley preservation and monotonic X output, auto-range, nice ticks, zoom/pan transforms, and binary-search crosshair probe), plus offscreen GUI loading of ScientificPlot.qml.
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit 738c87e (feat(ui): implement GPU scientific plotter, colormap legend, and oscilloscope/logic analyzer)
 
   - [x] **UI-03-002-02: Implement scalar field contour colormap legend and probe tooltips**
     - **Status:** `[x] Completed`
@@ -897,7 +897,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** User hovers over 3D thermal body to see exact local temperature in Kelvin/Celsius with instantaneous marker update on color legend.
     - **Testing & Verification Requirements:** Verify color transfer function interpolation accuracy against standard Matplotlib Viridis/Turbo lookup tables.
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_plotting.cpp (Matplotlib Viridis/Plasma/Turbo/Jet RGB LUT stop accuracy <= 2/255, 256-entry LUT monotonic endpoints, and ScalarField probe mapping with formatted unit labels), plus offscreen QML integration in Main.qml.
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit 738c87e (feat(ui): implement GPU scientific plotter, colormap legend, and oscilloscope/logic analyzer)
 
   - [x] **UI-03-002-03: Implement multi-channel oscilloscope & logic analyzer viewports**
     - **Status:** `[x] Completed`
@@ -909,7 +909,7 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Acceptance Criteria:** Triggers accurately halt scrolling display on rising/falling edge; digital bus signals display decoded hex/binary values.
     - **Testing & Verification Requirements:** Test edge trigger detection accuracy on square, sine, and pulse waveforms; verify bus decoding.
     - **Actual Verification Evidence:** Verified via unit tests in test_ui_plotting.cpp (500Hz sine Vpp/Vrms/frequency metrics, rising-edge sub-sample trigger interpolation, falling-edge square pulse trigger detection, and 4-bit parallel bus hex/binary/X/Z state decoding), plus offscreen QML rendering.
-    - **Git Commit Reference:** Pending Commit
+    - **Git Commit Reference:** Commit 738c87e (feat(ui): implement GPU scientific plotter, colormap legend, and oscilloscope/logic analyzer)
 
 
 
