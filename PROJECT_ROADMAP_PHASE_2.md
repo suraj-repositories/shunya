@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 106 | 65.4% |
+| `[ ]` | Not Started | 104 | 64.2% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 56 | 34.6% |
+| `[x]` | Completed | 58 | 35.8% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **34.6%** (56 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **35.8%** (58 / 162 leaf subtasks completed)
 
 
 ---
@@ -90,7 +90,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **UI** | Advanced UI Development | Stage 1 | P0 | 20 | 20 | 100.0% |
 | **2D** | 2D Modeling Engine | Stage 2 | P0 | 13 | 13 | 100.0% |
 | **3D** | 3D Modeling Engine | Stage 3 | P0 | 17 | 17 | 100.0% |
-| **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 6 | 42.9% |
+| **MATDB** | Periodic Elements Database | Stage 4 | P0 | 14 | 8 | 57.1% |
 | **MAT** | Material Modeling | Stage 4 | P0 | 14 | 0 | 0.0% |
 | **PCB** | Circuit Board Design | Stage 5 | P1 | 17 | 0 | 0.0% |
 | **PHY** | Physics Simulation | Stage 6 | P0 | 15 | 0 | 0.0% |
@@ -99,7 +99,7 @@ Every module is assigned a target development stage, priority classification (P0
 | **INT** | System Integration | Stage 9 | P0 | 11 | 0 | 0.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 0 | 0.0% |
 | **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **56** | **34.6%** |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **58** | **35.8%** |
 
 ---
 
@@ -470,7 +470,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module MATDB: Periodic Elements Database
-**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (6 / 14 subtasks, 42.9%)  
+**Target Stage:** Stage 4 | **Priority:** P0 | **Status:** `[~] In Progress` (8 / 14 subtasks, 57.1%)  
 **Scope Summary:** Exhaustive physicochemical database for all 118 IUPAC elements, isotopic abundances, electronic shell structures, crystal lattices, thermodynamic Shomate polynomials, and interactive periodic table visualization.
 
 #### Submodule MATDB-01: Comprehensive 118-Element Scientific Dataset
@@ -478,7 +478,7 @@ SHUNYA NEXT PHASE PLATFORM WBS
 **Submodule Task Inventory:** 2 major engineering tasks, 6 canonical leaf subtasks.
 
 #### Submodule MATDB-02: Solid-State, Crystallographic & Thermodynamic Baseline Data
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (2 / 4 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 4 canonical leaf subtasks.
 
 #### Submodule MATDB-03: Interactive Periodic Table UI & Element Inspector
@@ -1451,14 +1451,14 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 
 #### Submodule MATDB-02: Solid-State, Crystallographic & Thermodynamic Baseline Data
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **MATDB-02-001: Crystal Lattice Structures & Space Groups**
-  - **Status:** `[ ] Not Started`
+- [x] **MATDB-02-001: Crystal Lattice Structures & Space Groups**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Standard crystallographic space groups, 14 Bravais lattices, atomic positions in unit cells, and packing density factors.
-  - [ ] **MATDB-02-001-01: Catalog standard crystal systems (BCC, FCC, HCP, Diamond) with lattice parameters**
-    - **Status:** `[ ] Not Started`
+  - [x] **MATDB-02-001-01: Catalog standard crystal systems (BCC, FCC, HCP, Diamond) with lattice parameters**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Store crystal symmetry group, space group number (1-230), lattice constants (a, b, c in angstroms), and interaxial angles (alpha, beta, gamma).
     - **Implementation Details:** CrystallographyDatabase indexing standard elemental allotropes (e.g. Fe-alpha BCC, Fe-gamma FCC, Cu FCC, C diamond vs graphite).
@@ -1466,11 +1466,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** crystal_structures.json, crystal_database.hpp/.cpp, crystallography_tests.cpp.
     - **Acceptance Criteria:** FCC elements (Cu, Al, Ni, Au) catalogued with exact experimental lattice parameters at 298 K; atomic packing factor correctly computed.
     - **Testing & Verification Requirements:** Assert theoretical density calculated from crystal lattice matches measured macroscopic density to < 1.5% error.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `CrystallographyDatabase` implemented in `core/domain/include/shunya/matdb/crystal_database.hpp` & `crystal_database.cpp` (SC, BCC, FCC, HCP, Diamond, Graphite across 26 structures with space groups 1–230, 14 Bravais lattice enum, APF, JSON export, < 1.5% theoretical density error audit); verified in `tests/unit/test_matdb_crystallography.cpp` (`ctest` 408/408 cases, 18752/18752 checks passed).
+    - **Git Commit Reference:** `2a82d9f`
 
-  - [ ] **MATDB-02-001-02: Implement unit cell 3D visualization and atomic packing factor calculators**
-    - **Status:** `[ ] Not Started`
+  - [x] **MATDB-02-001-02: Implement unit cell 3D visualization and atomic packing factor calculators**
+    - **Status:** `[x] Completed`
     - **Priority:** P1
     - **Description:** Generate 3D unit cell geometry with lattice boundary wireframe and clipped boundary atoms for visual inspection.
     - **Implementation Details:** UnitCellGeometryBuilder generating sphere meshes at fractional crystallographic basis coordinates (x, y, z).
@@ -1478,8 +1478,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** unit_cell_builder.hpp/.cpp, UnitCellViewer.qml, lattice_mesh_tests.cpp.
     - **Acceptance Criteria:** FCC unit cell displays 8 corner atoms (1/8th inside) and 6 face-centered atoms (1/2 inside) totaling 4 net atoms.
     - **Testing & Verification Requirements:** Verify net atom count calculation for SC (1), BCC (2), FCC (4), and HCP (6) unit cells.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `UnitCellGeometryBuilder` implemented in `core/domain/include/shunya/matdb/unit_cell_builder.hpp` & `unit_cell_builder.cpp` plus AOT-compiled `shunya/UnitCellViewer.qml`; verified net atom counts SC=1, BCC=2, FCC=4, HCP=6, Diamond=8 & sphere `TriangleMesh`/wireframe output in `tests/unit/test_matdb_crystallography.cpp`.
+    - **Git Commit Reference:** `2a82d9f`
 
 - [ ] **MATDB-02-002: Standard Thermodynamic State Quantities**
   - **Status:** `[ ] Not Started`
