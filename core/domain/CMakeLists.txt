@@ -156,6 +156,8 @@ target_sources(shunya_core_domain
         src/phy/sph_viscosity.cpp
         src/phy/sph_surface_tension.cpp
         src/phy/sph_solver_3d.cpp
+        src/phy/pressure_poisson.cpp
+        src/phy/mac_grid_solver_3d.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -312,6 +314,10 @@ target_sources(shunya_core_domain
             include/shunya/phy/sph_viscosity.hpp
             include/shunya/phy/sph_surface_tension.hpp
             include/shunya/phy/sph_solver_3d.hpp
+            include/shunya/phy/semi_lagrangian.hpp
+            include/shunya/phy/pcg_solver.hpp
+            include/shunya/phy/pressure_poisson.hpp
+            include/shunya/phy/mac_grid_solver_3d.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
