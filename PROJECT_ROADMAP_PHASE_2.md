@@ -70,13 +70,13 @@ Progress tracking enforces strict hierarchical derivation: subtasks represent th
 
 | Status Indicator | Meaning | Subtask Count | Percentage |
 |---|---|---:|---:|
-| `[ ]` | Not Started | 10 | 6.2% |
+| `[ ]` | Not Started | 8 | 4.9% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 152 | 93.8% |
+| `[x]` | Completed | 154 | 95.1% |
 | `[!]` | Blocked | 0 | 0.0% |
 | **Total** | **All Catalogued Leaf Subtasks** | **162** | **100.0%** |
 
-> **Current Next-Phase Completion:** **93.8%** (152 / 162 leaf subtasks completed)
+> **Current Next-Phase Completion:** **95.1%** (154 / 162 leaf subtasks completed)
 
 
 ---
@@ -98,8 +98,8 @@ Every module is assigned a target development stage, priority classification (P0
 | **ENV** | Virtual Environment | Stage 8 | P0 | 9 | 9 | 100.0% |
 | **INT** | System Integration | Stage 9 | P0 | 11 | 11 | 100.0% |
 | **PERF** | Performance Optimization | Stage 10 | P1 | 9 | 9 | 100.0% |
-| **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 0 | 0.0% |
-| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **152** | **93.8%** |
+| **TEST** | Testing & Validation | Stage 11 | P0 | 10 | 2 | 20.0% |
+| **TOTAL** | **Comprehensive Next Phase Platform** | **Stages 1 - 11** | **--** | **162** | **154** | **95.1%** |
 
 ---
 
@@ -602,11 +602,11 @@ SHUNYA NEXT PHASE PLATFORM WBS
 
 
 ### Module TEST: Testing & Validation
-**Target Stage:** Stage 11 | **Priority:** P0 | **Status:** `[ ] Not Started`  
+**Target Stage:** Stage 11 | **Priority:** P0 | **Status:** `[~] In Progress` (2 / 10 subtasks, 20.0%)  
 **Scope Summary:** Comprehensive analytical validation suite, NIST/CODATA reference benchmarks, SPICE reference circuits, automated continuous integration quality gates, and SSIM visual regression testing.
 
 #### Submodule TEST-01: Analytical Benchmark Suite & Reference Verification
-**Status:** `[ ] Not Started`  
+**Status:** `[~] In Progress` (2 / 5 subtasks)  
 **Submodule Task Inventory:** 2 major engineering tasks, 5 canonical leaf subtasks.
 
 #### Submodule TEST-02: Standard Electronics & PCB Validation Suite
@@ -2912,17 +2912,17 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
 
 ### Module TEST: Testing & Validation
 
-**Status:** `[ ] Not Started` | **Stage:** Stage 11 | **Priority:** P0
+**Status:** `[~] In Progress` | **Stage:** Stage 11 | **Priority:** P0
 
 #### Submodule TEST-01: Analytical Benchmark Suite & Reference Verification
-**Status:** `[ ] Not Started`
+**Status:** `[~] In Progress`
 
-- [ ] **TEST-01-001: Classical Mechanics & Kinematic Benchmarks**
-  - **Status:** `[ ] Not Started`
+- [x] **TEST-01-001: Classical Mechanics & Kinematic Benchmarks**
+  - **Status:** `[x] Completed`
   - **Priority:** P0
   - **Description:** Validate kinematic and multi-body dynamics algorithms against exact analytical closed-form mathematical physics solutions.
-  - [ ] **TEST-01-001-01: Implement analytical verification suite for orbits, projectiles, and chaotic pendulums**
-    - **Status:** `[ ] Not Started`
+  - [x] **TEST-01-001-01: Implement analytical verification suite for orbits, projectiles, and chaotic pendulums**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Automated verification against Keplerian closed elliptical orbits, projectile motion with quadratic air drag, and double pendulum chaos lyapunov exponents.
     - **Implementation Details:** BenchmarkKinematics running solvers against closed-form calculus equations; verifies trajectory error norms L2 and L_inf.
@@ -2930,11 +2930,11 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** test_kinematic_benchmarks.cpp, analytical_kepler.hpp, benchmark_report_gen.hpp.
     - **Acceptance Criteria:** Keplerian orbit apogee and perigee match closed-form formulas to within 1e-5 relative tolerance.
     - **Testing & Verification Requirements:** Run suite across 25 orbital eccentricities and projectile drag configurations in Catch2 test runner.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 100% passed (509 cases, 0 failed); verified 25 Keplerian eccentricities (<1e-5 apogee/perigee) & quadratic drag terminal velocity in test_bench_mechanics.cpp`
+    - **Git Commit Reference:** `f187ab7`
 
-  - [ ] **TEST-01-001-02: Implement spinning top gyroscopic precession and Euler equation verification**
-    - **Status:** `[ ] Not Started`
+  - [x] **TEST-01-001-02: Implement spinning top gyroscopic precession and Euler equation verification**
+    - **Status:** `[x] Completed`
     - **Priority:** P0
     - **Description:** Validate gyroscope steady precession frequency Omega_p = M * g * r / (I_z * omega_s) and nutation against analytical rigid body equations.
     - **Implementation Details:** BenchmarkGyroscopic verifying angular momentum vector conservation and precession drift rates.
@@ -2942,8 +2942,8 @@ This section contains the comprehensive checklist of all 64 major tasks and 159 
     - **Expected Deliverables:** test_gyroscopic_motion.cpp, analytical_top.hpp.
     - **Acceptance Criteria:** Precession angular frequency matches theoretical Euler top formula to < 0.1% error.
     - **Testing & Verification Requirements:** Execute top spin simulations with varying rotor tilt angles and spin velocities; assert angular momentum conservation.
-    - **Actual Verification Evidence:** `Pending Next-Phase Implementation`
-    - **Git Commit Reference:** `Pending`
+    - **Actual Verification Evidence:** `ctest CoreUnitTests: 100% passed (509 cases, 0 failed); verified Euler heavy top steady precession (<0.1% vs M*g*r/(Iz*omega_s)) & L_z conservation in test_bench_mechanics.cpp`
+    - **Git Commit Reference:** `f187ab7`
 
 - [ ] **TEST-01-002: Thermal, Fluid & Chemical Analytical Benchmarks**
   - **Status:** `[ ] Not Started`
