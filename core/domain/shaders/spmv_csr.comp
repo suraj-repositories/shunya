@@ -1,0 +1,25 @@
+#version 450
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+layout(std430, binding = 0) readonly buffer RowPtrBuf { uint row_ptr[]; };
+layout(std430, binding = 1) readonly buffer ColIdxBuf { uint col_idx[]; };
+layout(std430, binding = 2) readonly buffer ValuesBuf { double values[]; };
+layout(std430, binding = 3) readonly buffer VecXBuf   { double vec_x[]; };
+layout(std430, binding = 4) writeonly buffer VecYBuf  { double vec_y[]; };
+
+layout(push_constant) uniform SpMvParams {
+    uint num_rows;
+} u_params;
+
+void main() {
+    uint row = gl_GlobalInvocationID.x;
+    if (row >= u_params.num_rows) return;
+
+    uint start = row_ptr[row];
+    uint end = row_ptr[row + 1u];
+    double acc = 0.0;
+    for (uint nz = start; nz < end; ++nz) {
+        acc += values[nz] * vec_x[col_idx[nz]];
+    }
+    vec_y[row] = acc;
+}

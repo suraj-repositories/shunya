@@ -1,0 +1,89 @@
+#version 450
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+struct ParticleGpu {
+    vec4 pos_mass;
+    vec4 vel_density;
+    vec4 accel_press;
+};
+
+layout(std430, binding = 0) buffer ParticlesBuf {
+    ParticleGpu particles[];
+};
+
+layout(std430, binding = 1) readonly buffer CellOffsetsBuf {
+    uint cell_start[];
+};
+
+layout(std430, binding = 2) readonly buffer CellCountsBuf {
+    uint cell_end[];
+};
+
+layout(std430, binding = 3) readonly buffer SortedIndicesBuf {
+    uint sorted_idx[];
+};
+
+layout(push_constant) uniform SphForceParams {
+    uint particle_count;
+    float h;
+    float spiky_grad_coeff;
+    float visc_lap_coeff;
+    float viscosity_mu;
+    float dt;
+    float gravity_x;
+    float gravity_y;
+    float gravity_z;
+    float grid_inv_cell;
+    uint table_mask;
+} u_params;
+
+uint hash_cell(ivec3 cell, uint mask) {
+    uint h = uint(cell.x) * 73856093u ^ uint(cell.y) * 19349663u ^ uint(cell.z) * 83492791u;
+    return h & mask;
+}
+
+void main() {
+    uint gid = gl_GlobalInvocationID.x;
+    if (gid >= u_params.particle_count) return;
+
+    vec3 pos_i = particles[gid].pos_mass.xyz;
+    vec3 vel_i = particles[gid].vel_density.xyz;
+    float rho_i = particles[gid].vel_density.w;
+    float p_i = particles[gid].accel_press.w;
+    ivec3 base_cell = ivec3(floor(pos_i * u_params.grid_inv_cell));
+
+    vec3 force = vec3(0.0);
+    for (int dz = -1; dz <= 1; ++dz) {
+        for (int dy = -1; dy <= 1; ++dy) {
+            for (int dx = -1; dx <= 1; ++dx) {
+                uint bucket = hash_cell(base_cell + ivec3(dx, dy, dz), u_params.table_mask);
+                uint begin_k = cell_start[bucket];
+                uint end_k = cell_end[bucket];
+                for (uint k = begin_k; k < end_k; ++k) {
+                    uint j = sorted_idx[k];
+                    if (j == gid) continue;
+                    vec3 diff = pos_i - particles[j].pos_mass.xyz;
+                    float r = length(diff);
+                    if (r > 1e-6 && r < u_params.h) {
+                        float rho_j = particles[j].vel_density.w;
+                        float p_j = particles[j].accel_press.w;
+                        float m_j = particles[j].pos_mass.w;
+                        float hr = u_params.h - r;
+                        float grad_w = u_params.spiky_grad_coeff * hr * hr / r;
+                        float p_term = m_j * ((p_i / (rho_i * rho_i)) + (p_j / (rho_j * rho_j)));
+                        force -= (p_term * rho_i * grad_w) * diff;
+                        vec3 vel_j = particles[j].vel_density.xyz;
+                        force += u_params.viscosity_mu * m_j * ((vel_j - vel_i) / rho_j) *
+                                 u_params.visc_lap_coeff * hr;
+                    }
+                }
+            }
+        }
+    }
+
+    vec3 acc = (force / rho_i) + vec3(u_params.gravity_x, u_params.gravity_y, u_params.gravity_z);
+    vec3 vel_new = vel_i + acc * u_params.dt;
+    particles[gid].accel_press.xyz = acc;
+    particles[gid].vel_density.xyz = vel_new;
+    particles[gid].pos_mass.xyz = pos_i + vel_new * u_params.dt;
+}

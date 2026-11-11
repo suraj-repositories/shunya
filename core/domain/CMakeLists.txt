@@ -191,6 +191,9 @@ target_sources(shunya_core_domain
         src/integ/fmu_exporter.cpp
         src/integ/shared_memory_bus.cpp
         src/integ/telemetry_stream_server.cpp
+        src/perf/gpu_particle_engine.cpp
+        src/perf/gpu_spmv.cpp
+        src/perf/gpu_transfer_ring.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -399,6 +402,10 @@ target_sources(shunya_core_domain
             include/shunya/integ/fmu_exporter.hpp
             include/shunya/integ/shared_memory_bus.hpp
             include/shunya/integ/telemetry_stream_server.hpp
+            include/shunya/perf/gpu_particle_engine.hpp
+            include/shunya/perf/gpu_spmv.hpp
+            include/shunya/perf/timeline_semaphore.hpp
+            include/shunya/perf/gpu_transfer_ring.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

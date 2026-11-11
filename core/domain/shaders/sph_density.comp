@@ -1,0 +1,75 @@
+#version 450
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+struct ParticleGpu {
+    vec4 pos_mass;     // xyz = position, w = mass
+    vec4 vel_density;  // xyz = velocity, w = density
+    vec4 accel_press;  // xyz = acceleration, w = pressure
+};
+
+layout(std430, binding = 0) buffer ParticlesBuf {
+    ParticleGpu particles[];
+};
+
+layout(std430, binding = 1) readonly buffer CellOffsetsBuf {
+    uint cell_start[];
+};
+
+layout(std430, binding = 2) readonly buffer CellCountsBuf {
+    uint cell_end[];
+};
+
+layout(std430, binding = 3) readonly buffer SortedIndicesBuf {
+    uint sorted_idx[];
+};
+
+layout(push_constant) uniform SphParams {
+    uint particle_count;
+    float h;
+    float h2;
+    float poly6_coeff;
+    float rest_density;
+    float tait_b;
+    float tait_gamma;
+    float grid_inv_cell;
+    uint table_mask;
+} u_params;
+
+uint hash_cell(ivec3 cell, uint mask) {
+    uint h = uint(cell.x) * 73856093u ^ uint(cell.y) * 19349663u ^ uint(cell.z) * 83492791u;
+    return h & mask;
+}
+
+void main() {
+    uint gid = gl_GlobalInvocationID.x;
+    if (gid >= u_params.particle_count) return;
+
+    vec3 pos_i = particles[gid].pos_mass.xyz;
+    ivec3 base_cell = ivec3(floor(pos_i * u_params.grid_inv_cell));
+    float rho = 0.0;
+
+    for (int dz = -1; dz <= 1; ++dz) {
+        for (int dy = -1; dy <= 1; ++dy) {
+            for (int dx = -1; dx <= 1; ++dx) {
+                uint bucket = hash_cell(base_cell + ivec3(dx, dy, dz), u_params.table_mask);
+                uint begin_k = cell_start[bucket];
+                uint end_k = cell_end[bucket];
+                for (uint k = begin_k; k < end_k; ++k) {
+                    uint j = sorted_idx[k];
+                    vec3 d = pos_i - particles[j].pos_mass.xyz;
+                    float r2 = dot(d, d);
+                    if (r2 < u_params.h2) {
+                        float diff = u_params.h2 - r2;
+                        rho += particles[j].pos_mass.w * u_params.poly6_coeff * diff * diff * diff;
+                    }
+                }
+            }
+        }
+    }
+
+    rho = max(rho, 1e-4);
+    float ratio = rho / u_params.rest_density;
+    float press = max(0.0, u_params.tait_b * (pow(ratio, u_params.tait_gamma) - 1.0));
+    particles[gid].vel_density.w = rho;
+    particles[gid].accel_press.w = press;
+}
