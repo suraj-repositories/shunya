@@ -121,6 +121,7 @@ add_executable(shunya_unit_tests
     unit/test_p3_circuits.cpp
     unit/test_p3_physics_and_persistence.cpp
     unit/test_p3_e2e_battery_workflow.cpp
+    unit/test_p3_stress_and_edge_cases.cpp
 )
 
 target_include_directories(shunya_unit_tests
@@ -135,5 +136,6 @@ target_link_libraries(shunya_unit_tests
 )
 
 target_compile_features(shunya_unit_tests PRIVATE cxx_std_20)
+target_compile_definitions(shunya_unit_tests PRIVATE SHUNYA_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
 add_test(NAME CoreUnitTests COMMAND shunya_unit_tests)
