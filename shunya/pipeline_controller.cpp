@@ -1,5 +1,6 @@
 #include "pipeline_controller.hpp"
 #include "oscilloscope_controller.hpp"
+#include "viewport_3d_item.hpp"
 
 #include <QFileInfo>
 #include <QUrl>
@@ -94,6 +95,7 @@ ShunyaPipelineController::ShunyaPipelineController(
     if (ws_->material_registry().material_count() == 0 && ws_->object_manager().count() == 0) {
         (void)ws_->seed_lithium_battery_workflow();
     }
+    ShunyaViewport3DItem::setDefaultWorkspace(ws_);
     ws_->subscribe([this](const eng::WorkspaceChangeEvent& ev) {
         if (!ev.summary.empty()) {
             pushStatus(QString::fromStdString(ev.summary));

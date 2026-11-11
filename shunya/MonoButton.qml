@@ -13,6 +13,7 @@ Rectangle {
     implicitWidth: row.implicitWidth + (compact ? 14 : 20)
     implicitHeight: compact ? 28 : 32
     radius: Theme.radiusSm
+    clip: true
     opacity: enabled ? 1.0 : 0.45
 
     color: {

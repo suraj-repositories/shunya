@@ -25,12 +25,12 @@ Item {
 
     Image {
         anchors.fill: parent
+        asynchronous: false
         source: "image://icons/" + root.name + "/" + root.effectiveHex
         sourceSize.width: root.size * 2
         sourceSize.height: root.size * 2
         fillMode: Image.PreserveAspectFit
         smooth: true
-        mipmap: true
         opacity: root.enabled ? 1.0 : 0.4
     }
 }

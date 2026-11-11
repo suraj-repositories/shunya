@@ -1,5 +1,7 @@
 #include "scientific_plot_item.hpp"
 
+#include <QPainter>
+#include <QPolygonF>
 #include <QVariantMap>
 #include <algorithm>
 #include <cmath>
@@ -7,9 +9,10 @@
 namespace shunya::gui {
 
 ShunyaScientificPlotItem::ShunyaScientificPlotItem(QQuickItem* parent)
-    : QQuickItem(parent)
+    : QQuickPaintedItem(parent)
 {
-    setFlag(QQuickItem::ItemHasContents, true);
+    setAntialiasing(true);
+    setOpaquePainting(false);
     loadDemoSignal("damped_sine");
 }
 
@@ -237,7 +240,7 @@ void ShunyaScientificPlotItem::rebuild_decimation() {
 }
 
 void ShunyaScientificPlotItem::geometryChange(const QRectF& newGeometry, const QRectF& oldGeometry) {
-    QQuickItem::geometryChange(newGeometry, oldGeometry);
+    QQuickPaintedItem::geometryChange(newGeometry, oldGeometry);
     if (newGeometry.size() != oldGeometry.size()) {
         rebuild_decimation();
         emit rangeChanged();
@@ -245,71 +248,45 @@ void ShunyaScientificPlotItem::geometryChange(const QRectF& newGeometry, const Q
     }
 }
 
-QSGNode* ShunyaScientificPlotItem::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*) {
-    auto* root = oldNode ? oldNode : new QSGNode();
+void ShunyaScientificPlotItem::paint(QPainter* p) {
+    const double w = width();
+    const double h = height();
+    if (w <= 1.0 || h <= 1.0) return;
+    p->setRenderHint(QPainter::Antialiasing, true);
 
-    auto sync_series_node = [&](QSGGeometryNode* n,
-                                const std::vector<core::domain::PlotPoint2D>& pts,
-                                const QColor& col) {
-        if (!n->geometry()) {
-            auto* g = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), 0);
-            n->setGeometry(g);
-            n->setFlag(QSGNode::OwnsGeometry);
-        }
-        if (!n->material()) {
-            auto* m = new QSGFlatColorMaterial();
-            n->setMaterial(m);
-            n->setFlag(QSGNode::OwnsMaterial);
-        }
-        auto* geom = n->geometry();
-        auto* mat = static_cast<QSGFlatColorMaterial*>(n->material());
-        mat->setColor(col);
+    const double rx = std::max(1e-12, range_.width());
+    const double ry = std::max(1e-12, range_.height());
+
+    auto draw_series = [&](const std::vector<core::domain::PlotPoint2D>& pts, const QColor& col) {
+        if (pts.empty()) return;
         if (plot_mode_ == "scatter") {
-            geom->setDrawingMode(QSGGeometry::DrawPoints);
-            geom->setLineWidth(3.5f);
+            p->setPen(QPen(col, 4.0, Qt::SolidLine, Qt::RoundCap));
+            for (const auto& pt : pts) {
+                const double sx = ((pt.x - range_.x_min) / rx) * w;
+                const double sy = (1.0 - (pt.y - range_.y_min) / ry) * h;
+                p->drawPoint(QPointF(sx, sy));
+            }
         } else {
-            geom->setDrawingMode(QSGGeometry::DrawLineStrip);
-            geom->setLineWidth(1.75f);
+            QPolygonF poly;
+            poly.reserve(static_cast<int>(pts.size()));
+            for (const auto& pt : pts) {
+                const double sx = ((pt.x - range_.x_min) / rx) * w;
+                const double sy = (1.0 - (pt.y - range_.y_min) / ry) * h;
+                poly << QPointF(sx, sy);
+            }
+            p->setPen(QPen(col, 1.8));
+            p->drawPolyline(poly);
         }
-        const int count = static_cast<int>(pts.size());
-        geom->allocate(count);
-        const double w = width();
-        const double h = height();
-        const double rx = std::max(1e-12, range_.width());
-        const double ry = std::max(1e-12, range_.height());
-        auto* verts = geom->vertexDataAsPoint2D();
-        for (int i = 0; i < count; ++i) {
-            const float sx = static_cast<float>(((pts[i].x - range_.x_min) / rx) * w);
-            const float sy = static_cast<float>((1.0 - (pts[i].y - range_.y_min) / ry) * h);
-            verts[i].set(sx, sy);
-        }
-        n->markDirty(QSGNode::DirtyGeometry | QSGNode::DirtyMaterial);
     };
 
-    if (geometry_dirty_ || root->childCount() == 0) {
-        const int needed = extra_series_.empty() ? 1 : static_cast<int>(extra_series_.size());
-        while (root->childCount() > needed) {
-            auto* ch = root->lastChild();
-            root->removeChildNode(ch);
-            delete ch;
+    if (extra_series_.empty()) {
+        draw_series(decimated_, line_color_);
+    } else {
+        for (const auto& s : extra_series_) {
+            draw_series(s.decimated, s.color);
         }
-        while (root->childCount() < needed) {
-            root->appendChildNode(new QSGGeometryNode());
-        }
-
-        if (extra_series_.empty()) {
-            sync_series_node(static_cast<QSGGeometryNode*>(root->firstChild()), decimated_, line_color_);
-        } else {
-            QSGNode* cur = root->firstChild();
-            for (const auto& s : extra_series_) {
-                sync_series_node(static_cast<QSGGeometryNode*>(cur), s.decimated, s.color);
-                cur = cur->nextSibling();
-            }
-        }
-        geometry_dirty_ = false;
     }
-
-    return root;
+    geometry_dirty_ = false;
 }
 
 } // namespace shunya::gui

@@ -1,6 +1,7 @@
 #include "viewport_3d_item.hpp"
 
-#include <QSGFlatColorMaterial>
+#include <QPainter>
+#include <QPolygonF>
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -19,13 +20,13 @@ QColor materialBaseColor(const eng::PhysicalObject& obj,
     if (!mat) return QColor("#8A8A8A");
     std::string nm = mat->name();
     std::transform(nm.begin(), nm.end(), nm.begin(), ::tolower);
-    if (nm.find("copper") != std::string::npos || nm.find("cu") != std::string::npos) return QColor("#B87333");
+    if (nm.find("copper") != std::string::npos || nm.find("cu") != std::string::npos) return QColor("#C87D3B");
     if (nm.find("aluminum") != std::string::npos || nm.find("al") != std::string::npos) return QColor("#B4BAC2");
     if (nm.find("gold") != std::string::npos) return QColor("#D4AF37");
     if (nm.find("lithium") != std::string::npos || nm.find("lifepo4") != std::string::npos) return QColor("#4A90E2");
-    if (nm.find("graphite") != std::string::npos || nm.find("carbon") != std::string::npos) return QColor("#363A40");
+    if (nm.find("graphite") != std::string::npos || nm.find("carbon") != std::string::npos) return QColor("#50555E");
     if (nm.find("nichrome") != std::string::npos || nm.find("steel") != std::string::npos || nm.find("iron") != std::string::npos) {
-        return QColor("#7C8594");
+        return QColor("#8691A2");
     }
     if (nm.find("separator") != std::string::npos || nm.find("ptfe") != std::string::npos || nm.find("insulator") != std::string::npos) {
         return QColor("#E2DFD7");
@@ -34,11 +35,10 @@ QColor materialBaseColor(const eng::PhysicalObject& obj,
 }
 
 QColor thermalColor(double tempK) {
-    // 298 K (blue/teal) -> 340 K (amber) -> 390+ K (red)
     const double t = std::clamp((tempK - 293.15) / 100.0, 0.0, 1.0);
     if (t < 0.5) {
         const double k = t * 2.0;
-        return QColor::fromRgbF(0.15 + 0.80 * k, 0.45 + 0.35 * k, 0.90 - 0.70 * k);
+        return QColor::fromRgbF(0.18 + 0.77 * k, 0.50 + 0.30 * k, 0.92 - 0.72 * k);
     }
     const double k = (t - 0.5) * 2.0;
     return QColor::fromRgbF(0.95, 0.80 - 0.65 * k, 0.20 - 0.10 * k);
@@ -47,14 +47,25 @@ QColor thermalColor(double tempK) {
 struct ProjectedTri {
     float x0, y0, x1, y1, x2, y2;
     double depth;
-    uint8_t r, g, b;
+    QColor fill;
+    QColor edge;
 };
+
+std::weak_ptr<eng::EngineeringWorkspaceState> s_default_ws_3d;
 
 } // namespace
 
+void ShunyaViewport3DItem::setDefaultWorkspace(std::shared_ptr<eng::EngineeringWorkspaceState> ws) {
+    s_default_ws_3d = ws;
+}
+
 ShunyaViewport3DItem::ShunyaViewport3DItem(QQuickItem* parent)
-    : QQuickItem(parent) {
-    setFlag(QQuickItem::ItemHasContents, true);
+    : QQuickPaintedItem(parent) {
+    setAntialiasing(true);
+    setOpaquePainting(false);
+    if (auto def = s_default_ws_3d.lock()) {
+        setWorkspace(std::move(def));
+    }
 }
 
 void ShunyaViewport3DItem::setWorkspace(std::shared_ptr<eng::EngineeringWorkspaceState> ws) {
@@ -101,7 +112,7 @@ void ShunyaViewport3DItem::snapView(const QString& face) {
 void ShunyaViewport3DItem::resetCamera() {
     yaw_deg_ = 38.0;
     pitch_deg_ = 26.0;
-    dist_ = 0.9;
+    dist_ = 0.55;
     pan_x_ = 0.0;
     pan_y_ = 0.0;
     emit viewChanged();
@@ -152,44 +163,25 @@ QVariantMap ShunyaViewport3DItem::inspectSelectedMesh() const {
 }
 
 void ShunyaViewport3DItem::geometryChange(const QRectF& newGeometry, const QRectF& oldGeometry) {
-    QQuickItem::geometryChange(newGeometry, oldGeometry);
+    QQuickPaintedItem::geometryChange(newGeometry, oldGeometry);
     if (newGeometry.size() != oldGeometry.size()) update();
 }
 
-QSGNode* ShunyaViewport3DItem::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*) {
-    QSGNode* root = oldNode ? oldNode : new QSGNode();
-
-    auto ensure_vc_node = [&](int idx, unsigned int mode, float lw = 1.0f) -> QSGGeometryNode* {
-        while (root->childCount() <= idx) {
-            auto* n = new QSGGeometryNode();
-            auto* g = new QSGGeometry(QSGGeometry::defaultAttributes_ColoredPoint2D(), 0);
-            g->setDrawingMode(mode);
-            g->setLineWidth(lw);
-            n->setGeometry(g);
-            n->setFlag(QSGNode::OwnsGeometry);
-            n->setMaterial(new QSGVertexColorMaterial());
-            n->setFlag(QSGNode::OwnsMaterial);
-            root->appendChildNode(n);
-        }
-        auto* n = static_cast<QSGGeometryNode*>(root->childAtIndex(idx));
-        n->geometry()->setDrawingMode(mode);
-        n->geometry()->setLineWidth(lw);
-        return n;
-    };
-
+void ShunyaViewport3DItem::paint(QPainter* p) {
     const double W = std::max(1.0, width());
     const double H = std::max(1.0, height());
+    p->setRenderHint(QPainter::Antialiasing, true);
+
     const double cy = std::cos(yaw_deg_ * kDegToRad);
     const double sy = std::sin(yaw_deg_ * kDegToRad);
     const double cp = std::cos(pitch_deg_ * kDegToRad);
     const double sp = std::sin(pitch_deg_ * kDegToRad);
-    const double focal = std::min(W, H) * 1.15;
+    const double focal = std::min(W, H) * 1.35;
 
     auto project = [&](double wx, double wy, double wz, float& sx, float& sy_out, double& camZ) -> bool {
         const double x = wx - pan_x_;
         const double y = wy - pan_y_;
         const double z = wz;
-        // Rotate around Y (yaw) then X (pitch)
         const double rx = x * cy + z * sy;
         const double rz1 = -x * sy + z * cy;
         const double ry = y * cp - rz1 * sp;
@@ -202,34 +194,41 @@ QSGNode* ShunyaViewport3DItem::updatePaintNode(QSGNode* oldNode, UpdatePaintNode
         return true;
     };
 
-    // Node 0: Floor grid lines
-    struct SegCol { float x0, y0, x1, y1; uint8_t r, g, b, a; };
-    std::vector<SegCol> grid_lines;
+    // Floor grid lines
     const QColor gridC = dark_mode_ ? QColor("#282828") : QColor("#DCDCDC");
+    p->setPen(QPen(gridC, 1.0));
     for (int i = -5; i <= 5; ++i) {
-        const double v = i * 0.1;
+        const double v = i * 0.08;
         float x0, y0, x1, y1; double d0, d1;
-        if (project(-0.5, 0.0, v, x0, y0, d0) && project(0.5, 0.0, v, x1, y1, d1)) {
-            grid_lines.push_back({x0, y0, x1, y1, static_cast<uint8_t>(gridC.red()), static_cast<uint8_t>(gridC.green()), static_cast<uint8_t>(gridC.blue()), 255});
+        if (project(-0.4, 0.0, v, x0, y0, d0) && project(0.4, 0.0, v, x1, y1, d1)) {
+            p->drawLine(QPointF(x0, y0), QPointF(x1, y1));
         }
-        if (project(v, 0.0, -0.5, x0, y0, d0) && project(v, 0.0, 0.5, x1, y1, d1)) {
-            grid_lines.push_back({x0, y0, x1, y1, static_cast<uint8_t>(gridC.red()), static_cast<uint8_t>(gridC.green()), static_cast<uint8_t>(gridC.blue()), 255});
+        if (project(v, 0.0, -0.4, x0, y0, d0) && project(v, 0.0, 0.4, x1, y1, d1)) {
+            p->drawLine(QPointF(x0, y0), QPointF(x1, y1));
         }
     }
 
     // Collect projected triangles from all workspace PhysicalObjects
     std::vector<ProjectedTri> tris;
-    std::vector<SegCol> wire_segs;
     if (ws_) {
-        for (const auto& obj : ws_->object_manager().objects()) {
+        const auto& objs = ws_->object_manager().objects();
+        for (size_t idx = 0; idx < objs.size(); ++idx) {
+            const auto& obj = objs[idx];
             cad3d::SolidMesh3D mesh = obj.geometry.generate_solid_mesh();
             auto pos = obj.geometry.position;
+            // Spread co-located objects cleanly if all positioned at origin so user sees every body
+            if (objs.size() > 1 && std::abs(pos.x) < 1e-6 && std::abs(pos.z) < 1e-6) {
+                pos.x = (static_cast<double>(idx) - 0.5 * (objs.size() - 1)) * 0.14;
+            }
             double tempK = obj.operating_temp_k;
             double thermScale = 1.0;
 
             if (physics_active_) {
                 if (const auto* body = ws_->physics_runtime().find_body(obj.id)) {
                     pos = body->position;
+                    if (objs.size() > 1 && std::abs(pos.x) < 1e-6 && std::abs(pos.z) < 1e-6) {
+                        pos.x = (static_cast<double>(idx) - 0.5 * (objs.size() - 1)) * 0.14;
+                    }
                     tempK = body->temperature_k;
                     thermScale = 1.0 + body->thermal_strain;
                 }
@@ -242,15 +241,15 @@ QSGNode* ShunyaViewport3DItem::updatePaintNode(QSGNode* oldNode, UpdatePaintNode
                 baseCol = baseCol.lighter(120);
             }
 
-            const auto& rx_d = obj.geometry.rotation_deg.x * kDegToRad;
-            const auto& ry_d = obj.geometry.rotation_deg.y * kDegToRad;
-            const auto& rz_d = obj.geometry.rotation_deg.z * kDegToRad;
+            const double rx_d = obj.geometry.rotation_deg.x * kDegToRad;
+            const double ry_d = obj.geometry.rotation_deg.y * kDegToRad;
+            const double rz_d = obj.geometry.rotation_deg.z * kDegToRad;
             const auto& sc = obj.geometry.scale;
 
-            auto xform = [&](const cad3d::Point3D& p) -> cad3d::Point3D {
-                double x = p.x * sc.x * thermScale;
-                double y = p.y * sc.y * thermScale;
-                double z = p.z * sc.z * thermScale;
+            auto xform = [&](const cad3d::Point3D& pt) -> cad3d::Point3D {
+                double x = pt.x * sc.x * thermScale;
+                double y = pt.y * sc.y * thermScale;
+                double z = pt.z * sc.z * thermScale;
                 if (std::abs(rx_d) > 1e-6) {
                     const double y1 = y * std::cos(rx_d) - z * std::sin(rx_d);
                     const double z1 = y * std::sin(rx_d) + z * std::cos(rx_d);
@@ -269,7 +268,7 @@ QSGNode* ShunyaViewport3DItem::updatePaintNode(QSGNode* oldNode, UpdatePaintNode
                 return {x + pos.x, y + pos.y, z + pos.z};
             };
 
-            const QColor wc = wireframe_ ? baseCol : (dark_mode_ ? QColor("#181818") : QColor("#262626"));
+            const QColor edgeCol = wireframe_ ? baseCol : (dark_mode_ ? QColor("#202020") : QColor("#303030"));
 
             for (const auto& tri : mesh.triangles) {
                 const auto p0 = xform(mesh.vertices[tri[0]]);
@@ -284,7 +283,6 @@ QSGNode* ShunyaViewport3DItem::updatePaintNode(QSGNode* oldNode, UpdatePaintNode
                     continue;
                 }
 
-                // Triangle normal for Lambertian shading
                 const double ux = p1.x - p0.x, uy = p1.y - p0.y, uz = p1.z - p0.z;
                 const double vx = p2.x - p0.x, vy = p2.y - p0.y, vz = p2.z - p0.z;
                 double nx = uy * vz - uz * vy;
@@ -294,74 +292,50 @@ QSGNode* ShunyaViewport3DItem::updatePaintNode(QSGNode* oldNode, UpdatePaintNode
                 if (nlen > 1e-12) { nx /= nlen; ny /= nlen; nz /= nlen; }
 
                 const double ndotl = std::abs(nx * 0.45 + ny * 0.78 + nz * 0.42);
-                const double shade = 0.35 + 0.65 * ndotl;
+                const double shade = 0.42 + 0.58 * ndotl;
 
-                if (!wireframe_) {
-                    tris.push_back({
-                        sx0, sy0, sx1, sy1, sx2, sy2,
-                        (d0 + d1 + d2) / 3.0,
-                        static_cast<uint8_t>(std::clamp(baseCol.red() * shade, 0.0, 255.0)),
-                        static_cast<uint8_t>(std::clamp(baseCol.green() * shade, 0.0, 255.0)),
-                        static_cast<uint8_t>(std::clamp(baseCol.blue() * shade, 0.0, 255.0))
-                    });
-                } else {
-                    wire_segs.push_back({sx0, sy0, sx1, sy1, static_cast<uint8_t>(wc.red()), static_cast<uint8_t>(wc.green()), static_cast<uint8_t>(wc.blue()), 255});
-                    wire_segs.push_back({sx1, sy1, sx2, sy2, static_cast<uint8_t>(wc.red()), static_cast<uint8_t>(wc.green()), static_cast<uint8_t>(wc.blue()), 255});
-                    wire_segs.push_back({sx2, sy2, sx0, sy0, static_cast<uint8_t>(wc.red()), static_cast<uint8_t>(wc.green()), static_cast<uint8_t>(wc.blue()), 255});
-                }
+                QColor shaded(
+                    static_cast<int>(std::clamp(baseCol.red() * shade, 0.0, 255.0)),
+                    static_cast<int>(std::clamp(baseCol.green() * shade, 0.0, 255.0)),
+                    static_cast<int>(std::clamp(baseCol.blue() * shade, 0.0, 255.0)));
+
+                tris.push_back({sx0, sy0, sx1, sy1, sx2, sy2, (d0 + d1 + d2) / 3.0, shaded, edgeCol});
             }
         }
     }
 
-    // Depth sort far-to-near (more negative camZ is farther)
+    // Painter's algorithm depth sort far-to-near
     std::sort(tris.begin(), tris.end(), [](const ProjectedTri& a, const ProjectedTri& b) {
         return a.depth < b.depth;
     });
 
-    // Upload grid lines (Node 0)
-    {
-        auto* n = ensure_vc_node(0, QSGGeometry::DrawLines, 1.0f);
-        auto* g = n->geometry();
-        g->allocate(static_cast<int>(grid_lines.size() * 2));
-        auto* v = g->vertexDataAsColoredPoint2D();
-        for (size_t i = 0; i < grid_lines.size(); ++i) {
-            const auto& s = grid_lines[i];
-            v[2 * i].set(s.x0, s.y0, s.r, s.g, s.b, s.a);
-            v[2 * i + 1].set(s.x1, s.y1, s.r, s.g, s.b, s.a);
+    for (const auto& t : tris) {
+        QPolygonF poly;
+        poly << QPointF(t.x0, t.y0) << QPointF(t.x1, t.y1) << QPointF(t.x2, t.y2);
+        if (wireframe_) {
+            p->setBrush(Qt::NoBrush);
+            p->setPen(QPen(t.edge, 1.1));
+        } else {
+            p->setBrush(t.fill);
+            p->setPen(QPen(t.edge, 0.6));
         }
-        n->markDirty(QSGNode::DirtyGeometry);
+        p->drawPolygon(poly);
     }
 
-    // Upload shaded triangles (Node 1)
-    {
-        auto* n = ensure_vc_node(1, QSGGeometry::DrawTriangles, 1.0f);
-        auto* g = n->geometry();
-        g->allocate(static_cast<int>(tris.size() * 3));
-        auto* v = g->vertexDataAsColoredPoint2D();
-        for (size_t i = 0; i < tris.size(); ++i) {
-            const auto& t = tris[i];
-            v[3 * i + 0].set(t.x0, t.y0, t.r, t.g, t.b, 255);
-            v[3 * i + 1].set(t.x1, t.y1, t.r, t.g, t.b, 255);
-            v[3 * i + 2].set(t.x2, t.y2, t.r, t.g, t.b, 255);
-        }
-        n->markDirty(QSGNode::DirtyGeometry);
-    }
-
-    // Upload wireframe lines (Node 2)
-    {
-        auto* n = ensure_vc_node(2, QSGGeometry::DrawLines, 1.25f);
-        auto* g = n->geometry();
-        g->allocate(static_cast<int>(wire_segs.size() * 2));
-        auto* v = g->vertexDataAsColoredPoint2D();
-        for (size_t i = 0; i < wire_segs.size(); ++i) {
-            const auto& s = wire_segs[i];
-            v[2 * i].set(s.x0, s.y0, s.r, s.g, s.b, s.a);
-            v[2 * i + 1].set(s.x1, s.y1, s.r, s.g, s.b, s.a);
-        }
-        n->markDirty(QSGNode::DirtyGeometry);
-    }
-
-    return root;
+    // Coordinate triad at bottom-right
+    const QPointF org(W - 44.0, H - 44.0);
+    auto drawAxis = [&](double dx, double dy, double dz, const QColor& col, const QString& label) {
+        const double rx = dx * cy + dz * sy;
+        const double rz1 = -dx * sy + dz * cy;
+        const double ry = dy * cp - rz1 * sp;
+        const QPointF tip(org.x() + rx * 24.0, org.y() - ry * 24.0);
+        p->setPen(QPen(col, 2.0));
+        p->drawLine(org, tip);
+        p->drawText(tip + QPointF(3, 3), label);
+    };
+    drawAxis(1, 0, 0, QColor("#EF4444"), "X");
+    drawAxis(0, 1, 0, QColor("#22C55E"), "Y");
+    drawAxis(0, 0, 1, QColor("#3B82F6"), "Z");
 }
 
 } // namespace shunya::gui

@@ -51,7 +51,7 @@ Rectangle {
         };
     }
 
-    Component.onCompleted: { refreshCircuit(); runDc(); }
+    Component.onCompleted: { refreshCircuit(); runDc(); runTransient(); }
     Connections {
         target: typeof pipeline !== "undefined" ? pipeline : null
         function onCircuitChanged() { root.refreshCircuit(); }

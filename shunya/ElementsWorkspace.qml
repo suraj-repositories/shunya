@@ -185,8 +185,8 @@ Rectangle {
 
             // RIGHT INSPECTOR: Live Behavior Engine + 82 CSV Properties
             Rectangle {
-                SplitView.preferredWidth: 410
-                SplitView.minimumWidth: 340
+                SplitView.preferredWidth: 360
+                SplitView.minimumWidth: 300
                 color: Theme.bgSurface
                 border.color: Theme.borderDefault
                 border.width: 1
@@ -297,7 +297,24 @@ Rectangle {
 
                             Repeater {
                                 model: root.behaviorReport.warnings || []
-                                delegate: MonoBadge { text: modelData; tone: "warning" }
+                                delegate: Rectangle {
+                                    Layout.fillWidth: true
+                                    implicitHeight: warnTxt.implicitHeight + 10
+                                    radius: Theme.radiusSm
+                                    color: Theme.statusWarningBg
+                                    border.color: Theme.statusWarning
+                                    border.width: 1
+                                    Text {
+                                        id: warnTxt
+                                        anchors.fill: parent
+                                        anchors.margins: 5
+                                        text: modelData
+                                        wrapMode: Text.Wrap
+                                        font.family: Theme.fontSans
+                                        font.pixelSize: Theme.fontXs
+                                        color: Theme.statusWarning
+                                    }
+                                }
                             }
                         }
                     }

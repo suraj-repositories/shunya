@@ -1,8 +1,6 @@
 #pragma once
 
-#include <QQuickItem>
-#include <QSGGeometryNode>
-#include <QSGFlatColorMaterial>
+#include <QQuickPaintedItem>
 #include <QColor>
 #include <QString>
 #include <QVariantList>
@@ -12,7 +10,7 @@
 
 namespace shunya::gui {
 
-class ShunyaScientificPlotItem : public QQuickItem {
+class ShunyaScientificPlotItem : public QQuickPaintedItem {
     Q_OBJECT
     QML_ELEMENT
 
@@ -32,6 +30,8 @@ class ShunyaScientificPlotItem : public QQuickItem {
     Q_PROPERTY(double crosshairNormY READ crosshairNormY NOTIFY crosshairChanged)
     Q_PROPERTY(QString demoSignal READ demoSignal WRITE loadDemoSignal NOTIFY dataChanged)
     Q_PROPERTY(QVariantList legendItems READ legendItems NOTIFY dataChanged)
+    Q_PROPERTY(QVariantList ticksX READ getTicksX NOTIFY rangeChanged)
+    Q_PROPERTY(QVariantList ticksY READ getTicksY NOTIFY rangeChanged)
 
 public:
     explicit ShunyaScientificPlotItem(QQuickItem* parent = nullptr);
@@ -80,7 +80,7 @@ signals:
     void crosshairChanged();
 
 protected:
-    QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*) override;
+    void paint(QPainter* painter) override;
     void geometryChange(const QRectF& newGeometry, const QRectF& oldGeometry) override;
 
 private:

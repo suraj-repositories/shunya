@@ -1,6 +1,8 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QQmlExtensionPlugin>
+Q_IMPORT_QML_PLUGIN(shunyaPlugin)
 #include "studio_controller.hpp"
 #include "menu_bar_controller.hpp"
 #include "docking_controller.hpp"

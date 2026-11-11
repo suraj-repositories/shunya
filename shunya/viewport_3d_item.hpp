@@ -1,8 +1,6 @@
 #pragma once
 
-#include <QQuickItem>
-#include <QSGGeometryNode>
-#include <QSGVertexColorMaterial>
+#include <QQuickPaintedItem>
 #include <QColor>
 #include <QString>
 #include <QVariantList>
@@ -18,7 +16,7 @@ namespace shunya::gui {
  *        (Box/Sphere/Cylinder/Cone/Extrude) as shaded SolidMesh3D triangles with
  *        orbit/pan/zoom camera, wireframe toggle, material colors, and live physics sync.
  */
-class ShunyaViewport3DItem : public QQuickItem {
+class ShunyaViewport3DItem : public QQuickPaintedItem {
     Q_OBJECT
 
     Q_PROPERTY(bool darkMode READ darkMode WRITE setDarkMode NOTIFY viewChanged)
@@ -36,6 +34,7 @@ public:
     explicit ShunyaViewport3DItem(QQuickItem* parent = nullptr);
     ~ShunyaViewport3DItem() override = default;
 
+    static void setDefaultWorkspace(std::shared_ptr<eng::EngineeringWorkspaceState> ws);
     void setWorkspace(std::shared_ptr<eng::EngineeringWorkspaceState> ws);
 
     bool darkMode() const { return dark_mode_; }
@@ -81,7 +80,7 @@ signals:
     void sceneUpdated();
 
 protected:
-    QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*) override;
+    void paint(QPainter* painter) override;
     void geometryChange(const QRectF& newGeometry, const QRectF& oldGeometry) override;
 
 private:
@@ -92,7 +91,7 @@ private:
     bool physics_active_{false};
     double yaw_deg_{38.0};
     double pitch_deg_{26.0};
-    double dist_{0.9};
+    double dist_{0.55};
     double pan_x_{0.0};
     double pan_y_{0.0};
     QString selected_id_;

@@ -59,7 +59,7 @@ MenuBar {
     delegate: MenuBarItem {
         id: menuBarItem
         contentItem: Text {
-            text: menuBarItem.text
+            text: menuBarItem.text.replace("&", "")
             font.family: Theme.fontSans
             font.pixelSize: Theme.fontSm
             font.weight: menuBarItem.highlighted ? Font.DemiBold : Font.Medium

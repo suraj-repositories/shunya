@@ -4,8 +4,9 @@ project(shunya VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick Svg)
+find_package(Qt6 REQUIRED COMPONENTS Quick Svg Test)
 
 qt_standard_project_setup(REQUIRES 6.10)
 
@@ -21,8 +22,7 @@ if(NOT TARGET shunya_core_domain)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../core/domain ${CMAKE_CURRENT_BINARY_DIR}/core_domain)
 endif()
 
-qt_add_executable(appshunya
-    main.cpp
+qt_add_library(shunya_gui_lib STATIC
     studio_controller.hpp
     studio_controller.cpp
     menu_bar_controller.hpp
@@ -57,12 +57,11 @@ qt_add_executable(appshunya
     icon_provider.cpp
     viewport_3d_item.hpp
     viewport_3d_item.cpp
-    icons.qrc
 )
 
 set_source_files_properties(Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
-qt_add_qml_module(appshunya
+qt_add_qml_module(shunya_gui_lib
     URI shunya
     QML_FILES
         Theme.qml
@@ -129,6 +128,26 @@ qt_add_qml_module(appshunya
         WindTunnelView.qml
 )
 
+target_include_directories(shunya_gui_lib
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../core/base/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../core/domain/include
+)
+
+target_link_libraries(shunya_gui_lib
+    PUBLIC
+        Qt6::Quick
+        Qt6::Svg
+        shunya_core_base
+        shunya_core_domain
+)
+
+qt_add_executable(appshunya
+    main.cpp
+    icons.qrc
+)
+
 set_target_properties(appshunya PROPERTIES
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -136,20 +155,26 @@ set_target_properties(appshunya PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-target_include_directories(appshunya
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/../core/base/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../core/domain/include
-)
-
 target_link_libraries(appshunya
     PRIVATE
-        Qt6::Quick
-        Qt6::Svg
-        shunya_core_base
-        shunya_core_domain
+        shunya_gui_lib
+        shunya_gui_libplugin
 )
+
+qt_add_executable(shunya_ui_tests
+    ../tests/ui/test_shunya_ui.cpp
+    icons.qrc
+)
+
+target_link_libraries(shunya_ui_tests
+    PRIVATE
+        shunya_gui_lib
+        shunya_gui_libplugin
+        Qt6::Test
+)
+
+add_test(NAME QtUiTests COMMAND shunya_ui_tests)
+set_tests_properties(QtUiTests PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
 install(TARGETS appshunya
     BUNDLE DESTINATION .

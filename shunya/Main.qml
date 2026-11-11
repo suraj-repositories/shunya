@@ -153,7 +153,7 @@ ApplicationWindow {
 
             // Workflow Rail (Single-Project Pipeline Only — No File Explorer!)
             Rectangle {
-                Layout.preferredWidth: 168
+                Layout.preferredWidth: 184
                 Layout.fillHeight: true
                 color: Theme.bgSurface
                 border.color: Theme.borderSubtle
@@ -226,7 +226,7 @@ ApplicationWindow {
 
                     MonoButton {
                         Layout.fillWidth: true
-                        text: "Command (Ctrl+K)"
+                        text: "Search (Ctrl+K)"
                         iconName: "search"
                         compact: true
                         onClicked: commandPaletteDialog.open()
@@ -238,22 +238,29 @@ ApplicationWindow {
             ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                Layout.minimumWidth: 0
                 spacing: 0
 
-                StackLayout {
+                Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    currentIndex: window.currentWorkspaceIndex()
+                    Layout.minimumWidth: 0
+                    clip: true
 
-                    ElementsWorkspace {}
-                    MixingLabWorkspace {}
-                    ObjectsWorkspace {}
-                    ComponentsBatteryWorkspace {}
-                    CircuitWorkspace {}
-                    Editor2DWorkspace {}
-                    Editor3DWorkspace {}
-                    SimulationWorkspace {}
-                    ProjectSettingsWorkspace {}
+                    StackLayout {
+                        anchors.fill: parent
+                        currentIndex: window.currentWorkspaceIndex()
+
+                        ElementsWorkspace {}
+                        MixingLabWorkspace {}
+                        ObjectsWorkspace {}
+                        ComponentsBatteryWorkspace {}
+                        CircuitWorkspace {}
+                        Editor2DWorkspace {}
+                        Editor3DWorkspace {}
+                        SimulationWorkspace {}
+                        ProjectSettingsWorkspace {}
+                    }
                 }
 
                 // Bottom Status & Diagnostics Drawer (Toggled by F12 or Console button)

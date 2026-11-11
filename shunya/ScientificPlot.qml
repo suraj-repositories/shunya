@@ -14,13 +14,14 @@ Rectangle {
     property string title: "SCIENTIFIC PLOTTER"
     property string xLabel: "X"
     property string yLabel: "Y"
+    property bool showDemoControls: false
 
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 8
         spacing: 6
 
-        // Top Toolbar
+        // Top Toolbar Row
         RowLayout {
             Layout.fillWidth: true
             spacing: 6
@@ -49,25 +50,15 @@ Rectangle {
                 }
             }
 
-            // Color-coded Scientific Series Legend
-            Repeater {
-                model: plotNode.legendItems
-                delegate: Row {
-                    spacing: 4
-                    Rectangle { width: 10; height: 10; radius: 2; color: modelData.color; anchors.verticalCenter: parent.verticalCenter }
-                    Text { text: modelData.name; font.family: Theme.fontSans; font.pixelSize: 10; color: Theme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
-                }
-            }
-
             Item { Layout.fillWidth: true }
 
-            // Preset selector buttons
+            // Preset selector buttons (optional demo mode)
             Repeater {
-                model: [
+                model: root.showDemoControls ? [
                     { label: "Damped 10k", id: "damped_sine" },
                     { label: "Chirp 500k", id: "chirp_500k" },
                     { label: "Step 4k", id: "step_response" }
-                ]
+                ] : []
                 Rectangle {
                     height: 20
                     width: pText.contentWidth + 10
@@ -136,6 +127,21 @@ Rectangle {
             }
         }
 
+        // Dedicated Wrapping Legend Row (Zero Overlap)
+        Flow {
+            visible: plotNode.legendItems.length > 0
+            Layout.fillWidth: true
+            spacing: 10
+            Repeater {
+                model: plotNode.legendItems
+                delegate: Row {
+                    spacing: 4
+                    Rectangle { width: 9; height: 9; radius: 2; color: modelData.color; anchors.verticalCenter: parent.verticalCenter }
+                    Text { text: modelData.name; font.family: Theme.fontSans; font.pixelSize: 10; color: Theme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
+                }
+            }
+        }
+
         // Main Plot Region with Y ticks + GPU Canvas + X ticks
         RowLayout {
             Layout.fillWidth: true
@@ -149,7 +155,7 @@ Rectangle {
                 Layout.bottomMargin: 20
 
                 Repeater {
-                    model: plotNode.getTicksY()
+                    model: plotNode.ticksY
                     Text {
                         x: 0
                         y: modelData.norm * parent.height - 6
@@ -180,7 +186,7 @@ Rectangle {
 
                     // Grid lines
                     Repeater {
-                        model: plotNode.getTicksX()
+                        model: plotNode.ticksX
                         Rectangle {
                             x: modelData.norm * viewportFrame.width
                             y: 0
@@ -190,13 +196,13 @@ Rectangle {
                         }
                     }
                     Repeater {
-                        model: plotNode.getTicksY()
+                        model: plotNode.ticksY
                         Rectangle {
                             x: 0
                             y: modelData.norm * viewportFrame.height
                             width: viewportFrame.width
                             height: 1
-                            color: "#1c2128"
+                            color: Theme.gridLine
                         }
                     }
 
@@ -280,7 +286,7 @@ Rectangle {
                     Layout.preferredHeight: 18
 
                     Repeater {
-                        model: plotNode.getTicksX()
+                        model: plotNode.ticksX
                         Text {
                             x: Math.min(parent.width - width, Math.max(0, modelData.norm * parent.width - width / 2))
                             y: 2
