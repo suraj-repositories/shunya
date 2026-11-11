@@ -197,6 +197,7 @@ target_sources(shunya_core_domain
         src/perf/simd_kernels.cpp
         src/perf/work_stealing_pool.cpp
         src/perf/domain_decomposition.cpp
+        src/perf/linear_arena.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -415,6 +416,9 @@ target_sources(shunya_core_domain
             include/shunya/perf/work_stealing_pool.hpp
             include/shunya/perf/ghost_cell_sync.hpp
             include/shunya/perf/domain_decomposition.hpp
+            include/shunya/perf/linear_arena.hpp
+            include/shunya/perf/pmr_arena_adapter.hpp
+            include/shunya/perf/fixed_size_pool.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
