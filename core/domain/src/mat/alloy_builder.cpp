@@ -1,5 +1,6 @@
 #include "shunya/mat/alloy_builder.hpp"
 
+#include "shunya/matdb/element_database.hpp"
 #include "shunya/matdb/elements_118_catalog.hpp"
 #include "shunya/matdb/periodic_heatmap_filter.hpp"
 
@@ -21,6 +22,14 @@ core::base::Error make_alloy_error(std::string msg) {
 }
 
 double element_resistivity_ohm_m(int z) noexcept {
+    if (matdb::ElementDatabase::global().is_loaded()) {
+        if (const auto* rec = matdb::ElementDatabase::global().find_by_z(z)) {
+            if (rec->resistivity && *rec->resistivity > 0.0) return *rec->resistivity;
+            if (rec->electrical_conductivity && *rec->electrical_conductivity > 0.0) {
+                return 1.0 / *rec->electrical_conductivity;
+            }
+        }
+    }
     switch (z) {
     case 13: return 2.65e-8;  // Al
     case 22: return 4.20e-7;  // Ti
@@ -37,6 +46,11 @@ double element_resistivity_ohm_m(int z) noexcept {
 }
 
 double element_cte_per_k(int z) noexcept {
+    if (matdb::ElementDatabase::global().is_loaded()) {
+        if (const auto* rec = matdb::ElementDatabase::global().find_by_z(z)) {
+            if (rec->thermal_expansion && *rec->thermal_expansion > 0.0) return *rec->thermal_expansion;
+        }
+    }
     switch (z) {
     case 13: return 23.1e-6;
     case 22: return 8.6e-6;

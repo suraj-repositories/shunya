@@ -1,5 +1,6 @@
 #include "shunya/matdb/periodic_heatmap_filter.hpp"
 
+#include "shunya/matdb/element_database.hpp"
 #include "shunya/matdb/ionization_repository.hpp"
 #include "shunya/matdb/periodic_table_extended.hpp"
 
@@ -110,29 +111,38 @@ GridCoordinate PeriodicHeatmapFilter::grid_position(int atomic_number) noexcept 
 
 std::optional<double> PeriodicHeatmapFilter::raw_property_value(int atomic_number,
                                                                   HeatmapProperty prop) noexcept {
+    const auto* db_rec = ElementDatabase::global().is_loaded()
+        ? ElementDatabase::global().find_by_z(atomic_number)
+        : nullptr;
     switch (prop) {
     case HeatmapProperty::FamilyCategory:
     case HeatmapProperty::BlockCategory:
         return static_cast<double>(atomic_number);
     case HeatmapProperty::AtomicMass: {
+        if (db_rec && db_rec->atomic_weight) return db_rec->atomic_weight;
         const auto* e = Elements118Catalog::find_by_z(atomic_number);
         return e ? std::optional<double>(e->atomic_weight_amu) : std::nullopt;
     }
     case HeatmapProperty::Electronegativity: {
+        if (db_rec && db_rec->electronegativity) return db_rec->electronegativity;
         const auto* ext = PeriodicTableExtended::find_by_z(atomic_number);
         return ext ? ext->electronegativity.pauling : std::nullopt;
     }
     case HeatmapProperty::FirstIonizationEnergy:
         return IonizationEnergyRepository::first_ionization_ev(atomic_number);
     case HeatmapProperty::CovalentRadius: {
+        if (db_rec && db_rec->covalent_radius) return (*db_rec->covalent_radius) * 1e12;
         const auto* ext = PeriodicTableExtended::find_by_z(atomic_number);
         return ext ? ext->radii_pm.covalent_single_pm : std::nullopt;
     }
     case HeatmapProperty::MeltingPointK:
+        if (db_rec && db_rec->melting_point) return db_rec->melting_point;
         return lookup_melting_point_k(atomic_number);
     case HeatmapProperty::DensityGcm3:
+        if (db_rec && db_rec->density && *db_rec->density > 0.0) return (*db_rec->density) / 1000.0;
         return lookup_density_g_cm3(atomic_number);
     case HeatmapProperty::ThermalConductivityWmK:
+        if (db_rec && db_rec->thermal_conductivity) return db_rec->thermal_conductivity;
         return lookup_thermal_k(atomic_number);
     }
     return std::nullopt;
