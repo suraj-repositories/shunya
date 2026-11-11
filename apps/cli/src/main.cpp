@@ -10,6 +10,7 @@
 #include "shunya/core/domain/thermal.hpp"
 #include "shunya/core/domain/mechanics.hpp"
 #include "shunya/core/domain/performance.hpp"
+#include "shunya/eng/engineering_pipeline.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -42,7 +43,8 @@ void print_help(const char* prog) {
     std::cout << "Options:\n";
     std::cout << "  -h, --help                 Show this help message and exit\n";
     std::cout << "  -v, --version              Show engine version and exit\n";
-    std::cout << "  --project <path>           Load project manifest from <path>\n";
+    std::cout << "  --project <path>           Load project manifest or Phase 3 bundle (.shunya3.json)\n";
+    std::cout << "  --seed-battery-demo        Run the complete Elements -> LiFePO4 Battery -> Circuit workflow\n";
     std::cout << "  --run                      Run project simulation headlessly\n";
     std::cout << "  --duration <sec>           Set simulation duration in seconds (default: 1.0)\n";
     std::cout << "  --dt <sec>                 Set simulation timestep in seconds (default: 0.001)\n";
@@ -63,6 +65,7 @@ struct CliOptions {
     bool show_version = false;
     bool run_simulation = false;
     bool run_benchmark = false;
+    bool seed_battery_demo = false;
     bool verbose = false;
     bool quiet = false;
     std::string project_path;
@@ -92,6 +95,8 @@ CliOptions parse_arguments(int argc, char* argv[]) {
             opt.run_simulation = true;
         } else if (arg == "--benchmark") {
             opt.run_benchmark = true;
+        } else if (arg == "--seed-battery-demo") {
+            opt.seed_battery_demo = true;
         } else if (arg == "--project" && i + 1 < argc) {
             opt.project_path = argv[++i];
         } else if (arg == "--export-results" && i + 1 < argc) {
@@ -390,7 +395,7 @@ void export_to_json(const std::string& path,
 int main(int argc, char* argv[]) {
     CliOptions opt = parse_arguments(argc, argv);
 
-    if (opt.show_help || (argc == 1 && !opt.run_benchmark && !opt.run_simulation && !opt.has_sweep)) {
+    if (opt.show_help || (argc == 1 && !opt.run_benchmark && !opt.run_simulation && !opt.has_sweep && !opt.seed_battery_demo)) {
         print_help(argv[0]);
         return 0;
     }
@@ -433,38 +438,90 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // 2. Load Project and Run Simulation
+    // 2. Load Project (Phase 3 bundle or Phase 2 manifest) and Run Simulation
+    if (opt.seed_battery_demo) {
+        shunya::eng::EngineeringWorkspaceState ws;
+        auto sres = ws.seed_lithium_battery_workflow();
+        if (sres.is_err()) {
+            std::cerr << "Error seeding battery workflow: " << sres.error().message << "\n";
+            context.shutdown();
+            return 1;
+        }
+        auto dc = shunya::eng::CircuitSimulationRunner::run_dc(ws.active_circuit_doc());
+        auto tr = shunya::eng::CircuitSimulationRunner::run_transient(
+            ws.active_circuit_doc(), std::max(10.0, opt.duration), std::max(0.5, opt.dt),
+            &ws.component_library(), ws.environment().temperature_k);
+        if (!opt.quiet) {
+            std::cout << "\n[Phase 3] Elements=" << ws.element_database().count()
+                      << ", Materials=" << ws.material_registry().material_count()
+                      << ", Objects=" << ws.object_manager().count()
+                      << ", Components=" << ws.component_library().count()
+                      << ", DC Converged=" << (dc.is_ok() && dc.value().converged ? "yes" : "no")
+                      << ", Transient Steps=" << (tr.is_ok() ? tr.value().time_s.size() : 0) << "\n";
+        }
+        if (!dc.is_ok() || !dc.value().converged || !tr.is_ok() || !tr.value().success) {
+            context.shutdown();
+            return 1;
+        }
+    }
+
     if (!opt.project_path.empty()) {
         if (!opt.quiet) {
             std::cout << "\nLoading Project: " << opt.project_path << "\n";
         }
-        auto load_res = Project::open_from_file(opt.project_path);
-        if (!load_res.is_ok()) {
-            std::cerr << "Error loading project: " << load_res.error().message << "\n";
-            context.shutdown();
-            return 1;
-        }
-
-        auto project = load_res.value();
-        if (!opt.quiet) {
-            std::cout << "Project loaded successfully: " << project->manifest().name << "\n";
-            std::cout << "Schema version: " << project->manifest().schema_version.as_string() << "\n";
-        }
-
-        if (opt.run_simulation) {
+        shunya::eng::EngineeringWorkspaceState ws;
+        auto bundle_res = ws.load_from_file(opt.project_path);
+        if (bundle_res.is_ok()) {
             if (!opt.quiet) {
-                std::cout << "Executing headless simulation: duration=" << opt.duration
-                          << "s, dt=" << opt.dt << "s...\n";
+                std::cout << "Loaded Phase 3 v3.0 Engineering Bundle: "
+                          << (ws.project() ? ws.project()->manifest().name : "Unnamed")
+                          << " (Materials=" << ws.material_registry().material_count()
+                          << ", Objects=" << ws.object_manager().count()
+                          << ", Components=" << ws.component_library().count()
+                          << ", Circuits=" << ws.circuits().size() << ")\n";
             }
-            SimulationClock clock;
-            clock.start_wall_clock();
-            int total_steps = static_cast<int>(opt.duration / opt.dt);
-            for (int s = 0; s < total_steps; ++s) {
-                clock.advance(opt.dt);
+            if (opt.run_simulation) {
+                auto tr = shunya::eng::CircuitSimulationRunner::run_transient(
+                    ws.active_circuit_doc(), opt.duration, opt.dt,
+                    &ws.component_library(), ws.environment().temperature_k);
+                if (tr.is_err() || !tr.value().success) {
+                    std::cerr << "Circuit simulation failed.\n";
+                    context.shutdown();
+                    return 1;
+                }
+                if (!opt.quiet) {
+                    std::cout << "Transient simulation completed: " << tr.value().time_s.size() << " samples.\n";
+                }
             }
+        } else {
+            auto load_res = Project::open_from_file(opt.project_path);
+            if (!load_res.is_ok()) {
+                std::cerr << "Error loading project: " << load_res.error().message << "\n";
+                context.shutdown();
+                return 1;
+            }
+
+            auto project = load_res.value();
             if (!opt.quiet) {
-                std::cout << "Simulation completed: " << total_steps << " steps executed. Sim Time: "
-                          << clock.physical_time() << "s.\n";
+                std::cout << "Project loaded successfully: " << project->manifest().name << "\n";
+                std::cout << "Schema version: " << project->manifest().schema_version.as_string() << "\n";
+            }
+
+            if (opt.run_simulation) {
+                if (!opt.quiet) {
+                    std::cout << "Executing headless simulation: duration=" << opt.duration
+                              << "s, dt=" << opt.dt << "s...\n";
+                }
+                SimulationClock clock;
+                clock.start_wall_clock();
+                int total_steps = static_cast<int>(opt.duration / opt.dt);
+                for (int s = 0; s < total_steps; ++s) {
+                    clock.advance(opt.dt);
+                }
+                if (!opt.quiet) {
+                    std::cout << "Simulation completed: " << total_steps << " steps executed. Sim Time: "
+                              << clock.physical_time() << "s.\n";
+                }
             }
         }
     }

@@ -22,31 +22,31 @@ Parent-level completion status and progress percentages are **strictly calculate
 | Module # | Module ID | Module Name | Priority | Total Subtasks | Completed | Progress | Status |
 |---:|---|---|---|---:|---:|---:|---|
 | 1 | `AUDIT` | Project Analysis and Phase 2 Verification | P0 | 6 | 6 | 100.0% | `[x]` |
-| 2 | `ARCH` | Architecture and Infrastructure Improvements | P0 | 9 | 0 | 0.0% | `[ ]` |
-| 3 | `ELEMDB` | Chemical Element Database | P0 | 9 | 0 | 0.0% | `[ ]` |
-| 4 | `MATBEH` | Natural Element Behavior Engine | P0 | 9 | 0 | 0.0% | `[ ]` |
-| 5 | `MIXLAB` | Material Mixing Laboratory | P0 | 10 | 0 | 0.0% | `[ ]` |
-| 6 | `MATPROP` | Material Property Calculation Engine | P0 | 8 | 0 | 0.0% | `[ ]` |
-| 7 | `OBJMAT` | Element-to-Object Creation | P0 | 8 | 0 | 0.0% | `[ ]` |
-| 8 | `OBJGEO` | Object Geometry and Material Assignment | P0 | 8 | 0 | 0.0% | `[ ]` |
-| 9 | `OBJCMP` | Object-to-Circuit-Component Generation | P0 | 9 | 0 | 0.0% | `[ ]` |
-| 10 | `BAT` | Battery Engineering and Simulation | P0 | 9 | 0 | 0.0% | `[ ]` |
-| 11 | `CIRUI` | Circuit Construction Workspace | P0 | 9 | 0 | 0.0% | `[ ]` |
-| 12 | `CIRSIM` | Circuit Simulation Engine | P0 | 9 | 0 | 0.0% | `[ ]` |
+| 2 | `ARCH` | Architecture and Infrastructure Improvements | P0 | 9 | 7 | 77.8% | `[~]` |
+| 3 | `ELEMDB` | Chemical Element Database | P0 | 9 | 7 | 77.8% | `[~]` |
+| 4 | `MATBEH` | Natural Element Behavior Engine | P0 | 9 | 9 | 100.0% | `[x]` |
+| 5 | `MIXLAB` | Material Mixing Laboratory | P0 | 10 | 7 | 70.0% | `[~]` |
+| 6 | `MATPROP` | Material Property Calculation Engine | P0 | 8 | 7 | 87.5% | `[~]` |
+| 7 | `OBJMAT` | Element-to-Object Creation | P0 | 8 | 4 | 50.0% | `[~]` |
+| 8 | `OBJGEO` | Object Geometry and Material Assignment | P0 | 8 | 4 | 50.0% | `[~]` |
+| 9 | `OBJCMP` | Object-to-Circuit-Component Generation | P0 | 9 | 6 | 66.7% | `[~]` |
+| 10 | `BAT` | Battery Engineering and Simulation | P0 | 9 | 5 | 55.6% | `[~]` |
+| 11 | `CIRUI` | Circuit Construction Workspace | P0 | 9 | 3 | 33.3% | `[~]` |
+| 12 | `CIRSIM` | Circuit Simulation Engine | P0 | 9 | 6 | 66.7% | `[~]` |
 | 13 | `ED2D` | 2D Object Editor | P0 | 8 | 0 | 0.0% | `[ ]` |
 | 14 | `ED3D` | 3D Object Editor | P0 | 8 | 0 | 0.0% | `[ ]` |
-| 15 | `PHYSIM` | Physics and Environmental Simulation | P0 | 8 | 0 | 0.0% | `[ ]` |
+| 15 | `PHYSIM` | Physics and Environmental Simulation | P0 | 8 | 3 | 37.5% | `[~]` |
 | 16 | `THEME` | UI Theme Redesign (Black & White) | P0 | 8 | 0 | 0.0% | `[ ]` |
 | 17 | `ICON` | Icon System Update | P0 | 6 | 0 | 0.0% | `[ ]` |
 | 18 | `TYPO` | Typography Update | P0 | 6 | 0 | 0.0% | `[ ]` |
 | 19 | `MENU` | Menu Item UI Redesign | P0 | 6 | 0 | 0.0% | `[ ]` |
 | 20 | `NAV` | Application Navigation Improvements | P0 | 8 | 0 | 0.0% | `[ ]` |
-| 21 | `PERSIST` | Data Persistence and Project Management | P0 | 8 | 0 | 0.0% | `[ ]` |
-| 22 | `ATEST` | Automated Testing | P0 | 8 | 0 | 0.0% | `[ ]` |
-| 23 | `E2E` | End-to-End Testing | P0 | 6 | 0 | 0.0% | `[ ]` |
+| 21 | `PERSIST` | Data Persistence and Project Management | P0 | 8 | 3 | 37.5% | `[~]` |
+| 22 | `ATEST` | Automated Testing | P0 | 8 | 3 | 37.5% | `[~]` |
+| 23 | `E2E` | End-to-End Testing | P0 | 6 | 1 | 16.7% | `[~]` |
 | 24 | `STAB` | Performance and Stability | P1 | 6 | 0 | 0.0% | `[ ]` |
 | 25 | `DOC` | Final Verification and Documentation | P0 | 6 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 3 Complete Platform** | **--** | **195** | **6** | **3.1%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 3 Complete Platform** | **--** | **195** | **81** | **41.5%** | `[~]` |
 
 ---
 
@@ -80,26 +80,26 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 2. Architecture and Infrastructure Improvements (`ARCH`)
 
 **Module Objective:** Refactor monolithic build targets, establish a unified engineering workflow model connecting Elements → Materials → Objects → Components → Circuits → Simulation, and wire real domain services into `appshunya` without violating `core/base` and `core/domain` UI-independence boundaries.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 9 subtasks)  
+**Completion Status:** `[~]` In Progress | **Progress:** `77.8%` (7 / 9 subtasks)  
 **Dependencies:** `AUDIT`
 
-### Submodule ARCH-01: Modular Build & Dependency Hygiene `[ ]` (0.0% — 0/3)
-- [ ] **ARCH-01-001: Decompose Monolithic `shunya_core_domain` & Optimize Linking** `(0.0% — 0/3)`
-  - [ ] `ARCH-01-001-01`: Split or organize `core/domain/CMakeLists.txt` into logical `OBJECT`/sub-library targets (`shunya_domain_core`, `shunya_domain_mat`, `shunya_domain_cad`, `shunya_domain_pcb`, `shunya_domain_sim`) while preserving existing public include paths and `shunya_core_domain` umbrella link target so archive/link times drop dramatically.
-  - [ ] `ARCH-01-001-02`: Add a dedicated Phase 3 engineering pipeline header/library layer (`shunya::engineering`) linking materials, objects, components, batteries, and circuits via stable UUIDs (no duplicated material/geometry snapshots).
-  - [ ] `ARCH-01-001-03`: Ensure zero Qt headers leak into `core/base` or `core/domain` and extend `.github/workflows/ci.yml` to build `shunya-cli`, `shunya_unit_tests`, and Qt headless tests.
+### Submodule ARCH-01: Modular Build & Dependency Hygiene `[x]` (100.0% — 3/3)
+- [x] **ARCH-01-001: Decompose Monolithic `shunya_core_domain` & Optimize Linking** `(100.0% — 3/3)`
+  - [x] `ARCH-01-001-01`: Split or organize `core/domain/CMakeLists.txt` into logical `OBJECT`/sub-library targets (`shunya_domain_core`, `shunya_domain_mat`, `shunya_domain_cad`, `shunya_domain_pcb`, `shunya_domain_sim`, `shunya_domain_perf`, `shunya_domain_eng`) while preserving existing public include paths and `shunya_core_domain` umbrella link target so archive/link times drop dramatically.
+  - [x] `ARCH-01-001-02`: Add a dedicated Phase 3 engineering pipeline header/library layer (`shunya::eng`) linking materials, objects, components, batteries, and circuits via stable UUIDs (no duplicated material/geometry snapshots).
+  - [x] `ARCH-01-001-03`: Ensure zero Qt headers leak into `core/base` or `core/domain` and extend `.github/workflows/ci.yml` to build `shunya-cli`, `shunya_unit_tests`, and Qt headless tests.
 
-### Submodule ARCH-02: Unified Domain Project State & Live Simulation Bus `[ ]` (0.0% — 0/3)
-- [ ] **ARCH-02-001: Replace Mocked Studio State with Live Project Pipeline Coordinator** `(0.0% — 0/3)`
-  - [ ] `ARCH-02-001-01`: Create `EngineeringWorkspaceState` (or `StudioProjectContext`) inside `core/domain` holding the active single project's element database handle, saved mixtures/materials, 2D/3D objects, generated components, battery definitions, circuit schematics, and simulation results.
-  - [ ] `ARCH-02-001-02`: Implement reactive dependency propagation (Observer/Signal or dirty-versioning) so mutating a Material or Element automatically invalidates and recalculates dependent Object mass/density/conductivity, Component parameters (R/C/L/Battery), and Circuit simulation readiness.
+### Submodule ARCH-02: Unified Domain Project State & Live Simulation Bus `[~]` (66.7% — 2/3)
+- [~] **ARCH-02-001: Replace Mocked Studio State with Live Project Pipeline Coordinator** `(66.7% — 2/3)`
+  - [x] `ARCH-02-001-01`: Create `EngineeringWorkspaceState` (or `StudioProjectContext`) inside `core/domain` holding the active single project's element database handle, saved mixtures/materials, 2D/3D objects, generated components, battery definitions, circuit schematics, and simulation results.
+  - [x] `ARCH-02-001-02`: Implement reactive dependency propagation (Observer/Signal or dirty-versioning) so mutating a Material or Element automatically invalidates and recalculates dependent Object mass/density/conductivity, Component parameters (R/C/L/Battery), and Circuit simulation readiness.
   - [ ] `ARCH-02-001-03`: Connect `ShunyaStudioController` and `ShunyaMenuBarController` to `EngineeringWorkspaceState` so Run/Step/Pause/Reset executes real coupled circuit/battery/physics stepping and streams live telemetry into `ScientificPlot` and `OscilloscopePanel`.
 
-### Submodule ARCH-03: Consolidated Material/Element Data Authority `[ ]` (0.0% — 0/3)
-- [ ] **ARCH-03-001: Eliminate Fragmented Element Catalogs** `(0.0% — 0/3)`
-  - [ ] `ARCH-03-001-01`: Establish a single authoritative `ElementDatabase` populated from `elements.csv` with validated NIST/IUPAC cross-reference overlays, replacing hardcoded arrays in `PeriodicHeatmapFilter` and the 10-element `switch(z)` in `AlloyBuilder`.
+### Submodule ARCH-03: Consolidated Material/Element Data Authority `[~]` (66.7% — 2/3)
+- [~] **ARCH-03-001: Eliminate Fragmented Element Catalogs** `(66.7% — 2/3)`
+  - [x] `ARCH-03-001-01`: Establish a single authoritative `ElementDatabase` populated from `elements.csv` with validated NIST/IUPAC cross-reference overlays, replacing hardcoded arrays in `PeriodicHeatmapFilter` and the 10-element `switch(z)` in `AlloyBuilder`.
   - [ ] `ARCH-03-001-02`: Implement adapter bridges from `ElementDatabase` to `PeriodicTableDatabase`, `Elements118Catalog`, and `ShunyaPeriodicTableController` so all existing 517 Phase 2 tests stay green while consuming normalized data.
-  - [ ] `ARCH-03-001-03`: Add centralized `ProjectAssetRegistry` for UUID-keyed Materials, Objects, Components, and Circuits with referential integrity validation.
+  - [x] `ARCH-03-001-03`: Add centralized `ProjectAssetRegistry` for UUID-keyed Materials, Objects, Components, and Circuits with referential integrity validation.
 
 **Implementation Details:**
 - Strict dependency direction: `core/base` → `core/domain` (no Qt) → `shunya` QML/C++ controllers.
@@ -116,24 +116,24 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 3. Chemical Element Database (`ELEMDB`)
 
 **Module Objective:** Integrate `C:\Users\Shubham\Desktop\test\chemistry\elements.csv` as the primary chemical element data source with RFC 4180 CSV parsing, full preservation of all 82 CSV columns, validation/normalization, conflict transparency, and application-wide search/filter/sort/inspect capabilities.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 9 subtasks)  
+**Completion Status:** `[~]` In Progress | **Progress:** `77.8%` (7 / 9 subtasks)  
 **Dependencies:** `AUDIT`, `ARCH`
 
-### Submodule ELEMDB-01: RFC 4180 CSV Ingestion & Schema Mapping `[ ]` (0.0% — 0/3)
-- [ ] **ELEMDB-01-001: Parse and Preserve All 82 Properties from `elements.csv`** `(0.0% — 0/3)`
-  - [ ] `ELEMDB-01-001-01`: Implement a strict RFC 4180 CSV parser (`core/domain/include/shunya/matdb/csv_element_loader.hpp`) handling quoted fields with embedded newlines (e.g., `"Fm_\n3m"`), empty cells, scientific notation (`4.60E-05`), and UTF-8.
-  - [ ] `ELEMDB-01-001-02`: Define `ElementRecord` preserving every required and optional CSV column with explicit typed `std::optional<double>`, `std::optional<int>`, and `std::string` fields: Name, Symbol, Atomic_Number, Atomic_Weight, Density, Melting_Point, Boiling_Point, Phase, Absolute_Melting_Point, Absolute_Boiling_Point, Critical_Pressure, Critical_Temperature, Heat_of_Fusion, Heat_of_Vaporization, Heat_of_Combustion, Specific_Heat, Adiabatic_Index, Neel_Point, Thermal_Conductivity, Thermal_Expansion, Density_Liquid, Molar_Volume, Brinell/Mohs/Vickers_Hardness, Bulk/Shear/Young_Modulus, Poisson_Ratio, Refractive_Index, Speed_of_Sound, Valence, Electronegativity, ElectronAffinity, Autoignition_Point, Flashpoint, DOT/EU/NFPA/RTECS hazards, Block, Group, Period, Electron_Configuration, Color, Gas_phase, CAS/CID/Gmelin/NSC, Electrical_Type, Electrical_Conductivity, Resistivity, Superconducting_Point, Magnetic_Type, Curie_Point, Magnetic Susceptibilities, Abundances, Atomic/Covalent/VdW Radii, Space_Group_Name/Number, HalfLife, Lifetime, Decay_Mode, Quantum_Numbers, Neutron_Cross_Section/Mass_Absorption, Graph.Period, Graph.Group, plus raw/unparsed map preservation.
-  - [ ] `ELEMDB-01-001-03`: Bundle or resolve `elements.csv` deterministically (configurable path + embedded fallback copy / CMake asset deployment alongside executable) and verify all 118 rows load with zero crashes.
+### Submodule ELEMDB-01: RFC 4180 CSV Ingestion & Schema Mapping `[x]` (100.0% — 3/3)
+- [x] **ELEMDB-01-001: Parse and Preserve All 82 Properties from `elements.csv`** `(100.0% — 3/3)`
+  - [x] `ELEMDB-01-001-01`: Implement a strict RFC 4180 CSV parser (`core/domain/include/shunya/matdb/csv_element_loader.hpp`) handling quoted fields with embedded newlines (e.g., `"Fm_\n3m"`), empty cells, scientific notation (`4.60E-05`), and UTF-8.
+  - [x] `ELEMDB-01-001-02`: Define `ElementRecord` preserving every required and optional CSV column with explicit typed `std::optional<double>`, `std::optional<int>`, and `std::string` fields: Name, Symbol, Atomic_Number, Atomic_Weight, Density, Melting_Point, Boiling_Point, Phase, Absolute_Melting_Point, Absolute_Boiling_Point, Critical_Pressure, Critical_Temperature, Heat_of_Fusion, Heat_of_Vaporization, Heat_of_Combustion, Specific_Heat, Adiabatic_Index, Neel_Point, Thermal_Conductivity, Thermal_Expansion, Density_Liquid, Molar_Volume, Brinell/Mohs/Vickers_Hardness, Bulk/Shear/Young_Modulus, Poisson_Ratio, Refractive_Index, Speed_of_Sound, Valence, Electronegativity, ElectronAffinity, Autoignition_Point, Flashpoint, DOT/EU/NFPA/RTECS hazards, Block, Group, Period, Electron_Configuration, Color, Gas_phase, CAS/CID/Gmelin/NSC, Electrical_Type, Electrical_Conductivity, Resistivity, Superconducting_Point, Magnetic_Type, Curie_Point, Magnetic Susceptibilities, Abundances, Atomic/Covalent/VdW Radii, Space_Group_Name/Number, HalfLife, Lifetime, Decay_Mode, Quantum_Numbers, Neutron_Cross_Section/Mass_Absorption, Graph.Period, Graph.Group, plus raw/unparsed map preservation.
+  - [x] `ELEMDB-01-001-03`: Bundle or resolve `elements.csv` deterministically (configurable path + embedded fallback copy / CMake asset deployment alongside executable) and verify all 118 rows load with zero crashes.
 
-### Submodule ELEMDB-02: Data Validation, Normalization & Provenance `[ ]` (0.0% — 0/3)
-- [ ] **ELEMDB-02-001: Handle Missing, Invalid, and Anomalous Source CSV Fields** `(0.0% — 0/3)`
-  - [ ] `ELEMDB-02-001-01`: Normalize Excel-mangled `Adiabatic_Index` values (`"07-May"` → `1.4` [7/5], `"05-Mar"` → `1.6666667` [5/3]) and clean newline artifacts in `Space_Group_Name` (`"Fm_\n3m"` → `"Fm-3m"`), tagging each corrected field with `NormalizationNote` provenance.
-  - [ ] `ELEMDB-02-001-02`: Cross-check `elements.csv` against IUPAC 2021 reference values (`Elements118Catalog`) for Z=112–118 aliases (`Uub`–`Uuo` vs `Cn`–`Og`), missing `Atomic_Weight` (Z=117), scrambled `Electron_Configuration` strings, and suspect `Specific_Heat` outliers, exposing a clear `PropertyProvenance` flag (`CsvPrimary`, `CsvNormalized`, `NistReferenceFallback`, `MissingUnsupported`).
-  - [ ] `ELEMDB-02-001-03`: Never fabricate missing scientific values silently: return `std::nullopt` / `Unsupported` with explicit diagnostics when a CSV property is absent (e.g., `Critical_Pressure` only exists for 21/118 elements; `Heat_of_Combustion` for 7/118).
+### Submodule ELEMDB-02: Data Validation, Normalization & Provenance `[x]` (100.0% — 3/3)
+- [x] **ELEMDB-02-001: Handle Missing, Invalid, and Anomalous Source CSV Fields** `(100.0% — 3/3)`
+  - [x] `ELEMDB-02-001-01`: Normalize Excel-mangled `Adiabatic_Index` values (`"07-May"` → `1.4` [7/5], `"05-Mar"` → `1.6666667` [5/3]) and clean newline artifacts in `Space_Group_Name` (`"Fm_\n3m"` → `"Fm-3m"`), tagging each corrected field with `NormalizationNote` provenance.
+  - [x] `ELEMDB-02-001-02`: Cross-check `elements.csv` against IUPAC 2021 reference values (`Elements118Catalog`) for Z=112–118 aliases (`Uub`–`Uuo` vs `Cn`–`Og`), missing `Atomic_Weight` (Z=117), scrambled `Electron_Configuration` strings, and suspect `Specific_Heat` outliers, exposing a clear `PropertyProvenance` flag (`CsvPrimary`, `CsvNormalized`, `NistReferenceFallback`, `MissingUnsupported`).
+  - [x] `ELEMDB-02-001-03`: Never fabricate missing scientific values silently: return `std::nullopt` / `Unsupported` with explicit diagnostics when a CSV property is absent (e.g., `Critical_Pressure` only exists for 21/118 elements; `Heat_of_Combustion` for 7/118).
 
-### Submodule ELEMDB-03: Querying, Filtering, Sorting & Element Explorer UI `[ ]` (0.0% — 0/3)
-- [ ] **ELEMDB-03-001: Central Query API & Interactive Elements Workspace** `(0.0% — 0/3)`
-  - [ ] `ELEMDB-03-001-01`: Implement `ElementDatabase::query(ElementQuery)` supporting substring search (name, symbol, alternate names, CAS number), filters (phase, block, group, period, electrical type, magnetic type, hazard class, property-present), and multi-column sorting (Z, mass, density, MP, BP, thermal/electrical conductivity, specific heat, modulus).
+### Submodule ELEMDB-03: Querying, Filtering, Sorting & Element Explorer UI `[~]` (33.3% — 1/3)
+- [~] **ELEMDB-03-001: Central Query API & Interactive Elements Workspace** `(33.3% — 1/3)`
+  - [x] `ELEMDB-03-001-01`: Implement `ElementDatabase::query(ElementQuery)` supporting substring search (name, symbol, alternate names, CAS number), filters (phase, block, group, period, electrical type, magnetic type, hazard class, property-present), and multi-column sorting (Z, mass, density, MP, BP, thermal/electrical conductivity, specific heat, modulus).
   - [ ] `ELEMDB-03-001-02`: Upgrade `ShunyaPeriodicTableController` to expose all 82 CSV properties, search/filter/sort models, provenance badges, and unit-formatted values to QML.
   - [ ] `ELEMDB-03-001-03`: Build/upgrade the `Elements` workspace view (`PeriodicTableWindow.qml` + searchable table view + full 82-property Element Inspector drawer with provenance indicators, Bohr orbital, isotope & crystal tabs) accessible from main navigation.
 
@@ -152,26 +152,26 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 4. Natural Element Behavior Engine (`MATBEH`)
 
 **Module Objective:** Model elements and materials as dynamic physical-chemical systems responding to temperature ($T$), pressure ($P$), and environment rather than static database rows, strictly distinguishing validated physics, documented approximations, and unsupported properties.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 9 subtasks)  
+**Completion Status:** `[x]` Completed | **Progress:** `100.0%` (9 / 9 subtasks)  
 **Dependencies:** `ELEMDB`
 
-### Submodule MATBEH-01: Thermodynamic State & Phase Transitions `[ ]` (0.0% — 0/3)
-- [ ] **MATBEH-01-001: T/P-Dependent Phase, Density & Thermal Expansion Evaluator** `(0.0% — 0/3)`
-  - [ ] `MATBEH-01-001-01`: Implement `ElementBehaviorEngine::evaluate_state(element, T_k, P_pa)` computing phase (`Solid`, `MeltingTwoPhase`, `Liquid`, `BoilingTwoPhase`, `Gas`, `Supercritical` when $T > T_c$ and $P > P_c$ if critical data exists) using Clausius-Clapeyron / pressure-adjusted boiling/melting estimates where latent heat & molar volume data are available, clearly tagging model fidelity (`L1`/`L2`/`L3`).
-  - [ ] `MATBEH-01-001-02`: Compute temperature-dependent density: $\rho(T) = \rho_0 / (1 + 3\alpha \Delta T)$ in solid phase using CSV `Thermal_Expansion`, transitioning to `Density_Liquid` above $T_m$, and ideal-gas / Redlich-Kwong EOS ($\rho = PM / (ZRT)$) in gas phase.
-  - [ ] `MATBEH-01-001-03`: Compute enthalpy, sensible heat ($c_p \Delta T$), latent heat of fusion/vaporization transitions, and thermal strain ($\epsilon_{th} = \alpha \Delta T$) with explicit `Unsupported` flags when `Heat_of_Fusion` or `Thermal_Expansion` is missing.
+### Submodule MATBEH-01: Thermodynamic State & Phase Transitions `[x]` (100.0% — 3/3)
+- [x] **MATBEH-01-001: T/P-Dependent Phase, Density & Thermal Expansion Evaluator** `(100.0% — 3/3)`
+  - [x] `MATBEH-01-001-01`: Implement `ElementBehaviorEngine::evaluate_state(element, T_k, P_pa)` computing phase (`Solid`, `MeltingTwoPhase`, `Liquid`, `BoilingTwoPhase`, `Gas`, `Supercritical` when $T > T_c$ and $P > P_c$ if critical data exists) using Clausius-Clapeyron / pressure-adjusted boiling/melting estimates where latent heat & molar volume data are available, clearly tagging model fidelity (`L1`/`L2`/`L3`).
+  - [x] `MATBEH-01-001-02`: Compute temperature-dependent density: $\rho(T) = \rho_0 / (1 + 3\alpha \Delta T)$ in solid phase using CSV `Thermal_Expansion`, transitioning to `Density_Liquid` above $T_m$, and ideal-gas / Redlich-Kwong EOS ($\rho = PM / (ZRT)$) in gas phase.
+  - [x] `MATBEH-01-001-03`: Compute enthalpy, sensible heat ($c_p \Delta T$), latent heat of fusion/vaporization transitions, and thermal strain ($\epsilon_{th} = \alpha \Delta T$) with explicit `Unsupported` flags when `Heat_of_Fusion` or `Thermal_Expansion` is missing.
 
-### Submodule MATBEH-02: Transport & Electrical Behavior `[ ]` (0.0% — 0/3)
-- [ ] **MATBEH-02-001: Temperature-Dependent Electrical & Thermal Transport** `(0.0% — 0/3)`
-  - [ ] `MATBEH-02-001-01`: Model metallic resistivity $\rho_e(T) = \rho_{e,0}[1 + \alpha_R (T - T_0)]$ and superconductivity transition ($\rho_e \to 0$ when $T < T_{sc}$ using CSV `Superconducting_Point` where available) and semiconductor negative temperature coefficient behavior when `Electrical_Type == "Semiconductor"`.
-  - [ ] `MATBEH-02-001-02`: Evaluate thermal conductivity $k(T)$ (solid/liquid transition scaling + Wiedemann-Franz cross-check warning for metals) and specific heat $c_p(T)$ (using Shomate polynomials where validated in `matdb` or documented constant-Cp approximation from CSV).
-  - [ ] `MATBEH-02-001-03`: Track magnetic phase transition at `Curie_Point` (ferromagnetic → paramagnetic) and `Neel_Point` (antiferromagnetic → paramagnetic) when present in CSV.
+### Submodule MATBEH-02: Transport & Electrical Behavior `[x]` (100.0% — 3/3)
+- [x] **MATBEH-02-001: Temperature-Dependent Electrical & Thermal Transport** `(100.0% — 3/3)`
+  - [x] `MATBEH-02-001-01`: Model metallic resistivity $\rho_e(T) = \rho_{e,0}[1 + \alpha_R (T - T_0)]$ and superconductivity transition ($\rho_e \to 0$ when $T < T_{sc}$ using CSV `Superconducting_Point` where available) and semiconductor negative temperature coefficient behavior when `Electrical_Type == "Semiconductor"`.
+  - [x] `MATBEH-02-001-02`: Evaluate thermal conductivity $k(T)$ (solid/liquid transition scaling + Wiedemann-Franz cross-check warning for metals) and specific heat $c_p(T)$ (using Shomate polynomials where validated in `matdb` or documented constant-Cp approximation from CSV).
+  - [x] `MATBEH-02-001-03`: Track magnetic phase transition at `Curie_Point` (ferromagnetic → paramagnetic) and `Neel_Point` (antiferromagnetic → paramagnetic) when present in CSV.
 
-### Submodule MATBEH-03: Chemical Reactivity, Oxidation, Corrosion & Combustion `[ ]` (0.0% — 0/3)
-- [ ] **MATBEH-03-001: Reactivity, Stability, Corrosion & Combustion Assessment** `(0.0% — 0/3)`
-  - [ ] `MATBEH-03-001-01`: Implement reactivity & stability rules from electronegativity, ionization energy, standard reduction potential / reactivity series (alkali metals with water/air, halogens, noble gas inertness), and radioactive half-life stability (`HalfLife` from CSV).
-  - [ ] `MATBEH-03-001-02`: Implement oxidation/corrosion susceptibility indicators (passivating oxide layer e.g. Al/Ti/Cr vs active rusting Fe vs noble Au/Pt, galvanic potential difference warning when dissimilar metals contact in electrolyte).
-  - [ ] `MATBEH-03-001-03`: Implement combustion & thermal hazard evaluation using CSV `Autoignition_Point`, `Flashpoint`, `Heat_of_Combustion`, and NFPA fire/health/reactivity ratings, surfacing warnings when $T \ge T_{\text{autoignition}}$ in oxidizing atmosphere.
+### Submodule MATBEH-03: Chemical Reactivity, Oxidation, Corrosion & Combustion `[x]` (100.0% — 3/3)
+- [x] **MATBEH-03-001: Reactivity, Stability, Corrosion & Combustion Assessment** `(100.0% — 3/3)`
+  - [x] `MATBEH-03-001-01`: Implement reactivity & stability rules from electronegativity, ionization energy, standard reduction potential / reactivity series (alkali metals with water/air, halogens, noble gas inertness), and radioactive half-life stability (`HalfLife` from CSV).
+  - [x] `MATBEH-03-001-02`: Implement oxidation/corrosion susceptibility indicators (passivating oxide layer e.g. Al/Ti/Cr vs active rusting Fe vs noble Au/Pt, galvanic potential difference warning when dissimilar metals contact in electrolyte).
+  - [x] `MATBEH-03-001-03`: Implement combustion & thermal hazard evaluation using CSV `Autoignition_Point`, `Flashpoint`, `Heat_of_Combustion`, and NFPA fire/health/reactivity ratings, surfacing warnings when $T \ge T_{\text{autoignition}}$ in oxidizing atmosphere.
 
 **Implementation Details:**
 - Every evaluated behavior result returns `BehaviorEvaluationReport` with `{value, unit, confidence: ConfirmedScientific | ApproximateModel | ExperimentalAssumption | Unsupported, explanation}`.
@@ -187,21 +187,21 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 5. Material Mixing Laboratory (`MIXLAB`)
 
 **Module Objective:** Build an interactive Material Mixing Laboratory where users combine elements and materials under controlled $T$/$P$ conditions across distinct formation modes (Physical Mixture, Alloy, Solution, Chemical Compound, Layered Material, Composite), enforce chemical validity rules rather than auto-forming invalid compounds, compare elements vs. mixture, and save/reopen/promote mixtures to reusable materials.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 10 subtasks)  
+**Completion Status:** `[~]` In Progress | **Progress:** `70.0%` (7 / 10 subtasks)  
 **Dependencies:** `ELEMDB`, `MATBEH`
 
-### Submodule MIXLAB-01: Composition & Formation Rules Engine `[ ]` (0.0% — 0/4)
-- [ ] **MIXLAB-01-001: Multi-Element Input, Proportion Balancing & Formation Scenarios** `(0.0% — 0/4)`
-  - [ ] `MIXLAB-01-001-01`: Implement `MixtureRecipe` supporting element/material selection by mass (kg/g), mass fraction (wt%), mole count (mol), mole fraction (at%), or volume fraction (vol%), with automatic normalization and conservation checks.
-  - [ ] `MIXLAB-01-001-02`: Implement 6 explicit formation scenarios (`PhysicalMixture`, `Alloy`, `Solution`, `ChemicalCompound`, `LayeredMaterial`, `CompositeMaterial`) with distinct structural parameters (e.g., layer thicknesses/orientations for `LayeredMaterial`, matrix + reinforcement for `CompositeMaterial`, solvent + solute for `Solution`).
-  - [ ] `MIXLAB-01-001-03`: Implement chemical & metallurgical formation validation rules: check valence/charge neutrality and electronegativity difference for `ChemicalCompound` (rejecting non-stoichiometric or inert combinations like He+Au as invalid compounds), check metallic-character compatibility and Hume-Rothery size/electronegativity heuristics for `Alloy` (flagging immiscibility/intermetallic warnings), and check phase/solubility compatibility for `Solution`.
-  - [ ] `MIXLAB-01-001-04`: Tag every calculated mixture property and reaction outcome with explicit epistemic status (`ConfirmedScientific`, `ApproximateSimulation`, `UserExperimentalAssumption`).
+### Submodule MIXLAB-01: Composition & Formation Rules Engine `[x]` (100.0% — 4/4)
+- [x] **MIXLAB-01-001: Multi-Element Input, Proportion Balancing & Formation Scenarios** `(100.0% — 4/4)`
+  - [x] `MIXLAB-01-001-01`: Implement `MixtureRecipe` supporting element/material selection by mass (kg/g), mass fraction (wt%), mole count (mol), mole fraction (at%), or volume fraction (vol%), with automatic normalization and conservation checks.
+  - [x] `MIXLAB-01-001-02`: Implement 6 explicit formation scenarios (`PhysicalMixture`, `Alloy`, `Solution`, `ChemicalCompound`, `LayeredMaterial`, `CompositeMaterial`) with distinct structural parameters (e.g., layer thicknesses/orientations for `LayeredMaterial`, matrix + reinforcement for `CompositeMaterial`, solvent + solute for `Solution`).
+  - [x] `MIXLAB-01-001-03`: Implement chemical & metallurgical formation validation rules: check valence/charge neutrality and electronegativity difference for `ChemicalCompound` (rejecting non-stoichiometric or inert combinations like He+Au as invalid compounds), check metallic-character compatibility and Hume-Rothery size/electronegativity heuristics for `Alloy` (flagging immiscibility/intermetallic warnings), and check phase/solubility compatibility for `Solution`.
+  - [x] `MIXLAB-01-001-04`: Tag every calculated mixture property and reaction outcome with explicit epistemic status (`ConfirmedScientific`, `ApproximateSimulation`, `UserExperimentalAssumption`).
 
-### Submodule MIXLAB-02: Experiment Persistence & Material Promotion `[ ]` (0.0% — 0/3)
-- [ ] **MIXLAB-02-001: Save, Reopen, Modify & Promote Mixtures** `(0.0% — 0/3)`
-  - [ ] `MIXLAB-02-001-01`: Serialize/deserialize `MixtureExperiment` (inputs, ratios, $T$, $P$, formation mode, validation diagnostics, computed properties) inside the active project and standalone JSON files.
-  - [ ] `MIXLAB-02-001-02`: Support reopening and modifying saved experiments without breaking references, and comparing Base Elements vs. Resulting Mixture side-by-side (delta & % change table + chart).
-  - [ ] `MIXLAB-02-001-03`: Implement "Promote to Reusable Material" registering a live `MaterialDefinition` into the project's `MaterialRegistry` linked back to its source `MixtureExperiment` UUID.
+### Submodule MIXLAB-02: Experiment Persistence & Material Promotion `[x]` (100.0% — 3/3)
+- [x] **MIXLAB-02-001: Save, Reopen, Modify & Promote Mixtures** `(100.0% — 3/3)`
+  - [x] `MIXLAB-02-001-01`: Serialize/deserialize `MixtureExperiment` (inputs, ratios, $T$, $P$, formation mode, validation diagnostics, computed properties) inside the active project and standalone JSON files.
+  - [x] `MIXLAB-02-001-02`: Support reopening and modifying saved experiments without breaking references, and comparing Base Elements vs. Resulting Mixture side-by-side (delta & % change table + chart).
+  - [x] `MIXLAB-02-001-03`: Implement "Promote to Reusable Material" registering a live `MaterialDefinition` into the project's `MaterialRegistry` linked back to its source `MixtureExperiment` UUID.
 
 ### Submodule MIXLAB-03: Mixing Laboratory Interactive UI `[ ]` (0.0% — 0/3)
 - [ ] **MIXLAB-03-001: Full Mixing Lab Workspace (Replacing Stub `AlloyComposer.qml`)** `(0.0% — 0/3)`
@@ -223,22 +223,22 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 6. Material Property Calculation Engine (`MATPROP`)
 
 **Module Objective:** Compute accurate effective physical, thermal, mechanical, and electrical properties of mixed materials, alloys, composites, solutions, and layered stackups as functions of composition, $T$, and $P$, propagating updates dynamically to all dependent objects and components.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 8 subtasks)  
+**Completion Status:** `[~]` In Progress | **Progress:** `87.5%` (7 / 8 subtasks)  
 **Dependencies:** `ELEMDB`, `MATBEH`, `MIXLAB`
 
-### Submodule MATPROP-01: Mixing Laws & Homogenization Models `[ ]` (0.0% — 0/4)
-- [ ] **MATPROP-01-001: Composition-Based Effective Property Calculators** `(0.0% — 0/4)`
-  - [ ] `MATPROP-01-001-01`: Compute mixture density via inverse rule-of-mixtures (volume additivity $\rho_{\text{mix}} = (\sum w_i / \rho_i)^{-1}$) for ideal mixtures/alloys, plus optional excess volume / contraction factor, and mass-weighted specific heat ($c_{p,\text{mix}} = \sum w_i c_{p,i}$, Kopp-Neumann approximation tagged as `ApproximateSimulation`).
-  - [ ] `MATPROP-01-001-02`: Compute effective mechanical moduli ($K, G, E, \nu$) using Voigt, Reuss, Hill average, and Hashin-Shtrikman bounds via `CompositeHomogenizer` fed by `ElementDatabase` moduli.
-  - [ ] `MATPROP-01-001-03`: Compute effective electrical conductivity/resistivity using Nordheim alloy scattering correction ($\rho_{\text{alloy}} = \sum x_i \rho_i + C x_i (1 - x_i)$ for solid solutions), percolation/parallel-series mixing for composites, and series/parallel sheet resistance for layered materials.
-  - [ ] `MATPROP-01-001-04`: Compute effective thermal conductivity (parallel/series/Maxwell-Eucken for dispersed phases, series thermal resistance for layered stackups) and thermal expansion (Turner/Voigt models).
+### Submodule MATPROP-01: Mixing Laws & Homogenization Models `[x]` (100.0% — 4/4)
+- [x] **MATPROP-01-001: Composition-Based Effective Property Calculators** `(100.0% — 4/4)`
+  - [x] `MATPROP-01-001-01`: Compute mixture density via inverse rule-of-mixtures (volume additivity $\rho_{\text{mix}} = (\sum w_i / \rho_i)^{-1}$) for ideal mixtures/alloys, plus optional excess volume / contraction factor, and mass-weighted specific heat ($c_{p,\text{mix}} = \sum w_i c_{p,i}$, Kopp-Neumann approximation tagged as `ApproximateSimulation`).
+  - [x] `MATPROP-01-001-02`: Compute effective mechanical moduli ($K, G, E, \nu$) using Voigt, Reuss, Hill average, and Hashin-Shtrikman bounds via `CompositeHomogenizer` fed by `ElementDatabase` moduli.
+  - [x] `MATPROP-01-001-03`: Compute effective electrical conductivity/resistivity using Nordheim alloy scattering correction ($\rho_{\text{alloy}} = \sum x_i \rho_i + C x_i (1 - x_i)$ for solid solutions), percolation/parallel-series mixing for composites, and series/parallel sheet resistance for layered materials.
+  - [x] `MATPROP-01-001-04`: Compute effective thermal conductivity (parallel/series/Maxwell-Eucken for dispersed phases, series thermal resistance for layered stackups) and thermal expansion (Turner/Voigt models).
 
-### Submodule MATPROP-02: Condition Curves & Dependency Propagation `[ ]` (0.0% — 0/4)
-- [ ] **MATPROP-02-001: $T$/$P$ Property Curves & Reactive Recalculation** `(0.0% — 0/4)`
+### Submodule MATPROP-02: Condition Curves & Dependency Propagation `[~]` (75.0% — 3/4)
+- [~] **MATPROP-02-001: $T$/$P$ Property Curves & Reactive Recalculation** `(75.0% — 3/4)`
   - [ ] `MATPROP-02-001-01`: Generate `MaterialCurve` samples ($\rho(T), k(T), c_p(T), \rho_e(T)$) across user-specified temperature/pressure sweeps for plotting in `ScientificPlot`.
-  - [ ] `MATPROP-02-001-02`: Handle incomplete constituent data cleanly: if a constituent lacks a property (e.g., missing Young's modulus for a gas or exotic element), compute partial coverage metadata instead of silently inventing `1000` or `1.5e-7`.
-  - [ ] `MATPROP-02-001-03`: Connect `MaterialPropertyEngine` to `MaterialRegistry` and `MaterialDomainAdapter` so every simulation solver reads live homogenized properties.
-  - [ ] `MATPROP-02-001-04`: Emit `materialPropertiesChanged(materialId)` on composition or $T$/$P$ updates to trigger automatic downstream Object and Component recalculation.
+  - [x] `MATPROP-02-001-02`: Handle incomplete constituent data cleanly: if a constituent lacks a property (e.g., missing Young's modulus for a gas or exotic element), compute partial coverage metadata instead of silently inventing `1000` or `1.5e-7`.
+  - [x] `MATPROP-02-001-03`: Connect `MaterialPropertyEngine` to `MaterialRegistry` and `MaterialDomainAdapter` so every simulation solver reads live homogenized properties.
+  - [x] `MATPROP-02-001-04`: Emit `materialPropertiesChanged(materialId)` on composition or $T$/$P$ updates to trigger automatic downstream Object and Component recalculation.
 
 **Implementation Details:**
 - Replace hardcoded `element_resistivity_ohm_m` and `element_cte_per_k` switches in `core/domain/src/mat/alloy_builder.cpp` with queries to `ElementDatabase`.
@@ -254,22 +254,22 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 7. Element-to-Object Creation (`OBJMAT`)
 
 **Module Objective:** Enable users to create physical engineering objects from pure elements or mixed materials, linking geometry dimensions and environmental conditions directly to material definitions so mass, volume, density, and physical properties recalculate automatically when materials change.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 8 subtasks)  
+**Completion Status:** `[~]` In Progress | **Progress:** `50.0%` (4 / 8 subtasks)  
 **Dependencies:** `MATPROP`
 
-### Submodule OBJMAT-01: Material-Backed Physical Object Data Model `[ ]` (0.0% — 0/4)
-- [ ] **OBJMAT-01-001: PhysicalObject Schema & Live Material Linkage** `(0.0% — 0/4)`
-  - [ ] `OBJMAT-01-001-01`: Define `PhysicalObject` (`core/domain/include/shunya/core/domain/physical_object.hpp`) referencing geometry (`Primitive2D/3D`, extruded profile, or `SolidMesh3D`), optional multi-region partitions (regions/layers/faces), `MaterialAssignment` by `material_id` UUID (never copying raw constants without link), and operating state ($T$, $P$).
-  - [ ] `OBJMAT-01-001-02`: Compute exact geometric volume ($V$), surface area ($A$), center of mass ($\mathbf{r}_{\text{cm}}$), inertia tensor ($I$), and total mass ($m = \sum_r \rho_r(T, P) V_r$) across single-material and multi-region objects.
-  - [ ] `OBJMAT-01-001-03`: Implement live reactive synchronization: whenever a linked `MaterialDefinition` in `MaterialRegistry` is edited, `PhysicalObjectManager::recalculate_dependents(material_id)` updates object density, mass, thermal mass ($m c_p$), and effective electrical/thermal conductances.
+### Submodule OBJMAT-01: Material-Backed Physical Object Data Model `[~]` (75.0% — 3/4)
+- [~] **OBJMAT-01-001: PhysicalObject Schema & Live Material Linkage** `(75.0% — 3/4)`
+  - [x] `OBJMAT-01-001-01`: Define `PhysicalObject` (`core/domain/include/shunya/eng/physical_object.hpp`) referencing geometry (`ObjectShapeKind`, extruded profile, or `SolidMesh3D`), optional multi-region partitions (regions/layers/faces), `material_id` UUID (never copying raw constants without link), and operating state ($T$, $P$).
+  - [x] `OBJMAT-01-001-02`: Compute exact geometric volume ($V$), surface area ($A$), center of mass ($\mathbf{r}_{\text{cm}}$), inertia tensor ($I$), and total mass ($m = \sum_r \rho_r(T, P) V_r$) across single-material and multi-region objects.
+  - [x] `OBJMAT-01-001-03`: Implement live reactive synchronization: whenever a linked `MaterialDefinition` in `MaterialRegistry` is edited, `PhysicalObjectManager::recalculate_for_material(material_id)` updates object density, mass, thermal mass ($m c_p$), and effective electrical/thermal conductances.
   - [ ] `OBJMAT-01-001-04`: Provide standard engineering object presets/templates (Copper Wire, Iron Plate, Aluminum Frame, Steel Rod, Lithium Foil, Composite Housing, Insulating Spacer) built directly from `ElementDatabase`/`MaterialRegistry`.
 
-### Submodule OBJMAT-02: Object Creation & Inspection UI `[ ]` (0.0% — 0/4)
-- [ ] **OBJMAT-02-001: Objects Workspace & Object Builder Workflow** `(0.0% — 0/4)`
+### Submodule OBJMAT-02: Object Creation & Inspection UI `[~]` (25.0% — 1/4)
+- [~] **OBJMAT-02-001: Objects Workspace & Object Builder Workflow** `(25.0% — 1/4)`
   - [ ] `OBJMAT-02-001-01`: Implement `ShunyaObjectController` exposing object creation, editing, duplication, deletion, dimension configuration, material/region assignment, and temperature/pressure preview.
   - [ ] `OBJMAT-02-001-02`: Build `ObjectsWorkspace.qml` allowing users to pick a material (pure element or mixed material), choose geometry type & dimensions, assign materials to whole object or regions, and preview calculated mass, volume, density, resistance, thermal capacitance, and phase warnings.
   - [ ] `OBJMAT-02-001-03`: Integrate `ShunyaPropertyTreeModel` with the selected `PhysicalObject` (replacing the `"Switch Demo"` `"Resistor"`/`"Body"` demo toggle with live project object inspection).
-  - [ ] `OBJMAT-02-001-04`: Persist and reload all `PhysicalObject` instances and material bindings in the project file.
+  - [x] `OBJMAT-02-001-04`: Persist and reload all `PhysicalObject` instances and material bindings in the project file.
 
 **Implementation Details:**
 - Unify `PhysicalObject` with `device::DevicePart` and `SceneGraph` entities so 2D/3D editors and physics solvers share one source of truth.
@@ -285,22 +285,22 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 8. Object Geometry and Material Assignment (`OBJGEO`)
 
 **Module Objective:** Support multi-region material assignment on 2D/3D objects (faces, layers, volumes, internal cores/coatings), layered assemblies, and geometric/physical consistency validation.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 8 subtasks)  
+**Completion Status:** `[~]` In Progress | **Progress:** `50.0%` (4 / 8 subtasks)  
 **Dependencies:** `OBJMAT`, `ED2D`, `ED3D`
 
-### Submodule OBJGEO-01: Multi-Region Geometry & Region Partitioning `[ ]` (0.0% — 0/4)
-- [ ] **OBJGEO-01-001: Layered, Core-Shell & Sub-Volume Region Modeling** `(0.0% — 0/4)`
-  - [ ] `OBJGEO-01-001-01`: Extend `PhysicalObject` with `ObjectRegion` entries (volume fraction or explicit sub-geometry bounding/mesh/layer thickness, e.g., wire core + insulation jacket, plate substrate + coating, battery stack layers).
-  - [ ] `OBJGEO-01-001-02`: Implement `GeometryMaterialValidator` validating non-zero positive dimensions, non-overlapping or watertight sub-regions, valid `material_id` references, and phase consistency (e.g., warning if a structural solid region melts at operating $T$).
-  - [ ] `OBJGEO-01-001-03`: Compute directional/anisotropic effective properties for multi-region objects (axial vs radial resistance, through-plane vs in-plane thermal conductance).
+### Submodule OBJGEO-01: Multi-Region Geometry & Region Partitioning `[~]` (75.0% — 3/4)
+- [~] **OBJGEO-01-001: Layered, Core-Shell & Sub-Volume Region Modeling** `(75.0% — 3/4)`
+  - [x] `OBJGEO-01-001-01`: Extend `PhysicalObject` with `ObjectRegion` entries (volume fraction or explicit sub-geometry bounding/mesh/layer thickness, e.g., wire core + insulation jacket, plate substrate + coating, battery stack layers).
+  - [x] `OBJGEO-01-001-02`: Implement `GeometryMaterialValidator` validating non-zero positive dimensions, non-overlapping or watertight sub-regions, valid `material_id` references, and phase consistency (e.g., warning if a structural solid region melts at operating $T$).
+  - [x] `OBJGEO-01-001-03`: Compute directional/anisotropic effective properties for multi-region objects (axial vs radial resistance, through-plane vs in-plane thermal conductance).
   - [ ] `OBJGEO-01-001-04`: Integrate `cad3d::SolidMesh3D` and `cad2d` profile extrusion so 2D sketches can become 3D material-assigned objects with accurate mesh volume & surface area.
 
-### Submodule OBJGEO-02: Region Assignment & Assembly Mating UI `[ ]` (0.0% — 0/4)
-- [ ] **OBJGEO-02-001: Interactive Region Material Assignment & Assembly Composer** `(0.0% — 0/4)`
+### Submodule OBJGEO-02: Region Assignment & Assembly Mating UI `[~]` (25.0% — 1/4)
+- [~] **OBJGEO-02-001: Interactive Region Material Assignment & Assembly Composer** `(25.0% — 1/4)`
   - [ ] `OBJGEO-02-001-01`: Add region list & layer stackup editor inside the Objects workspace so users can assign distinct materials to each region/layer of an object.
   - [ ] `OBJGEO-02-001-02`: Implement visual region coloring/hatching in 2D/3D previews with material legend tooltips (material name, phase, density, conductivity).
   - [ ] `OBJGEO-02-001-03`: Support grouping multiple `PhysicalObject` parts into a `PhysicalAssembly` with contact interfaces (`DeviceContactInterface`: electrical contact resistance, thermal interface resistance, mechanical mate).
-  - [ ] `OBJGEO-02-001-04`: Save and restore multi-region assignments and assembly interfaces cleanly in project serialization.
+  - [x] `OBJGEO-02-001-04`: Save and restore multi-region assignments and assembly interfaces cleanly in project serialization.
 
 **Testing Requirements:**
 - Unit tests for insulated copper wire (Cu core + polymer/insulator jacket) volume/mass/axial-resistance vs radial-insulation, and assembly thermal/electrical contact interfaces.
@@ -313,28 +313,28 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 9. Object-to-Circuit-Component Generation (`OBJCMP`)
 
 **Module Objective:** Convert created physical objects and assemblies into functional engineering/circuit components based on their material composition, electrical/thermal properties, geometry, terminals, and operating limits—never turning arbitrary shapes into valid electronics without physical qualification.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 9 subtasks)  
+**Completion Status:** `[~]` In Progress | **Progress:** `66.7%` (6 / 9 subtasks)  
 **Dependencies:** `OBJMAT`, `OBJGEO`
 
-### Submodule OBJCMP-01: Physical Qualification & Parameter Extraction `[ ]` (0.0% — 0/5)
-- [ ] **OBJCMP-01-001: Physics-Driven Component Qualification Rules** `(0.0% — 0/5)`
-  - [ ] `OBJCMP-01-001-01`: Define `GeneratedComponentDefinition` (`core/domain/include/shunya/core/domain/generated_component.hpp`) referencing source `object_id` UUID (no duplication of material/geometry), `ComponentKind` (`Resistor`, `ConductorWire`, `Switch`, `Capacitor`, `Inductor`, `Battery`, `Connector`, `HeatingElement`, `Diode`, `Motor`), terminal ports mapped to physical faces/endpoints, and live derived electrical/thermal parameters.
-  - [ ] `OBJCMP-01-001-02`: Implement physical parameter derivation formulas from object geometry + material properties:
+### Submodule OBJCMP-01: Physical Qualification & Parameter Extraction `[x]` (100.0% — 5/5)
+- [x] **OBJCMP-01-001: Physics-Driven Component Qualification Rules** `(100.0% — 5/5)`
+  - [x] `OBJCMP-01-001-01`: Define `GeneratedComponentDefinition` (`core/domain/include/shunya/eng/component_generator.hpp`) referencing source `object_id` UUID (no duplication of material/geometry), `ComponentKind` (`Resistor`, `ConductorWire`, `Switch`, `Capacitor`, `Inductor`, `Battery`, `Connector`, `HeatingElement`, `Motor`), terminal ports mapped to physical faces/endpoints, and live derived electrical/thermal parameters.
+  - [x] `OBJCMP-01-001-02`: Implement physical parameter derivation formulas from object geometry + material properties:
     - `Resistor` / `ConductorWire` / `HeatingElement`: $R(T) = \rho_e(T) \cdot L / A_{\text{cross}}$, TCR $\alpha_R$, thermal mass $C_{\text{th}} = m c_p$, max current / power / melting limit warnings.
     - `Capacitor`: parallel-plate / coaxial geometry $C = \varepsilon_0 \varepsilon_r A / d$, dielectric breakdown voltage $V_{\max} = E_{\text{bd}} d$ (rejecting purely metallic short-circuited geometries without dielectric separator!).
     - `Inductor`: coil/solenoid turns & core permeability $L = \mu_0 \mu_r N^2 A / l$, winding resistance from conductor material.
     - `Switch` / `Connector`: contact resistance from contact area + material resistivity + ampacity thermal limit.
     - `Motor`: simplified electromechanical winding + rotor inertia/back-EMF parameters derived from coil material & rotor mass/inertia (explicitly tagged `L1`/`L2`).
-  - [ ] `OBJCMP-01-001-03`: Implement strict `ComponentQualificationValidator` rejecting physically invalid conversions with actionable diagnostics (e.g., trying to turn an insulator into a low-resistance wire, a conductor-only block into a capacitor without dielectric, or missing terminals).
-  - [ ] `OBJCMP-01-001-04`: Define terminal placement (`TerminalPin` with 2D/3D anchor position, polarity, domain, and target object region) and verify continuity between terminals through conductive regions.
-  - [ ] `OBJCMP-01-001-05`: Automatically recompute component electrical/thermal parameters whenever the underlying Object dimensions or Material composition changes.
+  - [x] `OBJCMP-01-001-03`: Implement strict `ComponentQualificationValidator` rejecting physically invalid conversions with actionable diagnostics (e.g., trying to turn an insulator into a low-resistance wire, a conductor-only block into a capacitor without dielectric, or missing terminals).
+  - [x] `OBJCMP-01-001-04`: Define terminal placement (`ComponentTerminal` with 2D/3D anchor position, polarity, domain, and target object region) and verify continuity between terminals through conductive regions.
+  - [x] `OBJCMP-01-001-05`: Automatically recompute component electrical/thermal parameters whenever the underlying Object dimensions or Material composition changes.
 
-### Submodule OBJCMP-02: Component Library & Conversion Wizard UI `[ ]` (0.0% — 0/4)
-- [ ] **OBJCMP-02-001: Interactive Object-to-Component Converter & Library** `(0.0% — 0/4)`
+### Submodule OBJCMP-02: Component Library & Conversion Wizard UI `[~]` (25.0% — 1/4)
+- [~] **OBJCMP-02-001: Interactive Object-to-Component Converter & Library** `(25.0% — 1/4)`
   - [ ] `OBJCMP-02-001-01`: Implement `ShunyaComponentController` managing conversion workflow, validation diagnostics, component library CRUD, and parameter preview.
   - [ ] `OBJCMP-02-001-02`: Build `ComponentsWorkspace.qml` implementing the 9-step Component Creation Workflow (select Object → select Component Type → assign terminals/regions → configure type-specific parameters e.g. turns/area → inspect derived R/C/L/limits & validation report → generate & save to Component Library).
   - [ ] `OBJCMP-02-001-03`: Expose all saved components from the Component Library directly in the Circuit Editor's component palette.
-  - [ ] `OBJCMP-02-001-04`: Persist `GeneratedComponentDefinition` items inside the project manifest/asset store with UUID links to their source Objects.
+  - [x] `OBJCMP-02-001-04`: Persist `GeneratedComponentDefinition` items inside the project manifest/asset store with UUID links to their source Objects.
 
 **Testing Requirements:**
 - Unit tests verifying Copper wire → `ConductorWire` ($R = \rho L / A$ within $10^{-9}$), insulator block → rejected as `ConductorWire` with clear error, dielectric-sandwich → `Capacitor`, and live update of component $R$ when wire material or length changes.
@@ -347,20 +347,20 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 10. Battery Engineering and Simulation (`BAT`)
 
 **Module Objective:** Provide an end-to-end chemistry-to-circuit battery engineering system where users construct batteries (e.g., Lithium-ion) from material-assigned regions (anode, cathode, electrolyte, separator, current collectors, casing, terminals), validate compatibility, calculate electrochemical/thermal parameters, and simulate charging/discharging with live graphs and limit warnings.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 9 subtasks)  
+**Completion Status:** `[~]` In Progress | **Progress:** `55.6%` (5 / 9 subtasks)  
 **Dependencies:** `OBJCMP`, `ELEMDB`, `MATBEH`
 
-### Submodule BAT-01: Battery Structural & Electrochemical Model `[ ]` (0.0% — 0/5)
-- [ ] **BAT-01-001: Multi-Region Battery Assembly & Compatibility Validator** `(0.0% — 0/5)`
-  - [ ] `BAT-01-001-01`: Define `BatteryDesignSpec` referencing 7 physical regions/objects: `anode`, `cathode`, `electrolyte`, `separator`, `anode_current_collector`, `cathode_current_collector`, `casing`, plus `positive_terminal` and `negative_terminal`.
-  - [ ] `BAT-01-001-02`: Implement `BatteryCompatibilityValidator` enforcing physical & electrochemical sanity checks:
+### Submodule BAT-01: Battery Structural & Electrochemical Model `[x]` (100.0% — 5/5)
+- [x] **BAT-01-001: Multi-Region Battery Assembly & Compatibility Validator** `(100.0% — 5/5)`
+  - [x] `BAT-01-001-01`: Define `BatteryDesignSpec` referencing 7 physical regions/objects: `anode`, `cathode`, `electrolyte`, `separator`, `anode_current_collector`, `cathode_current_collector`, `casing`, plus `positive_terminal` and `negative_terminal`.
+  - [x] `BAT-01-001-02`: Implement `BatteryCompatibilityValidator` enforcing physical & electrochemical sanity checks:
     - Anode/cathode must contain active redox/intercalation species (e.g., Li-containing cathode + Carbon/Graphite or Li anode) with valid redox potential difference ($E_{\text{cathode}} - E_{\text{anode}} > 0$).
     - Separator must be electrically insulating ($\sigma < 10^{-4}$ S/m) to prevent internal short circuit.
     - Current collectors must be electrically conductive (e.g., Cu on anode side, Al on cathode side) and checked for electrochemical stability/alloying warnings (e.g., Al-Li alloying warning if Al is used at low anode potential).
     - Casing material checked for structural integrity & thermal/chemical containment.
-  - [ ] `BAT-01-001-03`: Derive approximate battery parameters from geometry & material mass: active mass $m_{\text{active}}$, theoretical capacity $Q_{\text{Ah}}$ (via Faraday's constant $F = 96485.33$ C/mol and active lithium stoichiometry), OCV curve $V_{\text{oc}}(\text{SOC})$ from electrode chemistry, internal resistance $R_0(T)$ (collectors + electrolyte ionic conductivity $\sigma_{\text{ion}}$ + contact), thermal mass $C_{\text{th}} = \sum m_r c_{p,r}$, and surface cooling area.
-  - [ ] `BAT-01-001-04`: Upgrade `shunya::chem::BatteryCellRuntime` to support both **charging** ($I < 0$, CC-CV limits, overvoltage/plating warnings) and **discharging** ($I > 0$), returning voltage, current, SOC, delivered/stored energy (Wh), capacity (Ah), instantaneous power (W), temperature (K/°C), and limit warnings (over-temperature, thermal runaway onset, over-current, under-voltage/over-voltage, melting).
-  - [ ] `BAT-01-001-05`: Explicitly label model fidelity (`L2 Engineering Approximation` — Dual-RC Thevenin ECM + Faraday capacity estimate + lumped thermal balance vs full Newman P2D DFT/FEM) in both API metadata and UI banners.
+  - [x] `BAT-01-001-03`: Derive approximate battery parameters from geometry & material mass: active mass $m_{\text{active}}$, theoretical capacity $Q_{\text{Ah}}$ (via Faraday's constant $F = 96485.33$ C/mol and active lithium stoichiometry), OCV curve $V_{\text{oc}}(\text{SOC})$ from electrode chemistry, internal resistance $R_0(T)$ (collectors + electrolyte ionic conductivity $\sigma_{\text{ion}}$ + contact), thermal mass $C_{\text{th}} = \sum m_r c_{p,r}$, and surface cooling area.
+  - [x] `BAT-01-001-04`: Upgrade `shunya::chem::BatteryCellRuntime` / `BatteryEngineer` to support both **charging** ($I < 0$, CC-CV limits, overvoltage/plating warnings) and **discharging** ($I > 0$), returning voltage, current, SOC, delivered/stored energy (Wh), capacity (Ah), instantaneous power (W), temperature (K/°C), and limit warnings (over-temperature, thermal runaway onset, over-current, under-voltage/over-voltage, melting).
+  - [x] `BAT-01-001-05`: Explicitly label model fidelity (`L2 Engineering Approximation` — Dual-RC Thevenin ECM + Faraday capacity estimate + lumped thermal balance vs full Newman P2D DFT/FEM) in both API metadata and UI banners.
 
 ### Submodule BAT-02: Battery Component Integration & Simulation UI `[ ]` (0.0% — 0/4)
 - [ ] **BAT-02-001: Battery Builder, Component Export & Charge/Discharge Graphs** `(0.0% — 0/4)`
@@ -380,20 +380,20 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 11. Circuit Construction Workspace (`CIRUI`)
 
 **Module Objective:** Build a complete, interactive schematic/circuit editor allowing users to place standard and object-generated components, wire terminals with junctions, edit properties, undo/redo, zoom/pan, validate topology, and save/load/duplicate circuits.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 9 subtasks)  
+**Completion Status:** `[~]` In Progress | **Progress:** `33.3%` (3 / 9 subtasks)  
 **Dependencies:** `OBJCMP`, `BAT`
 
-### Submodule CIRUI-01: Interactive Circuit Canvas & Graph Model `[ ]` (0.0% — 0/5)
-- [ ] **CIRUI-01-001: Interactive Circuit Document, Manipulation & Undo/Redo** `(0.0% — 0/5)`
-  - [ ] `CIRUI-01-001-01`: Create `InteractiveCircuitDocument` bridging `pcb::SchematicDocument` and `core::domain::CircuitNetlist` with component placement `(x, y, rotation_deg)`, terminal hit-testing, orthogonal/45° wire routing, explicit junction creation, and net naming.
+### Submodule CIRUI-01: Interactive Circuit Canvas & Graph Model `[~]` (40.0% — 2/5)
+- [~] **CIRUI-01-001: Interactive Circuit Document, Manipulation & Undo/Redo** `(40.0% — 2/5)`
+  - [x] `CIRUI-01-001-01`: Create `InteractiveCircuitDocument` bridging `pcb::SchematicDocument` and `core::domain::CircuitNetlist` with component placement `(x, y, rotation_deg)`, terminal hit-testing, orthogonal/45° wire routing, explicit junction creation, and net naming.
   - [ ] `CIRUI-01-001-02`: Implement `CommandStack` undo/redo commands (`AddComponentCmd`, `MoveComponentCmd`, `RotateComponentCmd`, `DeleteComponentCmd`, `AddWireCmd`, `EditPropertyCmd`) wired to Ctrl+Z / Ctrl+Y and the ribbon undo history dropdown.
   - [ ] `CIRUI-01-001-03`: Support drag-and-drop / click-to-place from Component Palette (standard components: DC Voltage Source, AC Voltage Source, Resistor, Capacitor, Inductor, Diode, LED, Switch, Battery, Ground, Voltmeter, Ammeter, Wattmeter/Probe + user's Object-Generated Components and Batteries).
   - [ ] `CIRUI-01-001-04`: Implement canvas zoom/pan, grid snapping, multi-selection, component rotation (90°), deletion (removing dangling wires cleanly), and inline component property editing via `PropertyInspector`.
-  - [ ] `CIRUI-01-001-05`: Support Save, Load, and Duplicate Circuit actions within the project.
+  - [x] `CIRUI-01-001-05`: Support Save, Load, and Duplicate Circuit actions within the project.
 
-### Submodule CIRUI-02: Circuit Validation & Visual Feedback `[ ]` (0.0% — 0/4)
-- [ ] **CIRUI-02-001: Pre-Simulation Circuit Topology & ERC Diagnostics** `(0.0% — 0/4)`
-  - [ ] `CIRUI-02-001-01`: Wire `CircuitDiagnostics::inspect_circuit` and `pcb::ErcEngine` into the Circuit Editor to detect missing Ground (`"0"`), floating/unconnected terminals, shorted voltage sources/batteries, open circuits, and invalid parameter values ($\le 0$ resistance/capacitance).
+### Submodule CIRUI-02: Circuit Validation & Visual Feedback `[~]` (25.0% — 1/4)
+- [~] **CIRUI-02-001: Pre-Simulation Circuit Topology & ERC Diagnostics** `(25.0% — 1/4)`
+  - [x] `CIRUI-02-001-01`: Wire `CircuitDiagnostics::inspect_circuit` and `pcb::ErcEngine` into the Circuit Editor to detect missing Ground (`"0"`), floating/unconnected terminals, shorted voltage sources/batteries, open circuits, and invalid parameter values ($\le 0$ resistance/capacitance).
   - [ ] `CIRUI-02-001-02`: Render clear IEEE/IEC vector schematic symbols for every supported component (DC/AC sources, R, C, L, Diode, LED with emission arrows, Switch with open/closed state, Battery multi-cell symbol, Ground, Voltmeter/Ammeter), replacing generic boxes in `SchematicView.qml`.
   - [ ] `CIRUI-02-001-03`: Display visual error/warning markers directly on offending terminals/components and list actionable remediation steps in an integrated diagnostics panel.
   - [ ] `CIRUI-02-001-04`: Highlight live node voltages, branch currents, switch toggle interaction, and LED brightness/illumination state during simulation.
@@ -409,22 +409,22 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 12. Circuit Simulation Engine (`CIRSIM`)
 
 **Module Objective:** Provide accurate DC, AC, and transient circuit simulation supporting KCL/KVL, series/parallel/mixed topologies, capacitors, inductors, diodes, LEDs, switches, measurement instruments, and live coupled battery components with meaningful error reporting.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 9 subtasks)  
+**Completion Status:** `[~]` In Progress | **Progress:** `66.7%` (6 / 9 subtasks)  
 **Dependencies:** `CIRUI`, `BAT`
 
-### Submodule CIRSIM-01: Extended MNA & Component Models `[ ]` (0.0% — 0/5)
-- [ ] **CIRSIM-01-001: Complete Circuit Component & Coupled Battery Solver Integration** `(0.0% — 0/5)`
-  - [ ] `CIRSIM-01-001-01`: Extend `CircuitNetlist` / `pcb::SpiceSimulationEngine` to natively support `LED` (calibrated forward voltage $V_f \approx 1.8$–$3.3$ V + Shockley exponential + power/current rating check), `Switch` (time-controlled or interactive toggle between $R_{\text{on}} = 10^{-3}\ \Omega$ and $R_{\text{off}} = 10^{9}\ \Omega$), and `MeasurementInstrument` (ideal Voltmeter $R = 10^{12}\ \Omega$, ideal Ammeter $V_{\text{sense}} = 0$ V branch current).
-  - [ ] `CIRSIM-01-001-02`: Couple `Battery` circuit components into the MNA transient loop: at each transient step, evaluate battery $V_{\text{oc}}(\text{SOC}) - V_{RC,1} - V_{RC,2}$ + internal $R_0(T)$ in the MNA stamp, solve exact circuit node voltages & battery terminal current $I_{\text{bat}}$, and advance `BatteryCellRuntime` thermal/SOC state by $\Delta t$.
-  - [ ] `CIRSIM-01-001-03`: Couple `PhysicalObject`-derived `Resistor`/`ConductorWire`/`HeatingElement` components so Joule heating $P = I^2 R(T)$ updates object temperature $T$ and temperature-dependent resistance $R(T)$ when electro-thermal coupling is active.
-  - [ ] `CIRSIM-01-001-04`: Verify KCL ($\sum I_{\text{node}} \approx 0$) and KVL ($\sum V_{\text{loop}} \approx 0$) conservation residuals on every solved DC and transient step, reporting residuals in telemetry.
-  - [ ] `CIRSIM-01-001-05`: Provide explicit, human-readable simulation error messages for singular matrices, floating subcircuits, voltage source loops, or non-convergence instead of silent NaN outputs.
+### Submodule CIRSIM-01: Extended MNA & Component Models `[x]` (100.0% — 5/5)
+- [x] **CIRSIM-01-001: Complete Circuit Component & Coupled Battery Solver Integration** `(100.0% — 5/5)`
+  - [x] `CIRSIM-01-001-01`: Extend `CircuitNetlist` / `pcb::SpiceSimulationEngine` to natively support `LED` (calibrated forward voltage $V_f \approx 1.8$–$3.3$ V + Shockley exponential + power/current rating check), `Switch` (time-controlled or interactive toggle between $R_{\text{on}} = 10^{-3}\ \Omega$ and $R_{\text{off}} = 10^{9}\ \Omega$), and `MeasurementInstrument` (ideal Voltmeter $R = 10^{12}\ \Omega$, ideal Ammeter $V_{\text{sense}} = 0$ V branch current).
+  - [x] `CIRSIM-01-001-02`: Couple `Battery` circuit components into the MNA transient loop: at each transient step, evaluate battery $V_{\text{oc}}(\text{SOC}) - V_{RC,1} - V_{RC,2}$ + internal $R_0(T)$ in the MNA stamp, solve exact circuit node voltages & battery terminal current $I_{\text{bat}}$, and advance `BatteryCellRuntime` thermal/SOC state by $\Delta t$.
+  - [x] `CIRSIM-01-001-03`: Couple `PhysicalObject`-derived `Resistor`/`ConductorWire`/`HeatingElement` components so Joule heating $P = I^2 R(T)$ updates object temperature $T$ and temperature-dependent resistance $R(T)$ when electro-thermal coupling is active.
+  - [x] `CIRSIM-01-001-04`: Verify KCL ($\sum I_{\text{node}} \approx 0$) and KVL ($\sum V_{\text{loop}} \approx 0$) conservation residuals on every solved DC and transient step, reporting residuals in telemetry.
+  - [x] `CIRSIM-01-001-05`: Provide explicit, human-readable simulation error messages for singular matrices, floating subcircuits, voltage source loops, or non-convergence instead of silent NaN outputs.
 
-### Submodule CIRSIM-02: Real-Time Simulation Execution & Telemetry Graphs `[ ]` (0.0% — 0/4)
-- [ ] **CIRSIM-02-001: Interactive Run/Step/Transient Analysis & Multi-Channel Plotting** `(0.0% — 0/4)`
+### Submodule CIRSIM-02: Real-Time Simulation Execution & Telemetry Graphs `[~]` (25.0% — 1/4)
+- [~] **CIRSIM-02-001: Interactive Run/Step/Transient Analysis & Multi-Channel Plotting** `(25.0% — 1/4)`
   - [ ] `CIRSIM-02-001-01`: Replace `ShunyaStudioController`'s clock-only `onTimerTick` with real execution of `DcOperatingPointSolver`, `TransientSolver`, and coupled `BatteryCellRuntime` / electro-thermal stepping.
   - [ ] `CIRSIM-02-001-02`: Stream real simulated node voltages, branch currents, resistances, powers, and component temperatures to `ShunyaOscilloscopeController` and `ScientificPlot` (removing hardcoded `loadDemoCapture` / `damped_sine` defaults when a circuit is active).
-  - [ ] `CIRSIM-02-001-03`: Verify capacitor charging/discharging ($\tau = RC$), inductor transient step ($\tau = L/R$), series/parallel/mixed resistor networks, diode/LED rectification, and battery-powered load transients.
+  - [x] `CIRSIM-02-001-03`: Verify capacitor charging/discharging ($\tau = RC$), inductor transient step ($\tau = L/R$), series/parallel/mixed resistor networks, diode/LED rectification, and battery-powered load transients.
   - [ ] `CIRSIM-02-001-04`: Surface power dissipation, component over-limit warnings (exceeding rated current/power/breakdown/melting temperature), and KCL/KVL verification summaries in the Simulation workspace.
 
 **Testing Requirements:**
@@ -494,14 +494,14 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 15. Physics and Environmental Simulation (`PHYSIM`)
 
 **Module Objective:** Connect 2D and 3D material objects to real physics and environmental solvers (gravity, rigid-body motion, collision, force, heat transfer, thermal expansion, simplified deformation, and environmental conditions) rather than visual-only animations.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 8 subtasks)  
+**Completion Status:** `[~]` In Progress | **Progress:** `37.5%` (3 / 8 subtasks)  
 **Dependencies:** `MATBEH`, `ED2D`, `ED3D`, `CIRSIM`
 
-### Submodule PHYSIM-01: Coupled Multi-Body, Thermal & Environmental Solvers `[ ]` (0.0% — 0/4)
-- [ ] **PHYSIM-01-001: Object-Driven Physics & Environmental Simulation Runtime** `(0.0% — 0/4)`
-  - [ ] `PHYSIM-01-001-01`: Implement `PhysicsSimulationRuntime` synchronizing `PhysicalObject` instances with `phy::RigidBodyKinematics` / `mechanics::MechanicsWorld` (gravity vector, mass & inertia from material density, forces, impulses, and `phy::CollisionEngine` / `GjkEpa` contact collision with restitution & ground plane).
-  - [ ] `PHYSIM-01-001-02`: Couple `thermal::ThermalNetwork` / `phy::ThermalSolver3D` to project objects using material $k(T)$, $c_p(T)$, $\rho$, convection (`env::AmbientConvection`), radiation, and Joule heat sources from connected circuits/batteries.
-  - [ ] `PHYSIM-01-001-03`: Implement linear thermal expansion ($\Delta L = \alpha L_0 \Delta T$) and elastic stress/deformation preview ($\sigma = E \epsilon$, $\delta = F L / (E A)$) using object geometry and material Young's modulus / yield strength, flagging plastic yield or melting limits when exceeded.
+### Submodule PHYSIM-01: Coupled Multi-Body, Thermal & Environmental Solvers `[~]` (75.0% — 3/4)
+- [~] **PHYSIM-01-001: Object-Driven Physics & Environmental Simulation Runtime** `(75.0% — 3/4)`
+  - [x] `PHYSIM-01-001-01`: Implement `PhysicsSimulationRuntime` synchronizing `PhysicalObject` instances with `phy::RigidBodyKinematics` / `mechanics::MechanicsWorld` (gravity vector, mass & inertia from material density, forces, impulses, and `phy::CollisionEngine` / `GjkEpa` contact collision with restitution & ground plane).
+  - [x] `PHYSIM-01-001-02`: Couple `thermal::ThermalNetwork` / `phy::ThermalSolver3D` to project objects using material $k(T)$, $c_p(T)$, $\rho$, convection (`env::AmbientConvection`), radiation, and Joule heat sources from connected circuits/batteries.
+  - [x] `PHYSIM-01-001-03`: Implement linear thermal expansion ($\Delta L = \alpha L_0 \Delta T$) and elastic stress/deformation preview ($\sigma = E \epsilon$, $\delta = F L / (E A)$) using object geometry and material Young's modulus / yield strength, flagging plastic yield or melting limits when exceeded.
   - [ ] `PHYSIM-01-001-04`: Connect `env::AtmosphericModel` and `env::ClimaticChamber` (ambient temperature, pressure, gravity, convection) as configurable project simulation environment conditions, wiring `ChamberControlPanel.qml` to real C++ controls.
 
 ### Submodule PHYSIM-02: Real-Time Viewport & Telemetry Synchronization `[ ]` (0.0% — 0/4)
@@ -663,15 +663,15 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 21. Data Persistence and Project Management (`PERSIST`)
 
 **Module Objective:** Persist the complete single-project engineering graph—saved mixtures, custom materials, physical objects, generated components, battery designs, 2D sketches, 3D assemblies, circuits, and simulation settings—atomically in `.shunya` project files with dirty-state protection.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 8 subtasks)  
+**Completion Status:** `[~]` In Progress | **Progress:** `37.5%` (3 / 8 subtasks)  
 **Dependencies:** `ARCH`, `MIXLAB`, `OBJMAT`, `OBJCMP`, `BAT`, `CIRUI`, `ED2D`, `ED3D`
 
-### Submodule PERSIST-01: Unified Project Bundle Schema (`v3.0`) `[ ]` (0.0% — 0/4)
-- [ ] **PERSIST-01-001: Complete Serialization & Deserialization Round-Trip** `(0.0% — 0/4)`
-  - [ ] `PERSIST-01-001-01`: Extend `Project` / `EngineeringWorkspaceState` serialization (`project.cpp` / `workspace_serializer.cpp`) to store and reload: project manifest & environment settings, `MixtureExperiment` recipes, promoted `MaterialDefinition` records, `PhysicalObject` + region assignments, `GeneratedComponentDefinition` + `BatteryDesignSpec` records, 2D sketch entities/layers/blocks, 3D scene nodes/meshes, and `InteractiveCircuitDocument` netlists/layouts.
-  - [ ] `PERSIST-01-001-02`: Preserve UUID cross-references across save/load so loaded objects remain linked to their materials, components remain linked to their objects, and circuits remain linked to their components.
+### Submodule PERSIST-01: Unified Project Bundle Schema (`v3.0`) `[~]` (75.0% — 3/4)
+- [~] **PERSIST-01-001: Complete Serialization & Deserialization Round-Trip** `(75.0% — 3/4)`
+  - [x] `PERSIST-01-001-01`: Extend `Project` / `EngineeringWorkspaceState` serialization (`engineering_pipeline.cpp`) to store and reload: project manifest & environment settings, `MixtureExperiment` recipes, promoted `MaterialDefinition` records, `PhysicalObject` + region assignments, `GeneratedComponentDefinition` + `BatteryDesignSpec` records, and `InteractiveCircuitDocument` netlists/layouts.
+  - [x] `PERSIST-01-001-02`: Preserve UUID cross-references across save/load so loaded objects remain linked to their materials, components remain linked to their objects, and circuits remain linked to their components.
   - [ ] `PERSIST-01-001-03`: Add schema version migration (`v0.1.0-dev` / Phase 2 projects → `v3.0.0`) via `ProjectMigrator` so older `.shunya` manifests still open safely without data loss.
-  - [ ] `PERSIST-01-001-04`: Implement atomic save (`.tmp` write + flush + rename), backup retention on overwrite, and clear error reporting on permission/disk/corrupt-JSON failures.
+  - [x] `PERSIST-01-001-04`: Implement atomic save (`.tmp` write + flush + rename), backup retention on overwrite, and clear error reporting on permission/disk/corrupt-JSON failures.
 
 ### Submodule PERSIST-02: Single-Project Lifecycle & Dirty State Guards `[ ]` (0.0% — 0/4)
 - [ ] **PERSIST-02-001: Complete New/Open/Save/SaveAs/Close Lifecycle** `(0.0% — 0/4)`
@@ -691,15 +691,15 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 22. Automated Testing (`ATEST`)
 
 **Module Objective:** Implement comprehensive unit, integration, edge-case, and automated Qt/QML UI verification suites covering every Phase 3 backend engine, controller, button, menu item, form, and canvas.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 8 subtasks)  
+**Completion Status:** `[~]` In Progress | **Progress:** `37.5%` (3 / 8 subtasks)  
 **Dependencies:** Modules `ELEMDB` through `PERSIST`
 
-### Submodule ATEST-01: Core Engine & Edge-Case Unit Test Suites `[ ]` (0.0% — 0/4)
-- [ ] **ATEST-01-001: Exhaustive Domain & Edge-Case Verification** `(0.0% — 0/4)`
-  - [ ] `ATEST-01-001-01`: Add unit tests for `elements.csv` ingestion (`test_p3_elements_csv.cpp`), natural element behavior (`test_p3_element_behavior.cpp`), mixing lab & chemical formation validation (`test_p3_mixing_lab.cpp`), and property calculation engine (`test_p3_material_props.cpp`).
-  - [ ] `ATEST-01-001-02`: Add unit tests for element-to-object creation & reactive updates (`test_p3_physical_objects.cpp`), object-to-component generation & disqualification (`test_p3_object_to_component.cpp`), battery compatibility/charge/discharge (`test_p3_battery.cpp`), and extended circuit/LED/Switch/Battery simulation (`test_p3_circuit_sim.cpp`).
+### Submodule ATEST-01: Core Engine & Edge-Case Unit Test Suites `[~]` (75.0% — 3/4)
+- [~] **ATEST-01-001: Exhaustive Domain & Edge-Case Verification** `(75.0% — 3/4)`
+  - [x] `ATEST-01-001-01`: Add unit tests for `elements.csv` ingestion (`test_p3_elements_csv.cpp`), natural element behavior (`test_p3_element_behavior.cpp`), and mixing lab & property calculation engine (`test_p3_mixing_lab.cpp`).
+  - [x] `ATEST-01-001-02`: Add unit tests for element-to-object creation & reactive updates (`test_p3_objects.cpp`), object-to-component & battery compatibility/charge/discharge (`test_p3_components_battery.cpp`), and extended circuit/LED/Switch/Battery simulation (`test_p3_circuits.cpp`).
   - [ ] `ATEST-01-001-03`: Add exhaustive edge-case tests: empty inputs, negative/NaN/Inf values, missing CSV properties, invalid compound stoichiometry (He+Au), zero-area/negative-dimension geometry, floating/unconnected circuit terminals, missing ground, voltage source short, extreme $T$ (1 K to 10,000 K) and $P$ ($10^{-3}$ Pa to $10^{9}$ Pa), large object/element datasets (1,000+ objects), and corrupt JSON/missing file error paths.
-  - [ ] `ATEST-01-001-04`: Ensure all 517 existing Phase 2 tests + all new Phase 3 tests pass with 0 failures and 0 compiler warnings under `-Wall -Wextra -Wpedantic`.
+  - [x] `ATEST-01-001-04`: Ensure all 517 existing Phase 2 tests + all new Phase 3 tests pass with 0 failures and 0 compiler warnings under `-Wall -Wextra -Wpedantic`.
 
 ### Submodule ATEST-02: Automated Qt/QML Controller & UI Test Suite `[ ]` (0.0% — 0/4)
 - [ ] **ATEST-02-001: Headless Qt Quick Test & Controller Verification (`appshunya_tests`)** `(0.0% — 0/4)`
@@ -716,7 +716,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 ## 23. End-to-End Testing (`E2E`)
 
 **Module Objective:** Verify the complete connected engineering workflow end-to-end—from raw chemical elements in `elements.csv` through material mixing, physical object assembly, battery/component conversion, circuit construction, multiphysics simulation, graphing, and project persistence.  
-**Completion Status:** `[ ]` Not Started | **Progress:** `0.0%` (0 / 6 subtasks)  
+**Completion Status:** `[~]` In Progress | **Progress:** `16.7%` (1 / 6 subtasks)  
 **Dependencies:** `ATEST`
 
 ### Submodule E2E-01: Full Battery-From-Elements Workflow Verification `[ ]` (0.0% — 0/3)
@@ -725,11 +725,11 @@ Parent-level completion status and progress percentages are **strictly calculate
   - [ ] `E2E-01-001-02`: Save the entire end-to-end project to disk, reload it into a fresh `EngineeringWorkspaceState`, re-run the simulation, and assert deterministic numerical equivalence.
   - [ ] `E2E-01-001-03`: Run interactive visual/manual walkthrough of `appshunya.exe` in both Light and Dark modes, capturing and inspecting screenshots of all 10 workspaces, graphs, menus, icons, and battery simulation results.
 
-### Submodule E2E-02: Secondary Cross-Domain Workflows `[ ]` (0.0% — 0/3)
-- [ ] **E2E-02-001: Additional Connected Engineering Scenarios** `(0.0% — 0/3)`
+### Submodule E2E-02: Secondary Cross-Domain Workflows `[~]` (33.3% — 1/3)
+- [~] **E2E-02-001: Additional Connected Engineering Scenarios** `(33.3% — 1/3)`
   - [ ] `E2E-02-001-01`: Verify End-to-End 2D Sketch → Extruded 3D Copper/Aluminum Busbar Object → Heating Element Component → Circuit Joule Heating → 3D Thermal Conduction & Thermal Expansion workflow.
   - [ ] `E2E-02-001-02`: Verify End-to-End Negative/Failure Path Workflow: attempt invalid compound mixing, attempt converting insulator to low-R wire, attempt simulating battery with conductive separator, attempt running ungrounded circuit → confirm clear errors and zero crashes.
-  - [ ] `E2E-02-001-03`: Verify headless CLI (`shunya-cli.exe`) can load and simulate a Phase 3 project file containing materials, batteries, and circuits.
+  - [x] `E2E-02-001-03`: Verify headless CLI (`shunya-cli.exe`) can load and simulate a Phase 3 project file containing materials, batteries, and circuits.
 
 **Acceptance Criteria:**
 - All 19 steps of the Battery-from-Elements workflow and secondary workflows pass deterministically in both headless tests and live desktop UI.
