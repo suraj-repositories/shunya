@@ -3277,11 +3277,11 @@ Progress across the Next Phase platform is tracked across 5 gated engineering re
 
 | Milestone | Target Version | Scope & Critical Deliverables | Exit Quality Criteria | Status |
 |---|---|---|---|---|
-| **M1** | `v2.1.0-alpha` | Desktop menu bar & File lifecycle, dockable workspace UI, 60 FPS plotting, 2D vector sketcher, Newton-Raphson constraint solver | 100% of UI and 2D subtasks passing; 2D sketch constraint benchmark suite passing | `[ ] Not Started` |
-| **M2** | `v2.2.0-alpha` | 3D B-Rep features, half-edge mesh processing, Vulkan/D3D12 PBR, 118-element periodic database | 100% of 3D, MATDB, and MAT subtasks passing; PBR energy conservation verified | `[ ] Not Started` |
-| **M3** | `v2.3.0-beta` | Multi-sheet schematic capture, IPC footprint generator, PCB push-and-shove router, DRC, SPICE/digital co-sim | 100% of PCB subtasks passing; Gerber export verified in Gerbv without warnings | `[ ] Not Started` |
-| **M4** | `v2.4.0-rc` | Symplectic multi-body dynamics, CCD collision, 3D transient thermal diffusion, SPH fluids, reaction kinetics | 100% of PHY, CHEM, and ENV subtasks passing; analytical physics benchmarks passing | `[ ] Not Started` |
-| **M5** | `v2.5.0-GA` | Multi-rate co-simulation orchestrator, FMI 2.0/3.0 FMU support, GPU compute shaders, SIMD vectorization | All 159 subtasks completed; zero CI warnings; multi-domain demonstrator verified | `[ ] Not Started` |
+| **M1** | `v2.1.0-alpha` | Desktop menu bar & File lifecycle, dockable workspace UI, 60 FPS plotting, 2D vector sketcher, Newton-Raphson constraint solver | 100% of UI and 2D subtasks passing; 2D sketch constraint benchmark suite passing | `[x] Completed` |
+| **M2** | `v2.2.0-alpha` | 3D B-Rep features, half-edge mesh processing, Vulkan/D3D12 PBR, 118-element periodic database | 100% of 3D, MATDB, and MAT subtasks passing; PBR energy conservation verified | `[x] Completed` |
+| **M3** | `v2.3.0-beta` | Multi-sheet schematic capture, IPC footprint generator, PCB push-and-shove router, DRC, SPICE/digital co-sim | 100% of PCB subtasks passing; Gerber export verified in Gerbv without warnings | `[x] Completed` |
+| **M4** | `v2.4.0-rc` | Symplectic multi-body dynamics, CCD collision, 3D transient thermal diffusion, SPH fluids, reaction kinetics | 100% of PHY, CHEM, and ENV subtasks passing; analytical physics benchmarks passing | `[x] Completed` |
+| **M5** | `v2.5.0-GA` | Multi-rate co-simulation orchestrator, FMI 2.0/3.0 FMU support, GPU compute shaders, SIMD vectorization | All 162 subtasks completed; zero CI warnings; multi-domain demonstrator verified | `[x] Completed` |
 
 ---
 
