@@ -194,6 +194,7 @@ target_sources(shunya_core_domain
         src/perf/gpu_particle_engine.cpp
         src/perf/gpu_spmv.cpp
         src/perf/gpu_transfer_ring.cpp
+        src/perf/simd_kernels.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -406,6 +407,8 @@ target_sources(shunya_core_domain
             include/shunya/perf/gpu_spmv.hpp
             include/shunya/perf/timeline_semaphore.hpp
             include/shunya/perf/gpu_transfer_ring.hpp
+            include/shunya/perf/simd_math.hpp
+            include/shunya/perf/soa_container.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

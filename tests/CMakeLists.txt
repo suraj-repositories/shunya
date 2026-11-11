@@ -86,6 +86,7 @@ add_executable(shunya_unit_tests
     unit/test_int_fmi.cpp
     unit/test_int_ipc_telemetry.cpp
     unit/test_perf_gpu_kernels.cpp
+    unit/test_perf_simd_soa.cpp
     unit/test_rendering.cpp
     unit/test_circuit.cpp
     unit/test_digital_logic.cpp
