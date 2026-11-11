@@ -198,6 +198,9 @@ target_sources(shunya_core_domain
         src/perf/work_stealing_pool.cpp
         src/perf/domain_decomposition.cpp
         src/perf/linear_arena.cpp
+        src/bench/scientific_ci_runner.cpp
+        src/bench/visual_regression_runner.cpp
+        src/bench/perf_regression_gate.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -427,6 +430,11 @@ target_sources(shunya_core_domain
             include/shunya/bench/nist_janaf_benchmarks.hpp
             include/shunya/bench/waveform_comparator.hpp
             include/shunya/bench/vcd_parser.hpp
+            include/shunya/bench/tolerance_macros.hpp
+            include/shunya/bench/scientific_ci_runner.hpp
+            include/shunya/bench/ssim_calculator.hpp
+            include/shunya/bench/visual_regression_runner.hpp
+            include/shunya/bench/perf_regression_gate.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
