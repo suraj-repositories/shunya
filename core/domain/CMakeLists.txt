@@ -425,6 +425,8 @@ target_sources(shunya_core_domain
             include/shunya/bench/fourier_series_heat.hpp
             include/shunya/bench/exact_navier_stokes.hpp
             include/shunya/bench/nist_janaf_benchmarks.hpp
+            include/shunya/bench/waveform_comparator.hpp
+            include/shunya/bench/vcd_parser.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
