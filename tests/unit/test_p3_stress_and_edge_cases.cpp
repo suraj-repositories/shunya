@@ -12,7 +12,9 @@
 #include <chrono>
 #include <cmath>
 #include <filesystem>
+#include <fstream>
 #include <limits>
+#include <sstream>
 
 using namespace shunya::eng;
 using namespace shunya::mat;
@@ -20,11 +22,17 @@ using namespace shunya::matdb;
 using namespace shunya::core::domain;
 using namespace shunya::core::base;
 
-TEST_CASE("STRESS-01: ElementDatabase CSV cold parse performance & completeness") {
+TEST_CASE("STRESS-01: ElementDatabase CSV parse performance & completeness") {
     ElementDatabase db;
     const auto csv_path = std::filesystem::path(SHUNYA_SOURCE_DIR) / "data" / "elements.csv";
+    std::ifstream ifs(csv_path, std::ios::binary);
+    REQUIRE(ifs.is_open());
+    std::ostringstream ss;
+    ss << ifs.rdbuf();
+    const std::string csv_text = ss.str();
+
     const auto t0 = std::chrono::steady_clock::now();
-    auto res = db.load_from_csv(csv_path);
+    auto res = db.load_from_csv_text(csv_text, csv_path.string());
     const auto t1 = std::chrono::steady_clock::now();
     REQUIRE(res.is_ok());
     CHECK(db.count() == 118);
