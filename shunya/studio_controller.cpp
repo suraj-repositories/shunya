@@ -1,5 +1,7 @@
 #include "studio_controller.hpp"
 #include "menu_bar_controller.hpp"
+#include "pipeline_controller.hpp"
+#include "shunya/matdb/element_database.hpp"
 
 #include <QDateTime>
 #include <chrono>
@@ -20,29 +22,42 @@ ShunyaStudioController::ShunyaStudioController(QObject* parent)
     opts.worker_threads = 4;
     (void)ctx.initialize(opts);
 
-    // Seed default entities
-    active_entities_ = {
-        "Root Assembly",
-        "Electronics_Subsystem (24V DC Source, R8)",
-        "Thermal_Dissipation_Stage (Aluminum Core, 18W)",
-        "Mechanical_Actuator_Stage (RigidBody 1.5kg)",
-        "ClosedLoop_Sensor_Controller (PID / Rule Sandbox)"
-    };
-
-    // Default Project
-    auto p_res = Project::create_new("ElectroThermoMechanical_Rig", "Shunya Engineering Team");
-    if (p_res.is_ok()) {
-        current_project_ = p_res.value();
+    // Initialize Phase 3 Unified Engineering Workspace & Element CSV Database
+    (void)shunya::matdb::ElementDatabase::global().load_default();
+    workspace_ = std::make_shared<shunya::eng::EngineeringWorkspaceState>();
+    (void)workspace_->seed_lithium_battery_workflow();
+    current_project_ = workspace_->project();
+    if (current_project_) {
         project_name_ = QString::fromStdString(current_project_->manifest().name);
     }
 
+    auto sync_entities = [this]() {
+        QStringList list;
+        if (workspace_->project()) {
+            project_name_ = QString::fromStdString(workspace_->project()->manifest().name);
+            current_project_ = workspace_->project();
+            emit projectNameChanged();
+        }
+        for (const auto& obj : workspace_->object_manager().objects()) {
+            list << QString::fromStdString(obj.name) + " (" +
+                    QString::number(obj.computed.mass_kg, 'g', 3) + " kg)";
+        }
+        if (list.isEmpty()) list << "Empty Project Workspace";
+        active_entities_ = list;
+        emit activeEntitiesChanged();
+    };
+    sync_entities();
+    workspace_->subscribe([sync_entities](const shunya::eng::WorkspaceChangeEvent&) {
+        sync_entities();
+    });
+
     timer_ = new QTimer(this);
-    timer_->setInterval(16); // ~60 Hz interactive stepping
+    timer_->setInterval(33); // ~30 Hz real coupled physics & telemetry tick
     connect(timer_, &QTimer::timeout, this, &ShunyaStudioController::onTimerTick);
 
-    appendLog("[INIT] Shunya Virtual Engineering Platform Core initialized.");
-    appendLog("[INFO] Engine version: " + QString::fromStdString(CURRENT_VERSION.as_string()));
-    appendLog("[INFO] Active Fidelity Tier: L3 (High-Fidelity Engineering Approximation)");
+    appendLog("[INIT] Shunya Phase 3 Engineering Platform Core initialized.");
+    appendLog("[INFO] Loaded " + QString::number(workspace_->element_database().count()) + " elements from elements.csv.");
+    appendLog("[INFO] Seeded workflow: " + project_name_);
 }
 
 ShunyaStudioController::~ShunyaStudioController()
@@ -56,10 +71,13 @@ ShunyaStudioController::~ShunyaStudioController()
 void ShunyaStudioController::setMenuBarController(ShunyaMenuBarController* ctrl)
 {
     if (!ctrl) return;
+    ctrl->setWorkspace(workspace_);
     ctrl->setProject(current_project_);
     connect(ctrl, &ShunyaMenuBarController::projectLoaded, this, [this](const QString& name, const QString& /*path*/) {
         project_name_ = name;
+        if (workspace_ && workspace_->project()) current_project_ = workspace_->project();
         emit projectNameChanged();
+        if (pipeline_) pipeline_->emitAllChanged();
         resetSimulation();
     });
     connect(ctrl, &ShunyaMenuBarController::logMessage, this, &ShunyaStudioController::appendLog);
@@ -97,8 +115,13 @@ void ShunyaStudioController::stepSimulation()
     constexpr double dt = 0.01;
     clock_.advance(dt);
     sim_time_ = clock_.physical_time();
+    if (pipeline_) {
+        (void)pipeline_->stepPhysics(dt);
+    } else if (workspace_) {
+        (void)workspace_->physics_runtime().step(dt);
+    }
     emit simTimeChanged();
-    appendLog("[SIM] Stepped +0.010 s -> t = " + QString::number(sim_time_, 'f', 3) + " s.");
+    appendLog("[SIM] Stepped +" + QString::number(dt, 'f', 3) + " s -> t = " + QString::number(sim_time_, 'f', 3) + " s.");
 }
 
 void ShunyaStudioController::resetSimulation()
@@ -107,16 +130,26 @@ void ShunyaStudioController::resetSimulation()
     clock_.reset(0.0);
     sim_time_ = 0.0;
     sim_status_ = "Stopped";
+    if (pipeline_) {
+        pipeline_->resetPhysics();
+    } else if (workspace_) {
+        workspace_->physics_runtime().reset();
+    }
     emit simTimeChanged();
     emit simStatusChanged();
-    appendLog("[SIM] Simulation clock reset to t = 0.000 s.");
+    appendLog("[SIM] Simulation clock & physics state reset to t = 0.000 s.");
 }
 
 void ShunyaStudioController::onTimerTick()
 {
-    // Interactive time advancement (0.010s per 16ms frame)
-    clock_.advance(0.010);
+    constexpr double dt = 0.016;
+    clock_.advance(dt);
     sim_time_ = clock_.physical_time();
+    if (pipeline_) {
+        (void)pipeline_->stepPhysics(dt);
+    } else if (workspace_) {
+        (void)workspace_->physics_runtime().step(dt);
+    }
     emit simTimeChanged();
 }
 

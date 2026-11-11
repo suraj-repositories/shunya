@@ -20,10 +20,10 @@ Dialog {
     property int selectedIndex: 0
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#007acc"
+        color: Theme.bgSurface
+        border.color: Theme.borderFocus
         border.width: 1
-        radius: 6
+        radius: Theme.radiusMd
     }
 
     onOpened: {
@@ -41,8 +41,8 @@ Dialog {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 46
-            color: "#252526"
-            radius: 6
+            color: Theme.bgElevated
+            radius: Theme.radiusMd
 
             RowLayout {
                 anchors.fill: parent
@@ -50,10 +50,10 @@ Dialog {
                 anchors.rightMargin: 12
                 spacing: 8
 
-                Text {
-                    text: "🔍"
-                    font.pixelSize: 14
-                    color: "#888888"
+                ShunyaIcon {
+                    name: "search"
+                    size: 16
+                    muted: true
                 }
 
                 TextField {
@@ -103,7 +103,7 @@ Dialog {
                 id: rowDelegate
                 width: resultsList.width
                 height: 40
-                color: index === root.selectedIndex ? "#094771" : (rowMouse.hovered ? "#2a2d32" : "transparent")
+                color: index === root.selectedIndex ? Theme.bgActive : (rowMouse.hovered ? Theme.bgHover : "transparent")
 
                 MouseArea {
                     id: rowMouse
@@ -126,11 +126,12 @@ Dialog {
                         implicitWidth: 80
                         implicitHeight: 20
                         radius: 3
-                        color: "#2d2d30"
-                        border.color: "#3f3f46"
+                        color: Theme.bgSurface
+                        border.color: Theme.borderDefault
                         Text {
                             text: modelData.category
-                            color: "#00b4d8"
+                            color: Theme.textPrimary
+                            font.family: Theme.fontSans
                             font.pixelSize: 10
                             font.weight: Font.DemiBold
                             anchors.centerIn: parent
@@ -169,8 +170,9 @@ Dialog {
                 anchors.leftMargin: 12
                 anchors.rightMargin: 12
                 Text {
-                    text: root.searchResults.length + " commands available (↑↓ Navigate, Enter Execute, Esc Dismiss)"
-                    color: "#666666"
+                    text: root.searchResults.length + " commands available (Up/Down Navigate, Enter Execute, Esc Dismiss)"
+                    color: Theme.textSubtle
+                    font.family: Theme.fontSans
                     font.pixelSize: 10
                 }
             }

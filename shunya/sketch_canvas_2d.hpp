@@ -6,6 +6,8 @@
 #include <QVariantList>
 #include <memory>
 #include <optional>
+#include <unordered_map>
+#include <utility>
 
 #include "shunya/cad2d/sketch_viewport_2d.hpp"
 #include "shunya/cad2d/construction_layer.hpp"
@@ -22,6 +24,9 @@ class ShunyaSketchCanvas2D : public QQuickItem {
     Q_PROPERTY(bool snapEnabled READ snapEnabled WRITE setSnapEnabled NOTIFY settingsChanged)
     Q_PROPERTY(bool polarEnabled READ polarEnabled WRITE setPolarEnabled NOTIFY settingsChanged)
     Q_PROPERTY(bool constructionMode READ constructionMode WRITE setConstructionMode NOTIFY settingsChanged)
+    Q_PROPERTY(bool darkMode READ darkMode WRITE setDarkMode NOTIFY settingsChanged)
+    Q_PROPERTY(int polygonSides READ polygonSides WRITE setPolygonSides NOTIFY settingsChanged)
+    Q_PROPERTY(QString selectedEntityId READ selectedEntityId WRITE setSelectedEntityId NOTIFY selectionChanged)
     Q_PROPERTY(QString cursorCoordText READ cursorCoordText NOTIFY cursorChanged)
     Q_PROPERTY(int entityCount READ entityCount NOTIFY documentChanged)
     Q_PROPERTY(int solidLoopCount READ solidLoopCount NOTIFY documentChanged)
@@ -54,6 +59,15 @@ public:
     bool constructionMode() const { return construction_mode_; }
     Q_INVOKABLE void setConstructionMode(bool v);
 
+    bool darkMode() const { return dark_mode_; }
+    Q_INVOKABLE void setDarkMode(bool v);
+
+    int polygonSides() const { return polygon_sides_; }
+    Q_INVOKABLE void setPolygonSides(int n);
+
+    QString selectedEntityId() const { return selected_entity_id_; }
+    Q_INVOKABLE void setSelectedEntityId(const QString& id);
+
     QString cursorCoordText() const { return cursor_coord_text_; }
     int entityCount() const { return static_cast<int>(doc_.entities().size()); }
     int solidLoopCount() const { return solid_loop_count_; }
@@ -77,14 +91,25 @@ public:
     Q_INVOKABLE void zoomAt(double sx, double sy, double factor);
     Q_INVOKABLE void panBy(double dx, double dy);
     Q_INVOKABLE void cancelDrawing();
+    Q_INVOKABLE void finishPath();
     Q_INVOKABLE void clearDocument();
     Q_INVOKABLE void loadDemoSketch();
+
+    Q_INVOKABLE QVariantList getEntities() const;
+    Q_INVOKABLE void transformEntity(const QString& entityId, double dx, double dy, double rotDeg, double scale);
+    Q_INVOKABLE void duplicateEntity(const QString& entityId);
+    Q_INVOKABLE void deleteEntity(const QString& entityId);
+    Q_INVOKABLE void assignEntityMaterial(const QString& entityId, const QString& matId, double depthM);
+
+    const cad2d::SketchDocument2D& document() const { return doc_; }
+    void setDocument(cad2d::SketchDocument2D doc);
 
 signals:
     void toolChanged();
     void settingsChanged();
     void cursorChanged();
     void documentChanged();
+    void selectionChanged();
 
 protected:
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*) override;
@@ -102,9 +127,14 @@ private:
     QString active_tool_{"line"};
     bool snap_enabled_{true};
     bool construction_mode_{false};
+    bool dark_mode_{true};
+    int polygon_sides_{6};
     bool is_drawing_{false};
     cad2d::Point2D draw_anchor_world_{};
     cad2d::Point2D effective_cursor_world_{};
+    std::vector<cad2d::Point2D> path_pts_;
+    QString selected_entity_id_;
+    std::unordered_map<std::string, std::pair<QString, double>> entity_materials_; // entity_id -> (matId, depthM)
 
     std::optional<cad2d::SnapCandidate> active_snap_;
     cad2d::Point2D snap_screen_pt_{};

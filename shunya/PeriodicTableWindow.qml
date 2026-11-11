@@ -4,10 +4,11 @@ import QtQuick.Layouts
 
 Rectangle {
     id: root
-    color: "#0f172a"
+    color: Theme.bgSurface
     width: 1080
     height: 620
 
+    signal elementActivated(int atomicNumber)
     property var controller: (typeof periodicTableController !== "undefined") ? periodicTableController : null
 
     ColumnLayout {
@@ -21,8 +22,9 @@ Rectangle {
 
             Label {
                 text: "Periodic Table of Elements"
-                color: "#f8fafc"
-                font.pixelSize: 16
+                color: Theme.textPrimary
+                font.family: Theme.fontSans
+                font.pixelSize: Theme.fontLg
                 font.bold: true
             }
 
@@ -109,6 +111,7 @@ Rectangle {
                         if (root.controller) {
                             root.controller.setSelectedAtomicNumber(z);
                         }
+                        root.elementActivated(z);
                     }
                 }
             }

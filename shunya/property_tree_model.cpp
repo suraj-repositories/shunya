@@ -407,4 +407,33 @@ void ShunyaPropertyTreeModel::inspectDemoObject(const QString& demoType) {
     setPropertySheet(sheet, QString("%1 (%2)").arg(QString::fromStdString(instance->name())).arg(demoType));
 }
 
+void ShunyaPropertyTreeModel::inspectObjectProperties(const QString& title, const QVariantMap& props) {
+    if (title.isEmpty()) return;
+    auto def = std::make_shared<core::domain::ElementDefinition>(
+        "physical_object",
+        title.toStdString(),
+        core::domain::ElementCategory::PhysicalObject
+    );
+
+    auto add_qty = [&](const std::string& name, const std::string& disp, const std::string& unit, double val) {
+        core::domain::ParameterSchema s;
+        s.name = name;
+        s.display_name = disp;
+        s.type = core::domain::ParameterType::Quantity;
+        s.unit = unit;
+        s.default_value = core::domain::ParameterValue(val);
+        def->add_parameter(s);
+    };
+
+    if (props.contains("volume"))      add_qty("volume", "Volume", "m3", props.value("volume").toDouble());
+    if (props.contains("density"))     add_qty("density", "Effective Density", "kg/m3", props.value("density").toDouble());
+    if (props.contains("mass"))        add_qty("mass", "Calculated Mass", "kg", props.value("mass").toDouble());
+    if (props.contains("axialR"))      add_qty("axial_resistance", "Axial Resistance", "Ohm", props.value("axialR").toDouble());
+    if (props.contains("thermalMass")) add_qty("thermal_mass", "Thermal Mass (m*Cp)", "J/K", props.value("thermalMass").toDouble());
+
+    auto instance = std::make_shared<core::domain::ElementInstance>(def, title.toStdString());
+    auto sheet = core::domain::PropertySheet::create_for_element_instance(instance);
+    setPropertySheet(sheet, title);
+}
+
 } // namespace shunya::gui

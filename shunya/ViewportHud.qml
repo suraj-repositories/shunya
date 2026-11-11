@@ -56,14 +56,14 @@ Rectangle {
                 width: snapText.contentWidth + 10
                 height: 18
                 radius: 3
-                color: root.controller && root.controller.snapEnabled ? "#2c3e50" : (sMouse.containsMouse ? "#3e4451" : "#282c34")
-                border.color: root.controller && root.controller.snapEnabled ? "#61afef" : "#4b5263"
+                color: root.controller && root.controller.snapEnabled ? Theme.btnPrimaryBg : (sMouse.containsMouse ? Theme.bgHover : Theme.bgSurface)
+                border.color: root.controller && root.controller.snapEnabled ? Theme.borderStrong : Theme.borderDefault
 
                 Text {
                     id: snapText
                     anchors.centerIn: parent
                     text: root.controller && root.controller.snapEnabled ? "SNAP ON" : "SNAP OFF"
-                    color: root.controller && root.controller.snapEnabled ? "#61afef" : "#6e7681"
+                    color: root.controller && root.controller.snapEnabled ? Theme.btnPrimaryFg : Theme.textMuted
                     font.pixelSize: 8
                     font.bold: true
                 }

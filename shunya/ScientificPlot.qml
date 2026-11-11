@@ -5,12 +5,15 @@ import shunya
 
 Rectangle {
     id: root
-    color: "#16191e"
-    border.color: "#3e4451"
+    color: Theme.bgSurface
+    border.color: Theme.borderDefault
     border.width: 1
-    radius: 6
+    radius: Theme.radiusMd
 
     property alias plotItem: plotNode
+    property string title: "SCIENTIFIC PLOTTER"
+    property string xLabel: "X"
+    property string yLabel: "Y"
 
     ColumnLayout {
         anchors.fill: parent
@@ -23,9 +26,10 @@ Rectangle {
             spacing: 6
 
             Text {
-                text: "SCIENTIFIC PLOTTER (GPU RHI)"
-                color: "#61afef"
-                font.pixelSize: 11
+                text: root.title
+                color: Theme.textPrimary
+                font.family: Theme.fontSans
+                font.pixelSize: Theme.fontSm
                 font.bold: true
             }
 
@@ -33,15 +37,25 @@ Rectangle {
                 height: 18
                 width: statsText.contentWidth + 10
                 radius: 3
-                color: "#21252b"
-                border.color: "#3e4451"
+                color: Theme.bgCanvas
+                border.color: Theme.borderSubtle
                 Text {
                     id: statsText
                     anchors.centerIn: parent
-                    text: plotNode.pointCount + " pts -> " + plotNode.decimatedCount + " GPU verts"
-                    color: "#98c379"
-                    font.pixelSize: 9
-                    font.family: "Monospace"
+                    text: plotNode.pointCount + " pts"
+                    color: Theme.textMuted
+                    font.pixelSize: 10
+                    font.family: Theme.fontMono
+                }
+            }
+
+            // Color-coded Scientific Series Legend
+            Repeater {
+                model: plotNode.legendItems
+                delegate: Row {
+                    spacing: 4
+                    Rectangle { width: 10; height: 10; radius: 2; color: modelData.color; anchors.verticalCenter: parent.verticalCenter }
+                    Text { text: modelData.name; font.family: Theme.fontSans; font.pixelSize: 10; color: Theme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
                 }
             }
 
@@ -58,14 +72,15 @@ Rectangle {
                     height: 20
                     width: pText.contentWidth + 10
                     radius: 3
-                    color: plotNode.demoSignal === modelData.id ? "#2c3e50" : "#21252b"
-                    border.color: plotNode.demoSignal === modelData.id ? "#61afef" : "#3e4451"
+                    color: plotNode.demoSignal === modelData.id ? Theme.bgActive : Theme.bgElevated
+                    border.color: plotNode.demoSignal === modelData.id ? Theme.borderStrong : Theme.borderSubtle
                     Text {
                         id: pText
                         anchors.centerIn: parent
                         text: modelData.label
-                        color: plotNode.demoSignal === modelData.id ? "#ffffff" : "#abb2bf"
-                        font.pixelSize: 9
+                        color: Theme.textPrimary
+                        font.family: Theme.fontSans
+                        font.pixelSize: 10
                     }
                     MouseArea {
                         anchors.fill: parent
@@ -80,14 +95,15 @@ Rectangle {
                 height: 20
                 width: mText.contentWidth + 10
                 radius: 3
-                color: "#282c34"
-                border.color: "#4b5263"
+                color: Theme.bgElevated
+                border.color: Theme.borderDefault
                 Text {
                     id: mText
                     anchors.centerIn: parent
-                    text: plotNode.plotMode === "line" ? "MODE: LINE" : "MODE: SCATTER"
-                    color: "#e5c07b"
-                    font.pixelSize: 9
+                    text: plotNode.plotMode === "line" ? "LINE" : "SCATTER"
+                    color: Theme.textSecondary
+                    font.family: Theme.fontMono
+                    font.pixelSize: 10
                     font.bold: true
                 }
                 MouseArea {
@@ -102,14 +118,15 @@ Rectangle {
                 height: 20
                 width: rText.contentWidth + 10
                 radius: 3
-                color: "#282c34"
-                border.color: "#4b5263"
+                color: Theme.bgElevated
+                border.color: Theme.borderDefault
                 Text {
                     id: rText
                     anchors.centerIn: parent
                     text: "Reset Zoom"
-                    color: "#abb2bf"
-                    font.pixelSize: 9
+                    color: Theme.textSecondary
+                    font.family: Theme.fontSans
+                    font.pixelSize: 10
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -156,8 +173,8 @@ Rectangle {
                     id: viewportFrame
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    color: "#0d1117"
-                    border.color: "#30363d"
+                    color: Theme.bgPrimary
+                    border.color: Theme.borderDefault
                     border.width: 1
                     clip: true
 
@@ -169,7 +186,7 @@ Rectangle {
                             y: 0
                             width: 1
                             height: viewportFrame.height
-                            color: "#1c2128"
+                            color: Theme.gridLine
                         }
                     }
                     Repeater {

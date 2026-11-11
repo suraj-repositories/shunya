@@ -83,22 +83,18 @@ Rectangle {
                 anchors.rightMargin: 8
                 spacing: 6
 
-                Text {
-                    text: "🔍"
-                    font.pixelSize: 11
-                    color: "#5c6370"
-                }
+                ShunyaIcon { name: "search"; size: 12; muted: true }
 
                 TextInput {
                     id: searchInput
                     Layout.fillWidth: true
-                    color: "#abb2bf"
+                    color: Theme.textPrimary
                     font.pixelSize: 11
                     selectByMouse: true
 
                     Text {
                         text: "Filter properties..."
-                        color: "#5c6370"
+                        color: Theme.textSubtle
                         font.pixelSize: 11
                         font.italic: true
                         visible: parent.text.length === 0 && !parent.activeFocus
@@ -111,10 +107,10 @@ Rectangle {
                     }
                 }
 
-                Text {
-                    text: "✕"
-                    font.pixelSize: 10
-                    color: clearMouse.containsMouse ? "#e06c75" : "#5c6370"
+                ShunyaIcon {
+                    name: "close"
+                    size: 11
+                    color: clearMouse.containsMouse ? Theme.statusError : Theme.textMuted
                     visible: searchInput.text.length > 0
                     Layout.alignment: Qt.AlignVCenter
 
@@ -164,11 +160,10 @@ Rectangle {
                         anchors.rightMargin: 8
                         spacing: 6
 
-                        Text {
-                            text: model.isExpanded ? "▾" : "▸"
-                            color: "#61afef"
-                            font.pixelSize: 12
-                            font.bold: true
+                        ShunyaIcon {
+                            name: model.isExpanded ? "chevron-down" : "chevron-right"
+                            size: 12
+                            muted: true
                         }
 
                         Text {

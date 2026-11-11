@@ -21,7 +21,7 @@ Rectangle {
             Layout.fillWidth: true
             Text {
                 text: "LAYERS (" + (root.controller ? root.controller.layerCount : 0) + ")"
-                color: "#61afef"
+                color: Theme.textPrimary
                 font.pixelSize: 10
                 font.bold: true
                 Layout.fillWidth: true
@@ -62,8 +62,8 @@ Rectangle {
                 width: ListView.view.width
                 height: 28
                 radius: 3
-                color: root.controller && root.controller.activeLayer === model.layerName ? "#263242" : "#1e2227"
-                border.color: root.controller && root.controller.activeLayer === model.layerName ? "#61afef" : "#2c313c"
+                color: root.controller && root.controller.activeLayer === model.layerName ? Theme.bgActive : Theme.bgCanvas
+                border.color: root.controller && root.controller.activeLayer === model.layerName ? Theme.borderStrong : Theme.borderSubtle
 
                 RowLayout {
                     anchors.fill: parent

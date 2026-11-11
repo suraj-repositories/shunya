@@ -13,12 +13,21 @@
 #include "oscilloscope_controller.hpp"
 #include "layer_panel_controller.hpp"
 #include "periodic_table_controller.hpp"
+#include "pipeline_controller.hpp"
+#include "icon_provider.hpp"
+#include "viewport_3d_item.hpp"
+#include "scientific_plot_item.hpp"
+#include "sketch_canvas_2d.hpp"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
+    engine.addImageProvider(QStringLiteral("icons"), new shunya::gui::ShunyaIconProvider());
+    qmlRegisterType<shunya::gui::ShunyaViewport3DItem>("shunya", 1, 0, "Viewport3DItem");
+    qmlRegisterType<shunya::gui::ShunyaScientificPlotItem>("shunya", 1, 0, "ShunyaScientificPlotItem");
+    qmlRegisterType<shunya::gui::ShunyaSketchCanvas2D>("shunya", 1, 0, "ShunyaSketchCanvas2D");
 
     auto* studio = new ShunyaStudioController(&app);
     auto* menuCtrl = new ShunyaMenuBarController(&app);
@@ -32,6 +41,10 @@ int main(int argc, char *argv[])
     auto* scopeCtrl = new shunya::gui::ShunyaOscilloscopeController(&app);
     auto* layerCtrl = new shunya::gui::ShunyaLayerPanelController(&app);
     auto* periodicCtrl = new shunya::gui::ShunyaPeriodicTableController(&app);
+    auto* pipelineCtrl = new shunya::gui::ShunyaPipelineController(studio->workspace(), &app);
+
+    pipelineCtrl->setOscilloscopeController(scopeCtrl);
+    studio->setPipelineController(pipelineCtrl);
 
     auto paramMgr = std::make_shared<shunya::core::domain::ParameterReferenceManager>();
     propTreeModel->setParameterReferenceManager(paramMgr);
@@ -51,6 +64,7 @@ int main(int argc, char *argv[])
     });
 
     engine.rootContext()->setContextProperty("studio", studio);
+    engine.rootContext()->setContextProperty("pipeline", pipelineCtrl);
     engine.rootContext()->setContextProperty("menuController", menuCtrl);
     engine.rootContext()->setContextProperty("dockingController", dockCtrl);
     engine.rootContext()->setContextProperty("ribbonController", ribbonCtrl);
@@ -62,6 +76,13 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("oscilloscopeController", scopeCtrl);
     engine.rootContext()->setContextProperty("layerController", layerCtrl);
     engine.rootContext()->setContextProperty("periodicTableController", periodicCtrl);
+
+    QObject::connect(&engine, &QQmlEngine::warnings, [](const QList<QQmlError>& warnings) {
+        for (const auto& w : warnings) {
+            fprintf(stderr, "QML WARN: %s\n", w.toString().toLocal8Bit().constData());
+        }
+        fflush(stderr);
+    });
 
     QObject::connect(
         &engine,

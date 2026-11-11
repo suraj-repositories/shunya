@@ -5,7 +5,7 @@ project(shunya VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Quick Svg)
 
 qt_standard_project_setup(REQUIRES 6.10)
 
@@ -51,11 +51,34 @@ qt_add_executable(appshunya
     layer_panel_controller.cpp
     periodic_table_controller.hpp
     periodic_table_controller.cpp
+    pipeline_controller.hpp
+    pipeline_controller.cpp
+    icon_provider.hpp
+    icon_provider.cpp
+    viewport_3d_item.hpp
+    viewport_3d_item.cpp
+    icons.qrc
 )
+
+set_source_files_properties(Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
 qt_add_qml_module(appshunya
     URI shunya
     QML_FILES
+        Theme.qml
+        ShunyaIcon.qml
+        MonoButton.qml
+        MonoInput.qml
+        MonoBadge.qml
+        ElementsWorkspace.qml
+        MixingLabWorkspace.qml
+        ObjectsWorkspace.qml
+        ComponentsBatteryWorkspace.qml
+        CircuitWorkspace.qml
+        Editor2DWorkspace.qml
+        Editor3DWorkspace.qml
+        SimulationWorkspace.qml
+        ProjectSettingsWorkspace.qml
         Main.qml
         MainMenuBar.qml
         NewProjectWizard.qml
@@ -123,6 +146,7 @@ target_include_directories(appshunya
 target_link_libraries(appshunya
     PRIVATE
         Qt6::Quick
+        Qt6::Svg
         shunya_core_base
         shunya_core_domain
 )

@@ -41,29 +41,29 @@ Rectangle {
                         anchors.centerIn: parent
                         spacing: 2
 
-                        Text {
-                            text: {
-                                if (modelData.id.indexOf("run") !== -1) return "▶";
-                                if (modelData.id.indexOf("pause") !== -1) return "⏸";
-                                if (modelData.id.indexOf("step") !== -1) return "⏭";
-                                if (modelData.id.indexOf("undo") !== -1) return "↺";
-                                if (modelData.id.indexOf("redo") !== -1) return "↻";
-                                if (modelData.id.indexOf("save") !== -1) return "💾";
-                                if (modelData.id.indexOf("open") !== -1) return "📂";
-                                if (modelData.id.indexOf("new") !== -1) return "📄";
-                                if (modelData.id.indexOf("line") !== -1) return "╱";
-                                if (modelData.id.indexOf("circle") !== -1) return "◯";
-                                if (modelData.id.indexOf("rect") !== -1) return "▭";
-                                if (modelData.id.indexOf("extrude") !== -1) return "🧊";
-                                if (modelData.id.indexOf("revolve") !== -1) return "⟲";
-                                if (modelData.id.indexOf("fillet") !== -1) return "⌒";
-                                if (modelData.id.indexOf("wire") !== -1) return "〰";
-                                if (modelData.id.indexOf("resistor") !== -1) return "⚡";
-                                if (modelData.id.indexOf("plot") !== -1) return "📈";
-                                return "⚙";
+                        ShunyaIcon {
+                            name: {
+                                if (modelData.id.indexOf("run") !== -1) return "play";
+                                if (modelData.id.indexOf("pause") !== -1) return "pause";
+                                if (modelData.id.indexOf("step") !== -1) return "step";
+                                if (modelData.id.indexOf("undo") !== -1) return "undo";
+                                if (modelData.id.indexOf("redo") !== -1) return "redo";
+                                if (modelData.id.indexOf("save") !== -1) return "save";
+                                if (modelData.id.indexOf("open") !== -1) return "open";
+                                if (modelData.id.indexOf("new") !== -1) return "new";
+                                if (modelData.id.indexOf("line") !== -1) return "editor2d";
+                                if (modelData.id.indexOf("circle") !== -1) return "editor2d";
+                                if (modelData.id.indexOf("rect") !== -1) return "editor2d";
+                                if (modelData.id.indexOf("extrude") !== -1) return "editor3d";
+                                if (modelData.id.indexOf("revolve") !== -1) return "rotate";
+                                if (modelData.id.indexOf("fillet") !== -1) return "editor2d";
+                                if (modelData.id.indexOf("wire") !== -1) return "wire";
+                                if (modelData.id.indexOf("resistor") !== -1) return "components";
+                                if (modelData.id.indexOf("plot") !== -1) return "simulation";
+                                return "settings";
                             }
-                            font.pixelSize: modelData.isLarge ? 18 : 14
-                            color: btn.hovered ? "#00b4d8" : "#cccccc"
+                            size: modelData.isLarge ? 18 : 14
+                            muted: !btn.hovered
                             Layout.alignment: Qt.AlignHCenter
                         }
 
@@ -78,8 +78,8 @@ Rectangle {
                     }
 
                     background: Rectangle {
-                        color: btn.down ? "#094771" : (btn.hovered ? "#37373d" : "transparent")
-                        border.color: btn.hovered ? "#007acc" : "transparent"
+                        color: btn.down ? Theme.bgActive : (btn.hovered ? Theme.bgHover : "transparent")
+                        border.color: btn.hovered ? Theme.borderStrong : "transparent"
                         radius: 3
                     }
 

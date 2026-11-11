@@ -19,12 +19,12 @@ Rectangle {
 
         Text {
             text: "2D SKETCHER"
-            color: "#61afef"
+            color: Theme.textPrimary
             font.pixelSize: 10
             font.bold: true
         }
 
-        Rectangle { width: 1; height: 18; color: "#3e4451" }
+        Rectangle { width: 1; height: 18; color: Theme.borderSubtle }
 
         // Drawing Tools
         Repeater {
@@ -38,13 +38,13 @@ Rectangle {
                 height: 22
                 width: tTxt.contentWidth + 12
                 radius: 3
-                color: root.canvasNode && root.canvasNode.activeTool === modelData.id ? "#2c3e50" : "#282c34"
-                border.color: root.canvasNode && root.canvasNode.activeTool === modelData.id ? "#61afef" : "#3e4451"
+                color: root.canvasNode && root.canvasNode.activeTool === modelData.id ? Theme.btnPrimaryBg : Theme.bgSurface
+                border.color: root.canvasNode && root.canvasNode.activeTool === modelData.id ? Theme.borderStrong : Theme.borderDefault
                 Text {
                     id: tTxt
                     anchors.centerIn: parent
                     text: modelData.label
-                    color: root.canvasNode && root.canvasNode.activeTool === modelData.id ? "#ffffff" : "#abb2bf"
+                    color: root.canvasNode && root.canvasNode.activeTool === modelData.id ? Theme.btnPrimaryFg : Theme.textSecondary
                     font.pixelSize: 10
                 }
                 MouseArea {

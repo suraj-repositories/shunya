@@ -100,6 +100,34 @@ void ShunyaOscilloscopeController::loadDemoCapture(const QString& mode) {
     emit waveformChanged();
 }
 
+void ShunyaOscilloscopeController::loadLiveChannels(
+    const std::vector<double>& timeS,
+    const std::vector<double>& ch1Values,
+    const std::vector<double>& ch2Values) {
+    if (timeS.empty()) return;
+    analog_channels_.clear();
+
+    core::domain::AnalogChannel c1;
+    c1.name = "CH1: Node Voltage (V)";
+    c1.color_hex = "#2563EB";
+    for (size_t i = 0; i < timeS.size() && i < ch1Values.size(); ++i) {
+        c1.samples.push_back({timeS[i], ch1Values[i]});
+    }
+    analog_channels_.push_back(std::move(c1));
+
+    core::domain::AnalogChannel c2;
+    c2.name = "CH2: Branch Current (A)";
+    c2.color_hex = "#EA580C";
+    for (size_t i = 0; i < timeS.size() && i < ch2Values.size(); ++i) {
+        c2.samples.push_back({timeS[i], ch2Values[i]});
+    }
+    analog_channels_.push_back(std::move(c2));
+
+    time_span_s_ = std::max(1e-3, timeS.back() - timeS.front());
+    recompute_trigger_and_metrics();
+    emit waveformChanged();
+}
+
 void ShunyaOscilloscopeController::recompute_trigger_and_metrics() {
     if (analog_channels_.size() >= 1) {
         ch1_metrics_ = core::domain::OscilloscopeAnalyzer::measure_signal(analog_channels_[0].samples);

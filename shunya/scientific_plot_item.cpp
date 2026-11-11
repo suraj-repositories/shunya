@@ -41,6 +41,7 @@ void ShunyaScientificPlotItem::setAutoScale(bool enabled) {
 
 void ShunyaScientificPlotItem::loadDemoSignal(const QString& signalType) {
     demo_signal_ = signalType;
+    extra_series_.clear();
     data_.clear();
 
     if (signalType == "chirp_500k") {
@@ -81,6 +82,59 @@ void ShunyaScientificPlotItem::loadDemoSignal(const QString& signalType) {
     emit dataChanged();
     emit rangeChanged();
     update();
+}
+
+void ShunyaScientificPlotItem::setMultiSeries(const QVariantList& seriesList) {
+    extra_series_.clear();
+    data_.clear();
+    std::vector<core::domain::PlotPoint2D> all_pts;
+
+    for (const auto& sv : seriesList) {
+        const auto sm = sv.toMap();
+        PlotSeries s;
+        s.name = sm.value("name").toString();
+        s.color = QColor(sm.value("color", "#2563EB").toString());
+        const auto pts = sm.value("points").toList();
+        s.data.reserve(static_cast<size_t>(pts.size()));
+        for (const auto& pv : pts) {
+            const auto pm = pv.toMap();
+            core::domain::PlotPoint2D p{pm.value("x").toDouble(), pm.value("y").toDouble()};
+            if (std::isfinite(p.x) && std::isfinite(p.y)) {
+                s.data.push_back(p);
+                all_pts.push_back(p);
+            }
+        }
+        if (!s.data.empty()) {
+            extra_series_.push_back(std::move(s));
+        }
+    }
+
+    if (!extra_series_.empty()) {
+        data_ = extra_series_[0].data;
+        range_ = core::domain::PlotAxisCalculator::compute_auto_range(all_pts, 0.08);
+    } else {
+        range_ = core::domain::PlotRange{0.0, 1.0, 0.0, 1.0};
+    }
+    auto_scale_ = true;
+    rebuild_decimation();
+    emit autoScaleChanged();
+    emit dataChanged();
+    emit rangeChanged();
+    update();
+}
+
+QVariantList ShunyaScientificPlotItem::legendItems() const {
+    QVariantList out;
+    if (extra_series_.empty()) {
+        if (!data_.empty()) {
+            out.append(QVariantMap{{"name", demo_signal_}, {"color", line_color_.name()}});
+        }
+        return out;
+    }
+    for (const auto& s : extra_series_) {
+        out.append(QVariantMap{{"name", s.name}, {"color", s.color.name()}});
+    }
+    return out;
 }
 
 void ShunyaScientificPlotItem::zoomAt(double normX, double normY, double factor) {
@@ -170,6 +224,15 @@ void ShunyaScientificPlotItem::rebuild_decimation() {
         target_px,
         decimated_
     );
+    for (auto& s : extra_series_) {
+        core::domain::MinMaxDecimator::decimate(
+            s.data,
+            range_.x_min,
+            range_.x_max,
+            target_px,
+            s.decimated
+        );
+    }
     geometry_dirty_ = true;
 }
 
@@ -183,55 +246,70 @@ void ShunyaScientificPlotItem::geometryChange(const QRectF& newGeometry, const Q
 }
 
 QSGNode* ShunyaScientificPlotItem::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*) {
-    auto* node = static_cast<QSGGeometryNode*>(oldNode);
-    if (!node) {
-        node = new QSGGeometryNode();
-        auto* geom = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), 0);
-        geom->setDrawingMode(plot_mode_ == "scatter" ? QSGGeometry::DrawPoints : QSGGeometry::DrawLineStrip);
-        geom->setLineWidth(1.5f);
-        node->setGeometry(geom);
-        node->setFlag(QSGNode::OwnsGeometry);
+    auto* root = oldNode ? oldNode : new QSGNode();
 
-        auto* mat = new QSGFlatColorMaterial();
-        mat->setColor(line_color_);
-        node->setMaterial(mat);
-        node->setFlag(QSGNode::OwnsMaterial);
-        geometry_dirty_ = true;
-    }
-
-    if (geometry_dirty_) {
-        auto* geom = node->geometry();
-        auto* mat = static_cast<QSGFlatColorMaterial*>(node->material());
-        mat->setColor(line_color_);
-
+    auto sync_series_node = [&](QSGGeometryNode* n,
+                                const std::vector<core::domain::PlotPoint2D>& pts,
+                                const QColor& col) {
+        if (!n->geometry()) {
+            auto* g = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), 0);
+            n->setGeometry(g);
+            n->setFlag(QSGNode::OwnsGeometry);
+        }
+        if (!n->material()) {
+            auto* m = new QSGFlatColorMaterial();
+            n->setMaterial(m);
+            n->setFlag(QSGNode::OwnsMaterial);
+        }
+        auto* geom = n->geometry();
+        auto* mat = static_cast<QSGFlatColorMaterial*>(n->material());
+        mat->setColor(col);
         if (plot_mode_ == "scatter") {
             geom->setDrawingMode(QSGGeometry::DrawPoints);
             geom->setLineWidth(3.5f);
         } else {
             geom->setDrawingMode(QSGGeometry::DrawLineStrip);
-            geom->setLineWidth(1.5f);
+            geom->setLineWidth(1.75f);
         }
-
-        const int count = static_cast<int>(decimated_.size());
+        const int count = static_cast<int>(pts.size());
         geom->allocate(count);
-
-        double w = width();
-        double h = height();
-        double rx = std::max(1e-12, range_.width());
-        double ry = std::max(1e-12, range_.height());
-
+        const double w = width();
+        const double h = height();
+        const double rx = std::max(1e-12, range_.width());
+        const double ry = std::max(1e-12, range_.height());
         auto* verts = geom->vertexDataAsPoint2D();
         for (int i = 0; i < count; ++i) {
-            float sx = static_cast<float>(((decimated_[i].x - range_.x_min) / rx) * w);
-            float sy = static_cast<float>((1.0 - (decimated_[i].y - range_.y_min) / ry) * h);
+            const float sx = static_cast<float>(((pts[i].x - range_.x_min) / rx) * w);
+            const float sy = static_cast<float>((1.0 - (pts[i].y - range_.y_min) / ry) * h);
             verts[i].set(sx, sy);
         }
+        n->markDirty(QSGNode::DirtyGeometry | QSGNode::DirtyMaterial);
+    };
 
-        node->markDirty(QSGNode::DirtyGeometry | QSGNode::DirtyMaterial);
+    if (geometry_dirty_ || root->childCount() == 0) {
+        const int needed = extra_series_.empty() ? 1 : static_cast<int>(extra_series_.size());
+        while (root->childCount() > needed) {
+            auto* ch = root->lastChild();
+            root->removeChildNode(ch);
+            delete ch;
+        }
+        while (root->childCount() < needed) {
+            root->appendChildNode(new QSGGeometryNode());
+        }
+
+        if (extra_series_.empty()) {
+            sync_series_node(static_cast<QSGGeometryNode*>(root->firstChild()), decimated_, line_color_);
+        } else {
+            QSGNode* cur = root->firstChild();
+            for (const auto& s : extra_series_) {
+                sync_series_node(static_cast<QSGGeometryNode*>(cur), s.decimated, s.color);
+                cur = cur->nextSibling();
+            }
+        }
         geometry_dirty_ = false;
     }
 
-    return node;
+    return root;
 }
 
 } // namespace shunya::gui

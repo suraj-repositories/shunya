@@ -4,10 +4,10 @@ import QtQuick.Layouts
 
 Rectangle {
     id: root
-    color: "#16191e"
-    border.color: "#3e4451"
+    color: Theme.bgSurface
+    border.color: Theme.borderDefault
     border.width: 1
-    radius: 6
+    radius: Theme.radiusMd
 
     property var controller: typeof oscilloscopeController !== "undefined" ? oscilloscopeController : null
     property var ch1Trace: []

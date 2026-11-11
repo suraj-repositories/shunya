@@ -7,15 +7,18 @@ Dialog {
     title: qsTr("Save Changes to Project?")
     modal: true
     anchors.centerIn: parent
-    width: 440
-    height: 180
+    width: 450
+    height: 185
 
     property string pendingAction: ""
+    signal proceedPending()
+    signal saveAndProceed()
 
     background: Rectangle {
-        color: "#222222"
-        border.color: "#ef476f"
-        radius: 6
+        color: Theme.bgSurface
+        border.color: Theme.borderStrong
+        border.width: 1
+        radius: Theme.radiusMd
     }
 
     contentItem: ColumnLayout {
@@ -23,47 +26,45 @@ Dialog {
 
         Label {
             text: qsTr("The current project contains unsaved modifications.")
+            font.family: Theme.fontSans
             font.bold: true
-            font.pixelSize: 13
-            color: "#ffffff"
+            font.pixelSize: Theme.fontMd
+            color: Theme.textPrimary
         }
 
         Label {
-            text: qsTr("If you proceed without saving, all uncommitted simulation setups and parameters will be permanently discarded.")
+            text: qsTr("If you proceed without saving, uncommitted simulation setups and parameters will be lost.")
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
-            font.pixelSize: 12
-            color: "#8b949e"
+            font.family: Theme.fontSans
+            font.pixelSize: Theme.fontSm
+            color: Theme.textMuted
         }
 
         RowLayout {
             Layout.alignment: Qt.AlignRight
             spacing: 8
 
-            Button {
+            MonoButton {
                 text: qsTr("Save Changes")
-                background: Rectangle { implicitWidth: 100; implicitHeight: 30; radius: 4; color: "#06d6a0" }
-                contentItem: Text { text: parent.text; color: "#000000"; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                variant: "primary"
                 onClicked: {
                     guardDialog.close();
-                    if (typeof menuController !== "undefined") menuController.saveProject();
+                    guardDialog.saveAndProceed();
                 }
             }
 
-            Button {
+            MonoButton {
                 text: qsTr("Don't Save")
-                background: Rectangle { implicitWidth: 90; implicitHeight: 30; radius: 4; color: "#ef476f" }
-                contentItem: Text { text: parent.text; color: "#ffffff"; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                variant: "danger"
                 onClicked: {
                     guardDialog.close();
-                    if (typeof menuController !== "undefined") menuController.closeProject(true);
+                    guardDialog.proceedPending();
                 }
             }
 
-            Button {
+            MonoButton {
                 text: qsTr("Cancel")
-                background: Rectangle { implicitWidth: 70; implicitHeight: 30; radius: 4; color: "#333333"; border.color: "#555555" }
-                contentItem: Text { text: parent.text; color: "#e0e0e0"; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
                 onClicked: guardDialog.close()
             }
         }

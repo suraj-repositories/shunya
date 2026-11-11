@@ -13,6 +13,8 @@ class ShunyaPeriodicTableController : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString activeProperty READ activeProperty WRITE setActiveProperty NOTIFY gridChanged)
     Q_PROPERTY(QString blockFilter READ blockFilter WRITE setBlockFilter NOTIFY gridChanged)
+    Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY gridChanged)
+    Q_PROPERTY(QString phaseFilter READ phaseFilter WRITE setPhaseFilter NOTIFY gridChanged)
     Q_PROPERTY(bool hideFBlock READ hideFBlock WRITE setHideFBlock NOTIFY gridChanged)
     Q_PROPERTY(int selectedAtomicNumber READ selectedAtomicNumber WRITE setSelectedAtomicNumber NOTIFY selectionChanged)
     Q_PROPERTY(QVariantList cells READ cells NOTIFY gridChanged)
@@ -30,6 +32,12 @@ public:
 
     QString blockFilter() const { return block_filter_; }
     Q_INVOKABLE void setBlockFilter(const QString& block);
+
+    QString searchText() const { return search_text_; }
+    Q_INVOKABLE void setSearchText(const QString& text);
+
+    QString phaseFilter() const { return phase_filter_; }
+    Q_INVOKABLE void setPhaseFilter(const QString& phase);
 
     bool hideFBlock() const { return hide_f_block_; }
     Q_INVOKABLE void setHideFBlock(bool hide);
@@ -53,6 +61,8 @@ private:
 
     QString active_property_{"FamilyCategory"};
     QString block_filter_{"All"};
+    QString search_text_;
+    QString phase_filter_;
     bool hide_f_block_{false};
     int selected_z_{29};
     matdb::PropertyRangeStats range_stats_;

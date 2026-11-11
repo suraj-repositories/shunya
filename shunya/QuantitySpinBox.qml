@@ -33,9 +33,9 @@ Item {
             id: inputContainer
             width: (unitMenuButton.visible) ? parent.width - unitMenuButton.width - 4 : parent.width
             height: parent.height
-            color: root.readOnly ? "#1c1e24" : (root.hasError ? "#3d1b1b" : "#21252b")
+            color: root.readOnly ? Theme.bgCanvas : (root.hasError ? Theme.statusErrorBg : Theme.bgPrimary)
             radius: 3
-            border.color: root.hasError ? "#e06c75" : (textInput.activeFocus ? "#61afef" : "#3e4451")
+            border.color: root.hasError ? Theme.statusError : (textInput.activeFocus ? Theme.borderStrong : Theme.borderDefault)
             border.width: textInput.activeFocus ? 2 : 1
 
             TextInput {
@@ -97,10 +97,10 @@ Item {
                     font.pixelSize: 11
                     font.bold: true
                 }
-                Text {
-                    text: "▾"
-                    color: "#abb2bf"
-                    font.pixelSize: 8
+                ShunyaIcon {
+                    name: "chevron-down"
+                    size: 10
+                    muted: true
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }

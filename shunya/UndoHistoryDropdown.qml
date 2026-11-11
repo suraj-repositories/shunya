@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
+import shunya
 
 Popup {
     id: root
@@ -13,8 +14,8 @@ Popup {
     property var history: typeof ribbonController !== "undefined" ? ribbonController.historyEntries : []
 
     background: Rectangle {
-        color: "#252526"
-        border.color: "#3f3f46"
+        color: Theme.bgSurface
+        border.color: Theme.borderDefault
         border.width: 1
         radius: 4
     }
@@ -27,7 +28,7 @@ Popup {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 30
-            color: "#1e1e1e"
+            color: Theme.bgCanvas
 
             RowLayout {
                 anchors.fill: parent
@@ -35,14 +36,15 @@ Popup {
                 anchors.rightMargin: 10
                 Text {
                     text: "Command Undo/Redo Stack"
-                    color: "#cccccc"
+                    color: Theme.textPrimary
+                    font.family: Theme.fontSans
                     font.bold: true
                     font.pixelSize: 11
                 }
             }
         }
 
-        Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#3f3f46" }
+        Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: Theme.borderSubtle }
 
         // Stack ListView
         ListView {
@@ -56,7 +58,7 @@ Popup {
                 id: entryDelegate
                 width: stackView.width
                 height: 32
-                color: modelData.isCurrent ? "#094771" : (entryMouse.hovered ? "#2a2d32" : "transparent")
+                color: modelData.isCurrent ? Theme.bgActive : (entryMouse.hovered ? Theme.bgHover : "transparent")
 
                 MouseArea {
                     id: entryMouse
@@ -76,15 +78,16 @@ Popup {
                     anchors.rightMargin: 10
                     spacing: 8
 
-                    Text {
-                        text: modelData.isCurrent ? "➔" : (modelData.isUndone ? "○" : "●")
-                        color: modelData.isCurrent ? "#00b4d8" : (modelData.isUndone ? "#666666" : "#06d6a0")
-                        font.pixelSize: 12
+                    ShunyaIcon {
+                        name: modelData.isCurrent ? "play" : (modelData.isUndone ? "reset" : "check")
+                        size: 12
+                        color: modelData.isCurrent ? Theme.textPrimary : (modelData.isUndone ? Theme.textSubtle : Theme.statusSuccess)
                     }
 
                     Text {
                         text: (modelData.index + 1) + ". " + modelData.name
-                        color: modelData.isUndone ? "#777777" : "white"
+                        color: modelData.isUndone ? Theme.textSubtle : Theme.textPrimary
+                        font.family: Theme.fontSans
                         font.pixelSize: 11
                         font.strikeout: modelData.isUndone
                         Layout.fillWidth: true

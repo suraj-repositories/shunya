@@ -67,7 +67,7 @@ Rectangle {
                     Text {
                         visible: modelData.mode !== "Stable"
                         anchors.verticalCenter: parent.verticalCenter
-                        text: "→(" + modelData.mode + ")"
+                        text: "-> (" + modelData.mode + ")"
                         color: "#94a3b8"
                         font.pixelSize: 10
                     }

@@ -1,13 +1,13 @@
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls.Basic
 import QtQuick.Layouts
 
 Rectangle {
     id: root
-    color: "#111827"
-    border.color: "#374151"
+    color: Theme.bgSurface
+    border.color: Theme.borderDefault
     border.width: 1
-    radius: 6
+    radius: Theme.radiusMd
 
     property real targetTemperatureC: 25.0
     property real currentTemperatureC: 25.0
@@ -23,9 +23,10 @@ Rectangle {
         anchors.margins: 12
         spacing: 10
 
-        Label {
+        Text {
             text: "Hermetic Climatic & Vacuum Chamber"
-            color: "#f9fafb"
+            color: Theme.textPrimary
+            font.family: Theme.fontSans
             font.bold: true
             font.pixelSize: 13
         }
@@ -36,7 +37,7 @@ Rectangle {
             rowSpacing: 6
             Layout.fillWidth: true
 
-            Label { text: "Temperature Setpoint (°C):"; color: "#9ca3af"; font.pixelSize: 11 }
+            Text { text: "Temperature Setpoint (C):"; color: Theme.textMuted; font.family: Theme.fontSans; font.pixelSize: 11 }
             Slider {
                 id: tempSlider
                 from: -40.0
@@ -46,17 +47,19 @@ Rectangle {
                 Layout.fillWidth: true
             }
 
-            Label { text: "Vacuum Pressure (Pa):"; color: "#9ca3af"; font.pixelSize: 11 }
-            Label {
+            Text { text: "Vacuum Pressure (Pa):"; color: Theme.textMuted; font.family: Theme.fontSans; font.pixelSize: 11 }
+            Text {
                 text: root.pressurePa.toExponential(2) + " Pa"
-                color: "#60a5fa"
+                color: Theme.textPrimary
+                font.family: Theme.fontMono
                 font.pixelSize: 11
             }
 
-            Label { text: "Measured DUT / Chamber:"; color: "#9ca3af"; font.pixelSize: 11 }
-            Label {
-                text: root.currentTemperatureC.toFixed(1) + " °C  |  " + root.humidityPct.toFixed(0) + "% RH"
-                color: "#34d399"
+            Text { text: "Measured DUT / Chamber:"; color: Theme.textMuted; font.family: Theme.fontSans; font.pixelSize: 11 }
+            Text {
+                text: root.currentTemperatureC.toFixed(1) + " C  |  " + root.humidityPct.toFixed(0) + "% RH"
+                color: Theme.statusSuccess
+                font.family: Theme.fontMono
                 font.bold: true
                 font.pixelSize: 11
             }
@@ -65,12 +68,15 @@ Rectangle {
         RowLayout {
             Layout.fillWidth: true
             spacing: 8
-            Button {
+            MonoButton {
                 text: "Apply Conditions"
+                compact: true
                 onClicked: root.applySetpoint(root.targetTemperatureC, root.pressurePa, root.humidityPct)
             }
-            Button {
+            MonoButton {
                 text: root.cyclingActive ? "Stop MIL-STD-810" : "MIL-STD-810 Shock"
+                compact: true
+                active: root.cyclingActive
                 onClicked: {
                     root.cyclingActive = !root.cyclingActive
                     root.toggleThermalShock(root.cyclingActive)

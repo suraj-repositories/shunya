@@ -16,6 +16,9 @@
 #include "shunya/core/domain/circuit.hpp"
 #include "shunya/core/domain/thermal.hpp"
 #include "shunya/core/domain/mechanics.hpp"
+#include "shunya/eng/engineering_pipeline.hpp"
+
+namespace shunya::gui { class ShunyaPipelineController; }
 
 class ShunyaStudioController : public QObject {
     Q_OBJECT
@@ -37,9 +40,11 @@ public:
     [[nodiscard]] QString benchmarkOutput() const noexcept { return benchmark_output_; }
     [[nodiscard]] QString logOutput() const noexcept { return log_output_; }
     [[nodiscard]] std::shared_ptr<shunya::core::domain::Project> currentProject() const noexcept { return current_project_; }
-    [[nodiscard]] shunya::core::domain::CommandStack& commandStack() noexcept { return command_stack_; }
+    [[nodiscard]] std::shared_ptr<shunya::eng::EngineeringWorkspaceState> workspace() const noexcept { return workspace_; }
+    [[nodiscard]] shunya::core::domain::CommandStack& commandStack() noexcept { return workspace_ ? workspace_->command_stack() : command_stack_; }
 
     void setMenuBarController(class ShunyaMenuBarController* ctrl);
+    void setPipelineController(shunya::gui::ShunyaPipelineController* ctrl) { pipeline_ = ctrl; }
 
 public slots:
     void startSimulation();
@@ -76,6 +81,8 @@ private:
     QString log_output_;
 
     QTimer* timer_{nullptr};
+    std::shared_ptr<shunya::eng::EngineeringWorkspaceState> workspace_;
+    shunya::gui::ShunyaPipelineController* pipeline_{nullptr};
     std::shared_ptr<shunya::core::domain::Project> current_project_;
     shunya::core::domain::SimulationClock clock_;
     shunya::core::domain::CommandStack command_stack_{100};

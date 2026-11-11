@@ -46,6 +46,9 @@ public:
     Q_INVOKABLE void setTimeSpanMs(double ms);
 
     Q_INVOKABLE void loadDemoCapture(const QString& mode = "mixed_signal");
+    void loadLiveChannels(const std::vector<double>& timeS,
+                          const std::vector<double>& ch1Values,
+                          const std::vector<double>& ch2Values);
     Q_INVOKABLE QVariantList getAnalogTraceNormalized(int channelIdx) const;
     Q_INVOKABLE QVariantList getLogicChannels() const;
     Q_INVOKABLE QVariantList getDecodedBusWords() const;

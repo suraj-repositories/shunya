@@ -52,17 +52,15 @@ Rectangle {
                 // Float / Tear-off window button
                 ToolButton {
                     id: floatBtn
-                    implicitWidth: 20
-                    implicitHeight: 20
-                    contentItem: Text {
-                        text: root.isFloating ? "🗗" : "🗖"
-                        color: "#999999"
-                        font.pixelSize: 11
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
+                    implicitWidth: 22
+                    implicitHeight: 22
+                    contentItem: ShunyaIcon {
+                        name: "float"
+                        size: 13
+                        muted: !floatBtn.hovered
                     }
                     background: Rectangle {
-                        color: floatBtn.hovered ? "#3e3e42" : "transparent"
+                        color: floatBtn.hovered ? Theme.bgHover : "transparent"
                         radius: 2
                     }
                     onClicked: root.floatRequested(root.panelId, !root.isFloating)
@@ -72,17 +70,15 @@ Rectangle {
                 ToolButton {
                     id: closeBtn
                     visible: root.isClosable
-                    implicitWidth: 20
-                    implicitHeight: 20
-                    contentItem: Text {
-                        text: "✕"
-                        color: closeBtn.hovered ? "#ff6b6b" : "#999999"
-                        font.pixelSize: 10
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
+                    implicitWidth: 22
+                    implicitHeight: 22
+                    contentItem: ShunyaIcon {
+                        name: "close"
+                        size: 13
+                        color: closeBtn.hovered ? Theme.statusError : Theme.textMuted
                     }
                     background: Rectangle {
-                        color: closeBtn.hovered ? "#3e3e42" : "transparent"
+                        color: closeBtn.hovered ? Theme.bgHover : "transparent"
                         radius: 2
                     }
                     onClicked: root.closeRequested(root.panelId)

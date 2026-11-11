@@ -1,0 +1,45 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/elements.svg</file>
+        <file>icons/materials.svg</file>
+        <file>icons/mixing.svg</file>
+        <file>icons/objects.svg</file>
+        <file>icons/components.svg</file>
+        <file>icons/battery.svg</file>
+        <file>icons/circuits.svg</file>
+        <file>icons/editor2d.svg</file>
+        <file>icons/editor3d.svg</file>
+        <file>icons/simulation.svg</file>
+        <file>icons/settings.svg</file>
+        <file>icons/new.svg</file>
+        <file>icons/open.svg</file>
+        <file>icons/save.svg</file>
+        <file>icons/undo.svg</file>
+        <file>icons/redo.svg</file>
+        <file>icons/search.svg</file>
+        <file>icons/close.svg</file>
+        <file>icons/play.svg</file>
+        <file>icons/pause.svg</file>
+        <file>icons/stop.svg</file>
+        <file>icons/step.svg</file>
+        <file>icons/reset.svg</file>
+        <file>icons/sun.svg</file>
+        <file>icons/moon.svg</file>
+        <file>icons/warning.svg</file>
+        <file>icons/error.svg</file>
+        <file>icons/check.svg</file>
+        <file>icons/info.svg</file>
+        <file>icons/chevron-down.svg</file>
+        <file>icons/chevron-up.svg</file>
+        <file>icons/chevron-right.svg</file>
+        <file>icons/chevron-left.svg</file>
+        <file>icons/float.svg</file>
+        <file>icons/layers.svg</file>
+        <file>icons/plus.svg</file>
+        <file>icons/trash.svg</file>
+        <file>icons/wire.svg</file>
+        <file>icons/move.svg</file>
+        <file>icons/rotate.svg</file>
+        <file>icons/scale.svg</file>
+    </qresource>
+</RCC>

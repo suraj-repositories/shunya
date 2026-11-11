@@ -31,6 +31,7 @@ class ShunyaScientificPlotItem : public QQuickItem {
     Q_PROPERTY(double crosshairNormX READ crosshairNormX NOTIFY crosshairChanged)
     Q_PROPERTY(double crosshairNormY READ crosshairNormY NOTIFY crosshairChanged)
     Q_PROPERTY(QString demoSignal READ demoSignal WRITE loadDemoSignal NOTIFY dataChanged)
+    Q_PROPERTY(QVariantList legendItems READ legendItems NOTIFY dataChanged)
 
 public:
     explicit ShunyaScientificPlotItem(QQuickItem* parent = nullptr);
@@ -60,6 +61,8 @@ public:
     QString demoSignal() const { return demo_signal_; }
 
     Q_INVOKABLE void loadDemoSignal(const QString& signalType);
+    Q_INVOKABLE void setMultiSeries(const QVariantList& seriesList);
+    QVariantList legendItems() const;
     Q_INVOKABLE void zoomAt(double normX, double normY, double factor);
     Q_INVOKABLE void panBy(double deltaNormX, double deltaNormY);
     Q_INVOKABLE void resetView();
@@ -83,13 +86,21 @@ protected:
 private:
     void rebuild_decimation();
 
+    struct PlotSeries {
+        QString name;
+        QColor color;
+        std::vector<core::domain::PlotPoint2D> data;
+        std::vector<core::domain::PlotPoint2D> decimated;
+    };
+    std::vector<PlotSeries> extra_series_;
+
     std::vector<core::domain::PlotPoint2D> data_;
     std::vector<core::domain::PlotPoint2D> decimated_;
     core::domain::PlotRange range_;
 
     QString plot_mode_ = "line"; // "line" or "scatter"
     QString demo_signal_ = "damped_sine";
-    QColor line_color_{97, 175, 239};
+    QColor line_color_{37, 99, 235}; // #2563EB scientific chart primary blue
     bool auto_scale_ = true;
 
     bool crosshair_valid_ = false;

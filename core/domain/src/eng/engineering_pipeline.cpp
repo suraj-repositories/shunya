@@ -1,4 +1,5 @@
 #include "shunya/eng/engineering_pipeline.hpp"
+#include "shunya/core/domain/migration.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -270,6 +271,36 @@ std::string EngineeringWorkspaceState::to_bundle_json() const {
 core::base::Result<void> EngineeringWorkspaceState::from_bundle_json(std::string_view json_str) {
     const std::string s(json_str);
     if (s.find("\"bundle_version\"") == std::string::npos) {
+        // Legacy Phase 1/2 project file fallback & schema migration (v0.0.1 / v0.1.0 -> v3.0)
+        if (s.find("\"schema_version\"") != std::string::npos) {
+            std::string working = s;
+            core::domain::ProjectMigrator migrator;
+            auto ver_res = core::domain::ProjectMigrator::extract_schema_version(working);
+            if (ver_res.is_ok()) {
+                const auto target = core::base::Version::parse("0.1.0-dev").value();
+                if (migrator.can_migrate(ver_res.value(), target)) {
+                    auto mig = migrator.preview_migration(working, target);
+                    if (mig.is_ok()) working = mig.value();
+                }
+            }
+            auto man_res = core::domain::ProjectManifest::from_json(working);
+            if (man_res.is_ok()) {
+                materials_ = core::domain::MaterialRegistry{};
+                mixtures_.clear();
+                object_manager_ = PhysicalObjectManager{};
+                batteries_.clear();
+                component_library_ = ComponentLibraryManager{};
+                circuits_.clear();
+                circuits_.emplace_back("Main_Circuit");
+                active_circuit_idx_ = 0;
+                project_ = std::make_shared<core::domain::Project>(man_res.value());
+                project_->clear_dirty();
+                notify_change(DependencyChangeKind::ProjectReset,
+                              project_->manifest().id,
+                              "Migrated legacy project schema into Shunya v3.0 workspace");
+                return core::base::Result<void>::ok();
+            }
+        }
         return make_eng_error(4901, "Invalid Shunya v3.0 project bundle JSON");
     }
 

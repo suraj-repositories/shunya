@@ -93,19 +93,19 @@ Rectangle {
         Layout.fillHeight: true
         radius: 3
         color: {
-            if (root.controller && root.controller.currentView === btn.faceId) return "#2c3e50";
-            if (fMouse.containsMouse) return "#3b4048";
-            return "#282c34";
+            if (root.controller && root.controller.currentView === btn.faceId) return Theme.btnPrimaryBg;
+            if (fMouse.containsMouse) return Theme.bgHover;
+            return Theme.bgSurface;
         }
         border.color: {
-            if (root.controller && root.controller.currentView === btn.faceId) return "#61afef";
-            return "#3e4451";
+            if (root.controller && root.controller.currentView === btn.faceId) return Theme.borderStrong;
+            return Theme.borderDefault;
         }
 
         Text {
             anchors.centerIn: parent
             text: btn.text
-            color: (root.controller && root.controller.currentView === btn.faceId) ? "#61afef" : "#abb2bf"
+            color: (root.controller && root.controller.currentView === btn.faceId) ? Theme.btnPrimaryFg : Theme.textSecondary
             font.pixelSize: 9
             font.bold: true
         }

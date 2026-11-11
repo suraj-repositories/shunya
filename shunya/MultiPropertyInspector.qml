@@ -31,13 +31,13 @@ Rectangle {
                     spacing: 2
                     Text {
                         text: "MULTI-PROPERTY INSPECTOR"
-                        color: "#61afef"
+                        color: Theme.textPrimary
                         font.pixelSize: 11
                         font.bold: true
                     }
                     Text {
                         text: root.controller ? root.controller.selectionDescription : "No Multi-Selection"
-                        color: "#abb2bf"
+                        color: Theme.textMuted
                         font.pixelSize: 10
                         elide: Text.ElideRight
                     }
@@ -48,14 +48,14 @@ Rectangle {
                     width: countText.contentWidth + 12
                     height: 20
                     radius: 10
-                    color: "#2c3e50"
-                    border.color: "#61afef"
+                    color: Theme.bgActive
+                    border.color: Theme.borderStrong
 
                     Text {
                         id: countText
                         anchors.centerIn: parent
                         text: root.controller ? (root.controller.selectedEntityCount + " entities") : "0"
-                        color: "#61afef"
+                        color: Theme.textPrimary
                         font.pixelSize: 10
                         font.bold: true
                     }

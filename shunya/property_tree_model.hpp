@@ -87,6 +87,7 @@ public:
     Q_INVOKABLE bool setPropertyUnit(const QString& propertyId, const QString& newUnit);
     Q_INVOKABLE void toggleCategory(const QString& categoryName);
     Q_INVOKABLE void inspectDemoObject(const QString& demoType = "Resistor");
+    Q_INVOKABLE void inspectObjectProperties(const QString& title, const QVariantMap& props);
 
 signals:
     void filterTextChanged();
