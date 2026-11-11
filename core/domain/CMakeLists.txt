@@ -195,6 +195,8 @@ target_sources(shunya_core_domain
         src/perf/gpu_spmv.cpp
         src/perf/gpu_transfer_ring.cpp
         src/perf/simd_kernels.cpp
+        src/perf/work_stealing_pool.cpp
+        src/perf/domain_decomposition.cpp
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
@@ -409,6 +411,10 @@ target_sources(shunya_core_domain
             include/shunya/perf/gpu_transfer_ring.hpp
             include/shunya/perf/simd_math.hpp
             include/shunya/perf/soa_container.hpp
+            include/shunya/perf/job_graph.hpp
+            include/shunya/perf/work_stealing_pool.hpp
+            include/shunya/perf/ghost_cell_sync.hpp
+            include/shunya/perf/domain_decomposition.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp
