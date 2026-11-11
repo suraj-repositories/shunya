@@ -112,6 +112,15 @@ add_executable(shunya_unit_tests
     unit/test_adr.cpp
     unit/test_material_ui.cpp
     unit/test_end_to_end_demonstrator.cpp
+    unit/test_p3_architecture.cpp
+    unit/test_p3_elements_csv.cpp
+    unit/test_p3_element_behavior.cpp
+    unit/test_p3_mixing_lab.cpp
+    unit/test_p3_objects.cpp
+    unit/test_p3_components_battery.cpp
+    unit/test_p3_circuits.cpp
+    unit/test_p3_physics_and_persistence.cpp
+    unit/test_p3_e2e_battery_workflow.cpp
 )
 
 target_include_directories(shunya_unit_tests

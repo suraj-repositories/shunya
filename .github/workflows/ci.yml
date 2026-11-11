@@ -33,10 +33,14 @@ jobs:
         run: |
           cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build Core and Unit Tests
+      - name: Build Core, CLI and Unit Tests
         run: |
-          cmake --build build --target shunya_unit_tests
+          cmake --build build --target shunya_unit_tests shunya-cli
 
       - name: Execute CTest Suite
         run: |
           ctest --test-dir build --output-on-failure
+
+      - name: Execute Headless CLI Benchmarks
+        run: |
+          ./build/apps/cli/shunya-cli --benchmark
