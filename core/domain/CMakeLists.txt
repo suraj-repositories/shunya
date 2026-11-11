@@ -419,6 +419,9 @@ target_sources(shunya_core_domain
             include/shunya/perf/linear_arena.hpp
             include/shunya/perf/pmr_arena_adapter.hpp
             include/shunya/perf/fixed_size_pool.hpp
+            include/shunya/bench/analytical_kepler.hpp
+            include/shunya/bench/analytical_top.hpp
+            include/shunya/bench/benchmark_report_gen.hpp
             include/shunya/core/domain/validator.hpp
             include/shunya/core/domain/packaging.hpp
             include/shunya/core/domain/element_definition.hpp

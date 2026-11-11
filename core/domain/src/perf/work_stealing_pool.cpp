@@ -116,42 +116,49 @@ size_t JobGraph::add_node(std::function<void()> task, std::vector<size_t> depend
 void JobGraph::execute(WorkStealingPool& pool) {
     if (nodes_.empty()) return;
     const size_t n = nodes_.size();
-    std::vector<std::vector<size_t>> dependents(n);
-    std::vector<std::atomic<int>> unresolved(n);
-    for (size_t i = 0; i < n; ++i) {
-        unresolved[i].store(static_cast<int>(nodes_[i].dependencies.size()), std::memory_order_relaxed);
-        for (size_t dep : nodes_[i].dependencies) {
-            if (dep < n) dependents[dep].push_back(i);
-        }
-    }
+    struct GraphState : std::enable_shared_from_this<GraphState> {
+        GraphState(size_t n_nodes, const std::vector<JobNodeSpec>& nodes_ref)
+            : nodes(&nodes_ref), dependents(n_nodes), unresolved(n_nodes), remaining(n_nodes) {}
+        const std::vector<JobNodeSpec>* nodes;
+        std::vector<std::vector<size_t>> dependents;
+        std::vector<std::atomic<int>> unresolved;
+        std::atomic<size_t> remaining;
+        std::mutex done_mu;
+        std::condition_variable done_cv;
 
-    std::atomic<size_t> remaining{n};
-    std::mutex done_mu;
-    std::condition_variable done_cv;
-
-    std::function<void(size_t)> submit_node = [&](size_t idx) {
-        pool.enqueue([&, idx]() {
-            if (nodes_[idx].task) nodes_[idx].task();
-            for (size_t child : dependents[idx]) {
-                if (unresolved[child].fetch_sub(1, std::memory_order_acq_rel) == 1) {
-                    submit_node(child);
+        void submit(size_t idx, WorkStealingPool& pool) {
+            auto self = shared_from_this();
+            pool.enqueue([self, idx, &pool]() {
+                if ((*self->nodes)[idx].task) (*self->nodes)[idx].task();
+                for (size_t child : self->dependents[idx]) {
+                    if (self->unresolved[child].fetch_sub(1, std::memory_order_acq_rel) == 1) {
+                        self->submit(child, pool);
+                    }
                 }
-            }
-            if (remaining.fetch_sub(1, std::memory_order_acq_rel) == 1) {
-                std::lock_guard<std::mutex> lock(done_mu);
-                done_cv.notify_all();
-            }
-        });
+                if (self->remaining.fetch_sub(1, std::memory_order_acq_rel) == 1) {
+                    std::lock_guard<std::mutex> lock(self->done_mu);
+                    self->done_cv.notify_all();
+                }
+            });
+        }
     };
 
+    auto state = std::make_shared<GraphState>(n, nodes_);
     for (size_t i = 0; i < n; ++i) {
-        if (unresolved[i].load(std::memory_order_acquire) == 0) {
-            submit_node(i);
+        state->unresolved[i].store(static_cast<int>(nodes_[i].dependencies.size()), std::memory_order_relaxed);
+        for (size_t dep : nodes_[i].dependencies) {
+            if (dep < n) state->dependents[dep].push_back(i);
         }
     }
 
-    std::unique_lock<std::mutex> lock(done_mu);
-    done_cv.wait(lock, [&]() { return remaining.load(std::memory_order_acquire) == 0; });
+    for (size_t i = 0; i < n; ++i) {
+        if (state->unresolved[i].load(std::memory_order_acquire) == 0) {
+            state->submit(i, pool);
+        }
+    }
+
+    std::unique_lock<std::mutex> lock(state->done_mu);
+    state->done_cv.wait(lock, [&]() { return state->remaining.load(std::memory_order_acquire) == 0; });
 }
 
 } // namespace shunya::perf
