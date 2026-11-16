@@ -555,14 +555,31 @@ using VoltageT = QuantityT<Voltage>;
 using ResistanceT = QuantityT<Resistance>;
 using CapacitanceT = QuantityT<Capacitance>;
 using InductanceT = QuantityT<Inductance>;
+using MagneticFieldT = QuantityT<MagneticField>;
+using MagneticFluxT = QuantityT<MagneticFlux>;
+using ElectricChargeT = QuantityT<ElectricCharge>;
+using ElectricalConductanceT = QuantityT<ElectricalConductance>;
+
+using VoltT = VoltageT;
+using AmpereT = ElectricCurrentT;
+using OhmT = ResistanceT;
+using FaradT = CapacitanceT;
+using HenryT = InductanceT;
+using TeslaT = MagneticFieldT;
+using WeberT = MagneticFluxT;
+using CoulombT = ElectricChargeT;
+using SiemensT = ElectricalConductanceT;
 
 using Position3DT = VectorQuantityT<Length>;
 using Velocity3DT = VectorQuantityT<Velocity>;
 using Acceleration3DT = VectorQuantityT<Acceleration>;
 using Force3DT = VectorQuantityT<Force>;
+using MagneticField3DT = VectorQuantityT<MagneticField>;
+using ElectricField3DT = VectorQuantityT<Voltage / Length>;
+using CurrentDensity3DT = VectorQuantityT<ElectricCurrent / Area>;
 
 // -------------------------------------------------------------
-// User-Defined Literals (IMP-01)
+// User-Defined Literals (IMP-01 & PH4-01.02.006)
 // -------------------------------------------------------------
 
 inline namespace literals {
@@ -588,14 +605,56 @@ inline namespace literals {
     constexpr PowerT operator""_W(long double val) { return PowerT(static_cast<double>(val)); }
     constexpr PowerT operator""_W(unsigned long long val) { return PowerT(static_cast<double>(val)); }
 
+    // Potential (Volts)
     constexpr VoltageT operator""_V(long double val) { return VoltageT(static_cast<double>(val)); }
     constexpr VoltageT operator""_V(unsigned long long val) { return VoltageT(static_cast<double>(val)); }
+    constexpr VoltageT operator""_uV(long double val) { return VoltageT(static_cast<double>(val) * 1e-6); }
+    constexpr VoltageT operator""_mV(long double val) { return VoltageT(static_cast<double>(val) * 1e-3); }
+    constexpr VoltageT operator""_kV(long double val) { return VoltageT(static_cast<double>(val) * 1e3); }
 
+    // Current (Amperes)
     constexpr ElectricCurrentT operator""_A(long double val) { return ElectricCurrentT(static_cast<double>(val)); }
     constexpr ElectricCurrentT operator""_A(unsigned long long val) { return ElectricCurrentT(static_cast<double>(val)); }
+    constexpr ElectricCurrentT operator""_uA(long double val) { return ElectricCurrentT(static_cast<double>(val) * 1e-6); }
+    constexpr ElectricCurrentT operator""_mA(long double val) { return ElectricCurrentT(static_cast<double>(val) * 1e-3); }
 
+    // Resistance (Ohms)
     constexpr ResistanceT operator""_ohm(long double val) { return ResistanceT(static_cast<double>(val)); }
     constexpr ResistanceT operator""_ohm(unsigned long long val) { return ResistanceT(static_cast<double>(val)); }
+    constexpr ResistanceT operator""_mohm(long double val) { return ResistanceT(static_cast<double>(val) * 1e-3); }
+    constexpr ResistanceT operator""_kohm(long double val) { return ResistanceT(static_cast<double>(val) * 1e3); }
+    constexpr ResistanceT operator""_Mohm(long double val) { return ResistanceT(static_cast<double>(val) * 1e6); }
+
+    // Capacitance (Farads)
+    constexpr CapacitanceT operator""_F(long double val) { return CapacitanceT(static_cast<double>(val)); }
+    constexpr CapacitanceT operator""_F(unsigned long long val) { return CapacitanceT(static_cast<double>(val)); }
+    constexpr CapacitanceT operator""_mF(long double val) { return CapacitanceT(static_cast<double>(val) * 1e-3); }
+    constexpr CapacitanceT operator""_uF(long double val) { return CapacitanceT(static_cast<double>(val) * 1e-6); }
+    constexpr CapacitanceT operator""_nF(long double val) { return CapacitanceT(static_cast<double>(val) * 1e-9); }
+    constexpr CapacitanceT operator""_pF(long double val) { return CapacitanceT(static_cast<double>(val) * 1e-12); }
+
+    // Inductance (Henries)
+    constexpr InductanceT operator""_H(long double val) { return InductanceT(static_cast<double>(val)); }
+    constexpr InductanceT operator""_H(unsigned long long val) { return InductanceT(static_cast<double>(val)); }
+    constexpr InductanceT operator""_mH(long double val) { return InductanceT(static_cast<double>(val) * 1e-3); }
+    constexpr InductanceT operator""_uH(long double val) { return InductanceT(static_cast<double>(val) * 1e-6); }
+
+    // Magnetic Field (Teslas)
+    constexpr MagneticFieldT operator""_T(long double val) { return MagneticFieldT(static_cast<double>(val)); }
+    constexpr MagneticFieldT operator""_T(unsigned long long val) { return MagneticFieldT(static_cast<double>(val)); }
+    constexpr MagneticFieldT operator""_mT(long double val) { return MagneticFieldT(static_cast<double>(val) * 1e-3); }
+    constexpr MagneticFieldT operator""_uT(long double val) { return MagneticFieldT(static_cast<double>(val) * 1e-6); }
+
+    // Magnetic Flux (Webers)
+    constexpr MagneticFluxT operator""_Wb(long double val) { return MagneticFluxT(static_cast<double>(val)); }
+    constexpr MagneticFluxT operator""_Wb(unsigned long long val) { return MagneticFluxT(static_cast<double>(val)); }
+
+    // Electric Charge (Coulombs)
+    constexpr ElectricChargeT operator""_C(long double val) { return ElectricChargeT(static_cast<double>(val)); }
+    constexpr ElectricChargeT operator""_C(unsigned long long val) { return ElectricChargeT(static_cast<double>(val)); }
+    constexpr ElectricChargeT operator""_mC(long double val) { return ElectricChargeT(static_cast<double>(val) * 1e-3); }
+    constexpr ElectricChargeT operator""_uC(long double val) { return ElectricChargeT(static_cast<double>(val) * 1e-6); }
+    constexpr ElectricChargeT operator""_nC(long double val) { return ElectricChargeT(static_cast<double>(val) * 1e-9); }
 }
 
 

@@ -276,3 +276,67 @@ TEST_CASE("IMP-01: Compile-Time Dimensional Unit Analysis via C++20 NTTP") {
     CHECK(bad_convert.error().code == 3007);
 }
 
+
+
+TEST_CASE("PH4-01.02.006: Compile-Time Electromagnetic Units & Dimensional Laws") {
+    using namespace shunya::core::base::units::literals;
+
+    // 1. Ohm's Law and Power: V = I * R, P = V * I = I^2 * R
+    VoltT v = 24.0_V;
+    OhmT r = 12.0_ohm;
+    AmpereT i = v / r;
+    CHECK(std::abs(i.value() - 2.0) < 1e-9);
+
+    PowerT p = v * i;
+    CHECK(std::abs(p.value() - 48.0) < 1e-9);
+
+    // 2. Capacitance and Charge: Q = C * V
+    FaradT c = 100.0_uF; // 1e-4 F
+    CoulombT q = c * v; // 1e-4 * 24 = 2.4e-3 C
+    CHECK(std::abs(q.value() - 0.0024) < 1e-9);
+
+    // Capacitor Stored Energy: E = 0.5 * C * V^2
+    EnergyT cap_energy = (c * v * v) * 0.5; // 0.5 * 1e-4 * 576 = 0.0288 J
+    CHECK(std::abs(cap_energy.value() - 0.0288) < 1e-9);
+
+    // 3. Inductance and Induced EMF: V = L * (dI / dt)
+    HenryT l = 50.0_mH; // 0.05 H
+    AmpereT delta_i = 10.0_A;
+    TimeT delta_t = 0.05_s;
+    VoltT v_ind = l * (delta_i / delta_t); // 0.05 * (10 / 0.05) = 10 V
+    CHECK(std::abs(v_ind.value() - 10.0) < 1e-9);
+
+    // Inductor Stored Energy: E = 0.5 * L * I^2
+    EnergyT ind_energy = (l * delta_i * delta_i) * 0.5; // 0.5 * 0.05 * 100 = 2.5 J
+    CHECK(std::abs(ind_energy.value() - 2.5) < 1e-9);
+
+    // 4. Magnetic Flux: Phi = B * Area
+    TeslaT b_field = 1.5_T;
+    AreaT coil_area = 100.0_cm * 10.0_cm; // 1.0 m * 0.1 m = 0.1 m^2
+    WeberT flux = b_field * coil_area; // 1.5 * 0.1 = 0.15 Wb
+    CHECK(std::abs(flux.value() - 0.15) < 1e-9);
+
+    // 5. Vector Lorentz Force: F = q * (v x B)
+    Velocity3DT particle_vel{1.0e6, 0.0, 0.0}; // 10^6 m/s along X
+    MagneticField3DT b_vector{0.0, 2.0, 0.0};   // 2.0 T along Y
+    auto v_cross_b = cross(particle_vel, b_vector); // 2.0e6 along Z
+
+    CoulombT electron_charge{1.602176634e-19};
+    Force3DT f_lorentz = v_cross_b * electron_charge;
+    CHECK(std::abs(f_lorentz.z() - 3.204353268e-13) < 1e-20);
+    CHECK(std::abs(f_lorentz.x()) < 1e-20);
+    CHECK(std::abs(f_lorentz.y()) < 1e-20);
+
+    // 6. Unit Registry lookup for electromagnetic units
+    auto& reg = UnitRegistry::instance();
+    CHECK(reg.has_unit("T"));
+    CHECK(reg.has_unit("mT"));
+    CHECK(reg.has_unit("Wb"));
+    CHECK(reg.has_unit("Coulomb"));
+    CHECK(reg.has_unit("S"));
+    CHECK(reg.has_unit("Henry"));
+
+    auto g_to_t = reg.to_canonical(10000.0, "G"); // 10000 Gauss = 1.0 Tesla
+    REQUIRE(g_to_t.is_ok());
+    CHECK(std::abs(g_to_t.value().value - 1.0) < 1e-9);
+}

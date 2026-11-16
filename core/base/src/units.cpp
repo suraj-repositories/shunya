@@ -195,6 +195,26 @@ void UnitRegistry::populate_standard_units() {
     register_unit({"MHz", "megahertz", Frequency, 1e6, 0.0});
     register_unit({"GHz", "gigahertz", Frequency, 1e9, 0.0});
 
+    // Electromagnetic & Magnetic
+    register_unit({"T", "tesla", MagneticField, 1.0, 0.0});
+    register_unit({"mT", "millitesla", MagneticField, 1e-3, 0.0});
+    register_unit({"uT", "microtesla", MagneticField, 1e-6, 0.0});
+    register_unit({"G", "gauss", MagneticField, 1e-4, 0.0});
+    register_unit({"Wb", "weber", MagneticFlux, 1.0, 0.0});
+    register_unit({"mWb", "milliweber", MagneticFlux, 1e-3, 0.0});
+    register_unit({"uWb", "microweber", MagneticFlux, 1e-6, 0.0});
+    register_unit({"Coulomb", "coulomb", ElectricCharge, 1.0, 0.0});
+    register_unit({"mC", "millicoulomb", ElectricCharge, 1e-3, 0.0});
+    register_unit({"uC", "microcoulomb", ElectricCharge, 1e-6, 0.0});
+    register_unit({"nC", "nanocoulomb", ElectricCharge, 1e-9, 0.0});
+    register_unit({"pC", "picocoulomb", ElectricCharge, 1e-12, 0.0});
+    register_unit({"S", "siemens", ElectricalConductance, 1.0, 0.0});
+    register_unit({"mS", "millisiemens", ElectricalConductance, 1e-3, 0.0});
+    register_unit({"uS", "microsiemens", ElectricalConductance, 1e-6, 0.0});
+    register_unit({"Henry", "henry", Inductance, 1.0, 0.0});
+    register_unit({"Tesla", "tesla", MagneticField, 1.0, 0.0});
+    register_unit({"Weber", "weber", MagneticFlux, 1.0, 0.0});
+
     // Temperature (affine transforms)
     register_unit({"degC", "degree Celsius", Temperature, 1.0, 273.15});
     register_unit({"degF", "degree Fahrenheit", Temperature, 5.0 / 9.0, 273.15 - (32.0 * 5.0 / 9.0)});
