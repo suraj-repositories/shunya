@@ -63,31 +63,44 @@ inline void check_impl(bool cond, std::string_view expr, std::string_view file, 
     } \
 } while(false)
 
-inline int run_all_tests() {
+inline int run_all_tests(int argc = 0, char** argv = nullptr) {
     auto& tests = get_registry();
+    std::string filter;
+    if (argc > 1 && argv && argv[1]) {
+        filter = argv[1];
+    }
+
     std::cout << "========================================\n";
-    std::cout << "Running " << tests.size() << " test cases...\n";
-    std::cout << "========================================\n";
+    std::cout << "Running " << tests.size() << " test cases";
+    if (!filter.empty()) {
+        std::cout << " (filter: \"" << filter << "\")";
+    }
+    std::cout << "...\n========================================\n" << std::flush;
 
     int failed_cases = 0;
+    int ran_cases = 0;
     for (const auto& t : tests) {
+        if (!filter.empty() && t.name.find(filter) == std::string::npos) {
+            continue;
+        }
+        ++ran_cases;
         int before_failures = g_failed_checks;
-        std::cout << "[RUN ] " << t.name << "\n";
+        std::cout << "[RUN ] " << t.name << std::endl;
         try {
             t.func();
         } catch (const std::exception& ex) {
             ++g_failed_checks;
-            std::cerr << "[EXCEPTION] Caught unhandled exception in test case: " << ex.what() << "\n";
+            std::cerr << "[EXCEPTION] Caught unhandled exception in test case: " << ex.what() << std::endl;
         } catch (...) {
             ++g_failed_checks;
-            std::cerr << "[EXCEPTION] Caught unknown unhandled exception in test case.\n";
+            std::cerr << "[EXCEPTION] Caught unknown unhandled exception in test case." << std::endl;
         }
 
         if (g_failed_checks == before_failures) {
-            std::cout << "[PASS] " << t.name << "\n";
+            std::cout << "[PASS] " << t.name << std::endl;
         } else {
             ++failed_cases;
-            std::cerr << "[FAIL] " << t.name << "\n";
+            std::cerr << "[FAIL] " << t.name << std::endl;
         }
     }
 

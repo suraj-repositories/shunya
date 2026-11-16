@@ -27,6 +27,6 @@ TEST_CASE("FND-01: Core Version Metadata Verification") {
     CHECK(shunya::core::base::CURRENT_VERSION.as_string() == "0.1.0-dev");
 }
 
-int main() {
-    return shunya::test::run_all_tests();
+int main(int argc, char** argv) {
+    return shunya::test::run_all_tests(argc, argv);
 }
