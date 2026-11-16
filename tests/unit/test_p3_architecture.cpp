@@ -661,3 +661,25 @@ TEST_CASE("PH4-01.04.004: Mock Hardware Rasterizer Harness & Offscreen Viewport 
     uint64_t frame_hash1 = harness.rasterizer().compute_checksum();
     CHECK(frame_hash1 != bg_checksum);
 }
+
+TEST_CASE("PH4-01.04.005: 100,000 Project Creation & Destruction Memory Stability Stress Test") {
+    constexpr size_t TOTAL_CYCLES = 100000;
+
+    auto mem_before = shunya::test::get_process_memory_stats();
+
+    BENCHMARK("100k_Project_Creation_Destruction", 1, {
+        for (size_t i = 0; i < TOTAL_CYCLES; ++i) {
+            auto proj_res = Project::create_new("StressProject", "StressTester");
+            auto proj = proj_res.value();
+            proj->manifest().description = "Memory churn testing";
+            proj->manifest().metadata["cycle"] = std::to_string(i & 0xFF);
+            // Destructor cleans up immediately at end of iteration scope
+        }
+    });
+
+    auto mem_after = shunya::test::get_process_memory_stats();
+    int64_t growth_bytes = static_cast<int64_t>(mem_after.private_bytes) - static_cast<int64_t>(mem_before.private_bytes);
+
+    // Memory growth must remain bounded below 15 MB across 100,000 creation/destruction cycles
+    CHECK(growth_bytes < 15 * 1024 * 1024);
+}
