@@ -29,6 +29,23 @@ template <std::floating_point T>
     return a + t * (b - a);
 }
 
+template <std::floating_point T>
+[[nodiscard]] constexpr T to_radians(T degrees) noexcept {
+    return degrees * (static_cast<T>(PI) / static_cast<T>(180.0));
+}
+
+template <std::floating_point T>
+[[nodiscard]] constexpr T to_degrees(T radians) noexcept {
+    return radians * (static_cast<T>(180.0) / static_cast<T>(PI));
+}
+
+// Forward declarations
+template <std::floating_point T> struct Vector2;
+template <std::floating_point T> struct Vector3;
+template <std::floating_point T> struct alignas(sizeof(T) * 4) Vector4;
+template <std::floating_point T> struct alignas(sizeof(T) * 4) Quaternion;
+template <std::floating_point T> struct alignas(sizeof(T) * 4) Matrix4x4;
+
 // -------------------------------------------------------------
 // Vector2
 // -------------------------------------------------------------
@@ -114,6 +131,23 @@ struct Vector3 {
         return *this * (static_cast<T>(1) / len);
     }
 
+    [[nodiscard]] Vector3 reflect(const Vector3& normal) const noexcept {
+        return *this - normal * (static_cast<T>(2) * dot(normal));
+    }
+
+    [[nodiscard]] Vector3 project(const Vector3& onto) const noexcept {
+        T d = onto.length_squared();
+        if (d < static_cast<T>(DEFAULT_EPSILON)) return {0, 0, 0};
+        return onto * (dot(onto) / d);
+    }
+
+    [[nodiscard]] T angle_between(const Vector3& other) const {
+        T denom = length() * other.length();
+        if (denom < static_cast<T>(DEFAULT_EPSILON)) return 0;
+        T cos_val = clamp(dot(other) / denom, static_cast<T>(-1.0), static_cast<T>(1.0));
+        return std::acos(cos_val);
+    }
+
     [[nodiscard]] bool approx_equals(const Vector3& rhs, T tol = static_cast<T>(DEFAULT_EPSILON)) const noexcept {
         return approx_equal(x, rhs.x, tol) && approx_equal(y, rhs.y, tol) && approx_equal(z, rhs.z, tol);
     }
@@ -122,10 +156,76 @@ struct Vector3 {
 };
 
 // -------------------------------------------------------------
-// Quaternion
+// Vector4 (SIMD-aligned 4-component vector)
 // -------------------------------------------------------------
 template <std::floating_point T = double>
-struct Quaternion {
+struct alignas(sizeof(T) * 4) Vector4 {
+    T x = 0;
+    T y = 0;
+    T z = 0;
+    T w = 0;
+
+    constexpr Vector4() noexcept = default;
+    constexpr Vector4(T x_, T y_, T z_, T w_) noexcept : x(x_), y(y_), z(z_), w(w_) {}
+    constexpr Vector4(const Vector3<T>& v, T w_ = 0) noexcept : x(v.x), y(v.y), z(v.z), w(w_) {}
+
+    constexpr Vector4 operator+(const Vector4& rhs) const noexcept { return {x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w}; }
+    constexpr Vector4 operator-(const Vector4& rhs) const noexcept { return {x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w}; }
+    constexpr Vector4 operator*(T scalar) const noexcept { return {x * scalar, y * scalar, z * scalar, w * scalar}; }
+    constexpr Vector4 operator-() const noexcept { return {-x, -y, -z, -w}; }
+
+    constexpr Vector4 operator/(T scalar) const {
+        if (scalar == 0) throw std::domain_error("Vector4 division by zero");
+        return {x / scalar, y / scalar, z / scalar, w / scalar};
+    }
+
+    constexpr Vector4& operator+=(const Vector4& rhs) noexcept { x += rhs.x; y += rhs.y; z += rhs.z; w += rhs.w; return *this; }
+    constexpr Vector4& operator-=(const Vector4& rhs) noexcept { x -= rhs.x; y -= rhs.y; z -= rhs.z; w -= rhs.w; return *this; }
+    constexpr Vector4& operator*=(T scalar) noexcept { x *= scalar; y *= scalar; z *= scalar; w *= scalar; return *this; }
+
+    [[nodiscard]] constexpr T dot(const Vector4& rhs) const noexcept {
+        return x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w;
+    }
+
+    [[nodiscard]] constexpr T length_squared() const noexcept {
+        return x * x + y * y + z * z + w * w;
+    }
+
+    [[nodiscard]] T length() const noexcept {
+        return std::sqrt(length_squared());
+    }
+
+    [[nodiscard]] Vector4 normalized() const {
+        T len = length();
+        if (len < static_cast<T>(DEFAULT_EPSILON)) return {0, 0, 0, 0};
+        return *this * (static_cast<T>(1) / len);
+    }
+
+    [[nodiscard]] Vector3<T> to_vector3() const noexcept {
+        return {x, y, z};
+    }
+
+    [[nodiscard]] Vector3<T> perspective_divide() const {
+        if (w != 0 && w != 1) {
+            T inv_w = static_cast<T>(1) / w;
+            return {x * inv_w, y * inv_w, z * inv_w};
+        }
+        return {x, y, z};
+    }
+
+    [[nodiscard]] bool approx_equals(const Vector4& rhs, T tol = static_cast<T>(DEFAULT_EPSILON)) const noexcept {
+        return approx_equal(x, rhs.x, tol) && approx_equal(y, rhs.y, tol) &&
+               approx_equal(z, rhs.z, tol) && approx_equal(w, rhs.w, tol);
+    }
+
+    constexpr bool operator==(const Vector4& rhs) const noexcept = default;
+};
+
+// -------------------------------------------------------------
+// Quaternion (SIMD-aligned unit quaternion)
+// -------------------------------------------------------------
+template <std::floating_point T = double>
+struct alignas(sizeof(T) * 4) Quaternion {
     T w = 1;
     T x = 0;
     T y = 0;
@@ -141,6 +241,46 @@ struct Quaternion {
         T half = angle_radians * static_cast<T>(0.5);
         T sin_half = std::sin(half);
         return {std::cos(half), n.x * sin_half, n.y * sin_half, n.z * sin_half};
+    }
+
+    [[nodiscard]] static Quaternion from_euler_angles(T roll_x, T pitch_y, T yaw_z) {
+        T cr = std::cos(roll_x * static_cast<T>(0.5));
+        T sr = std::sin(roll_x * static_cast<T>(0.5));
+        T cp = std::cos(pitch_y * static_cast<T>(0.5));
+        T sp = std::sin(pitch_y * static_cast<T>(0.5));
+        T cy = std::cos(yaw_z * static_cast<T>(0.5));
+        T sy = std::sin(yaw_z * static_cast<T>(0.5));
+
+        return {
+            cr * cp * cy + sr * sp * sy,
+            sr * cp * cy - cr * sp * sy,
+            cr * sp * cy + sr * cp * sy,
+            cr * cp * sy - sr * sp * cy
+        };
+    }
+
+    [[nodiscard]] Vector3<T> to_euler_angles() const noexcept {
+        Vector3<T> angles;
+
+        // roll (x-axis rotation)
+        T sinr_cosp = static_cast<T>(2) * (w * x + y * z);
+        T cosr_cosp = static_cast<T>(1) - static_cast<T>(2) * (x * x + y * y);
+        angles.x = std::atan2(sinr_cosp, cosr_cosp);
+
+        // pitch (y-axis rotation)
+        T sinp = static_cast<T>(2) * (w * y - z * x);
+        if (std::abs(sinp) >= static_cast<T>(1)) {
+            angles.y = std::copysign(static_cast<T>(PI / 2.0), sinp);
+        } else {
+            angles.y = std::asin(sinp);
+        }
+
+        // yaw (z-axis rotation)
+        T siny_cosp = static_cast<T>(2) * (w * z + x * y);
+        T cosy_cosp = static_cast<T>(1) - static_cast<T>(2) * (y * y + z * z);
+        angles.z = std::atan2(siny_cosp, cosy_cosp);
+
+        return angles;
     }
 
     constexpr Quaternion operator*(const Quaternion& rhs) const noexcept {
@@ -172,7 +312,6 @@ struct Quaternion {
     }
 
     [[nodiscard]] Vector3<T> rotate(const Vector3<T>& v) const noexcept {
-        // q * v * q^-1 for unit quaternion
         Quaternion qv{0, v.x, v.y, v.z};
         Quaternion res = (*this) * qv * conjugate();
         return {res.x, res.y, res.z};
@@ -188,7 +327,6 @@ struct Quaternion {
         }
 
         if (dot_val > static_cast<T>(0.9995)) {
-            // Linear interpolation for small angles
             Quaternion res{
                 lerp(q0.w, q1_adj.w, t),
                 lerp(q0.x, q1_adj.x, t),
@@ -225,10 +363,10 @@ struct Quaternion {
 };
 
 // -------------------------------------------------------------
-// Matrix4x4 (Row-major 4x4 matrix)
+// Matrix4x4 (Row-major 4x4 matrix, SIMD-aligned)
 // -------------------------------------------------------------
 template <std::floating_point T = double>
-struct Matrix4x4 {
+struct alignas(sizeof(T) * 4) Matrix4x4 {
     std::array<T, 16> m{
         1, 0, 0, 0,
         0, 1, 0, 0,
@@ -272,6 +410,56 @@ struct Matrix4x4 {
         return res;
     }
 
+    [[nodiscard]] static Matrix4x4 perspective(T fov_y_rad, T aspect, T z_near, T z_far) {
+        if (aspect == 0 || z_near == z_far) {
+            throw std::invalid_argument("Invalid perspective projection parameters");
+        }
+        T f = static_cast<T>(1) / std::tan(fov_y_rad * static_cast<T>(0.5));
+        Matrix4x4 res;
+        res.m[0] = f / aspect; res.m[1] = 0; res.m[2] = 0;                                          res.m[3] = 0;
+        res.m[4] = 0;          res.m[5] = f; res.m[6] = 0;                                          res.m[7] = 0;
+        res.m[8] = 0;          res.m[9] = 0; res.m[10] = (z_far + z_near) / (z_near - z_far);       res.m[11] = (static_cast<T>(2) * z_far * z_near) / (z_near - z_far);
+        res.m[12] = 0;         res.m[13] = 0; res.m[14] = -1;                                       res.m[15] = 0;
+        return res;
+    }
+
+    [[nodiscard]] static Matrix4x4 orthographic(T left, T right, T bottom, T top, T z_near, T z_far) {
+        Matrix4x4 res;
+        res.m[0] = static_cast<T>(2) / (right - left);
+        res.m[1] = 0;
+        res.m[2] = 0;
+        res.m[3] = -(right + left) / (right - left);
+
+        res.m[4] = 0;
+        res.m[5] = static_cast<T>(2) / (top - bottom);
+        res.m[6] = 0;
+        res.m[7] = -(top + bottom) / (top - bottom);
+
+        res.m[8] = 0;
+        res.m[9] = 0;
+        res.m[10] = -static_cast<T>(2) / (z_far - z_near);
+        res.m[11] = -(z_far + z_near) / (z_far - z_near);
+
+        res.m[12] = 0;
+        res.m[13] = 0;
+        res.m[14] = 0;
+        res.m[15] = 1;
+        return res;
+    }
+
+    [[nodiscard]] static Matrix4x4 look_at(const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up) {
+        Vector3<T> f = (target - eye).normalized();
+        Vector3<T> r = f.cross(up).normalized();
+        Vector3<T> u = r.cross(f);
+
+        Matrix4x4 res;
+        res.m[0] = r.x;  res.m[1] = r.y;  res.m[2] = r.z;  res.m[3] = -r.dot(eye);
+        res.m[4] = u.x;  res.m[5] = u.y;  res.m[6] = u.z;  res.m[7] = -u.dot(eye);
+        res.m[8] = -f.x; res.m[9] = -f.y; res.m[10] = -f.z; res.m[11] = f.dot(eye);
+        res.m[12] = 0;   res.m[13] = 0;   res.m[14] = 0;   res.m[15] = 1;
+        return res;
+    }
+
     constexpr Matrix4x4 operator*(const Matrix4x4& rhs) const noexcept {
         Matrix4x4 out;
         for (int r = 0; r < 4; ++r) {
@@ -284,6 +472,97 @@ struct Matrix4x4 {
             }
         }
         return out;
+    }
+
+    [[nodiscard]] constexpr Vector4<T> operator*(const Vector4<T>& v) const noexcept {
+        return {
+            m[0] * v.x + m[1] * v.y + m[2] * v.z + m[3] * v.w,
+            m[4] * v.x + m[5] * v.y + m[6] * v.z + m[7] * v.w,
+            m[8] * v.x + m[9] * v.y + m[10] * v.z + m[11] * v.w,
+            m[12] * v.x + m[13] * v.y + m[14] * v.z + m[15] * v.w
+        };
+    }
+
+    [[nodiscard]] constexpr Matrix4x4 transpose() const noexcept {
+        Matrix4x4 res;
+        for (int r = 0; r < 4; ++r) {
+            for (int c = 0; c < 4; ++c) {
+                res.m[c * 4 + r] = m[r * 4 + c];
+            }
+        }
+        return res;
+    }
+
+    [[nodiscard]] T determinant() const noexcept {
+        T a00 = m[0],  a01 = m[1],  a02 = m[2],  a03 = m[3];
+        T a10 = m[4],  a11 = m[5],  a12 = m[6],  a13 = m[7];
+        T a20 = m[8],  a21 = m[9],  a22 = m[10], a23 = m[11];
+        T a30 = m[12], a31 = m[13], a32 = m[14], a33 = m[15];
+
+        T b00 = a00 * a11 - a01 * a10;
+        T b01 = a00 * a12 - a02 * a10;
+        T b02 = a00 * a13 - a03 * a10;
+        T b03 = a01 * a12 - a02 * a11;
+        T b04 = a01 * a13 - a03 * a11;
+        T b05 = a02 * a13 - a03 * a12;
+        T b06 = a20 * a31 - a21 * a30;
+        T b07 = a20 * a32 - a22 * a30;
+        T b08 = a20 * a33 - a23 * a30;
+        T b09 = a21 * a32 - a22 * a31;
+        T b10 = a21 * a33 - a23 * a31;
+        T b11 = a22 * a33 - a23 * a32;
+
+        return b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+    }
+
+    [[nodiscard]] Matrix4x4 inverse() const {
+        T a00 = m[0],  a01 = m[1],  a02 = m[2],  a03 = m[3];
+        T a10 = m[4],  a11 = m[5],  a12 = m[6],  a13 = m[7];
+        T a20 = m[8],  a21 = m[9],  a22 = m[10], a23 = m[11];
+        T a30 = m[12], a31 = m[13], a32 = m[14], a33 = m[15];
+
+        T b00 = a00 * a11 - a01 * a10;
+        T b01 = a00 * a12 - a02 * a10;
+        T b02 = a00 * a13 - a03 * a10;
+        T b03 = a01 * a12 - a02 * a11;
+        T b04 = a01 * a13 - a03 * a11;
+        T b05 = a02 * a13 - a03 * a12;
+        T b06 = a20 * a31 - a21 * a30;
+        T b07 = a20 * a32 - a22 * a30;
+        T b08 = a20 * a33 - a23 * a30;
+        T b09 = a21 * a32 - a22 * a31;
+        T b10 = a21 * a33 - a23 * a31;
+        T b11 = a22 * a33 - a23 * a32;
+
+        T det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+        if (std::abs(det) < static_cast<T>(DEFAULT_EPSILON)) {
+            throw std::domain_error("Matrix4x4 is singular and non-invertible");
+        }
+
+        T inv_det = static_cast<T>(1) / det;
+        Matrix4x4 res;
+
+        res.m[0]  = (a11 * b11 - a12 * b10 + a13 * b09) * inv_det;
+        res.m[1]  = (-a01 * b11 + a02 * b10 - a03 * b09) * inv_det;
+        res.m[2]  = (a31 * b05 - a32 * b04 + a33 * b03) * inv_det;
+        res.m[3]  = (-a21 * b05 + a22 * b04 - a23 * b03) * inv_det;
+
+        res.m[4]  = (-a10 * b11 + a12 * b08 - a13 * b07) * inv_det;
+        res.m[5]  = (a00 * b11 - a02 * b08 + a03 * b07) * inv_det;
+        res.m[6]  = (-a30 * b05 + a32 * b02 - a33 * b01) * inv_det;
+        res.m[7]  = (a20 * b05 - a22 * b02 + a23 * b01) * inv_det;
+
+        res.m[8]  = (a10 * b10 - a11 * b08 + a13 * b06) * inv_det;
+        res.m[9]  = (-a00 * b10 + a01 * b08 - a03 * b06) * inv_det;
+        res.m[10] = (a30 * b04 - a31 * b02 + a33 * b00) * inv_det;
+        res.m[11] = (-a20 * b04 + a21 * b02 - a23 * b00) * inv_det;
+
+        res.m[12] = (-a10 * b09 + a11 * b07 - a12 * b06) * inv_det;
+        res.m[13] = (a00 * b09 - a01 * b07 + a02 * b06) * inv_det;
+        res.m[14] = (-a30 * b03 + a31 * b01 - a32 * b00) * inv_det;
+        res.m[15] = (a20 * b03 - a21 * b01 + a22 * b00) * inv_det;
+
+        return res;
     }
 
     [[nodiscard]] Vector3<T> transform_point(const Vector3<T>& p) const noexcept {
@@ -319,7 +598,6 @@ struct Transform {
     Vector3<T> scale{1, 1, 1};
 
     [[nodiscard]] Matrix4x4<T> to_matrix() const noexcept {
-        // T * R * S
         Matrix4x4<T> t = Matrix4x4<T>::translation(position);
         Matrix4x4<T> r = Matrix4x4<T>::from_quaternion(rotation);
         Matrix4x4<T> s = Matrix4x4<T>::scaling(scale);
@@ -340,6 +618,7 @@ struct Transform {
 
 using Vec2 = Vector2<double>;
 using Vec3 = Vector3<double>;
+using Vec4 = Vector4<double>;
 using Quat = Quaternion<double>;
 using Mat4 = Matrix4x4<double>;
 using Xform = Transform<double>;
