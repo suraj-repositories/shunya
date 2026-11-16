@@ -841,4 +841,119 @@ core::base::ValidationReport EngineeringWorkspaceState::validate_workspace() con
     return report;
 }
 
+namespace {
+class SnapshotTransactionCommand : public core::domain::ICommand {
+public:
+    SnapshotTransactionCommand(
+        EngineeringWorkspaceState* state,
+        std::string name,
+        std::string before_snapshot,
+        std::string after_snapshot)
+        : state_(state),
+          name_(std::move(name)),
+          before_snapshot_(std::move(before_snapshot)),
+          after_snapshot_(std::move(after_snapshot)) {}
+
+    core::base::Result<void> execute() override {
+        return core::base::Result<void>::ok();
+    }
+
+    core::base::Result<void> undo() override {
+        if (!state_) return make_eng_error(4912, "Null workspace state in undo");
+        return state_->from_bundle_json(before_snapshot_);
+    }
+
+    core::base::Result<void> redo() override {
+        if (!state_) return make_eng_error(4913, "Null workspace state in redo");
+        return state_->from_bundle_json(after_snapshot_);
+    }
+
+    [[nodiscard]] std::string_view name() const noexcept override { return name_; }
+
+private:
+    EngineeringWorkspaceState* state_{nullptr};
+    std::string name_;
+    std::string before_snapshot_;
+    std::string after_snapshot_;
+};
+} // namespace
+
+uint64_t EngineeringWorkspaceState::create_checkpoint(std::string name) {
+    WorkspaceCheckpoint cp;
+    cp.id = next_checkpoint_id_++;
+    cp.name = std::move(name);
+    cp.tick = ticks_.global;
+    cp.bundle_snapshot = to_bundle_json();
+    checkpoints_.push_back(cp);
+    return cp.id;
+}
+
+core::base::Result<void> EngineeringWorkspaceState::restore_checkpoint(uint64_t checkpoint_id) {
+    for (const auto& cp : checkpoints_) {
+        if (cp.id == checkpoint_id) {
+            auto res = from_bundle_json(cp.bundle_snapshot);
+            if (res.is_ok()) {
+                notify_change(DependencyChangeKind::ProjectReset,
+                              project_ ? project_->manifest().id : core::base::Uuid{},
+                              "Restored workspace checkpoint: " + cp.name);
+            }
+            return res;
+        }
+    }
+    return make_eng_error(4910, "Checkpoint ID not found: " + std::to_string(checkpoint_id));
+}
+
+std::vector<WorkspaceCheckpoint> EngineeringWorkspaceState::checkpoints() const {
+    return checkpoints_;
+}
+
+std::optional<WorkspaceCheckpoint> EngineeringWorkspaceState::find_checkpoint(uint64_t id) const {
+    for (const auto& cp : checkpoints_) {
+        if (cp.id == id) return cp;
+    }
+    return std::nullopt;
+}
+
+std::optional<WorkspaceCheckpoint> EngineeringWorkspaceState::find_checkpoint(std::string_view name) const {
+    for (const auto& cp : checkpoints_) {
+        if (cp.name == name) return cp;
+    }
+    return std::nullopt;
+}
+
+bool EngineeringWorkspaceState::delete_checkpoint(uint64_t id) {
+    auto it = std::remove_if(checkpoints_.begin(), checkpoints_.end(),
+                             [id](const WorkspaceCheckpoint& cp) { return cp.id == id; });
+    if (it != checkpoints_.end()) {
+        checkpoints_.erase(it, checkpoints_.end());
+        return true;
+    }
+    return false;
+}
+
+core::base::Result<void> EngineeringWorkspaceState::execute_transaction(
+    std::string name,
+    std::function<core::base::Result<void>()> action) {
+    if (!action) {
+        return make_eng_error(4911, "Transaction action is empty");
+    }
+    const std::string before = to_bundle_json();
+    auto action_res = action();
+    if (action_res.is_err()) {
+        (void)from_bundle_json(before);
+        return action_res;
+    }
+    const std::string after = to_bundle_json();
+    auto cmd = std::make_unique<SnapshotTransactionCommand>(this, std::move(name), before, after);
+    return command_stack_.push_and_execute(std::move(cmd));
+}
+
+core::base::Result<void> EngineeringWorkspaceState::undo() {
+    return command_stack_.undo();
+}
+
+core::base::Result<void> EngineeringWorkspaceState::redo() {
+    return command_stack_.redo();
+}
+
 } // namespace shunya::eng

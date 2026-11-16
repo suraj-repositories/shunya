@@ -81,8 +81,8 @@ base::Result<void> CommandStack::push_and_execute(std::unique_ptr<ICommand> cmd)
     commands_.push_back(std::move(cmd));
     ++current_index_;
 
-    // Bound history to max_history_
-    if (commands_.size() > max_history_) {
+    // Bound history to max_history_ (if max_history_ > 0; 0 means unlimited)
+    if (max_history_ > 0 && commands_.size() > max_history_) {
         commands_.erase(commands_.begin());
         --current_index_;
         if (clean_index_.has_value()) {
@@ -236,15 +236,17 @@ base::Result<void> CommandStack::rollback_transaction() {
 }
 
 void CommandStack::set_max_history(std::size_t limit) noexcept {
-    max_history_ = limit > 0 ? limit : 1;
-    while (commands_.size() > max_history_) {
-        commands_.erase(commands_.begin());
-        if (current_index_ > 0) --current_index_;
-        if (clean_index_.has_value()) {
-            if (clean_index_.value() > 0) {
-                clean_index_ = clean_index_.value() - 1;
-            } else {
-                clean_index_ = std::nullopt;
+    max_history_ = limit;
+    if (max_history_ > 0) {
+        while (commands_.size() > max_history_) {
+            commands_.erase(commands_.begin());
+            if (current_index_ > 0) --current_index_;
+            if (clean_index_.has_value()) {
+                if (clean_index_.value() > 0) {
+                    clean_index_ = clean_index_.value() - 1;
+                } else {
+                    clean_index_ = std::nullopt;
+                }
             }
         }
     }

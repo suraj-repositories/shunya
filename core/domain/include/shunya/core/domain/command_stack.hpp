@@ -83,6 +83,7 @@ public:
     [[nodiscard]] std::size_t count() const noexcept { return commands_.size(); }
     [[nodiscard]] std::size_t current_index() const noexcept { return current_index_; }
     [[nodiscard]] std::size_t max_history() const noexcept { return max_history_; }
+    [[nodiscard]] bool is_unlimited_history() const noexcept { return max_history_ == 0; }
     void set_max_history(std::size_t limit) noexcept;
 
     struct CommandHistoryEntry {

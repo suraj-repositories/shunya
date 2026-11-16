@@ -68,6 +68,13 @@ struct StateMutationEntry {
     std::string summary;
 };
 
+struct WorkspaceCheckpoint {
+    uint64_t id{0};
+    std::string name;
+    uint64_t tick{0};
+    std::string bundle_snapshot;
+};
+
 struct AmbientEnvironmentConfig {
     double temperature_k{298.15};
     double pressure_pa{101325.0};
@@ -153,6 +160,23 @@ public:
     // Seed complete real Lithium Battery -> Circuit workflow using ElementDatabase
     [[nodiscard]] core::base::Result<void> seed_lithium_battery_workflow();
 
+    // Transactional Checkpoints and Multi-Domain Undo/Redo (PH4-01.03.002)
+    uint64_t create_checkpoint(std::string name);
+    core::base::Result<void> restore_checkpoint(uint64_t checkpoint_id);
+    [[nodiscard]] std::vector<WorkspaceCheckpoint> checkpoints() const;
+    [[nodiscard]] std::optional<WorkspaceCheckpoint> find_checkpoint(uint64_t id) const;
+    [[nodiscard]] std::optional<WorkspaceCheckpoint> find_checkpoint(std::string_view name) const;
+    bool delete_checkpoint(uint64_t id);
+
+    core::base::Result<void> execute_transaction(
+        std::string name,
+        std::function<core::base::Result<void>()> action);
+
+    core::base::Result<void> undo();
+    core::base::Result<void> redo();
+    [[nodiscard]] bool can_undo() const noexcept { return command_stack_.can_undo(); }
+    [[nodiscard]] bool can_redo() const noexcept { return command_stack_.can_redo(); }
+
     [[nodiscard]] uint64_t version() const noexcept { return ticks_.global; }
     [[nodiscard]] uint64_t global_tick() const noexcept { return ticks_.global; }
     [[nodiscard]] uint64_t tick_for(DependencyChangeKind kind) const noexcept;
@@ -175,12 +199,14 @@ private:
     size_t active_circuit_idx_{0};
     PhysicsSimulationRuntime physics_runtime_;
     core::domain::SceneGraph scene_graph_;
-    core::domain::CommandStack command_stack_{200};
+    core::domain::CommandStack command_stack_{0}; // 0 = unlimited undo/redo history
     core::domain::CircuitNetlist legacy_circuit_;
     AmbientEnvironmentConfig env_;
 
     SubsystemTicks ticks_{};
     std::vector<StateMutationEntry> mutation_history_;
+    uint64_t next_checkpoint_id_{1};
+    std::vector<WorkspaceCheckpoint> checkpoints_;
     uint64_t next_token_{1};
     std::unordered_map<uint64_t, ChangeCallback> listeners_;
     std::vector<DependentInvalidator> material_invalidators_;
