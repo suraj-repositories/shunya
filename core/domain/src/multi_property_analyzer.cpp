@@ -46,7 +46,7 @@ std::vector<IntersectedProperty> PropertyIntersectionAnalyzer::analyze(
             }
 
             if (present_in_all) {
-                IntersectedProperty intersected;
+                IntersectedProperty intersected{};
                 intersected.property_id = candidate.id;
                 intersected.name = candidate.name;
                 intersected.display_name = candidate.display_name;

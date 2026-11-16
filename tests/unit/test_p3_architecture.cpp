@@ -1,4 +1,8 @@
 #include "tests/test_framework.hpp"
+#include <filesystem>
+#include <fstream>
+#include <string>
+#include <vector>
 
 #include "shunya/eng/engineering_pipeline.hpp"
 
@@ -42,3 +46,38 @@ TEST_CASE("ARCH: EngineeringWorkspaceState reactive notification & material inva
     ws.notify_change(DependencyChangeKind::CircuitUpdated);
     CHECK(change_count == 2); // set_environment fired 1, unsubscribed before CircuitUpdated
 }
+
+TEST_CASE("ARCH-PH4: Core header isolation asserts zero Qt/GUI dependencies in core domain") {
+    namespace fs = std::filesystem;
+    const fs::path root = fs::path(SHUNYA_SOURCE_DIR);
+    std::vector<fs::path> search_dirs = {
+        root / "core" / "base" / "include",
+        root / "core" / "domain" / "include"
+    };
+
+    int scanned_files = 0;
+    bool forbidden_found = false;
+    for (const auto& dir : search_dirs) {
+        if (!fs::exists(dir)) continue;
+        for (const auto& entry : fs::recursive_directory_iterator(dir)) {
+            if (entry.is_regular_file() && (entry.path().extension() == ".hpp" || entry.path().extension() == ".h")) {
+                ++scanned_files;
+                std::ifstream infile(entry.path());
+                std::string line;
+                while (std::getline(infile, line)) {
+                    if (line.find("#include <Q") != std::string::npos && line.find("<queue>") == std::string::npos) {
+                        forbidden_found = true;
+                        std::cerr << "Forbidden Qt include found: " << entry.path().string() << ": " << line << "\n";
+                    }
+                    if (line.find("#include <Qt") != std::string::npos) {
+                        forbidden_found = true;
+                        std::cerr << "Forbidden Qt include found: " << entry.path().string() << ": " << line << "\n";
+                    }
+                }
+            }
+        }
+    }
+    CHECK_FALSE(forbidden_found);
+    CHECK(scanned_files > 30);
+}
+

@@ -10,11 +10,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Global compiler warning policies across targets
+# Global compiler warning policies across targets (Phase 4 zero-warning policy)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    add_compile_options(-Wall -Wextra -Wpedantic)
+    add_compile_options(-Wall -Wextra -Wpedantic -Werror=return-type -Wno-error=maybe-uninitialized)
 elseif(MSVC)
-    add_compile_options(/W4 /permissive-)
+    add_compile_options(/W4 /permissive- /we4715)
 endif()
 
 # WebAssembly / Emscripten headless solver target readiness (IMP-04)

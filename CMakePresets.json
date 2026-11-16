@@ -48,6 +48,13 @@
       "output": {
         "outputOnFailure": true
       }
+    },
+    {
+      "name": "test-release",
+      "configurePreset": "windows-ninja-release",
+      "output": {
+        "outputOnFailure": true
+      }
     }
   ]
 }
