@@ -75,6 +75,25 @@ struct WorkspaceCheckpoint {
     std::string bundle_snapshot;
 };
 
+struct Shunya4SaveOptions {
+    bool incremental{false};
+    uint64_t base_tick{0};
+    bool binary_format{false};
+};
+
+#pragma pack(push, 1)
+struct Shunya4BinaryHeader {
+    char magic[8]{'S', 'H', 'U', 'N', 'Y', 'A', '4', '\0'};
+    uint32_t version{4};
+    uint32_t flags{0}; // Bit 0: incremental, Bit 1: binary chunk payload
+    uint64_t base_tick{0};
+    uint64_t current_tick{0};
+    uint32_t checksum{0};
+    uint32_t reserved{0};
+    uint64_t payload_size{0};
+};
+#pragma pack(pop)
+
 struct AmbientEnvironmentConfig {
     double temperature_k{298.15};
     double pressure_pa{101325.0};
@@ -151,10 +170,15 @@ public:
     void notify_material_modified(const core::base::Uuid& material_id, std::string summary = "");
     void notify_object_modified(const core::base::Uuid& object_id, std::string summary = "");
 
-    // Complete Project Persistence (v3.0 bundle preserving all UUID references)
-    [[nodiscard]] std::string to_bundle_json() const;
+    // Complete Project Persistence (.shunya4 / .shunya3 bundle preserving all UUID references)
+    [[nodiscard]] std::string to_bundle_json(const Shunya4SaveOptions& options = {}) const;
+    [[nodiscard]] std::vector<uint8_t> to_shunya4_binary(const Shunya4SaveOptions& options = {}) const;
     [[nodiscard]] core::base::Result<void> from_bundle_json(std::string_view json_str);
-    [[nodiscard]] core::base::Result<void> save_to_file(const std::filesystem::path& path);
+    [[nodiscard]] core::base::Result<void> from_shunya4_binary(const uint8_t* data, size_t size);
+    [[nodiscard]] core::base::Result<void> from_shunya4_binary(const std::vector<uint8_t>& binary_data);
+    [[nodiscard]] core::base::Result<void> save_to_file(
+        const std::filesystem::path& path,
+        const Shunya4SaveOptions& options = {});
     [[nodiscard]] core::base::Result<void> load_from_file(const std::filesystem::path& path);
 
     // Seed complete real Lithium Battery -> Circuit workflow using ElementDatabase

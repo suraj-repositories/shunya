@@ -222,3 +222,85 @@ TEST_CASE("PH4-01.03.002: Transactional Snapshot Checkpoints & Unlimited Undo/Re
     CHECK(ws.checkpoints().size() == 1);
     CHECK(ws.find_checkpoint(cp_base_id).has_value() == false);
 }
+
+TEST_CASE("PH4-01.03.003: Atomic .shunya4 Project Serialization & Differential Saves") {
+    EngineeringWorkspaceState ws;
+    REQUIRE(ws.seed_lithium_battery_workflow().is_ok());
+
+    const auto temp_dir = std::filesystem::temp_directory_path() / "shunya_ph4_test_save";
+    std::filesystem::create_directories(temp_dir);
+
+    const auto json_path = temp_dir / "project_save.shunya4";
+    const auto bin_path = temp_dir / "project_save.shunya4bin";
+    const auto diff_path = temp_dir / "project_diff.shunya4";
+    const auto corrupt_path = temp_dir / "project_corrupt.shunya4bin";
+
+    // 1. Full JSON save (.shunya4)
+    auto save_json_res = ws.save_to_file(json_path);
+    REQUIRE(save_json_res.is_ok());
+    CHECK(std::filesystem::exists(json_path));
+
+    EngineeringWorkspaceState ws_json_load;
+    auto load_json_res = ws_json_load.load_from_file(json_path);
+    REQUIRE(load_json_res.is_ok());
+    CHECK(ws_json_load.material_registry().material_count() == ws.material_registry().material_count());
+    CHECK(ws_json_load.object_manager().objects().size() == ws.object_manager().objects().size());
+    CHECK(ws_json_load.circuits().size() == ws.circuits().size());
+
+    // 2. Binary Container Save (.shunya4bin) with CRC32
+    Shunya4SaveOptions bin_opts;
+    bin_opts.binary_format = true;
+    auto save_bin_res = ws.save_to_file(bin_path, bin_opts);
+    REQUIRE(save_bin_res.is_ok());
+    CHECK(std::filesystem::exists(bin_path));
+
+    EngineeringWorkspaceState ws_bin_load;
+    auto load_bin_res = ws_bin_load.load_from_file(bin_path);
+    REQUIRE(load_bin_res.is_ok());
+    CHECK(ws_bin_load.material_registry().material_count() == ws.material_registry().material_count());
+    CHECK(ws_bin_load.object_manager().objects().size() == ws.object_manager().objects().size());
+
+    // 3. Corrupt Binary Rejection
+    std::vector<uint8_t> corrupt_bytes;
+    {
+        std::ifstream is(bin_path, std::ios::binary);
+        corrupt_bytes.assign((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
+    }
+    REQUIRE(corrupt_bytes.size() > sizeof(Shunya4BinaryHeader) + 10);
+    corrupt_bytes.back() ^= 0xFF; // Corrupt payload byte
+    {
+        std::ofstream os(corrupt_path, std::ios::binary | std::ios::trunc);
+        os.write(reinterpret_cast<const char*>(corrupt_bytes.data()), static_cast<std::streamsize>(corrupt_bytes.size()));
+    }
+
+    EngineeringWorkspaceState ws_corrupt;
+    auto corrupt_res = ws_corrupt.load_from_file(corrupt_path);
+    CHECK(corrupt_res.is_err()); // Must fail due to CRC32 mismatch!
+
+    // 4. Incremental / Differential Save
+    const uint64_t base_tick = ws.global_tick();
+
+    // Mutate materials only
+    Material diff_mat(Uuid::generate_random(), "DiffSilicon", MaterialPhysicalState::Solid, 2330.0);
+    REQUIRE(ws.material_registry().register_material(diff_mat).is_ok());
+    ws.touch(DependencyChangeKind::MaterialUpdated, diff_mat.id(), "Added DiffSilicon");
+    CHECK(ws.global_tick() > base_tick);
+
+    Shunya4SaveOptions diff_opts;
+    diff_opts.incremental = true;
+    diff_opts.base_tick = base_tick;
+    auto diff_save_res = ws.save_to_file(diff_path, diff_opts);
+    REQUIRE(diff_save_res.is_ok());
+
+    // Apply differential update onto ws_bin_load (which has original state without DiffSilicon)
+    CHECK_FALSE(ws_bin_load.material_registry().has_material("DiffSilicon"));
+    auto apply_diff_res = ws_bin_load.load_from_file(diff_path);
+    REQUIRE(apply_diff_res.is_ok());
+    CHECK(ws_bin_load.material_registry().has_material("DiffSilicon"));
+    // Other objects should remain intact
+    CHECK(ws_bin_load.object_manager().objects().size() == ws.object_manager().objects().size());
+
+    // Clean up temporary files
+    std::error_code ec;
+    std::filesystem::remove_all(temp_dir, ec);
+}

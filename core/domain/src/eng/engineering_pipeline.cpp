@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstring>
 #include <fstream>
 #include <iomanip>
 #include <regex>
@@ -20,6 +21,17 @@ core::base::Error make_eng_error(int32_t code, std::string msg, std::string deta
         .message = std::move(msg),
         .details = std::move(details)
     };
+}
+
+uint32_t compute_crc32(const uint8_t* data, size_t length) {
+    uint32_t crc = 0xFFFFFFFFu;
+    for (size_t i = 0; i < length; ++i) {
+        crc ^= data[i];
+        for (int k = 0; k < 8; ++k) {
+            crc = (crc >> 1) ^ (0xEDB88320u & (-(crc & 1)));
+        }
+    }
+    return ~crc;
 }
 
 // Finds the substring after `"key":` and extracts either a balanced {...} object or [...] array.
@@ -301,32 +313,115 @@ void EngineeringWorkspaceState::notify_object_modified(
     notify_change(DependencyChangeKind::ObjectUpdated, object_id, std::move(summary));
 }
 
-std::string EngineeringWorkspaceState::to_bundle_json() const {
+std::string EngineeringWorkspaceState::to_bundle_json(const Shunya4SaveOptions& options) const {
     std::ostringstream os;
     os << std::setprecision(12);
     os << "{\n";
-    os << "  \"bundle_version\": \"3.0\",\n";
+    os << "  \"bundle_version\": \"4.0\",\n";
+    os << "  \"format\": \"shunya4\",\n";
+    os << "  \"is_differential\": " << (options.incremental ? "true" : "false") << ",\n";
+    os << "  \"base_tick\": " << options.base_tick << ",\n";
+    os << "  \"ticks\": {\n"
+       << "    \"global\": " << ticks_.global << ",\n"
+       << "    \"materials\": " << ticks_.materials << ",\n"
+       << "    \"objects\": " << ticks_.objects << ",\n"
+       << "    \"components\": " << ticks_.components << ",\n"
+       << "    \"circuits\": " << ticks_.circuits << ",\n"
+       << "    \"simulation\": " << ticks_.simulation << "\n"
+       << "  },\n";
+
     if (project_) {
         os << "  \"project_manifest\": " << project_->manifest().to_json() << ",\n";
     } else {
         os << "  \"project_manifest\": {},\n";
     }
-    os << "  \"environment\": {\n"
-       << "    \"temperature_k\": " << env_.temperature_k << ",\n"
-       << "    \"pressure_pa\": " << env_.pressure_pa << ",\n"
-       << "    \"gravity_m_s2\": " << env_.gravity_m_s2 << ",\n"
-       << "    \"convection_h_w_m2k\": " << env_.convection_h_w_m2k << ",\n"
-       << "    \"oxidizing_atmosphere\": " << (env_.oxidizing_atmosphere ? "true" : "false") << "\n"
-       << "  },\n";
-    os << "  \"materials_registry\": " << materials_.to_json() << ",\n";
-    os << "  \"mixtures\": " << serialize_array(mixtures_, "  ") << ",\n";
-    os << "  \"objects\": " << serialize_array(object_manager_.objects(), "  ") << ",\n";
-    os << "  \"batteries\": " << serialize_array(batteries_, "  ") << ",\n";
-    os << "  \"components\": " << serialize_array(component_library_.components(), "  ") << ",\n";
-    os << "  \"circuits\": " << serialize_array(circuits_, "  ") << ",\n";
-    os << "  \"active_circuit_idx\": " << active_circuit_idx_ << "\n";
+
+    const bool diff = options.incremental && options.base_tick > 0;
+
+    if (!diff || ticks_.simulation > options.base_tick) {
+        os << "  \"environment\": {\n"
+           << "    \"temperature_k\": " << env_.temperature_k << ",\n"
+           << "    \"pressure_pa\": " << env_.pressure_pa << ",\n"
+           << "    \"gravity_m_s2\": " << env_.gravity_m_s2 << ",\n"
+           << "    \"convection_h_w_m2k\": " << env_.convection_h_w_m2k << ",\n"
+           << "    \"oxidizing_atmosphere\": " << (env_.oxidizing_atmosphere ? "true" : "false") << "\n"
+           << "  },\n";
+    }
+
+    if (!diff || ticks_.materials > options.base_tick) {
+        os << "  \"materials_registry\": " << materials_.to_json() << ",\n";
+        os << "  \"mixtures\": " << serialize_array(mixtures_, "  ") << ",\n";
+    }
+
+    if (!diff || ticks_.objects > options.base_tick) {
+        os << "  \"objects\": " << serialize_array(object_manager_.objects(), "  ") << ",\n";
+    }
+
+    if (!diff || ticks_.components > options.base_tick) {
+        os << "  \"batteries\": " << serialize_array(batteries_, "  ") << ",\n";
+        os << "  \"components\": " << serialize_array(component_library_.components(), "  ") << ",\n";
+    }
+
+    if (!diff || ticks_.circuits > options.base_tick) {
+        os << "  \"circuits\": " << serialize_array(circuits_, "  ") << ",\n";
+        os << "  \"active_circuit_idx\": " << active_circuit_idx_ << ",\n";
+    }
+
+    os << "  \"checkpoints_count\": " << checkpoints_.size() << "\n";
     os << "}\n";
     return os.str();
+}
+
+std::vector<uint8_t> EngineeringWorkspaceState::to_shunya4_binary(const Shunya4SaveOptions& options) const {
+    const std::string json = to_bundle_json(options);
+    const uint32_t crc = compute_crc32(reinterpret_cast<const uint8_t*>(json.data()), json.size());
+
+    Shunya4BinaryHeader hdr{};
+    std::memcpy(hdr.magic, "SHUNYA4\0", 8);
+    hdr.version = 4;
+    hdr.flags = (options.incremental ? 0x01 : 0x00);
+    hdr.base_tick = options.base_tick;
+    hdr.current_tick = ticks_.global;
+    hdr.checksum = crc;
+    hdr.reserved = 0;
+    hdr.payload_size = json.size();
+
+    std::vector<uint8_t> out(sizeof(Shunya4BinaryHeader) + json.size());
+    std::memcpy(out.data(), &hdr, sizeof(Shunya4BinaryHeader));
+    std::memcpy(out.data() + sizeof(Shunya4BinaryHeader), json.data(), json.size());
+    return out;
+}
+
+core::base::Result<void> EngineeringWorkspaceState::from_shunya4_binary(const uint8_t* data, size_t size) {
+    if (!data || size < sizeof(Shunya4BinaryHeader)) {
+        return make_eng_error(4914, "Invalid .shunya4 binary container: truncated header");
+    }
+
+    Shunya4BinaryHeader hdr{};
+    std::memcpy(&hdr, data, sizeof(Shunya4BinaryHeader));
+
+    if (std::memcmp(hdr.magic, "SHUNYA4\0", 8) != 0) {
+        return make_eng_error(4915, "Invalid .shunya4 binary container: magic mismatch");
+    }
+    if (hdr.version != 4) {
+        return make_eng_error(4916, "Unsupported .shunya4 binary version: " + std::to_string(hdr.version));
+    }
+    if (sizeof(Shunya4BinaryHeader) + hdr.payload_size > size) {
+        return make_eng_error(4917, "Invalid .shunya4 binary container: payload truncated");
+    }
+
+    const uint8_t* payload = data + sizeof(Shunya4BinaryHeader);
+    const uint32_t computed_crc = compute_crc32(payload, hdr.payload_size);
+    if (computed_crc != hdr.checksum) {
+        return make_eng_error(4918, "CRC32 checksum mismatch in .shunya4 container: corrupted data");
+    }
+
+    std::string_view json_view(reinterpret_cast<const char*>(payload), hdr.payload_size);
+    return from_bundle_json(json_view);
+}
+
+core::base::Result<void> EngineeringWorkspaceState::from_shunya4_binary(const std::vector<uint8_t>& binary_data) {
+    return from_shunya4_binary(binary_data.data(), binary_data.size());
 }
 
 core::base::Result<void> EngineeringWorkspaceState::from_bundle_json(std::string_view json_str) {
@@ -362,8 +457,12 @@ core::base::Result<void> EngineeringWorkspaceState::from_bundle_json(std::string
                 return core::base::Result<void>::ok();
             }
         }
-        return make_eng_error(4901, "Invalid Shunya v3.0 project bundle JSON");
+        return make_eng_error(4901, "Invalid Shunya project bundle JSON");
     }
+
+    const bool is_diff = (s.find("\"is_differential\": true") != std::string::npos ||
+                          s.find("\"is_differential\":true") != std::string::npos ||
+                          s.find("\"is_differential\" : true") != std::string::npos);
 
     std::shared_ptr<core::domain::Project> next_proj;
     if (auto proj_blk = extract_json_block(json_str, "project_manifest", '{', '}')) {
@@ -372,13 +471,15 @@ core::base::Result<void> EngineeringWorkspaceState::from_bundle_json(std::string
             next_proj = std::make_shared<core::domain::Project>(man_res.value());
         }
     }
-    if (!next_proj) {
+    if (!next_proj && !is_diff) {
         auto res = core::domain::Project::create_new("Loaded_Engineering_Project", "Shunya Engineer");
         if (res.is_ok()) next_proj = res.value();
     }
 
-    AmbientEnvironmentConfig next_env;
+    AmbientEnvironmentConfig next_env = env_;
+    bool has_env = false;
     if (auto env_blk = extract_json_block(json_str, "environment", '{', '}')) {
+        has_env = true;
         const std::string es(*env_blk);
         std::smatch m;
         if (std::regex_search(es, m, std::regex("\"temperature_k\"\\s*:\\s*([-+0-9.eE]+)"))) {
@@ -398,15 +499,20 @@ core::base::Result<void> EngineeringWorkspaceState::from_bundle_json(std::string
         }
     }
 
-    core::domain::MaterialRegistry next_mats;
+    core::domain::MaterialRegistry next_mats = materials_;
+    bool has_mats = false;
     if (auto mat_blk = extract_json_block(json_str, "materials_registry", '{', '}')) {
+        has_mats = true;
         auto mr = core::domain::MaterialRegistry::from_json(*mat_blk);
         if (mr.is_err()) return mr.error();
         next_mats = std::move(mr.value());
     }
 
-    std::vector<mat::MixtureExperiment> next_mix;
+    std::vector<mat::MixtureExperiment> next_mix = mixtures_;
+    bool has_mix = false;
     if (auto arr = extract_json_block(json_str, "mixtures", '[', ']')) {
+        has_mix = true;
+        next_mix.clear();
         for (auto item : split_json_object_array(*arr)) {
             auto r = mat::MixtureExperiment::from_json(item);
             if (r.is_ok()) next_mix.push_back(std::move(r.value()));
@@ -414,17 +520,24 @@ core::base::Result<void> EngineeringWorkspaceState::from_bundle_json(std::string
     }
 
     PhysicalObjectManager next_objs;
+    bool has_objs = false;
     if (auto arr = extract_json_block(json_str, "objects", '[', ']')) {
+        has_objs = true;
         for (auto item : split_json_object_array(*arr)) {
             auto r = PhysicalObject::from_json(item);
             if (r.is_ok()) {
                 (void)next_objs.add_object(std::move(r.value()), next_mats);
             }
         }
+    } else if (is_diff) {
+        next_objs = object_manager_;
     }
 
-    std::vector<BatteryDesignSpec> next_bats;
+    std::vector<BatteryDesignSpec> next_bats = batteries_;
+    bool has_bats = false;
     if (auto arr = extract_json_block(json_str, "batteries", '[', ']')) {
+        has_bats = true;
+        next_bats.clear();
         for (auto item : split_json_object_array(*arr)) {
             auto r = BatteryDesignSpec::from_json(item);
             if (r.is_ok()) {
@@ -436,56 +549,94 @@ core::base::Result<void> EngineeringWorkspaceState::from_bundle_json(std::string
     }
 
     ComponentLibraryManager next_comps;
+    bool has_comps = false;
     if (auto arr = extract_json_block(json_str, "components", '[', ']')) {
+        has_comps = true;
         for (auto item : split_json_object_array(*arr)) {
             auto r = GeneratedComponentDefinition::from_json(item);
             if (r.is_ok()) {
                 (void)next_comps.register_component(std::move(r.value()));
             }
         }
+    } else if (is_diff) {
+        next_comps = component_library_;
     }
 
     std::vector<InteractiveCircuitDocument> next_circs;
+    bool has_circs = false;
     if (auto arr = extract_json_block(json_str, "circuits", '[', ']')) {
+        has_circs = true;
         for (auto item : split_json_object_array(*arr)) {
             auto r = InteractiveCircuitDocument::from_json(item);
             if (r.is_ok()) next_circs.push_back(std::move(r.value()));
         }
+    } else if (is_diff) {
+        next_circs = circuits_;
     }
     if (next_circs.empty()) {
         next_circs.emplace_back("Main_Circuit");
     }
 
-    size_t next_idx = 0;
+    size_t next_idx = active_circuit_idx_;
     std::smatch idx_m;
     if (std::regex_search(s, idx_m, std::regex("\"active_circuit_idx\"\\s*:\\s*([0-9]+)"))) {
         next_idx = static_cast<size_t>(std::stoull(idx_m[1].str()));
     }
     if (next_idx >= next_circs.size()) next_idx = 0;
 
-    // Commit loaded state atomically
-    project_ = std::move(next_proj);
-    env_ = next_env;
-    materials_ = std::move(next_mats);
-    mixtures_ = std::move(next_mix);
-    object_manager_ = std::move(next_objs);
-    batteries_ = std::move(next_bats);
-    component_library_ = std::move(next_comps);
-    component_library_.recalculate_all(object_manager_, materials_);
-    circuits_ = std::move(next_circs);
-    for (auto& c : circuits_) {
-        c.sync_from_component_library(component_library_);
-        c.resolve_connectivity();
+    if (auto ticks_blk = extract_json_block(json_str, "ticks", '{', '}')) {
+        const std::string ts(*ticks_blk);
+        std::smatch tm;
+        if (std::regex_search(ts, tm, std::regex("\"global\"\\s*:\\s*([0-9]+)"))) {
+            ticks_.global = std::stoull(tm[1].str());
+        }
+        if (std::regex_search(ts, tm, std::regex("\"materials\"\\s*:\\s*([0-9]+)"))) {
+            ticks_.materials = std::stoull(tm[1].str());
+        }
+        if (std::regex_search(ts, tm, std::regex("\"objects\"\\s*:\\s*([0-9]+)"))) {
+            ticks_.objects = std::stoull(tm[1].str());
+        }
+        if (std::regex_search(ts, tm, std::regex("\"components\"\\s*:\\s*([0-9]+)"))) {
+            ticks_.components = std::stoull(tm[1].str());
+        }
+        if (std::regex_search(ts, tm, std::regex("\"circuits\"\\s*:\\s*([0-9]+)"))) {
+            ticks_.circuits = std::stoull(tm[1].str());
+        }
+        if (std::regex_search(ts, tm, std::regex("\"simulation\"\\s*:\\s*([0-9]+)"))) {
+            ticks_.simulation = std::stoull(tm[1].str());
+        }
     }
-    active_circuit_idx_ = next_idx;
+
+    // Commit loaded state atomically
+    if (next_proj || !is_diff) project_ = std::move(next_proj);
+    if (has_env || !is_diff) env_ = next_env;
+    if (has_mats || !is_diff) materials_ = std::move(next_mats);
+    if (has_mix || !is_diff) mixtures_ = std::move(next_mix);
+    if (has_objs || !is_diff) object_manager_ = std::move(next_objs);
+    if (has_bats || !is_diff) batteries_ = std::move(next_bats);
+    if (has_comps || !is_diff) {
+        component_library_ = std::move(next_comps);
+        component_library_.recalculate_all(object_manager_, materials_);
+    }
+    if (has_circs || !is_diff) {
+        circuits_ = std::move(next_circs);
+        for (auto& c : circuits_) {
+            c.sync_from_component_library(component_library_);
+            c.resolve_connectivity();
+        }
+        active_circuit_idx_ = next_idx;
+    }
+
     if (project_) project_->clear_dirty();
     notify_change(DependencyChangeKind::ProjectReset,
                   project_ ? project_->manifest().id : core::base::Uuid{},
-                  "Loaded Shunya v3.0 project bundle");
+                  is_diff ? "Applied differential Shunya v4.0 update" : "Loaded Shunya project bundle");
     return core::base::Result<void>::ok();
 }
 
-core::base::Result<void> EngineeringWorkspaceState::save_to_file(const std::filesystem::path& path) {
+core::base::Result<void> EngineeringWorkspaceState::save_to_file(
+    const std::filesystem::path& path,
+    const Shunya4SaveOptions& options) {
     std::error_code ec;
     if (path.has_parent_path()) {
         std::filesystem::create_directories(path.parent_path(), ec);
@@ -496,7 +647,12 @@ core::base::Result<void> EngineeringWorkspaceState::save_to_file(const std::file
         if (!os.is_open()) {
             return make_eng_error(4902, "Failed to open project file for writing: " + path.string());
         }
-        os << to_bundle_json();
+        if (options.binary_format || path.extension() == ".shunya4bin") {
+            auto bin = to_shunya4_binary(options);
+            os.write(reinterpret_cast<const char*>(bin.data()), static_cast<std::streamsize>(bin.size()));
+        } else {
+            os << to_bundle_json(options);
+        }
         if (!os.good()) {
             return make_eng_error(4903, "Failed while writing project bundle to: " + path.string());
         }
@@ -521,9 +677,18 @@ core::base::Result<void> EngineeringWorkspaceState::load_from_file(const std::fi
     if (!is.is_open()) {
         return make_eng_error(4905, "Failed to open project file: " + path.string());
     }
-    std::ostringstream ss;
-    ss << is.rdbuf();
-    auto res = from_bundle_json(ss.str());
+    std::vector<uint8_t> buffer((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
+    if (buffer.size() >= sizeof(Shunya4BinaryHeader) && std::memcmp(buffer.data(), "SHUNYA4\0", 8) == 0) {
+        auto bin_res = from_shunya4_binary(buffer);
+        if (bin_res.is_ok() && project_) {
+            project_->set_file_path(path.string());
+            project_->clear_dirty();
+        }
+        return bin_res;
+    }
+
+    std::string_view json_view(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+    auto res = from_bundle_json(json_view);
     if (res.is_ok() && project_) {
         project_->set_file_path(path.string());
         project_->clear_dirty();
