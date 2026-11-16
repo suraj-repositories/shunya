@@ -10,6 +10,7 @@
 #include "shunya/cad3d/half_edge_pool.hpp"
 #include "shunya/core/domain/smart_asset_handle.hpp"
 #include "shunya/core/base/zero_copy_views.hpp"
+#include "shunya/perf/lru_asset_cache.hpp"
 
 using namespace shunya::eng;
 using namespace shunya::core::base;
@@ -951,4 +952,89 @@ TEST_CASE("PH4-02.01.004: Zero-Copy Views (std::string_view & std::span) Memory 
     CHECK(mat.name() == "Copper 99.9% Electrolytic");
     mat.set_description(std::string_view("High purity wire"));
     CHECK(mat.description() == "High purity wire");
+}
+
+TEST_CASE("PH4-02.01.005: LRU Asset Cache Manager and Memory Budget Clamping") {
+    using namespace shunya::perf;
+
+    struct DummyMesh {
+        std::string name;
+        size_t vertex_count{0};
+        [[nodiscard]] size_t byte_size() const noexcept {
+            return vertex_count * 32; // 32 bytes per vertex
+        }
+    };
+
+    std::vector<std::pair<std::string, std::string>> evicted_log;
+    auto on_evict = [&](const std::string& key, const std::shared_ptr<DummyMesh>& mesh) {
+        evicted_log.emplace_back(key, mesh ? mesh->name : "");
+    };
+
+    // Cache with 100 KB max budget (102,400 bytes)
+    const size_t max_budget = 100 * 1024;
+    LruAssetCache<std::string, std::shared_ptr<DummyMesh>> cache(max_budget, on_evict);
+
+    CHECK(cache.capacity_bytes() == max_budget);
+    CHECK(cache.current_bytes() == 0);
+    CHECK(cache.empty());
+
+    // 1. Insert 3 meshes of 40 KB each (1,280 vertices each = 40,960 bytes)
+    auto m1 = std::make_shared<DummyMesh>(DummyMesh{"mesh_chassis", 1280});
+    auto m2 = std::make_shared<DummyMesh>(DummyMesh{"mesh_wheel", 1280});
+    auto m3 = std::make_shared<DummyMesh>(DummyMesh{"mesh_battery_pack", 1280});
+
+    cache.insert("chassis", m1);
+    CHECK(cache.size() == 1);
+    CHECK(cache.current_bytes() == 40960);
+    CHECK(cache.contains("chassis"));
+
+    cache.insert("wheel", m2);
+    CHECK(cache.size() == 2);
+    CHECK(cache.current_bytes() == 81920);
+
+    // 2. Access chassis to promote it to MRU (wheel is now LRU)
+    auto retrieved = cache.get("chassis");
+    REQUIRE(retrieved.has_value());
+    CHECK((*retrieved)->name == "mesh_chassis");
+    CHECK(cache.hit_count() == 1);
+    CHECK(cache.miss_count() == 0);
+    CHECK(cache.hit_rate() == 1.0);
+
+    // 3. Insert 3rd mesh (40 KB) -> Total would be 122,880 > 102,400.
+    // LRU item was 'wheel', so 'wheel' must be evicted.
+    cache.insert("battery", m3);
+    CHECK(cache.size() == 2); // chassis and battery remain
+    CHECK(cache.current_bytes() == 81920);
+    CHECK(cache.eviction_count() == 1);
+    CHECK(!cache.contains("wheel"));
+    CHECK(cache.contains("chassis"));
+    CHECK(cache.contains("battery"));
+
+    REQUIRE(evicted_log.size() == 1);
+    CHECK(evicted_log[0].first == "wheel");
+    CHECK(evicted_log[0].second == "mesh_wheel");
+
+    // 4. Cache Miss check
+    auto missed = cache.get("wheel");
+    CHECK(!missed.has_value());
+    CHECK(cache.miss_count() == 1);
+    CHECK(cache.hit_rate() == 0.5); // 1 hit, 1 miss
+
+    // 5. Dynamic budget reduction clamping
+    // Reduce budget to 50 KB -> One more mesh must be evicted (chassis was accessed before battery, so chassis is LRU)
+    cache.set_capacity_bytes(50 * 1024);
+    CHECK(cache.capacity_bytes() == 50 * 1024);
+    CHECK(cache.size() == 1);
+    CHECK(cache.contains("battery"));
+    CHECK(!cache.contains("chassis"));
+    CHECK(cache.eviction_count() == 2);
+    CHECK(evicted_log.size() == 2);
+    CHECK(evicted_log[1].first == "chassis");
+
+    // 6. Explicit manual erase
+    bool erased = cache.erase("battery");
+    CHECK(erased);
+    CHECK(cache.empty());
+    CHECK(cache.current_bytes() == 0);
+    CHECK(evicted_log.size() == 3);
 }
