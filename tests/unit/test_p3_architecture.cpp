@@ -81,3 +81,46 @@ TEST_CASE("ARCH-PH4: Core header isolation asserts zero Qt/GUI dependencies in c
     CHECK(scanned_files > 30);
 }
 
+
+
+TEST_CASE("PH4-01.03.001: Versioned Dirty Ticks & Reactive Hub Architecture") {
+    EngineeringWorkspaceState ws;
+
+    const uint64_t initial_global = ws.global_tick();
+    const uint64_t initial_mat_tick = ws.tick_for(DependencyChangeKind::MaterialUpdated);
+    const uint64_t initial_circ_tick = ws.tick_for(DependencyChangeKind::CircuitUpdated);
+    const uint64_t initial_sim_tick = ws.tick_for(DependencyChangeKind::SimulationStepped);
+
+    CHECK_FALSE(ws.is_any_dirty_since(initial_global));
+    CHECK_FALSE(ws.is_dirty_since(DependencyChangeKind::MaterialUpdated, initial_mat_tick));
+    CHECK_FALSE(ws.is_dirty_since(DependencyChangeKind::CircuitUpdated, initial_circ_tick));
+
+    // 1. Trigger Material change
+    Uuid test_mat_id = Uuid::generate_random();
+    ws.notify_change(DependencyChangeKind::MaterialUpdated, test_mat_id, "Alloy synthesis");
+
+    CHECK(ws.is_any_dirty_since(initial_global));
+    CHECK(ws.is_dirty_since(DependencyChangeKind::MaterialUpdated, initial_mat_tick));
+    CHECK_FALSE(ws.is_dirty_since(DependencyChangeKind::CircuitUpdated, initial_circ_tick));
+    CHECK_FALSE(ws.is_dirty_since(DependencyChangeKind::SimulationStepped, initial_sim_tick));
+
+    const uint64_t after_mat_tick = ws.tick_for(DependencyChangeKind::MaterialUpdated);
+    CHECK(after_mat_tick > initial_mat_tick);
+
+    // 2. Trigger Simulation Step
+    ws.touch(DependencyChangeKind::SimulationStepped, {}, "Euler step dt=1ms");
+    CHECK(ws.is_dirty_since(DependencyChangeKind::SimulationStepped, initial_sim_tick));
+    CHECK_FALSE(ws.is_dirty_since(DependencyChangeKind::MaterialUpdated, after_mat_tick));
+
+    // 3. Inspect Mutation History Log
+    auto history = ws.recent_mutations(10);
+    REQUIRE(history.size() >= 2);
+    const auto& last_entry = history.back();
+    CHECK(last_entry.kind == DependencyChangeKind::SimulationStepped);
+    CHECK(last_entry.summary == "Euler step dt=1ms");
+
+    const auto& prev_entry = history[history.size() - 2];
+    CHECK(prev_entry.kind == DependencyChangeKind::MaterialUpdated);
+    CHECK(prev_entry.target_id == test_mat_id);
+    CHECK(prev_entry.summary == "Alloy synthesis");
+}

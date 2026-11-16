@@ -35,13 +35,36 @@ enum class DependencyChangeKind : uint8_t {
     ComponentUpdated,
     BatteryUpdated,
     CircuitUpdated,
-    EnvironmentUpdated
+    EnvironmentUpdated,
+    SimulationStepped,
+    AssemblyUpdated
 };
 
 struct WorkspaceChangeEvent {
     DependencyChangeKind kind{DependencyChangeKind::ProjectReset};
     core::base::Uuid target_id{};
     uint64_t workspace_version{0};
+    std::string summary;
+};
+
+struct SubsystemTicks {
+    uint64_t global{1};
+    uint64_t project{1};
+    uint64_t element_database{1};
+    uint64_t materials{1};
+    uint64_t mixtures{1};
+    uint64_t objects{1};
+    uint64_t components{1};
+    uint64_t batteries{1};
+    uint64_t circuits{1};
+    uint64_t environment{1};
+    uint64_t simulation{1};
+};
+
+struct StateMutationEntry {
+    uint64_t tick{0};
+    DependencyChangeKind kind{DependencyChangeKind::ProjectReset};
+    core::base::Uuid target_id{};
     std::string summary;
 };
 
@@ -130,7 +153,15 @@ public:
     // Seed complete real Lithium Battery -> Circuit workflow using ElementDatabase
     [[nodiscard]] core::base::Result<void> seed_lithium_battery_workflow();
 
-    [[nodiscard]] uint64_t version() const noexcept { return version_; }
+    [[nodiscard]] uint64_t version() const noexcept { return ticks_.global; }
+    [[nodiscard]] uint64_t global_tick() const noexcept { return ticks_.global; }
+    [[nodiscard]] uint64_t tick_for(DependencyChangeKind kind) const noexcept;
+    [[nodiscard]] bool is_dirty_since(DependencyChangeKind kind, uint64_t last_seen_tick) const noexcept;
+    [[nodiscard]] bool is_any_dirty_since(uint64_t last_seen_global_tick) const noexcept;
+    [[nodiscard]] const SubsystemTicks& ticks() const noexcept { return ticks_; }
+    void touch(DependencyChangeKind kind, const core::base::Uuid& target_id = {}, std::string summary = "");
+    [[nodiscard]] std::vector<StateMutationEntry> recent_mutations(size_t limit = 50) const;
+
     [[nodiscard]] core::base::ValidationReport validate_workspace() const;
 
 private:
@@ -148,7 +179,8 @@ private:
     core::domain::CircuitNetlist legacy_circuit_;
     AmbientEnvironmentConfig env_;
 
-    uint64_t version_{1};
+    SubsystemTicks ticks_{};
+    std::vector<StateMutationEntry> mutation_history_;
     uint64_t next_token_{1};
     std::unordered_map<uint64_t, ChangeCallback> listeners_;
     std::vector<DependentInvalidator> material_invalidators_;

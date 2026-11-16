@@ -180,15 +180,76 @@ void EngineeringWorkspaceState::unsubscribe(uint64_t token) {
     listeners_.erase(token);
 }
 
+uint64_t EngineeringWorkspaceState::tick_for(DependencyChangeKind kind) const noexcept {
+    switch (kind) {
+        case DependencyChangeKind::ProjectReset: return ticks_.project;
+        case DependencyChangeKind::ElementDatabaseUpdated: return ticks_.element_database;
+        case DependencyChangeKind::MaterialUpdated: return ticks_.materials;
+        case DependencyChangeKind::MixtureUpdated: return ticks_.mixtures;
+        case DependencyChangeKind::ObjectUpdated:
+        case DependencyChangeKind::AssemblyUpdated: return ticks_.objects;
+        case DependencyChangeKind::ComponentUpdated: return ticks_.components;
+        case DependencyChangeKind::BatteryUpdated: return ticks_.batteries;
+        case DependencyChangeKind::CircuitUpdated: return ticks_.circuits;
+        case DependencyChangeKind::EnvironmentUpdated: return ticks_.environment;
+        case DependencyChangeKind::SimulationStepped: return ticks_.simulation;
+    }
+    return ticks_.global;
+}
+
+bool EngineeringWorkspaceState::is_dirty_since(DependencyChangeKind kind, uint64_t last_seen_tick) const noexcept {
+    return tick_for(kind) > last_seen_tick;
+}
+
+bool EngineeringWorkspaceState::is_any_dirty_since(uint64_t last_seen_global_tick) const noexcept {
+    return ticks_.global > last_seen_global_tick;
+}
+
+void EngineeringWorkspaceState::touch(DependencyChangeKind kind, const core::base::Uuid& target_id, std::string summary) {
+    notify_change(kind, target_id, std::move(summary));
+}
+
+std::vector<StateMutationEntry> EngineeringWorkspaceState::recent_mutations(size_t limit) const {
+    if (mutation_history_.size() <= limit) {
+        return mutation_history_;
+    }
+    return std::vector<StateMutationEntry>(
+        mutation_history_.end() - limit, mutation_history_.end());
+}
+
 void EngineeringWorkspaceState::notify_change(
     DependencyChangeKind kind,
     const core::base::Uuid& target_id,
     std::string summary) {
-    ++version_;
+    ++ticks_.global;
+    switch (kind) {
+        case DependencyChangeKind::ProjectReset: ticks_.project = ticks_.global; break;
+        case DependencyChangeKind::ElementDatabaseUpdated: ticks_.element_database = ticks_.global; break;
+        case DependencyChangeKind::MaterialUpdated: ticks_.materials = ticks_.global; break;
+        case DependencyChangeKind::MixtureUpdated: ticks_.mixtures = ticks_.global; break;
+        case DependencyChangeKind::ObjectUpdated:
+        case DependencyChangeKind::AssemblyUpdated: ticks_.objects = ticks_.global; break;
+        case DependencyChangeKind::ComponentUpdated: ticks_.components = ticks_.global; break;
+        case DependencyChangeKind::BatteryUpdated: ticks_.batteries = ticks_.global; break;
+        case DependencyChangeKind::CircuitUpdated: ticks_.circuits = ticks_.global; break;
+        case DependencyChangeKind::EnvironmentUpdated: ticks_.environment = ticks_.global; break;
+        case DependencyChangeKind::SimulationStepped: ticks_.simulation = ticks_.global; break;
+    }
+
+    if (mutation_history_.size() >= 256) {
+        mutation_history_.erase(mutation_history_.begin());
+    }
+    mutation_history_.push_back(StateMutationEntry{
+        .tick = ticks_.global,
+        .kind = kind,
+        .target_id = target_id,
+        .summary = summary
+    });
+
     if (project_ && kind != DependencyChangeKind::ProjectReset) {
         project_->mark_dirty();
     }
-    WorkspaceChangeEvent ev{kind, target_id, version_, std::move(summary)};
+    WorkspaceChangeEvent ev{kind, target_id, ticks_.global, std::move(summary)};
     std::vector<uint64_t> tokens;
     tokens.reserve(listeners_.size());
     for (const auto& [tok, _] : listeners_) {
