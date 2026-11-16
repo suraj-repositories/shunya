@@ -450,3 +450,96 @@ TEST_CASE("PH4-01.03.005: Multi-Domain Entity-Relationship Graph & Dependency Tr
     CHECK(json.find("\"nodes\"") != std::string::npos);
     CHECK(json.find("\"edges\"") != std::string::npos);
 }
+
+TEST_CASE("PH4-01.03.006: Data Corruption Recovery & Orphaned Asset Garbage Collection") {
+    EngineeringWorkspaceState ws;
+    REQUIRE(ws.seed_lithium_battery_workflow().is_ok());
+
+    // 1. Orphaned Asset Garbage Collection
+    // Inject orphaned material
+    Material orphan_mat(Uuid::generate_random(), "OrphanMat", MaterialPhysicalState::Solid, 1200.0);
+    REQUIRE(ws.material_registry().register_material(orphan_mat).is_ok());
+    CHECK(ws.material_registry().has_material(orphan_mat.id()));
+
+    // Inject corrupted region pointing to nonexistent material
+    PhysicalObject bad_obj;
+    bad_obj.name = "CorruptedRegionObject";
+    bad_obj.regions.push_back(ObjectRegion{"corrupt_reg", "BadRegion", Uuid::generate_random(), 1.0, 0.0, true});
+    ws.object_manager().objects_mut().push_back(std::move(bad_obj));
+
+    // Inject orphaned component pointing to nonexistent source object
+    GeneratedComponentDefinition orphan_comp;
+    orphan_comp.name = "OrphanComponent";
+    orphan_comp.source_object_id = Uuid::generate_random(); // Nonexistent!
+    orphan_comp.derived.is_qualified = true;
+    REQUIRE(ws.component_library().register_component(std::move(orphan_comp)).is_ok());
+
+    // Inject orphaned circuit instance pointing to nonexistent generated component
+    REQUIRE(!ws.circuits().empty());
+    PlacedCircuitComponent bad_inst;
+    bad_inst.id = "BAD_R1";
+    bad_inst.kind = CircuitSymbolKind::Resistor;
+    bad_inst.generated_component_id = Uuid::generate_random(); // Nonexistent!
+    ws.circuits().front().components_mut().push_back(std::move(bad_inst));
+
+    // Inject dangling wire with only 1 point
+    CircuitWire bad_wire;
+    bad_wire.id = "DanglingWire";
+    bad_wire.points_mm.push_back({0.0, 0.0}); // Only 1 point!
+    ws.circuits().front().wires_mut().push_back(std::move(bad_wire));
+
+    // Execute Garbage Collection with pruning
+    auto gc_rep = ws.collect_garbage_and_prune_orphans(true);
+    CHECK(gc_rep.repaired_regions >= 1);
+    CHECK(gc_rep.pruned_materials >= 1);
+    CHECK(gc_rep.pruned_components >= 1);
+    CHECK(gc_rep.pruned_circuit_instances >= 1);
+    CHECK(gc_rep.pruned_dangling_wires >= 1);
+    CHECK_FALSE(ws.material_registry().has_material("OrphanMat"));
+
+    // 2. Automated Corruption Recovery from Truncated / Damaged JSON
+    const std::string full_json = ws.to_bundle_json();
+    REQUIRE(full_json.size() > 500);
+
+    // Severely truncate the JSON bundle midway through materials/objects
+    std::string truncated_json = full_json.substr(0, full_json.size() / 2);
+
+    EngineeringWorkspaceState ws_recovered;
+    auto recover_res = ws_recovered.recover_from_corrupted_bundle(truncated_json);
+    REQUIRE(recover_res.is_ok());
+    auto rec_rep = recover_res.value();
+    CHECK(rec_rep.recovered == true);
+    CHECK(rec_rep.salvaged_materials > 0);
+    CHECK_FALSE(rec_rep.repairs_applied.empty());
+
+    // 3. Recovery from Damaged Binary File (Tampered Header)
+    const auto temp_dir = std::filesystem::temp_directory_path() / "shunya_ph4_corrupt_test";
+    std::filesystem::create_directories(temp_dir);
+    const auto bad_bin_file = temp_dir / "damaged.shunya4bin";
+
+    Shunya4SaveOptions bin_opts;
+    bin_opts.binary_format = true;
+    REQUIRE(ws.save_to_file(bad_bin_file, bin_opts).is_ok());
+
+    // Corrupt binary CRC checksum field in container header (offset 32)
+    {
+        std::fstream fs(bad_bin_file, std::ios::in | std::ios::out | std::ios::binary);
+        fs.seekp(32);
+        char junk = 0x5A;
+        fs.write(&junk, 1);
+    }
+
+    // Normal load must fail with CRC error
+    EngineeringWorkspaceState ws_normal;
+    CHECK(ws_normal.load_from_file(bad_bin_file).is_err());
+
+    // Recovery must salvage valid entities
+    EngineeringWorkspaceState ws_file_recovered;
+    auto file_rec_res = ws_file_recovered.recover_from_corrupted_file(bad_bin_file);
+    REQUIRE(file_rec_res.is_ok());
+    CHECK(file_rec_res.value().salvaged_materials > 0);
+
+    // Clean up
+    std::error_code ec;
+    std::filesystem::remove_all(temp_dir, ec);
+}

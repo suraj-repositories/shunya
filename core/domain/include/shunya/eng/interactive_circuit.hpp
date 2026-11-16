@@ -117,7 +117,9 @@ public:
     void clear();
 
     [[nodiscard]] const std::vector<PlacedCircuitComponent>& components() const noexcept { return components_; }
+    [[nodiscard]] std::vector<PlacedCircuitComponent>& components_mut() noexcept { return components_; }
     [[nodiscard]] const std::vector<CircuitWire>& wires() const noexcept { return wires_; }
+    [[nodiscard]] std::vector<CircuitWire>& wires_mut() noexcept { return wires_; }
     [[nodiscard]] const std::vector<CircuitJunction>& junctions() const noexcept { return junctions_; }
 
     // Synchronize parameters from generated component library

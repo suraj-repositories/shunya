@@ -129,6 +129,7 @@ public:
     [[nodiscard]] PhysicalObject* get_object_mut(const core::base::Uuid& id) noexcept;
     [[nodiscard]] const PhysicalObject* find_by_name(std::string_view name) const noexcept;
     [[nodiscard]] const std::vector<PhysicalObject>& objects() const noexcept { return objects_; }
+    [[nodiscard]] std::vector<PhysicalObject>& objects_mut() noexcept { return objects_; }
     [[nodiscard]] size_t count() const noexcept { return objects_.size(); }
     void clear() noexcept { objects_.clear(); }
 

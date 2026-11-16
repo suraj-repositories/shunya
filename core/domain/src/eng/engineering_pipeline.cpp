@@ -1213,4 +1213,270 @@ EntityRelationshipGraph EngineeringWorkspaceState::build_entity_graph() const {
     return graph;
 }
 
+GarbageCollectionReport EngineeringWorkspaceState::collect_garbage_and_prune_orphans(bool prune_unreferenced_materials) {
+    GarbageCollectionReport rep;
+
+    // 1. Gather all referenced material UUIDs
+    std::unordered_set<core::base::Uuid> referenced_mats;
+    for (const auto& obj : object_manager_.objects()) {
+        for (const auto& reg : obj.regions) {
+            if (materials_.has_material(reg.material_id)) {
+                referenced_mats.insert(reg.material_id);
+            }
+        }
+    }
+    for (const auto& bat : batteries_) {
+        if (materials_.has_material(bat.materials.cathode_material_id)) referenced_mats.insert(bat.materials.cathode_material_id);
+        if (materials_.has_material(bat.materials.anode_material_id)) referenced_mats.insert(bat.materials.anode_material_id);
+        if (materials_.has_material(bat.materials.electrolyte_material_id)) referenced_mats.insert(bat.materials.electrolyte_material_id);
+        if (materials_.has_material(bat.materials.separator_material_id)) referenced_mats.insert(bat.materials.separator_material_id);
+        if (materials_.has_material(bat.materials.anode_collector_material_id)) referenced_mats.insert(bat.materials.anode_collector_material_id);
+        if (materials_.has_material(bat.materials.cathode_collector_material_id)) referenced_mats.insert(bat.materials.cathode_collector_material_id);
+        if (materials_.has_material(bat.materials.casing_material_id)) referenced_mats.insert(bat.materials.casing_material_id);
+    }
+
+    // Find or register fallback material from already-referenced materials if possible
+    core::base::Uuid fallback_mat_id;
+    for (const auto& ref_id : referenced_mats) {
+        fallback_mat_id = ref_id;
+        break;
+    }
+    if (fallback_mat_id.is_nil()) {
+        if (const auto* cu = materials_.get_material("Copper")) {
+            fallback_mat_id = cu->id();
+        } else {
+            core::domain::Material fallback(core::base::Uuid::generate_random(), "DefaultMaterial", core::domain::MaterialPhysicalState::Solid, 2700.0);
+            fallback_mat_id = fallback.id();
+            (void)materials_.register_material(std::move(fallback));
+        }
+        referenced_mats.insert(fallback_mat_id);
+    }
+
+    for (auto& obj : object_manager_.objects_mut()) {
+        for (auto& reg : obj.regions) {
+            if (!materials_.has_material(reg.material_id)) {
+                reg.material_id = fallback_mat_id;
+                ++rep.repaired_regions;
+                rep.actions_taken.push_back("Repaired region '" + reg.region_id + "' in object '" + obj.name + "' with fallback material");
+            }
+        }
+    }
+
+    // 2. Prune unreferenced materials if requested
+    if (prune_unreferenced_materials) {
+        std::vector<core::base::Uuid> to_prune;
+        for (const auto& [mid, m] : materials_.materials()) {
+            if (referenced_mats.find(mid) == referenced_mats.end() && mid != fallback_mat_id) {
+                to_prune.push_back(mid);
+            }
+        }
+        for (const auto& mid : to_prune) {
+            (void)materials_.unregister_material(mid);
+            ++rep.pruned_materials;
+            rep.actions_taken.push_back("Pruned unreferenced material UUID: " + mid.to_string());
+        }
+    }
+
+    // 3. Prune components whose source_object_id is missing
+    std::vector<core::base::Uuid> comp_ids_to_remove;
+    for (const auto& comp : component_library_.components()) {
+        if (!object_manager_.get_object(comp.source_object_id)) {
+            comp_ids_to_remove.push_back(comp.id);
+        }
+    }
+    for (const auto& cid : comp_ids_to_remove) {
+        (void)component_library_.remove_component(cid);
+        ++rep.pruned_components;
+        rep.actions_taken.push_back("Pruned component UUID " + cid.to_string() + " with missing source object");
+    }
+
+    // 4. Prune placed circuit component references if generated_component_id does not exist
+    for (auto& circ : circuits_) {
+        for (auto& inst : circ.components_mut()) {
+            if (inst.generated_component_id && !component_library_.get_component(*inst.generated_component_id)) {
+                inst.generated_component_id = std::nullopt;
+                ++rep.pruned_circuit_instances;
+                rep.actions_taken.push_back("Reset missing generated_component_id on circuit component " + inst.id);
+            }
+        }
+        // Prune dangling wires
+        auto& wires = circ.wires_mut();
+        auto wire_it = std::remove_if(wires.begin(), wires.end(), [](const CircuitWire& w) {
+            return w.points_mm.size() < 2;
+        });
+        if (wire_it != wires.end()) {
+            const size_t pruned = static_cast<size_t>(std::distance(wire_it, wires.end()));
+            rep.pruned_dangling_wires += pruned;
+            wires.erase(wire_it, wires.end());
+            rep.actions_taken.push_back("Pruned " + std::to_string(pruned) + " dangling wires in circuit " + circ.name());
+        }
+    }
+
+    if (rep.repaired_regions > 0 || rep.pruned_materials > 0 || rep.pruned_components > 0 || rep.pruned_circuit_instances > 0) {
+        notify_change(DependencyChangeKind::ProjectReset, {}, "Garbage collection pruned orphaned assets");
+    }
+
+    return rep;
+}
+
+core::base::Result<CorruptionRecoveryReport> EngineeringWorkspaceState::recover_from_corrupted_bundle(std::string_view corrupted_data) {
+    if (corrupted_data.empty()) {
+        return make_eng_error(4925, "Cannot recover from empty project bundle");
+    }
+
+    CorruptionRecoveryReport rep;
+    rep.recovered = true;
+
+    // Check if binary header exists
+    std::string_view working_view = corrupted_data;
+    if (working_view.size() >= sizeof(Shunya4BinaryHeader) && std::memcmp(working_view.data(), "SHUNYA4\0", 8) == 0) {
+        rep.repairs_applied.push_back("Detected binary container header; extracting payload");
+        working_view = working_view.substr(sizeof(Shunya4BinaryHeader));
+    }
+
+    std::string repaired_json(working_view);
+
+    // If JSON is truncated, count brackets and auto-close
+    int open_braces = 0, open_brackets = 0;
+    bool in_string = false;
+    bool escaped = false;
+    for (char c : repaired_json) {
+        if (escaped) { escaped = false; continue; }
+        if (c == '\\') { escaped = true; continue; }
+        if (c == '"') { in_string = !in_string; continue; }
+        if (!in_string) {
+            if (c == '{') ++open_braces;
+            else if (c == '}') --open_braces;
+            else if (c == '[') ++open_brackets;
+            else if (c == ']') --open_brackets;
+        }
+    }
+
+    if (in_string) {
+        repaired_json += "\"";
+        rep.repairs_applied.push_back("Closed dangling open string in corrupted JSON");
+    }
+    while (open_brackets > 0) {
+        repaired_json += "]";
+        --open_brackets;
+        rep.repairs_applied.push_back("Closed dangling JSON array bracket");
+    }
+    while (open_braces > 0) {
+        repaired_json += "}";
+        --open_braces;
+        rep.repairs_applied.push_back("Closed dangling JSON object brace");
+    }
+
+    // Try standard load with repaired JSON first
+    auto standard_res = from_bundle_json(repaired_json);
+    if (standard_res.is_ok()) {
+        rep.salvaged_materials = materials_.material_count();
+        rep.salvaged_objects = object_manager_.count();
+        rep.salvaged_components = component_library_.components().size();
+        rep.salvaged_circuits = circuits_.size();
+        rep.gc_report = collect_garbage_and_prune_orphans();
+        rep.repairs_applied.push_back("Full workspace state successfully salvaged from repaired JSON bundle");
+        return core::base::Result<CorruptionRecoveryReport>::ok(std::move(rep));
+    }
+
+    // Heuristic multi-section recovery: salvage whatever sections we can find
+    rep.repairs_applied.push_back("Applying component-wise heuristic section salvaging");
+
+    // Salvage project manifest
+    if (auto proj_blk = extract_json_block(repaired_json, "project_manifest", '{', '}')) {
+        auto man_res = core::domain::ProjectManifest::from_json(*proj_blk);
+        if (man_res.is_ok()) {
+            project_ = std::make_shared<core::domain::Project>(man_res.value());
+            rep.repairs_applied.push_back("Salvaged project manifest: " + man_res.value().name);
+        }
+    }
+    if (!project_) {
+        auto res = core::domain::Project::create_new("Recovered_Engineering_Project", "Shunya Auto-Recovery");
+        if (res.is_ok()) project_ = res.value();
+        rep.repairs_applied.push_back("Generated default project manifest for recovered workspace");
+    }
+
+    // Salvage environment
+    if (auto env_blk = extract_json_block(repaired_json, "environment", '{', '}')) {
+        const std::string es(*env_blk);
+        std::smatch m;
+        if (std::regex_search(es, m, std::regex("\"temperature_k\"\\s*:\\s*([-+0-9.eE]+)"))) {
+            double tk = std::stod(m[1].str());
+            if (tk > 0.0 && tk < 100000.0) env_.temperature_k = tk;
+        }
+        if (std::regex_search(es, m, std::regex("\"pressure_pa\"\\s*:\\s*([-+0-9.eE]+)"))) {
+            double p = std::stod(m[1].str());
+            if (p >= 0.0) env_.pressure_pa = p;
+        }
+    }
+
+    // Salvage materials
+    if (auto mat_blk = extract_json_block(repaired_json, "materials_registry", '{', '}')) {
+        auto mr = core::domain::MaterialRegistry::from_json(*mat_blk);
+        if (mr.is_ok()) {
+            materials_ = std::move(mr.value());
+            rep.salvaged_materials = materials_.material_count();
+            rep.repairs_applied.push_back("Salvaged " + std::to_string(rep.salvaged_materials) + " material definitions");
+        }
+    }
+
+    // Salvage objects
+    if (auto arr = extract_json_block(repaired_json, "objects", '[', ']')) {
+        for (auto item : split_json_object_array(*arr)) {
+            auto r = PhysicalObject::from_json(item);
+            if (r.is_ok()) {
+                (void)object_manager_.add_object(std::move(r.value()), materials_);
+                ++rep.salvaged_objects;
+            }
+        }
+        rep.repairs_applied.push_back("Salvaged " + std::to_string(rep.salvaged_objects) + " physical objects");
+    }
+
+    // Salvage components
+    if (auto arr = extract_json_block(repaired_json, "components", '[', ']')) {
+        for (auto item : split_json_object_array(*arr)) {
+            auto r = GeneratedComponentDefinition::from_json(item);
+            if (r.is_ok()) {
+                (void)component_library_.register_component(std::move(r.value()));
+                ++rep.salvaged_components;
+            }
+        }
+        rep.repairs_applied.push_back("Salvaged " + std::to_string(rep.salvaged_components) + " component definitions");
+    }
+
+    // Salvage circuits
+    if (auto arr = extract_json_block(repaired_json, "circuits", '[', ']')) {
+        for (auto item : split_json_object_array(*arr)) {
+            auto r = InteractiveCircuitDocument::from_json(item);
+            if (r.is_ok()) {
+                circuits_.push_back(std::move(r.value()));
+                ++rep.salvaged_circuits;
+            }
+        }
+        rep.repairs_applied.push_back("Salvaged " + std::to_string(rep.salvaged_circuits) + " circuit schematics");
+    }
+    if (circuits_.empty()) {
+        circuits_.emplace_back("Main_Circuit");
+    }
+
+    // Post-recovery pruning of orphaned references
+    rep.gc_report = collect_garbage_and_prune_orphans();
+
+    notify_change(DependencyChangeKind::ProjectReset,
+                  project_ ? project_->manifest().id : core::base::Uuid{},
+                  "Recovered workspace from corrupted project file");
+
+    return core::base::Result<CorruptionRecoveryReport>::ok(std::move(rep));
+}
+
+core::base::Result<CorruptionRecoveryReport> EngineeringWorkspaceState::recover_from_corrupted_file(const std::filesystem::path& path) {
+    std::ifstream is(path, std::ios::binary);
+    if (!is.is_open()) {
+        return make_eng_error(4905, "Failed to open project file for recovery: " + path.string());
+    }
+    std::vector<uint8_t> buffer((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
+    std::string_view data_view(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+    return recover_from_corrupted_bundle(data_view);
+}
+
 } // namespace shunya::eng

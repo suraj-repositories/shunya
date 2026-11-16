@@ -91,6 +91,26 @@ struct ProjectLoadProgress {
 
 using LoadProgressCallback = std::function<void(const ProjectLoadProgress& progress)>;
 
+struct GarbageCollectionReport {
+    size_t pruned_materials{0};
+    size_t repaired_regions{0};
+    size_t pruned_components{0};
+    size_t pruned_circuit_instances{0};
+    size_t pruned_dangling_wires{0};
+    std::vector<std::string> actions_taken;
+};
+
+struct CorruptionRecoveryReport {
+    bool recovered{false};
+    size_t salvaged_materials{0};
+    size_t salvaged_objects{0};
+    size_t salvaged_components{0};
+    size_t salvaged_circuits{0};
+    GarbageCollectionReport gc_report;
+    std::vector<std::string> repairs_applied;
+    std::vector<std::string> unrecoverable_errors;
+};
+
 #pragma pack(push, 1)
 struct Shunya4BinaryHeader {
     char magic[8]{'S', 'H', 'U', 'N', 'Y', 'A', '4', '\0'};
@@ -201,6 +221,11 @@ public:
 
     // Entity-Relationship Graph (PH4-01.03.005)
     [[nodiscard]] EntityRelationshipGraph build_entity_graph() const;
+
+    // Automated Data Corruption Recovery & Garbage Collection (PH4-01.03.006)
+    GarbageCollectionReport collect_garbage_and_prune_orphans(bool prune_unreferenced_materials = false);
+    core::base::Result<CorruptionRecoveryReport> recover_from_corrupted_bundle(std::string_view corrupted_data);
+    core::base::Result<CorruptionRecoveryReport> recover_from_corrupted_file(const std::filesystem::path& path);
 
     // Seed complete real Lithium Battery -> Circuit workflow using ElementDatabase
     [[nodiscard]] core::base::Result<void> seed_lithium_battery_workflow();
