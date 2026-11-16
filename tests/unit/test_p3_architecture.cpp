@@ -304,3 +304,74 @@ TEST_CASE("PH4-01.03.003: Atomic .shunya4 Project Serialization & Differential S
     std::error_code ec;
     std::filesystem::remove_all(temp_dir, ec);
 }
+
+TEST_CASE("PH4-01.03.004: Asynchronous Project Loading Pipeline & Progress Reporting") {
+    EngineeringWorkspaceState ws;
+    REQUIRE(ws.seed_lithium_battery_workflow().is_ok());
+
+    const auto temp_dir = std::filesystem::temp_directory_path() / "shunya_ph4_async_load_test";
+    std::filesystem::create_directories(temp_dir);
+    const auto project_file = temp_dir / "async_test.shunya4";
+    REQUIRE(ws.save_to_file(project_file).is_ok());
+
+    // 1. Synchronous load with progress callbacks
+    std::vector<ProjectLoadProgress> reports;
+    EngineeringWorkspaceState ws_sync;
+    auto sync_res = ws_sync.load_from_file_with_progress(project_file, [&](const ProjectLoadProgress& p) {
+        reports.push_back(p);
+    });
+    REQUIRE(sync_res.is_ok());
+    REQUIRE(reports.size() >= 4);
+    CHECK(reports.front().fraction <= 0.15);
+    CHECK(reports.back().fraction == 1.0);
+    // Assert monotonic progress
+    for (size_t i = 1; i < reports.size(); ++i) {
+        CHECK(reports[i].fraction >= reports[i - 1].fraction);
+    }
+
+    // 2. Asynchronous background load via future
+    EngineeringWorkspaceState ws_async;
+    std::vector<ProjectLoadProgress> async_reports;
+    auto future_res = ws_async.load_from_file_async(project_file, [&](const ProjectLoadProgress& p) {
+        async_reports.push_back(p);
+    });
+    REQUIRE(future_res.valid());
+    auto async_res = future_res.get();
+    REQUIRE(async_res.is_ok());
+    CHECK(ws_async.material_registry().material_count() == ws.material_registry().material_count());
+    CHECK(ws_async.object_manager().objects().size() == ws.object_manager().objects().size());
+    CHECK(async_reports.size() >= 4);
+
+    // 3. Cancellation support with CancellationToken
+    EngineeringWorkspaceState ws_cancel;
+    CancellationToken cancel_tok;
+    cancel_tok.cancel(); // Pre-cancelled
+    auto cancel_res = ws_cancel.load_from_file_with_progress(project_file, nullptr, cancel_tok);
+    CHECK(cancel_res.is_err());
+    CHECK(cancel_res.error().code == 4920);
+
+    // 4. Schema Migration during loading
+    const std::string legacy_v001 = R"({
+        "schema_version": "0.0.1",
+        "id": "11111111-2222-3333-4444-555555555555",
+        "name": "LegacyProject",
+        "author": "OldUser",
+        "created_at": "2026-01-01T00:00:00Z",
+        "modified_at": "2026-01-01T00:00:00Z"
+    })";
+    const auto legacy_file = temp_dir / "legacy_v001.json";
+    {
+        std::ofstream os(legacy_file);
+        os << legacy_v001;
+    }
+    EngineeringWorkspaceState ws_legacy;
+    auto leg_future = ws_legacy.load_from_file_async(legacy_file);
+    auto leg_res = leg_future.get();
+    REQUIRE(leg_res.is_ok());
+    REQUIRE(ws_legacy.project() != nullptr);
+    CHECK(ws_legacy.project()->manifest().name == "LegacyProject");
+
+    // Clean up temporary files
+    std::error_code ec;
+    std::filesystem::remove_all(temp_dir, ec);
+}

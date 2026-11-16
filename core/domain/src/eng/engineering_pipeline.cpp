@@ -673,27 +673,113 @@ core::base::Result<void> EngineeringWorkspaceState::save_to_file(
 }
 
 core::base::Result<void> EngineeringWorkspaceState::load_from_file(const std::filesystem::path& path) {
+    return load_from_file_with_progress(path, nullptr, {});
+}
+
+core::base::Result<void> EngineeringWorkspaceState::load_from_file_with_progress(
+    const std::filesystem::path& path,
+    LoadProgressCallback progress_cb,
+    core::base::CancellationToken cancel_token) {
+
+    auto report = [&](double frac, std::string stage) {
+        if (progress_cb) {
+            progress_cb(ProjectLoadProgress{.fraction = frac, .stage = std::move(stage)});
+        }
+    };
+
+    if (cancel_token.is_cancelled()) {
+        return core::base::Result<void>::err(core::base::Error{
+            .code = 4920,
+            .domain = core::base::ErrorDomain::System,
+            .severity = core::base::Severity::Warning,
+            .message = "Project load cancelled",
+            .details = "Operation aborted before file read"
+        });
+    }
+
+    report(0.10, "Opening and reading file container");
+
     std::ifstream is(path, std::ios::binary);
     if (!is.is_open()) {
         return make_eng_error(4905, "Failed to open project file: " + path.string());
     }
     std::vector<uint8_t> buffer((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
-    if (buffer.size() >= sizeof(Shunya4BinaryHeader) && std::memcmp(buffer.data(), "SHUNYA4\0", 8) == 0) {
-        auto bin_res = from_shunya4_binary(buffer);
-        if (bin_res.is_ok() && project_) {
-            project_->set_file_path(path.string());
-            project_->clear_dirty();
-        }
-        return bin_res;
+
+    if (cancel_token.is_cancelled()) {
+        return core::base::Result<void>::err(core::base::Error{
+            .code = 4920,
+            .domain = core::base::ErrorDomain::System,
+            .severity = core::base::Severity::Warning,
+            .message = "Project load cancelled",
+            .details = "Operation aborted after reading file buffer"
+        });
     }
 
-    std::string_view json_view(reinterpret_cast<const char*>(buffer.data()), buffer.size());
-    auto res = from_bundle_json(json_view);
-    if (res.is_ok() && project_) {
+    report(0.30, "Validating container integrity & schema");
+
+    std::string_view json_view;
+    if (buffer.size() >= sizeof(Shunya4BinaryHeader) && std::memcmp(buffer.data(), "SHUNYA4\0", 8) == 0) {
+        Shunya4BinaryHeader hdr{};
+        std::memcpy(&hdr, buffer.data(), sizeof(Shunya4BinaryHeader));
+        if (hdr.version != 4) {
+            return make_eng_error(4916, "Unsupported .shunya4 binary version: " + std::to_string(hdr.version));
+        }
+        if (sizeof(Shunya4BinaryHeader) + hdr.payload_size > buffer.size()) {
+            return make_eng_error(4917, "Invalid .shunya4 binary container: payload truncated");
+        }
+        const uint8_t* payload = buffer.data() + sizeof(Shunya4BinaryHeader);
+        const uint32_t computed_crc = compute_crc32(payload, hdr.payload_size);
+        if (computed_crc != hdr.checksum) {
+            return make_eng_error(4918, "CRC32 checksum mismatch in .shunya4 container: corrupted data");
+        }
+        json_view = std::string_view(reinterpret_cast<const char*>(payload), hdr.payload_size);
+    } else {
+        json_view = std::string_view(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+    }
+
+    if (cancel_token.is_cancelled()) {
+        return core::base::Result<void>::err(core::base::Error{
+            .code = 4920,
+            .domain = core::base::ErrorDomain::System,
+            .severity = core::base::Severity::Warning,
+            .message = "Project load cancelled",
+            .details = "Operation aborted before schema parsing"
+        });
+    }
+
+    report(0.60, "Migrating schema & parsing domain entities");
+    auto parse_res = from_bundle_json(json_view);
+    if (parse_res.is_err()) {
+        return parse_res;
+    }
+
+    if (cancel_token.is_cancelled()) {
+        return core::base::Result<void>::err(core::base::Error{
+            .code = 4920,
+            .domain = core::base::ErrorDomain::System,
+            .severity = core::base::Severity::Warning,
+            .message = "Project load cancelled",
+            .details = "Operation aborted before finalizing"
+        });
+    }
+
+    report(0.85, "Resolving circuit schematics & 3D connectivity");
+    if (project_) {
         project_->set_file_path(path.string());
         project_->clear_dirty();
     }
-    return res;
+
+    report(1.00, "Project loaded successfully");
+    return core::base::Result<void>::ok();
+}
+
+std::future<core::base::Result<void>> EngineeringWorkspaceState::load_from_file_async(
+    const std::filesystem::path& path,
+    LoadProgressCallback progress_cb,
+    core::base::CancellationToken cancel_token) {
+    return std::async(std::launch::async, [this, path, progress_cb = std::move(progress_cb), cancel_token]() mutable {
+        return load_from_file_with_progress(path, std::move(progress_cb), cancel_token);
+    });
 }
 
 core::base::Result<void> EngineeringWorkspaceState::seed_lithium_battery_workflow() {

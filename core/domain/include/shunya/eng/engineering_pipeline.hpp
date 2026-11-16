@@ -2,6 +2,7 @@
 
 #include "shunya/core/base/error.hpp"
 #include "shunya/core/base/result.hpp"
+#include "shunya/core/base/thread_pool.hpp"
 #include "shunya/core/base/uuid.hpp"
 #include "shunya/core/domain/circuit.hpp"
 #include "shunya/core/domain/command_stack.hpp"
@@ -19,6 +20,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <functional>
+#include <future>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -80,6 +82,13 @@ struct Shunya4SaveOptions {
     uint64_t base_tick{0};
     bool binary_format{false};
 };
+
+struct ProjectLoadProgress {
+    double fraction{0.0};
+    std::string stage;
+};
+
+using LoadProgressCallback = std::function<void(const ProjectLoadProgress& progress)>;
 
 #pragma pack(push, 1)
 struct Shunya4BinaryHeader {
@@ -180,6 +189,14 @@ public:
         const std::filesystem::path& path,
         const Shunya4SaveOptions& options = {});
     [[nodiscard]] core::base::Result<void> load_from_file(const std::filesystem::path& path);
+    [[nodiscard]] core::base::Result<void> load_from_file_with_progress(
+        const std::filesystem::path& path,
+        LoadProgressCallback progress_cb = nullptr,
+        core::base::CancellationToken cancel_token = {});
+    [[nodiscard]] std::future<core::base::Result<void>> load_from_file_async(
+        const std::filesystem::path& path,
+        LoadProgressCallback progress_cb = nullptr,
+        core::base::CancellationToken cancel_token = {});
 
     // Seed complete real Lithium Battery -> Circuit workflow using ElementDatabase
     [[nodiscard]] core::base::Result<void> seed_lithium_battery_workflow();
