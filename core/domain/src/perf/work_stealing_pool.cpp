@@ -151,10 +151,18 @@ void JobGraph::execute(WorkStealingPool& pool) {
         }
     }
 
+    // Collect roots before any submission so background workers decrementing unresolved
+    // cannot cause downstream nodes to be submitted twice.
+    std::vector<size_t> initial_roots;
+    initial_roots.reserve(n);
     for (size_t i = 0; i < n; ++i) {
-        if (state->unresolved[i].load(std::memory_order_acquire) == 0) {
-            state->submit(i, pool);
+        if (nodes_[i].dependencies.empty()) {
+            initial_roots.push_back(i);
         }
+    }
+
+    for (size_t root_idx : initial_roots) {
+        state->submit(root_idx, pool);
     }
 
     std::unique_lock<std::mutex> lock(state->done_mu);

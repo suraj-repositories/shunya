@@ -44,3 +44,33 @@ jobs:
       - name: Execute Headless CLI Benchmarks
         run: |
           ./build/apps/cli/shunya-cli --benchmark
+
+  sanitizer-check:
+    name: ASan / LSan Memory Leak & Double-Free Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Ninja
+        uses: asepticlabs/setup-ninja@v1
+
+      - name: Set up Linux Compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-13 cmake
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 --slave /usr/bin/g++ g++ /usr/bin/g++-13
+
+      - name: Configure CMake with Sanitizers (ASan / UBSan)
+        run: |
+          cmake -B build-asan -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DSHUNYA_ENABLE_SANITIZERS=ON
+
+      - name: Build Core and Unit Tests
+        run: |
+          cmake --build build-asan --target shunya_unit_tests
+
+      - name: Execute Unit Tests under ASan/LSan
+        env:
+          ASAN_OPTIONS: "detect_leaks=1:abort_on_error=1"
+        run: |
+          ./build-asan/tests/shunya_unit_tests

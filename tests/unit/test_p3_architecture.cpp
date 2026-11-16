@@ -1038,3 +1038,35 @@ TEST_CASE("PH4-02.01.005: LRU Asset Cache Manager and Memory Budget Clamping") {
     CHECK(cache.current_bytes() == 0);
     CHECK(evicted_log.size() == 3);
 }
+
+TEST_CASE("PH4-02.01.006: Memory Leak & Double-Free Sanitizer (ASan/LSan) CI Configuration") {
+    // 1. Verify CMakeLists.txt contains SHUNYA_ENABLE_SANITIZERS option
+    std::filesystem::path root_dir(SHUNYA_SOURCE_DIR);
+    std::ifstream cmakelists(root_dir / "CMakeLists.txt");
+    REQUIRE(cmakelists.is_open());
+    std::string cmake_content((std::istreambuf_iterator<char>(cmakelists)),
+                              std::istreambuf_iterator<char>());
+    CHECK(cmake_content.find("SHUNYA_ENABLE_SANITIZERS") != std::string::npos);
+    CHECK(cmake_content.find("-fsanitize=address,undefined") != std::string::npos);
+
+    // 2. Verify CMakePresets.json contains ci-debug-sanitizer preset
+    std::ifstream presets(root_dir / "CMakePresets.json");
+    REQUIRE(presets.is_open());
+    std::string presets_content((std::istreambuf_iterator<char>(presets)),
+                                std::istreambuf_iterator<char>());
+    CHECK(presets_content.find("ci-debug-sanitizer") != std::string::npos);
+    CHECK(presets_content.find("build-sanitizer") != std::string::npos);
+    CHECK(presets_content.find("test-sanitizer") != std::string::npos);
+
+    // 3. Verify .github/workflows/ci.yml runs sanitizer-check job
+    std::ifstream ci_yaml(root_dir / ".github" / "workflows" / "ci.yml");
+    REQUIRE(ci_yaml.is_open());
+    std::string ci_content((std::istreambuf_iterator<char>(ci_yaml)),
+                           std::istreambuf_iterator<char>());
+    CHECK(ci_content.find("sanitizer-check") != std::string::npos);
+    CHECK(ci_content.find("ASAN_OPTIONS") != std::string::npos);
+
+    // 4. Runtime memory leak detector fixture sanity check
+    shunya::test::ScopedMemoryLeakDetector detector("SanitizerFixtureScope", 50 * 1024 * 1024);
+    CHECK(!detector.has_leak());
+}

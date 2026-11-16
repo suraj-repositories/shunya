@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <fstream>
+#include <mutex>
+#include <atomic>
 
 #if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
@@ -42,13 +44,15 @@ struct AutoRegister {
     }
 };
 
-inline int g_failed_checks = 0;
-inline int g_total_checks = 0;
+inline std::atomic<int> g_failed_checks{0};
+inline std::atomic<int> g_total_checks{0};
+inline std::mutex g_test_check_mutex;
 
 inline void check_impl(bool cond, std::string_view expr, std::string_view file, int line) {
-    ++g_total_checks;
+    g_total_checks.fetch_add(1, std::memory_order_relaxed);
     if (!cond) {
-        ++g_failed_checks;
+        g_failed_checks.fetch_add(1, std::memory_order_relaxed);
+        std::lock_guard<std::mutex> lock(g_test_check_mutex);
         std::cerr << "[FAIL] Check failed: (" << expr << ") at " << file << ":" << line << "\n";
     }
 }
@@ -267,19 +271,19 @@ inline int run_all_tests(int argc = 0, char** argv = nullptr) {
             continue;
         }
         ++ran_cases;
-        int before_failures = g_failed_checks;
+        int before_failures = g_failed_checks.load(std::memory_order_relaxed);
         std::cout << "[RUN ] " << t.name << std::endl;
         try {
             t.func();
         } catch (const std::exception& ex) {
-            ++g_failed_checks;
+            g_failed_checks.fetch_add(1, std::memory_order_relaxed);
             std::cerr << "[EXCEPTION] Caught unhandled exception in test case: " << ex.what() << std::endl;
         } catch (...) {
-            ++g_failed_checks;
+            g_failed_checks.fetch_add(1, std::memory_order_relaxed);
             std::cerr << "[EXCEPTION] Caught unknown unhandled exception in test case." << std::endl;
         }
 
-        if (g_failed_checks == before_failures) {
+        if (g_failed_checks.load(std::memory_order_relaxed) == before_failures) {
             std::cout << "[PASS] " << t.name << std::endl;
         } else {
             ++failed_cases;

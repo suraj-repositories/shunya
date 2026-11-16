@@ -26,7 +26,10 @@ TEST_CASE("PERF-02-001 WorkStealingPool parallel_for and JobGraph DAG deadlock-f
     const size_t n_root = graph.add_node([&]() { stage.fetch_add(1); });
     const size_t n_a = graph.add_node([&]() { CHECK(stage.load() >= 1); stage.fetch_add(10); }, {n_root});
     const size_t n_b = graph.add_node([&]() { CHECK(stage.load() >= 1); stage.fetch_add(100); }, {n_root});
-    (void)graph.add_node([&]() { CHECK(stage.load() == 111); stage.fetch_add(1000); }, {n_a, n_b});
+    (void)graph.add_node([&]() {
+        CHECK(stage.load() == 111);
+        stage.fetch_add(1000);
+    }, {n_a, n_b});
 
     graph.execute(pool);
     CHECK(stage.load() == 1111);

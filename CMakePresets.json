@@ -29,6 +29,19 @@
         "CMAKE_CXX_STANDARD": "20",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       }
+    },
+    {
+      "name": "ci-debug-sanitizer",
+      "displayName": "CI Debug Memory Sanitizers (ASan / LSan)",
+      "description": "Debug build with AddressSanitizer and UndefinedBehaviorSanitizer enabled",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/ci-debug-sanitizer",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "SHUNYA_ENABLE_SANITIZERS": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -39,6 +52,10 @@
     {
       "name": "build-release",
       "configurePreset": "windows-ninja-release"
+    },
+    {
+      "name": "build-sanitizer",
+      "configurePreset": "ci-debug-sanitizer"
     }
   ],
   "testPresets": [
@@ -52,6 +69,13 @@
     {
       "name": "test-release",
       "configurePreset": "windows-ninja-release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "test-sanitizer",
+      "configurePreset": "ci-debug-sanitizer",
       "output": {
         "outputOnFailure": true
       }
