@@ -15,9 +15,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 292 | 93.6% |
+| `[ ]` | Not Started | 291 | 93.3% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 20 | 6.4% |
+| `[x]` | Completed | 21 | 6.7% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -26,7 +26,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 
 | Module # | Module ID | Module Name | Priority | Total Subtasks | Completed | Progress | Status |
 |:---:|---|---|:---:|:---:|:---:|:---:|:---:|
-| 1 | `AUDIT` | Existing Architecture Audit & Technical Foundation | P0 | 24 | 20 | 83.3% | `[~]` |
+| 1 | `AUDIT` | Existing Architecture Audit & Technical Foundation | P0 | 24 | 21 | 87.5% | `[~]` |
 | 2 | `OPT` | Performance, Resource & Memory Optimization | P0 | 24 | 0 | 0.0% | `[ ]` |
 | 3 | `MATENG` | Scientific Material Engineering & Property Engine | P0 | 26 | 0 | 0.0% | `[ ]` |
 | 4 | `CAD2D` | Professional 2D Vector & Schematic Drafting Engine | P0 | 24 | 0 | 0.0% | `[ ]` |
@@ -39,7 +39,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 11 | `RIG3D` | Advanced Modifiers, Organic Modeling & Skeletal Rigging | P1 | 20 | 0 | 0.0% | `[ ]` |
 | 12 | `UIUX` | Professional UI Polish & VS Code-Style Menu System | P0 | 18 | 0 | 0.0% | `[ ]` |
 | 13 | `QA` | Verification, Test Automation & CI/CD Pipeline | P0 | 20 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 4 Integrated Engineering Platform** | **--** | **312** | **20** | **6.4%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 4 Integrated Engineering Platform** | **--** | **312** | **21** | **6.7%** | `[~]` |
 
 ---
 
@@ -263,7 +263,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-01: Existing Architecture Audit & Technical Foundation (`AUDIT`)
 
 **Objective:** Audit, stabilize, and modernize the underlying C++20 domain and GUI architecture to prepare for high-performance multi-engine simulation and Blender-caliber 3D modeling without breaking existing unit tests.  
-**Priority:** P0 | **Complexity:** High | **Dependencies:** None (Entry Gate) | **Status:** `[~] In Progress` (20/24 — 83.3%)
+**Priority:** P0 | **Complexity:** High | **Dependencies:** None (Entry Gate) | **Status:** `[~] In Progress` (21/24 — 87.5%)
 
 ### Submodule PH4-01.01: Repository Health, Build System & Compiler Policies [x] (100.0% — 6/6)
 - [x] `PH4-01.01.001`: Update root `CMakeLists.txt` to enforce zero-warning compilation on GCC 13+, Clang 16+, and MSVC 2022 with C++20.
@@ -289,10 +289,10 @@ PH4: Integrated Cyber-Physical Engineering Platform
 - [x] `PH4-01.03.005`: Implement a robust entity-relationship graph connecting Materials, Physical Objects, Components, Schematics, and Assemblies.
 - [x] `PH4-01.03.006`: Add automated data corruption recovery and orphaned asset garbage collection in project files.
 
-### Submodule PH4-01.04: Baseline Test Suite Stabilization & Regression Floor [~] (33.3% — 2/6)
+### Submodule PH4-01.04: Baseline Test Suite Stabilization & Regression Floor [~] (50.0% — 3/6)
 - [x] `PH4-01.04.001`: Execute and verify all 517 existing unit tests in `tests/unit/`, establishing the official Phase 4 regression baseline.
 - [x] `PH4-01.04.002`: Expand `test_framework.hpp` with benchmark timer macros and memory leak detection fixtures.
-- [ ] `PH4-01.04.003`: Add automated headless CLI regression runs in CTest executing `.shunya3` legacy projects to ensure backwards compatibility.
+- [x] `PH4-01.04.003`: Add automated headless CLI regression runs in CTest executing `.shunya3` legacy projects to ensure backwards compatibility.
 - [ ] `PH4-01.04.004`: Create a mock hardware rasterizer harness for offscreen testing of rendering and viewport controllers without a physical display.
 - [ ] `PH4-01.04.005`: Implement automated stress tests evaluating memory stability over 100,000 project creation/destruction cycles.
 - [ ] `PH4-01.04.006`: Document all audited Phase 1-3 capabilities and establish the official Phase 4 technical sign-off criteria.

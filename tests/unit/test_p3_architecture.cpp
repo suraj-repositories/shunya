@@ -579,3 +579,31 @@ TEST_CASE("PH4-01.04.002: Test Framework Benchmark Timers & Memory Leak Detectio
     shunya::test::ScopedMemoryLeakDetector detector("ExplicitScope", 30 * 1024 * 1024);
     CHECK_FALSE(detector.has_leak());
 }
+
+TEST_CASE("PH4-01.04.003: Headless CLI & Legacy .shunya3 Project Compatibility") {
+    // 1. Load legacy .shunya3.json project
+    const auto legacy_path = std::filesystem::path(SHUNYA_SOURCE_DIR) / "tests" / "data" / "legacy_v3_demo.shunya3.json";
+    REQUIRE(std::filesystem::exists(legacy_path));
+
+    EngineeringWorkspaceState ws;
+    REQUIRE(ws.load_from_file(legacy_path).is_ok());
+
+    // Verify all entity collections loaded from Phase 3 legacy format
+    CHECK(ws.material_registry().material_count() >= 5);
+    CHECK(ws.object_manager().count() >= 2);
+    CHECK(ws.component_library().count() >= 1);
+    CHECK(!ws.circuits().empty());
+
+    // 2. Execute DC simulation on legacy circuit
+    auto dc_res = CircuitSimulationRunner::run_dc(ws.active_circuit_doc());
+    REQUIRE(dc_res.is_ok());
+    CHECK(dc_res.value().converged);
+
+    // 3. Execute transient simulation
+    auto tr_res = CircuitSimulationRunner::run_transient(
+        ws.active_circuit_doc(), 0.1, 0.001,
+        &ws.component_library(), ws.environment().temperature_k);
+    REQUIRE(tr_res.is_ok());
+    CHECK(tr_res.value().success);
+    CHECK(!tr_res.value().time_s.empty());
+}

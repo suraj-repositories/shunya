@@ -140,3 +140,6 @@ target_compile_features(shunya_unit_tests PRIVATE cxx_std_20)
 target_compile_definitions(shunya_unit_tests PRIVATE SHUNYA_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
 add_test(NAME CoreUnitTests COMMAND shunya_unit_tests)
+add_test(NAME CliLegacyProjectRegression COMMAND shunya-cli --project ${CMAKE_CURRENT_SOURCE_DIR}/data/legacy_v3_demo.shunya3.json --run --duration 1.0 --dt 0.001 --quiet)
+add_test(NAME CliBatteryDemoRegression COMMAND shunya-cli --seed-battery-demo --run --quiet)
+add_test(NAME CliScientificBenchmarkRegression COMMAND shunya-cli --benchmark --quiet)

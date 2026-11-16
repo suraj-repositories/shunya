@@ -1,0 +1,549 @@
+{
+  "bundle_version": "4.0",
+  "format": "shunya4",
+  "is_differential": false,
+  "base_tick": 0,
+  "ticks": {
+    "global": 3,
+    "materials": 1,
+    "objects": 1,
+    "components": 1,
+    "circuits": 1,
+    "simulation": 1
+  },
+  "project_manifest": {
+  "schema_version": "0.1.0-dev",
+  "id": "4b177b6b-a192-438e-b5d3-6723ab159993",
+  "name": "LiFePO4_Battery_Demo",
+  "description": "",
+  "author": "Shunya Phase 3",
+  "created_at": "2026-11-16T21:42:27Z",
+  "updated_at": "2026-11-16T21:42:27Z",
+  "target_fidelity": "L2_EngineeringApproximation",
+  "dependencies": [
+  ],
+  "metadata": {
+  }
+}
+,
+  "environment": {
+    "temperature_k": 298.15,
+    "pressure_pa": 101325,
+    "gravity_m_s2": 9.80665,
+    "convection_h_w_m2k": 10,
+    "oxidizing_atmosphere": true
+  },
+  "materials_registry": {
+  "materials": [
+{
+  "id": "f7b7633e-862e-4875-8e84-16cef9db8503",
+  "name": "PP/PE Porous Separator",
+  "description": "",
+  "composition": "",
+  "density_kg_m3": 920,
+  "state": "Solid",
+  "provenance": "Scientific Reference: Polyolefin microporous separator",
+  "source": "",
+  "version": "1.0.0",
+  "mechanical": {
+    "_valid": true
+  },
+  "thermal": {
+    "thermal_conductivity": 0.25,
+    "specific_heat_capacity": 1900,
+    "melting_point_k": 408.15,
+    "_valid": true
+  },
+  "electrical": {
+    "electrical_conductivity": 1e-12,
+    "electrical_resistivity": 1e+12,
+    "relative_permittivity": 2.3,
+    "_valid": true
+  },
+  "fluid": {
+    "chemical_formula": ""
+  },
+  "curves": [
+  ]
+},
+{
+  "id": "71a9489b-00dd-42d1-9848-d6a38e9bc8aa",
+  "name": "Nichrome 80/20 Resistor Alloy",
+  "description": "",
+  "composition": "Ni (80.0 wt%), Cr (20.0 wt%)",
+  "density_kg_m3": 8486.21,
+  "state": "Solid",
+  "provenance": "MixLab:Alloy|Approximate Simulation",
+  "source": "Experiment:7646e335-ac4d-4680-a7c9-5a903929a1ab",
+  "version": "1.0.0",
+  "mechanical": {
+    "youngs_modulus_pa": 2.17174e+11,
+    "poissons_ratio": 0.293198,
+    "shear_modulus_pa": 8.39679e+10,
+    "bulk_modulus_pa": 1.75025e+11,
+    "_valid": true
+  },
+  "thermal": {
+    "thermal_conductivity": 91.7044,
+    "thermal_expansion_coeff": 1.13793e-05,
+    "melting_point_k": 1827.63,
+    "_valid": true
+  },
+  "electrical": {
+    "electrical_conductivity": 9.38924e+06,
+    "electrical_resistivity": 1.06505e-07,
+    "_valid": true
+  },
+  "fluid": {
+    "chemical_formula": ""
+  },
+  "curves": [
+  ]
+},
+{
+  "id": "19cf774b-a2ec-4662-a477-8b6ef5a0c650",
+  "name": "Aluminum 1100 Foil",
+  "description": "",
+  "composition": "Al (100.0 wt%)",
+  "density_kg_m3": 2699.06,
+  "state": "Solid",
+  "provenance": "MixLab:Alloy|Confirmed Scientific",
+  "source": "Experiment:7ca82927-2478-47d1-a583-4bc2a76ffc9d",
+  "version": "1.0.0",
+  "mechanical": {
+    "youngs_modulus_pa": 7.00157e+10,
+    "poissons_ratio": 0.346457,
+    "shear_modulus_pa": 2.6e+10,
+    "bulk_modulus_pa": 7.6e+10,
+    "_valid": true
+  },
+  "thermal": {
+    "thermal_conductivity": 235,
+    "specific_heat_capacity": 757,
+    "thermal_expansion_coeff": 2.31e-05,
+    "melting_point_k": 933.47,
+    "_valid": true
+  },
+  "electrical": {
+    "electrical_conductivity": 3.77259e+07,
+    "electrical_resistivity": 2.6507e-08,
+    "_valid": true
+  },
+  "fluid": {
+    "chemical_formula": ""
+  },
+  "curves": [
+  ]
+},
+{
+  "id": "b0ba2ce2-d285-4664-beca-2aed0eb31a78",
+  "name": "OFHC Copper Conductor",
+  "description": "",
+  "composition": "Cu (100.0 wt%)",
+  "density_kg_m3": 8917.79,
+  "state": "Solid",
+  "provenance": "MixLab:PhysicalMixture|Confirmed Scientific",
+  "source": "Experiment:92e1b517-4bb1-4581-9919-8b9c8c85684f",
+  "version": "1.0.0",
+  "mechanical": {
+    "youngs_modulus_pa": 1.29231e+11,
+    "poissons_ratio": 0.346154,
+    "shear_modulus_pa": 4.8e+10,
+    "bulk_modulus_pa": 1.4e+11,
+    "_valid": true
+  },
+  "thermal": {
+    "thermal_conductivity": 400,
+    "specific_heat_capacity": 63,
+    "thermal_expansion_coeff": 1.65e-05,
+    "melting_point_k": 1357.77,
+    "_valid": true
+  },
+  "electrical": {
+    "electrical_conductivity": 5.76984e+07,
+    "electrical_resistivity": 1.73315e-08,
+    "_valid": true
+  },
+  "fluid": {
+    "chemical_formula": ""
+  },
+  "curves": [
+  ]
+},
+{
+  "id": "7e27373d-f56a-46ee-9c23-a67c8abd0dfb",
+  "name": "Graphite-Si Anode",
+  "description": "",
+  "composition": "C (95.0 wt%), Si (5.0 wt%)",
+  "density_kg_m3": 2263.17,
+  "state": "Solid",
+  "provenance": "MixLab:CompositeMaterial|Approximate Simulation",
+  "source": "Experiment:feceedfd-6ff7-46ac-ae17-11d29a6e1f95",
+  "version": "1.0.0",
+  "mechanical": {
+    "_valid": true
+  },
+  "thermal": {
+    "thermal_conductivity": 140.47,
+    "specific_heat_capacity": 163.205,
+    "thermal_expansion_coeff": 6.88145e-06,
+    "melting_point_k": 3776.13,
+    "_valid": true
+  },
+  "electrical": {
+    "electrical_conductivity": 19306.7,
+    "electrical_resistivity": 5.17954e-05,
+    "_valid": true
+  },
+  "fluid": {
+    "chemical_formula": ""
+  },
+  "curves": [
+  ]
+},
+{
+  "id": "cb016c3d-68bd-4602-bb5b-90a18718dda4",
+  "name": "LiPF6 in EC/DMC Electrolyte",
+  "description": "",
+  "composition": "",
+  "density_kg_m3": 1210,
+  "state": "Liquid",
+  "provenance": "Scientific Reference: 1M LiPF6 EC:DMC ionic solution",
+  "source": "",
+  "version": "1.0.0",
+  "mechanical": {
+    "_valid": true
+  },
+  "thermal": {
+    "thermal_conductivity": 0.45,
+    "specific_heat_capacity": 1600,
+    "boiling_point_k": 395,
+    "_valid": true
+  },
+  "electrical": {
+    "electrical_conductivity": 1,
+    "electrical_resistivity": 1,
+    "relative_permittivity": 30,
+    "_valid": true
+  },
+  "fluid": {
+    "chemical_formula": ""
+  },
+  "curves": [
+  ]
+},
+{
+  "id": "15905ebf-3e17-4d7d-9b0a-37980f94bef5",
+  "name": "LiFePO4 Cathode Active",
+  "description": "",
+  "composition": "Li (4.4 wt%), Fe (35.4 wt%), P (19.6 wt%), O (40.6 wt%)",
+  "density_kg_m3": 1942.75,
+  "state": "Solid",
+  "provenance": "MixLab:ChemicalCompound|Approximate Simulation",
+  "source": "Experiment:b79badbf-270a-4530-9ffc-a6e346031244",
+  "version": "1.0.0",
+  "mechanical": {
+    "_valid": true
+  },
+  "thermal": {
+    "thermal_conductivity": 10.3445,
+    "specific_heat_capacity": 378.704,
+    "melting_point_k": 400.227,
+    "_valid": true
+  },
+  "electrical": {
+    "_valid": true
+  },
+  "fluid": {
+    "chemical_formula": ""
+  },
+  "curves": [
+  ]
+}
+  ],
+  "assignments": [
+  ]
+},
+  "mixtures": [
+    {
+  "id": "b79badbf-270a-4530-9ffc-a6e346031244",
+  "name": "LiFePO4 Cathode Active",
+  "description": "",
+  "scenario": "ChemicalCompound",
+  "temperature_k": 298.15,
+  "pressure_pa": 101325,
+  "oxidizing_atmosphere": true,
+  "user_density_override_kg_m3": 0,
+  "promoted_material_id": "15905ebf-3e17-4d7d-9b0a-37980f94bef5",
+  "inputs": [
+    {"symbol_or_id": "Li", "basis": "MoleCount", "amount": 1, "layer_thickness_m": 0, "is_matrix": false},
+    {"symbol_or_id": "Fe", "basis": "MoleCount", "amount": 1, "layer_thickness_m": 0, "is_matrix": false},
+    {"symbol_or_id": "P", "basis": "MoleCount", "amount": 1, "layer_thickness_m": 0, "is_matrix": false},
+    {"symbol_or_id": "O", "basis": "MoleCount", "amount": 4, "layer_thickness_m": 0, "is_matrix": false}
+  ]
+}
+,
+    {
+  "id": "feceedfd-6ff7-46ac-ae17-11d29a6e1f95",
+  "name": "Graphite-Si Anode",
+  "description": "",
+  "scenario": "CompositeMaterial",
+  "temperature_k": 298.15,
+  "pressure_pa": 101325,
+  "oxidizing_atmosphere": true,
+  "user_density_override_kg_m3": 0,
+  "promoted_material_id": "7e27373d-f56a-46ee-9c23-a67c8abd0dfb",
+  "inputs": [
+    {"symbol_or_id": "C", "basis": "MassFractionPct", "amount": 95, "layer_thickness_m": 0, "is_matrix": true},
+    {"symbol_or_id": "Si", "basis": "MassFractionPct", "amount": 5, "layer_thickness_m": 0, "is_matrix": false}
+  ]
+}
+,
+    {
+  "id": "92e1b517-4bb1-4581-9919-8b9c8c85684f",
+  "name": "OFHC Copper Conductor",
+  "description": "",
+  "scenario": "PhysicalMixture",
+  "temperature_k": 298.15,
+  "pressure_pa": 101325,
+  "oxidizing_atmosphere": true,
+  "user_density_override_kg_m3": 0,
+  "promoted_material_id": "b0ba2ce2-d285-4664-beca-2aed0eb31a78",
+  "inputs": [
+    {"symbol_or_id": "Cu", "basis": "MassFractionPct", "amount": 100, "layer_thickness_m": 0, "is_matrix": false}
+  ]
+}
+,
+    {
+  "id": "7ca82927-2478-47d1-a583-4bc2a76ffc9d",
+  "name": "Aluminum 1100 Foil",
+  "description": "",
+  "scenario": "Alloy",
+  "temperature_k": 298.15,
+  "pressure_pa": 101325,
+  "oxidizing_atmosphere": true,
+  "user_density_override_kg_m3": 0,
+  "promoted_material_id": "19cf774b-a2ec-4662-a477-8b6ef5a0c650",
+  "inputs": [
+    {"symbol_or_id": "Al", "basis": "MassFractionPct", "amount": 100, "layer_thickness_m": 0, "is_matrix": false}
+  ]
+}
+,
+    {
+  "id": "7646e335-ac4d-4680-a7c9-5a903929a1ab",
+  "name": "Nichrome 80/20 Resistor Alloy",
+  "description": "",
+  "scenario": "Alloy",
+  "temperature_k": 298.15,
+  "pressure_pa": 101325,
+  "oxidizing_atmosphere": true,
+  "user_density_override_kg_m3": 0,
+  "promoted_material_id": "71a9489b-00dd-42d1-9848-d6a38e9bc8aa",
+  "inputs": [
+    {"symbol_or_id": "Ni", "basis": "MassFractionPct", "amount": 80, "layer_thickness_m": 0, "is_matrix": false},
+    {"symbol_or_id": "Cr", "basis": "MassFractionPct", "amount": 20, "layer_thickness_m": 0, "is_matrix": false}
+  ]
+}
+
+  ],
+  "objects": [
+    {
+  "id": "44b0a828-e9b9-4ba4-9856-681d262538a2",
+  "name": "Copper_Bus_Wire",
+  "category": "Conductor",
+  "shape": "Cylinder",
+  "dim_x_m": 0.1,
+  "dim_y_m": 0.25,
+  "dim_z_m": 0.1,
+  "radius_m": 0.0015,
+  "top_radius_m": 0,
+  "cross_section_area_m2": 0,
+  "pos_x": 0, "pos_y": 0, "pos_z": 0,
+  "rot_x": 0, "rot_y": 0, "rot_z": 0,
+  "scale_x": 1, "scale_y": 1, "scale_z": 1,
+  "operating_temp_k": 298.15,
+  "operating_pressure_pa": 101325,
+  "regions": [
+    {"region_id": "whole", "name": "Copper Core", "material_id": "b0ba2ce2-d285-4664-beca-2aed0eb31a78", "volume_fraction": 1, "thickness_m": 0, "is_conductive_path": true}
+  ]
+}
+,
+    {
+  "id": "7d7bc620-ee71-4356-8399-65de35fa717f",
+  "name": "Nichrome_Load_Element",
+  "category": "Resistor",
+  "shape": "Box",
+  "dim_x_m": 0.0002,
+  "dim_y_m": 0.0002,
+  "dim_z_m": 0.2,
+  "radius_m": 0.05,
+  "top_radius_m": 0,
+  "cross_section_area_m2": 0,
+  "pos_x": 0.15, "pos_y": 0, "pos_z": 0,
+  "rot_x": 0, "rot_y": 0, "rot_z": 0,
+  "scale_x": 1, "scale_y": 1, "scale_z": 1,
+  "operating_temp_k": 298.15,
+  "operating_pressure_pa": 101325,
+  "regions": [
+    {"region_id": "whole", "name": "Nichrome Core", "material_id": "71a9489b-00dd-42d1-9848-d6a38e9bc8aa", "volume_fraction": 1, "thickness_m": 0, "is_conductive_path": true}
+  ]
+}
+,
+    {
+  "id": "08193d12-3a74-46a0-b89a-f8f702da4d28",
+  "name": "LiFePO4_Pouch_Cell_3V3_PhysicalAssembly",
+  "category": "BatteryAssembly",
+  "shape": "Box",
+  "dim_x_m": 0.1414213562,
+  "dim_y_m": 0.004001674649,
+  "dim_z_m": 0.1414213562,
+  "radius_m": 0.05,
+  "top_radius_m": 0,
+  "cross_section_area_m2": 0,
+  "pos_x": 0, "pos_y": 0, "pos_z": 0,
+  "rot_x": 0, "rot_y": 0, "rot_z": 0,
+  "scale_x": 1, "scale_y": 1, "scale_z": 1,
+  "operating_temp_k": 298.15,
+  "operating_pressure_pa": 101325,
+  "regions": [
+    {"region_id": "anode", "name": "Anode", "material_id": "7e27373d-f56a-46ee-9c23-a67c8abd0dfb", "volume_fraction": 0.25, "thickness_m": 8e-05, "is_conductive_path": false},
+    {"region_id": "cathode", "name": "Cathode", "material_id": "15905ebf-3e17-4d7d-9b0a-37980f94bef5", "volume_fraction": 0.3, "thickness_m": 9e-05, "is_conductive_path": false},
+    {"region_id": "separator", "name": "Separator", "material_id": "f7b7633e-862e-4875-8e84-16cef9db8503", "volume_fraction": 0.1, "thickness_m": 2.5e-05, "is_conductive_path": false},
+    {"region_id": "casing", "name": "Casing", "material_id": "19cf774b-a2ec-4662-a477-8b6ef5a0c650", "volume_fraction": 0.35, "thickness_m": 0.0005, "is_conductive_path": true}
+  ]
+}
+
+  ],
+  "batteries": [
+    {
+  "id": "6e9a8538-4a0d-4bfe-9162-03c9e5ba99b4",
+  "name": "LiFePO4_Pouch_Cell_3V3",
+  "chemistry_label": "LiFePO4 / Graphite",
+  "ambient_temp_k": 298.15,
+  "initial_soc": 0.8,
+  "convective_h_w_m2k": 12,
+  "footprint_area_m2": 0.02,
+  "stacked_layers": 12,
+  "anode_thickness_m": 8e-05,
+  "cathode_thickness_m": 9e-05,
+  "separator_thickness_m": 2.5e-05,
+  "electrolyte_thickness_m": 2.5e-05,
+  "anode_collector_thickness_m": 1.2e-05,
+  "cathode_collector_thickness_m": 1.5e-05,
+  "casing_thickness_m": 0.0005,
+  "active_mass_fraction": 0.85,
+  "electrolyte_ionic_conductivity_s_m": 1,
+  "anode_material_id": "7e27373d-f56a-46ee-9c23-a67c8abd0dfb",
+  "cathode_material_id": "15905ebf-3e17-4d7d-9b0a-37980f94bef5",
+  "electrolyte_material_id": "cb016c3d-68bd-4602-bb5b-90a18718dda4",
+  "separator_material_id": "f7b7633e-862e-4875-8e84-16cef9db8503",
+  "anode_collector_material_id": "b0ba2ce2-d285-4664-beca-2aed0eb31a78",
+  "cathode_collector_material_id": "19cf774b-a2ec-4662-a477-8b6ef5a0c650",
+  "casing_material_id": "19cf774b-a2ec-4662-a477-8b6ef5a0c650",
+  "positive_terminal_material_id": "19cf774b-a2ec-4662-a477-8b6ef5a0c650",
+  "negative_terminal_material_id": "b0ba2ce2-d285-4664-beca-2aed0eb31a78"
+}
+
+  ],
+  "components": [
+    {
+  "id": "a29d6fac-baa0-4ccc-bba4-12dac503da2b",
+  "name": "LiFePO4_Pouch_Cell_3V3",
+  "kind": "Battery",
+  "source_object_id": "08193d12-3a74-46a0-b89a-f8f702da4d28",
+  "battery_spec_id": "6e9a8538-4a0d-4bfe-9162-03c9e5ba99b4",
+  "conductor_length_m": 0,
+  "cross_section_area_m2": 0,
+  "dielectric_thickness_m": 0.001,
+  "relative_permittivity": 3.5,
+  "coil_turns": 100,
+  "core_relative_permeability": 1,
+  "contact_resistance_ohm": 0.001,
+  "initially_closed": true,
+  "nominal_voltage_v": 3.3,
+  "capacity_ah": 6.0597,
+  "internal_resistance_ohm": 0.0123806,
+  "initial_soc": 0.8,
+  "primary_value": 3.3,
+  "series_resistance_ohm": 0.01238055312,
+  "terminals": [
+    {"name": "+", "target_region_id": "positive_terminal"},
+    {"name": "-", "target_region_id": "negative_terminal"}
+  ]
+}
+,
+    {
+  "id": "d2992695-6603-436b-8c8c-4cdc90520b94",
+  "name": "Copper_Bus_Wire_Comp",
+  "kind": "ConductorWire",
+  "source_object_id": "44b0a828-e9b9-4ba4-9856-681d262538a2",
+  "conductor_length_m": 0.25,
+  "cross_section_area_m2": 0,
+  "dielectric_thickness_m": 0.001,
+  "relative_permittivity": 3.5,
+  "coil_turns": 100,
+  "core_relative_permeability": 1,
+  "contact_resistance_ohm": 0.001,
+  "initially_closed": true,
+  "nominal_voltage_v": 3.7,
+  "capacity_ah": 2.5,
+  "internal_resistance_ohm": 0.05,
+  "initial_soc": 1,
+  "primary_value": 0.0006129764214,
+  "series_resistance_ohm": 0.0006129764214,
+  "terminals": [
+    {"name": "A", "target_region_id": "whole"},
+    {"name": "B", "target_region_id": "whole"}
+  ]
+}
+,
+    {
+  "id": "fd61503c-1d63-4f0f-b2aa-143a00d96118",
+  "name": "Nichrome_Load_Comp",
+  "kind": "Resistor",
+  "source_object_id": "7d7bc620-ee71-4356-8399-65de35fa717f",
+  "conductor_length_m": 0.2,
+  "cross_section_area_m2": 0,
+  "dielectric_thickness_m": 0.001,
+  "relative_permittivity": 3.5,
+  "coil_turns": 100,
+  "core_relative_permeability": 1,
+  "contact_resistance_ohm": 0.001,
+  "initially_closed": true,
+  "nominal_voltage_v": 3.7,
+  "capacity_ah": 2.5,
+  "internal_resistance_ohm": 0.05,
+  "initial_soc": 1,
+  "primary_value": 0.5325242245,
+  "series_resistance_ohm": 0.5325242245,
+  "terminals": [
+    {"name": "T1", "target_region_id": "whole"},
+    {"name": "T2", "target_region_id": "whole"}
+  ]
+}
+
+  ],
+  "circuits": [
+    {
+  "id": "5a96c957-a07f-47bb-b2f3-b3f85d61641f",
+  "name": "LiFePO4_Load_Test_Circuit",
+  "components": [
+    {"id": "BAT1", "label": "LiFePO4 Cell", "kind": "Battery", "gen_id": "a29d6fac-baa0-4ccc-bba4-12dac503da2b", "x_mm": 0, "y_mm": 0, "rotation_deg": 0, "primary_value": 3.3, "secondary_value": 0.01238055312, "tertiary_value": 6.059700071, "switch_closed": true, "n0": "N1", "n1": "0"},
+    {"id": "SW1", "label": "Main Switch", "kind": "Switch", "gen_id": "", "x_mm": 40, "y_mm": 0, "rotation_deg": 0, "primary_value": 0.001, "secondary_value": 0, "tertiary_value": 0, "switch_closed": true, "n0": "N1", "n1": "N2"},
+    {"id": "R1", "label": "Load Resistor", "kind": "Resistor", "gen_id": "fd61503c-1d63-4f0f-b2aa-143a00d96118", "x_mm": 90, "y_mm": 0, "rotation_deg": 0, "primary_value": 1, "secondary_value": 0, "tertiary_value": 0, "switch_closed": true, "n0": "N2", "n1": "0"},
+    {"id": "GND1", "label": "Ground", "kind": "Ground", "gen_id": "", "x_mm": 0, "y_mm": 30, "rotation_deg": 0, "primary_value": 1000, "secondary_value": 0, "tertiary_value": 0, "switch_closed": true, "n0": "0", "n1": ""}
+  ],
+  "wires": [
+    {"id": "W1", "net": "N1", "pts": "-10,0;-10,-15;30,-15;30,0"},
+    {"id": "W2", "net": "N2", "pts": "50,0;80,0"},
+    {"id": "W3", "net": "0", "pts": "100,0;100,25;0,25"},
+    {"id": "W4", "net": "0", "pts": "10,0;10,25;0,25"}
+  ],
+  "junctions": [
+  ]
+}
+
+  ],
+  "active_circuit_idx": 0,
+  "checkpoints_count": 0
+}

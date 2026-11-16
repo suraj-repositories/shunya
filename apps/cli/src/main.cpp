@@ -69,6 +69,7 @@ struct CliOptions {
     bool verbose = false;
     bool quiet = false;
     std::string project_path;
+    std::string save_project_path;
     std::string export_path;
     double duration = 1.0;
     double dt = 0.001;
@@ -99,6 +100,8 @@ CliOptions parse_arguments(int argc, char* argv[]) {
             opt.seed_battery_demo = true;
         } else if (arg == "--project" && i + 1 < argc) {
             opt.project_path = argv[++i];
+        } else if (arg == "--save-project" && i + 1 < argc) {
+            opt.save_project_path = argv[++i];
         } else if (arg == "--export-results" && i + 1 < argc) {
             opt.export_path = argv[++i];
         } else if (arg == "--duration" && i + 1 < argc) {
@@ -462,6 +465,17 @@ int main(int argc, char* argv[]) {
         if (!dc.is_ok() || !dc.value().converged || !tr.is_ok() || !tr.value().success) {
             context.shutdown();
             return 1;
+        }
+        if (!opt.save_project_path.empty()) {
+            auto save_res = ws.save_to_file(opt.save_project_path);
+            if (save_res.is_err()) {
+                std::cerr << "Failed to save project to " << opt.save_project_path << ": " << save_res.error().message << "\n";
+                context.shutdown();
+                return 1;
+            }
+            if (!opt.quiet) {
+                std::cout << "Project saved successfully to " << opt.save_project_path << "\n";
+            }
         }
     }
 
