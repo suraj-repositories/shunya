@@ -46,6 +46,7 @@ add_library(shunya_domain_core OBJECT
     src/data_exchange.cpp
     src/workspace_ui.cpp
     src/rendering.cpp
+    src/mock_hardware_rasterizer.cpp
     src/circuit.cpp
     src/digital_logic.cpp
     src/mechanics.cpp

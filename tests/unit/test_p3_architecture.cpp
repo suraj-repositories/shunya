@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "shunya/eng/engineering_pipeline.hpp"
+#include "shunya/core/domain/mock_hardware_rasterizer.hpp"
 
 using namespace shunya::eng;
 using namespace shunya::core::base;
@@ -606,4 +607,57 @@ TEST_CASE("PH4-01.04.003: Headless CLI & Legacy .shunya3 Project Compatibility")
     REQUIRE(tr_res.is_ok());
     CHECK(tr_res.value().success);
     CHECK(!tr_res.value().time_s.empty());
+}
+
+TEST_CASE("PH4-01.04.004: Mock Hardware Rasterizer Harness & Offscreen Viewport Testing") {
+    // 1. Offscreen Mock Hardware Rasterizer Basic Operations
+    RasterizerConfig cfg;
+    cfg.width = 160;
+    cfg.height = 120;
+    cfg.clear_color = {0.1f, 0.15f, 0.2f, 1.0f};
+    MockHardwareRasterizer rast(cfg);
+
+    CHECK(rast.width() == 160);
+    CHECK(rast.height() == 120);
+
+    // Initial clear checksum
+    uint64_t bg_checksum = rast.compute_checksum();
+    CHECK(bg_checksum != 0);
+
+    // 2. Offscreen Viewport Harness Navigation & Rendering
+    OffscreenViewportTestHarness harness(160, 120);
+    harness.look_at({0.0, 0.0, 5.0}, {0.0, 0.0, 0.0});
+
+    // Render 3D cube at origin with ID 42
+    harness.render_cube({0.0, 0.0, 0.0}, 2.0, {0.9f, 0.2f, 0.2f, 1.0f}, 42);
+
+    auto stats = harness.rasterizer().stats();
+    CHECK(stats.triangles_input == 12);
+    CHECK(stats.fragments_shaded > 100);
+
+    // Center pixel should hit the cube (object id 42)
+    uint32_t center_id = harness.pick_object_at(80.0, 60.0);
+    CHECK(center_id == 42);
+
+    // Corner pixel should be background (object id 0)
+    uint32_t corner_id = harness.pick_object_at(5.0, 5.0);
+    CHECK(corner_id == 0);
+
+    // Center depth should be in front of far-plane and behind near-plane
+    float center_depth = harness.sample_depth(80, 60);
+    CHECK(center_depth < 1.0f);
+    CHECK(center_depth > 0.0f);
+
+    // 3. Camera Manipulation (Orbit, Pan, Dolly)
+    harness.orbit(45.0, 15.0);
+    harness.dolly(2.0);
+    harness.pan(0.5, 0.5);
+
+    // Ray picking from screen
+    Ray ray = harness.ray_from_screen(80.0, 60.0);
+    CHECK(ray.direction.length() > 0.99);
+
+    // Checksum determinism check
+    uint64_t frame_hash1 = harness.rasterizer().compute_checksum();
+    CHECK(frame_hash1 != bg_checksum);
 }
