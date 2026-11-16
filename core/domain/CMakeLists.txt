@@ -258,6 +258,7 @@ target_link_libraries(shunya_domain_perf PUBLIC shunya_domain_mat shunya_domain_
 # 7. Phase 3 Unified Engineering Pipeline (Elements -> Materials -> Objects -> Components -> Circuits)
 add_library(shunya_domain_eng OBJECT
     src/eng/engineering_pipeline.cpp
+    src/eng/entity_relationship_graph.cpp
     src/eng/physical_object.cpp
     src/eng/component_generator.cpp
     src/eng/battery_engineer.cpp

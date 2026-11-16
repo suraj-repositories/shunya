@@ -1207,4 +1207,10 @@ core::base::Result<void> EngineeringWorkspaceState::redo() {
     return command_stack_.redo();
 }
 
+EntityRelationshipGraph EngineeringWorkspaceState::build_entity_graph() const {
+    EntityRelationshipGraph graph;
+    graph.rebuild_from_workspace(*this);
+    return graph;
+}
+
 } // namespace shunya::eng

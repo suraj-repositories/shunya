@@ -11,6 +11,7 @@
 #include "shunya/core/domain/scene_graph.hpp"
 #include "shunya/eng/battery_engineer.hpp"
 #include "shunya/eng/component_generator.hpp"
+#include "shunya/eng/entity_relationship_graph.hpp"
 #include "shunya/eng/interactive_circuit.hpp"
 #include "shunya/eng/physical_object.hpp"
 #include "shunya/eng/physics_runtime.hpp"
@@ -197,6 +198,9 @@ public:
         const std::filesystem::path& path,
         LoadProgressCallback progress_cb = nullptr,
         core::base::CancellationToken cancel_token = {});
+
+    // Entity-Relationship Graph (PH4-01.03.005)
+    [[nodiscard]] EntityRelationshipGraph build_entity_graph() const;
 
     // Seed complete real Lithium Battery -> Circuit workflow using ElementDatabase
     [[nodiscard]] core::base::Result<void> seed_lithium_battery_workflow();

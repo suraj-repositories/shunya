@@ -375,3 +375,78 @@ TEST_CASE("PH4-01.03.004: Asynchronous Project Loading Pipeline & Progress Repor
     std::error_code ec;
     std::filesystem::remove_all(temp_dir, ec);
 }
+
+TEST_CASE("PH4-01.03.005: Multi-Domain Entity-Relationship Graph & Dependency Tracking") {
+    EngineeringWorkspaceState ws;
+    REQUIRE(ws.seed_lithium_battery_workflow().is_ok());
+
+    EntityRelationshipGraph graph = ws.build_entity_graph();
+
+    // 1. Assert nodes and edges populated across all domains
+    CHECK(graph.node_count() > 0);
+    CHECK(graph.edge_count() > 0);
+
+    size_t mat_count = 0, obj_count = 0, comp_count = 0, circ_count = 0;
+    for (const auto& [id, node] : graph.nodes()) {
+        if (node.kind == EntityKind::Material) ++mat_count;
+        if (node.kind == EntityKind::PhysicalObject) ++obj_count;
+        if (node.kind == EntityKind::Component) ++comp_count;
+        if (node.kind == EntityKind::Circuit) ++circ_count;
+    }
+    CHECK(mat_count > 0);
+    CHECK(obj_count > 0);
+    CHECK(comp_count > 0);
+    CHECK(circ_count > 0);
+
+    // 2. Validate acyclic nature of seeded engineering graph
+    CHECK_FALSE(graph.has_cycles());
+    auto topo_res = graph.topological_sort();
+    REQUIRE(topo_res.is_ok());
+    CHECK(topo_res.value().size() == graph.node_count());
+
+    // 3. Transitive dependency tracking
+    // Pick an object that has assigned materials
+    const auto& objs = ws.object_manager().objects();
+    REQUIRE(!objs.empty());
+    const auto& test_obj = objs.front();
+    const auto obj_deps = graph.get_transitive_dependencies(test_obj.id);
+    CHECK_FALSE(obj_deps.empty());
+
+    // Transitive dependents of a material
+    REQUIRE(!test_obj.regions.empty());
+    const auto test_mat_id = test_obj.regions.front().material_id;
+    const auto mat_dependents = graph.get_transitive_dependents(test_mat_id);
+    CHECK_FALSE(mat_dependents.empty());
+    // The test_obj must be in the dependents of test_mat_id
+    CHECK(std::find(mat_dependents.begin(), mat_dependents.end(), test_obj.id) != mat_dependents.end());
+
+    // 4. Cycle detection
+    EntityRelationshipGraph cyclic_graph;
+    Uuid id_a = Uuid::generate_random();
+    Uuid id_b = Uuid::generate_random();
+    Uuid id_c = Uuid::generate_random();
+    cyclic_graph.add_node({id_a, EntityKind::Material, "NodeA", ""});
+    cyclic_graph.add_node({id_b, EntityKind::PhysicalObject, "NodeB", ""});
+    cyclic_graph.add_node({id_c, EntityKind::Component, "NodeC", ""});
+    cyclic_graph.add_edge(id_a, id_b, RelationKind::AssignedTo);
+    cyclic_graph.add_edge(id_b, id_c, RelationKind::GeneratedFrom);
+    cyclic_graph.add_edge(id_c, id_a, RelationKind::Contains); // Cycle!
+    CHECK(cyclic_graph.has_cycles() == true);
+    CHECK(cyclic_graph.topological_sort().is_err());
+
+    // 5. Orphaned edge detection
+    EntityRelationshipGraph orphan_graph;
+    orphan_graph.add_node({id_a, EntityKind::Material, "NodeA", ""});
+    orphan_graph.add_edge(id_a, Uuid::generate_random(), RelationKind::AssignedTo); // Missing target!
+    auto orphans = orphan_graph.find_orphaned_edges();
+    CHECK(orphans.size() == 1);
+
+    // 6. Visualization formats (DOT and JSON)
+    const std::string dot = graph.to_dot();
+    CHECK(dot.find("digraph ShunyaEntityGraph") != std::string::npos);
+    CHECK(dot.find("Material") != std::string::npos);
+
+    const std::string json = graph.to_json();
+    CHECK(json.find("\"nodes\"") != std::string::npos);
+    CHECK(json.find("\"edges\"") != std::string::npos);
+}
