@@ -45,6 +45,14 @@ void SolidMesh3D::add_triangle(uint32_t i0, uint32_t i1, uint32_t i2) {
     triangles.push_back({i0, i1, i2});
 }
 
+void SolidMesh3D::append_vertices(std::span<const Point3D> pts) {
+    vertices.insert(vertices.end(), pts.begin(), pts.end());
+}
+
+void SolidMesh3D::append_triangles(std::span<const std::array<uint32_t, 3>> tris) {
+    triangles.insert(triangles.end(), tris.begin(), tris.end());
+}
+
 void SolidMesh3D::clear() noexcept {
     vertices.clear();
     triangles.clear();

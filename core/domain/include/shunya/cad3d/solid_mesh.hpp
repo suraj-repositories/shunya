@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <limits>
 #include <vector>
+#include <span>
 
 namespace shunya::cad3d {
 
@@ -51,6 +52,8 @@ public:
 
     uint32_t add_vertex(const Point3D& pt);
     void add_triangle(uint32_t i0, uint32_t i1, uint32_t i2);
+    void append_vertices(std::span<const Point3D> pts);
+    void append_triangles(std::span<const std::array<uint32_t, 3>> tris);
 
     void clear() noexcept;
 

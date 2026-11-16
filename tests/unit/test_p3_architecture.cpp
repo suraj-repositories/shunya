@@ -9,6 +9,7 @@
 #include "shunya/perf/simulation_step_arena.hpp"
 #include "shunya/cad3d/half_edge_pool.hpp"
 #include "shunya/core/domain/smart_asset_handle.hpp"
+#include "shunya/core/base/zero_copy_views.hpp"
 
 using namespace shunya::eng;
 using namespace shunya::core::base;
@@ -898,4 +899,56 @@ TEST_CASE("PH4-02.01.003: RAII Smart Pointer Ownership & Lifetime Enforcement") 
         CHECK_FALSE(handle.is_valid());
         CHECK(alive_instances == 0);
     }
+}
+
+TEST_CASE("PH4-02.01.004: Zero-Copy Views (std::string_view & std::span) Memory Audit") {
+    // 1. Zero-Copy String Trimming
+    std::string_view padded = "   \t  Copper 99.9% Electrolytic \r\n  ";
+    std::string_view trimmed = trim_view(padded);
+    CHECK(trimmed == "Copper 99.9% Electrolytic");
+    CHECK(trimmed.data() == padded.data() + 6); // Sub-view points directly into source buffer!
+
+    // 2. Zero-Allocation StringViewTokenizer
+    std::string_view csv_line = "Cu,Copper,8960.0,385.0,5.96e7,Solid";
+    StringViewTokenizer tok(csv_line, ',');
+    std::vector<std::string_view> tokens;
+    for (std::string_view token : tok) {
+        tokens.push_back(token);
+    }
+    REQUIRE(tokens.size() == 6);
+    CHECK(tokens[0] == "Cu");
+    CHECK(tokens[1] == "Copper");
+    CHECK(tokens[5] == "Solid");
+
+    // 3. Fast Zero-Copy Numeric Parsing from string_view
+    double density = parse_double_view(tokens[2]);
+    CHECK(std::abs(density - 8960.0) < 1e-4);
+    double cond = parse_double_view(tokens[4]);
+    CHECK(std::abs(cond - 5.96e7) < 1e2);
+
+    int64_t parsed_int = parse_int64_view("  -1048576  ");
+    CHECK(parsed_int == -1048576);
+
+    // 4. Dot Product over std::span with zero allocation
+    std::array<double, 8> vec_a{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
+    std::array<double, 8> vec_b{2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
+    double dot = dot_product_span(std::span<const double>(vec_a), std::span<const double>(vec_b));
+    CHECK(dot == 72.0);
+
+    // 5. SolidMesh3D Span Append
+    shunya::cad3d::SolidMesh3D mesh;
+    std::array<shunya::cad3d::Point3D, 3> pts{{{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}}};
+    std::array<std::array<uint32_t, 3>, 1> tris{{{0, 1, 2}}};
+
+    mesh.append_vertices(std::span<const shunya::cad3d::Point3D>(pts));
+    mesh.append_triangles(std::span<const std::array<uint32_t, 3>>(tris));
+    CHECK(mesh.vertices.size() == 3);
+    CHECK(mesh.triangles.size() == 1);
+
+    // 6. Material string_view setters
+    Material mat;
+    mat.set_name(trimmed);
+    CHECK(mat.name() == "Copper 99.9% Electrolytic");
+    mat.set_description(std::string_view("High purity wire"));
+    CHECK(mat.description() == "High purity wire");
 }

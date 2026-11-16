@@ -104,13 +104,16 @@ public:
     void set_id(const base::Uuid& id) noexcept { id_ = id; }
 
     [[nodiscard]] const std::string& name() const noexcept { return name_; }
-    void set_name(std::string name) { name_ = std::move(name); }
+    [[nodiscard]] std::string_view name_view() const noexcept { return name_; }
+    void set_name(std::string_view name) { name_ = std::string(name); }
 
     [[nodiscard]] const std::string& description() const noexcept { return description_; }
-    void set_description(std::string desc) { description_ = std::move(desc); }
+    [[nodiscard]] std::string_view description_view() const noexcept { return description_; }
+    void set_description(std::string_view desc) { description_ = std::string(desc); }
 
     [[nodiscard]] const std::string& composition() const noexcept { return composition_; }
-    void set_composition(std::string comp) { composition_ = std::move(comp); }
+    [[nodiscard]] std::string_view composition_view() const noexcept { return composition_; }
+    void set_composition(std::string_view comp) { composition_ = std::string(comp); }
 
     [[nodiscard]] double density() const noexcept { return density_kg_m3_; }
     void set_density(double rho) noexcept { density_kg_m3_ = rho; }
@@ -119,10 +122,12 @@ public:
     void set_state(MaterialPhysicalState s) noexcept { state_ = s; }
 
     [[nodiscard]] const std::string& provenance() const noexcept { return provenance_; }
-    void set_provenance(std::string prov) { provenance_ = std::move(prov); }
+    [[nodiscard]] std::string_view provenance_view() const noexcept { return provenance_; }
+    void set_provenance(std::string_view prov) { provenance_ = std::string(prov); }
 
     [[nodiscard]] const std::string& source() const noexcept { return source_; }
-    void set_source(std::string src) { source_ = std::move(src); }
+    [[nodiscard]] std::string_view source_view() const noexcept { return source_; }
+    void set_source(std::string_view src) { source_ = std::string(src); }
 
     [[nodiscard]] const base::Version& version() const noexcept { return version_; }
     void set_version(const base::Version& v) noexcept { version_ = v; }
