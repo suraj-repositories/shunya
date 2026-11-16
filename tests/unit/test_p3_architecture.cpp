@@ -6,6 +6,7 @@
 
 #include "shunya/eng/engineering_pipeline.hpp"
 #include "shunya/core/domain/mock_hardware_rasterizer.hpp"
+#include "shunya/perf/simulation_step_arena.hpp"
 
 using namespace shunya::eng;
 using namespace shunya::core::base;
@@ -682,4 +683,46 @@ TEST_CASE("PH4-01.04.005: 100,000 Project Creation & Destruction Memory Stabilit
 
     // Memory growth must remain bounded below 15 MB across 100,000 creation/destruction cycles
     CHECK(growth_bytes < 15 * 1024 * 1024);
+}
+
+TEST_CASE("PH4-02.01.001: PMR Linear Arena for High-Frequency Transient Step Allocations") {
+    using namespace shunya::perf;
+
+    constexpr size_t ARENA_SIZE = 4 * 1024 * 1024; // 4 MB
+    constexpr size_t SIMULATION_STEPS = 10000;
+
+    SimulationStepArena step_arena(ARENA_SIZE);
+    CHECK(step_arena.capacity_bytes() == ARENA_SIZE);
+    CHECK(step_arena.current_step_bytes() == 0);
+
+    double total_sim_energy = 0.0;
+
+    BENCHMARK("10k_Transient_Step_PMR_Allocations", 1, {
+        for (size_t step = 0; step < SIMULATION_STEPS; ++step) {
+            auto step_scope = step_arena.scoped_step();
+
+            // Allocate step transient scratch vectors via PMR resource
+            std::pmr::vector<double> node_voltages(step_scope.resource());
+            std::pmr::vector<double> branch_currents(step_scope.resource());
+            std::pmr::vector<double> state_derivatives(step_scope.resource());
+
+            node_voltages.resize(128, 3.3);
+            branch_currents.resize(64, 0.05);
+            state_derivatives.resize(128, 0.0);
+
+            // Compute mock transient numerical integration
+            for (size_t i = 0; i < 64; ++i) {
+                total_sim_energy += node_voltages[i] * branch_currents[i] * 0.001;
+            }
+
+            CHECK(step_arena.current_step_bytes() > 0);
+            // Arena resets automatically upon step_scope destruction
+        }
+    });
+
+    CHECK(step_arena.total_step_resets() >= SIMULATION_STEPS);
+    CHECK(step_arena.current_step_bytes() == 0);
+    // Peak memory stayed well within 32 KB across all 10,000 steps without fragmentation
+    CHECK(step_arena.peak_step_bytes() < 32 * 1024);
+    CHECK(total_sim_energy > 0.0);
 }
