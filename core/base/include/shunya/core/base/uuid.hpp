@@ -28,6 +28,7 @@ public:
 
     [[nodiscard]] constexpr const Bytes& data() const noexcept { return bytes_; }
     [[nodiscard]] std::string to_string() const;
+    void to_chars(char* out_36_chars) const noexcept;
 
     constexpr auto operator<=>(const Uuid&) const = default;
     constexpr bool operator==(const Uuid&) const = default;

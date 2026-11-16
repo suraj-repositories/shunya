@@ -59,3 +59,24 @@ TEST_CASE("FND-03: Uuid Hash and Container Support") {
     CHECK(set.contains(id1));
     CHECK(set.contains(id2));
 }
+
+TEST_CASE("PH4-01.02.002: Fast Uuid Generation & to_chars Unrolled Conversion") {
+    // 1. Direct char array formatting
+    Uuid id = Uuid::generate_random();
+    char buf[37]{};
+    id.to_chars(buf);
+    CHECK(std::string(buf) == id.to_string());
+
+    // 2. High-volume uniqueness & RFC 4122 v4 compliance
+    std::unordered_set<std::string> unique_strings;
+    for (int i = 0; i < 1000; ++i) {
+        Uuid gen = Uuid::generate_random();
+        std::string s = gen.to_string();
+        CHECK(s.length() == 36);
+        CHECK(s[14] == '4');
+        char var_char = s[19];
+        CHECK((var_char == '8' || var_char == '9' || var_char == 'a' || var_char == 'b'));
+        unique_strings.insert(s);
+    }
+    CHECK(unique_strings.size() == 1000);
+}
