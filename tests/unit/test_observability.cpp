@@ -284,3 +284,74 @@ TEST_CASE("OBS-10: Result Retention Manager and Budget Enforcement") {
     CHECK_FALSE(store2->empty());
     CHECK(manager.current_memory_usage() <= manager.memory_budget());
 }
+
+
+TEST_CASE("PH4-01.02.004: Lock-Free Multi-Channel Telemetry Buffer at 120 FPS") {
+    // 1. Single-channel overwrite and drain semantics
+    RingBuffer<int> rb(8);
+    for (int i = 0; i < 12; ++i) {
+        rb.push_overwrite(i);
+    }
+    CHECK(rb.size() == 8);
+    auto latest_val = rb.read_latest();
+    REQUIRE(latest_val.has_value());
+    CHECK(*latest_val == 11);
+
+    std::vector<int> drained(8);
+    size_t count = rb.drain(drained);
+    CHECK(count == 8);
+    CHECK(drained[0] == 4);
+    CHECK(drained[7] == 11);
+    CHECK(rb.empty());
+
+    // 2. Multi-channel telemetry buffer setup
+    MultiChannelTelemetryBuffer tel(512);
+    size_t ch_volt = tel.add_channel("BusVoltage", "V");
+    size_t ch_curr = tel.add_channel("ArmatureCurrent", "A");
+    size_t ch_tau  = tel.add_channel("MotorTorque", "Nm");
+    size_t ch_rpm  = tel.add_channel("WheelVelocity", "rad/s");
+
+    CHECK(tel.channel_count() == 4);
+    CHECK(tel.find_channel("BusVoltage").value() == ch_volt);
+    CHECK(tel.find_channel("WheelVelocity").value() == ch_rpm);
+    CHECK_FALSE(tel.find_channel("NonExistent").has_value());
+
+    auto info = tel.channel_info(ch_tau);
+    REQUIRE(info.has_value());
+    CHECK(info->name == "MotorTorque");
+    CHECK(info->unit == "Nm");
+
+    // 3. High-rate simulation frame streaming (10,000 steps)
+    constexpr size_t step_count = 10000;
+    for (size_t step = 0; step < step_count; ++step) {
+        double t = static_cast<double>(step) * 0.001;
+        double frame[4] = {
+            12.0 - 0.5 * std::sin(t * 10.0), // Voltage
+            2.5 + 0.8 * std::cos(t * 10.0),  // Current
+            0.45 * std::sin(t * 5.0),        // Torque
+            150.0 + 20.0 * std::sin(t)       // Velocity
+        };
+        tel.push_frame(t, frame);
+    }
+
+    // Verify 120 FPS UI consumer queries
+    auto latest_volt = tel.latest(ch_volt);
+    REQUIRE(latest_volt.has_value());
+    CHECK(std::abs(latest_volt->timestamp - 9.999) < 1e-4);
+
+    auto latest_rpm = tel.latest(ch_rpm);
+    REQUIRE(latest_rpm.has_value());
+    CHECK(std::abs(latest_rpm->timestamp - 9.999) < 1e-4);
+
+    // Drain channel into display buffer
+    std::vector<TelemetrySample> ui_samples(256);
+    size_t drained_count = tel.drain(ch_volt, ui_samples);
+    CHECK(drained_count == 256);
+    CHECK(ui_samples[255].timestamp > ui_samples[0].timestamp);
+
+    tel.clear_all();
+    CHECK(tel.empty(ch_volt));
+    CHECK(tel.empty(ch_curr));
+    CHECK(tel.empty(ch_tau));
+    CHECK(tel.empty(ch_rpm));
+}
