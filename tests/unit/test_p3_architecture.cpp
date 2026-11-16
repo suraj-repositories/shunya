@@ -7,6 +7,7 @@
 #include "shunya/eng/engineering_pipeline.hpp"
 #include "shunya/core/domain/mock_hardware_rasterizer.hpp"
 #include "shunya/perf/simulation_step_arena.hpp"
+#include "shunya/cad3d/half_edge_pool.hpp"
 
 using namespace shunya::eng;
 using namespace shunya::core::base;
@@ -725,4 +726,77 @@ TEST_CASE("PH4-02.01.001: PMR Linear Arena for High-Frequency Transient Step All
     // Peak memory stayed well within 32 KB across all 10,000 steps without fragmentation
     CHECK(step_arena.peak_step_bytes() < 32 * 1024);
     CHECK(total_sim_energy > 0.0);
+}
+
+TEST_CASE("PH4-02.01.002: Fixed-Size Block Memory Pools for HalfEdgeMesh") {
+    using namespace shunya::cad3d;
+
+    PooledHalfEdgeMesh pool_mesh(1024);
+    CHECK(pool_mesh.active_vertex_count() == 0);
+    CHECK(pool_mesh.active_half_edge_count() == 0);
+    CHECK(pool_mesh.active_face_count() == 0);
+
+    // 1. Bulk Allocation
+    std::vector<uint32_t> v_ids;
+    v_ids.reserve(1000);
+    for (int i = 0; i < 1000; ++i) {
+        v_ids.push_back(pool_mesh.allocate_vertex({static_cast<double>(i), 0.0, 0.0}));
+    }
+    CHECK(pool_mesh.active_vertex_count() == 1000);
+
+    std::vector<uint32_t> he_ids;
+    he_ids.reserve(3000);
+    for (int i = 0; i < 3000; ++i) {
+        he_ids.push_back(pool_mesh.allocate_half_edge(v_ids[static_cast<size_t>(i % 1000)]));
+    }
+    CHECK(pool_mesh.active_half_edge_count() == 3000);
+
+    std::vector<uint32_t> f_ids;
+    f_ids.reserve(1000);
+    for (int i = 0; i < 1000; ++i) {
+        f_ids.push_back(pool_mesh.allocate_face(he_ids[static_cast<size_t>(i * 3)], 3));
+    }
+    CHECK(pool_mesh.active_face_count() == 1000);
+
+    // 2. Free 500 items and verify free list recycling
+    for (size_t i = 0; i < 500; ++i) {
+        pool_mesh.free_vertex(v_ids[i]);
+        pool_mesh.free_half_edge(he_ids[i]);
+        pool_mesh.free_face(f_ids[i]);
+    }
+    CHECK(pool_mesh.active_vertex_count() == 500);
+    CHECK(pool_mesh.active_half_edge_count() == 2500);
+    CHECK(pool_mesh.active_face_count() == 500);
+
+    const size_t v_cap_before = pool_mesh.vertex_capacity();
+
+    // Re-allocate 500 vertices: must reuse recycled slots with 0 capacity growth
+    for (size_t i = 0; i < 500; ++i) {
+        (void)pool_mesh.allocate_vertex({0.0, 1.0, 2.0});
+    }
+    CHECK(pool_mesh.active_vertex_count() == 1000);
+    CHECK(pool_mesh.vertex_capacity() == v_cap_before);
+
+    // 3. Compact Mesh Migration
+    HalfEdgeMesh compact = pool_mesh.to_compact_mesh();
+    CHECK(compact.vertices.size() == 1000);
+    CHECK(compact.half_edges.size() == 2500);
+    CHECK(compact.faces.size() == 500);
+
+    // 4. Churn Benchmark: 50,000 allocate/free cycles
+    BENCHMARK("50k_HalfEdge_Pooled_Churn", 1, {
+        for (int cycle = 0; cycle < 50000; ++cycle) {
+            uint32_t v = pool_mesh.allocate_vertex({1.0, 2.0, 3.0});
+            uint32_t he = pool_mesh.allocate_half_edge(v);
+            uint32_t f = pool_mesh.allocate_face(he, 3);
+
+            pool_mesh.free_face(f);
+            pool_mesh.free_half_edge(he);
+            pool_mesh.free_vertex(v);
+        }
+    });
+
+    CHECK(pool_mesh.active_vertex_count() == 1000);
+    CHECK(pool_mesh.active_half_edge_count() == 2500);
+    CHECK(pool_mesh.active_face_count() == 500);
 }

@@ -146,6 +146,7 @@ add_library(shunya_domain_cad OBJECT
     src/cad3d/solid_fillet.cpp
     src/cad3d/solid_shell.cpp
     src/cad3d/half_edge_mesh.cpp
+    src/cad3d/half_edge_pool.cpp
     src/cad3d/mesh_decimator.cpp
     src/cad3d/subdivision.cpp
     src/cad3d/bvh_tree.cpp
