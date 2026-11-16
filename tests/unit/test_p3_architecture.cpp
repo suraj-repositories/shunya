@@ -8,6 +8,7 @@
 #include "shunya/core/domain/mock_hardware_rasterizer.hpp"
 #include "shunya/perf/simulation_step_arena.hpp"
 #include "shunya/cad3d/half_edge_pool.hpp"
+#include "shunya/core/domain/smart_asset_handle.hpp"
 
 using namespace shunya::eng;
 using namespace shunya::core::base;
@@ -799,4 +800,102 @@ TEST_CASE("PH4-02.01.002: Fixed-Size Block Memory Pools for HalfEdgeMesh") {
     CHECK(pool_mesh.active_vertex_count() == 1000);
     CHECK(pool_mesh.active_half_edge_count() == 2500);
     CHECK(pool_mesh.active_face_count() == 500);
+}
+
+TEST_CASE("PH4-02.01.003: RAII Smart Pointer Ownership & Lifetime Enforcement") {
+    int alive_instances = 0;
+    struct TestResource {
+        int* counter{nullptr};
+        int value{0};
+
+        explicit TestResource(int v, int* cnt = nullptr) : counter(cnt), value(v) {
+            if (counter) ++(*counter);
+        }
+        ~TestResource() {
+            if (counter) --(*counter);
+        }
+    };
+
+    // 1. Exclusive Ownership (std::unique_ptr)
+    {
+        ExclusiveAsset<TestResource> exclusive = make_exclusive<TestResource>(42, &alive_instances);
+        CHECK(alive_instances == 1);
+        CHECK(exclusive->value == 42);
+
+        // Move semantics: transfer ownership
+        ExclusiveAsset<TestResource> moved = std::move(exclusive);
+        CHECK(exclusive == nullptr);
+        REQUIRE(moved != nullptr);
+        CHECK(moved->value == 42);
+        CHECK(alive_instances == 1);
+    }
+    // Scope exit must destruct exclusive resource
+    CHECK(alive_instances == 0);
+
+    // 2. Shared Ownership (std::shared_ptr) & Weak References (std::weak_ptr)
+    AssetLifetimeTracker<TestResource> tracker{nullptr};
+    {
+        SharedAsset<TestResource> shared1 = make_shared_asset<TestResource>(100, &alive_instances);
+        CHECK(alive_instances == 1);
+        CHECK(shared1.use_count() == 1);
+
+        tracker = AssetLifetimeTracker<TestResource>(shared1);
+        CHECK(tracker.is_alive());
+        CHECK(tracker.use_count() == 1);
+
+        {
+            SharedAsset<TestResource> shared2 = shared1;
+            CHECK(shared1.use_count() == 2);
+            CHECK(tracker.use_count() == 2);
+        }
+        CHECK(shared1.use_count() == 1);
+    }
+    // Scope exit: refcount reaches 0, tracker reflects expiration
+    CHECK(alive_instances == 0);
+    CHECK_FALSE(tracker.is_alive());
+    CHECK(tracker.lock() == nullptr);
+
+    // 3. Cyclic Dependency Prevention via WeakAsset
+    int node_count = 0;
+    struct Node {
+        int* counter{nullptr};
+        std::string name;
+        SharedAsset<Node> child{nullptr};
+        WeakAsset<Node> parent; // Weak to prevent cycle
+
+        explicit Node(std::string n, int* cnt = nullptr) : counter(cnt), name(std::move(n)) {
+            if (counter) ++(*counter);
+        }
+        ~Node() {
+            if (counter) --(*counter);
+        }
+    };
+
+    {
+        auto root = make_shared_asset<Node>("Root", &node_count);
+        auto leaf = make_shared_asset<Node>("Leaf", &node_count);
+        root->child = leaf;
+        leaf->parent = root; // Non-owning back-pointer
+
+        CHECK(node_count == 2);
+        CHECK(root.use_count() == 1);
+        CHECK(leaf.use_count() == 2);
+    }
+    // With weak back-pointer, both root and leaf destruct completely (zero cycle leak!)
+    CHECK(node_count == 0);
+
+    // 4. SmartAssetHandle Wrapper
+    {
+        Uuid asset_id = Uuid::generate_random();
+        SmartAssetHandle<TestResource> handle(asset_id, make_shared_asset<TestResource>(999, &alive_instances));
+        CHECK(handle.is_valid());
+        CHECK(handle.id() == asset_id);
+        CHECK(handle->value == 999);
+        CHECK((*handle).value == 999);
+        CHECK(handle.use_count() == 1);
+
+        handle.reset();
+        CHECK_FALSE(handle.is_valid());
+        CHECK(alive_instances == 0);
+    }
 }
