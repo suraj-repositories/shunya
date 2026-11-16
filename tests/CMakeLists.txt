@@ -133,6 +133,7 @@ target_link_libraries(shunya_unit_tests
     PRIVATE
         shunya_core_base
         shunya_core_domain
+        $<$<PLATFORM_ID:Windows>:psapi>
 )
 
 target_compile_features(shunya_unit_tests PRIVATE cxx_std_20)

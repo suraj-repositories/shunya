@@ -543,3 +543,39 @@ TEST_CASE("PH4-01.03.006: Data Corruption Recovery & Orphaned Asset Garbage Coll
     std::error_code ec;
     std::filesystem::remove_all(temp_dir, ec);
 }
+
+TEST_CASE("PH4-01.04.002: Test Framework Benchmark Timers & Memory Leak Detection Fixtures") {
+    // 1. Benchmark Timer Verification
+    size_t counter = 0;
+    auto bench_res = BENCHMARK("IncrementBenchmark", 100, {
+        for (int i = 0; i < 1000; ++i) {
+            counter += static_cast<size_t>(i);
+        }
+    });
+
+    CHECK(bench_res.iterations == 100);
+    CHECK(bench_res.total_ms >= 0.0);
+    CHECK(bench_res.avg_us >= 0.0);
+    CHECK(bench_res.ops_per_sec > 0.0);
+    CHECK(counter > 0);
+
+    // 2. Scoped Timer
+    {
+        TIMED_SECTION("ScopedSleepTimer");
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+    // Verified via stdout output and no exception
+
+    // 3. Process Memory Stats
+    auto mem_stats = ::shunya::test::get_process_memory_stats();
+    CHECK(mem_stats.working_set_bytes > 0);
+
+    // 4. Scoped Memory Leak Detection Fixture
+    CHECK_NO_MEMORY_GROWTH(20 * 1024 * 1024, {
+        std::vector<int> temp_data(10000, 42);
+        CHECK(temp_data.size() == 10000);
+    });
+
+    shunya::test::ScopedMemoryLeakDetector detector("ExplicitScope", 30 * 1024 * 1024);
+    CHECK_FALSE(detector.has_leak());
+}
