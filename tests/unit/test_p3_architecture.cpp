@@ -33,6 +33,7 @@
 #include "shunya/mat/solution_solubility_engine.hpp"
 #include "shunya/mat/directional_layup_engine.hpp"
 #include "shunya/mat/property_models/chemical_property_model.hpp"
+#include "shunya/mat/property_models/electrical_property_model.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2825,4 +2826,53 @@ TEST_CASE("PH4-03.02.001: Structured Chemical Property Model") {
     CHECK(hydroxyl.net_oxidation_sum() == -1);
     CHECK_FALSE(hydroxyl.is_chemically_balanced());
     CHECK(!h2o.to_summary_string().empty());
+}
+
+TEST_CASE("PH4-03.02.002: Structured Electrical Property Model") {
+    using namespace shunya::mat;
+
+    // 1. Copper Metal Conductor & Drude Model
+    ElectricalPropertyModel cu;
+    cu.classification = ElectricalClassification::Conductor;
+    cu.base_conductivity_s_m = 5.96e7;
+    cu.base_resistivity_ohm_m = 1.68e-8;
+    cu.tcr_per_k = 0.00393;
+    cu.reference_temp_k = 293.15;
+    cu.carrier_density_m3 = 8.49e28;
+    cu.carrier_mobility_m2_vs = 0.00438;
+
+    // Theoretical Drude conductivity verification: sigma = n * e * mu
+    const double drude_sigma = cu.compute_drude_conductivity();
+    CHECK(std::abs(drude_sigma - 5.96e7) < 5e5); // within ~0.8% of base value
+
+    // Temperature-dependent resistivity of metal increases with T
+    const double rho_room = cu.resistivity_at(293.15);
+    const double rho_hot = cu.resistivity_at(373.15);
+    CHECK(std::abs(rho_room - 1.68e-8) < 1e-10);
+    CHECK(rho_hot > rho_room);
+    CHECK(cu.conductivity_at(373.15) < cu.conductivity_at(293.15));
+
+    // 2. Semiconductor Arrhenius Temperature Sensitivity
+    ElectricalPropertyModel si;
+    si.classification = ElectricalClassification::Semiconductor;
+    si.base_conductivity_s_m = 1.56e-3;
+    si.base_resistivity_ohm_m = 640.0;
+    si.bandgap_ev = 1.12; // Silicon bandgap
+    si.reference_temp_k = 293.15;
+
+    // In intrinsic semiconductors, thermal excitation increases conductivity with T
+    const double sigma_si_room = si.conductivity_at(293.15);
+    const double sigma_si_hot = si.conductivity_at(350.0);
+    CHECK(sigma_si_hot > sigma_si_room);
+
+    // 3. Dielectric Breakdown of Insulator Film
+    ElectricalPropertyModel kapton;
+    kapton.classification = ElectricalClassification::Insulator;
+    kapton.relative_permittivity = 3.4;
+    kapton.breakdown_field_v_m = 20.0e6; // 20 MV/m
+
+    // Breakdown voltage for 0.1 mm (100 um) sheet: 20e6 * 1e-4 = 2000 V
+    const double v_break = kapton.dielectric_breakdown_voltage(1e-4);
+    CHECK(std::abs(v_break - 2000.0) < 1e-6);
+    CHECK(!cu.to_summary_string().empty());
 }
