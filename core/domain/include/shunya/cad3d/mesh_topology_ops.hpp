@@ -174,6 +174,24 @@ public:
         SolidMesh3D& mesh,
         const std::vector<uint32_t>& face_indices = {}
     );
+
+    // ========================================================================
+    // Task 4 (PH4-05.03.007): Manifold Topology Verification Tools
+    // ========================================================================
+    struct ManifoldDiagnosticReport {
+        bool is_manifold{true};
+        bool is_closed{true};
+        std::vector<uint32_t> non_manifold_vertices;
+        std::vector<std::pair<uint32_t, uint32_t>> non_manifold_edges;
+        std::vector<std::pair<uint32_t, uint32_t>> boundary_edges;
+        std::vector<uint32_t> degenerate_faces;
+        std::vector<uint32_t> isolated_vertices;
+    };
+
+    [[nodiscard]] static ManifoldDiagnosticReport verify_manifold_topology(
+        const SolidMesh3D& mesh,
+        double area_tol = 1e-12
+    );
 };
 
 } // namespace shunya::cad3d

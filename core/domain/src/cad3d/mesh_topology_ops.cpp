@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <set>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -882,6 +883,155 @@ bool MeshTopologyOps::recalculate_normals_outside(SolidMesh3D& mesh) {
     }
 
     return flipped;
+}
+
+// ============================================================================
+// Task 4 (PH4-05.03.007): Manifold Topology Verification Tools
+// ============================================================================
+
+MeshTopologyOps::ManifoldDiagnosticReport MeshTopologyOps::verify_manifold_topology(
+    const SolidMesh3D& mesh,
+    double area_tol
+) {
+    ManifoldDiagnosticReport report;
+    const size_t v_count = mesh.vertices.size();
+    const size_t f_count = mesh.triangles.size();
+
+    std::vector<bool> vertex_referenced(v_count, false);
+    std::map<std::pair<uint32_t, uint32_t>, int> edge_counts;
+    std::vector<std::vector<uint32_t>> vertex_triangles(v_count);
+
+    for (uint32_t f = 0; f < f_count; ++f) {
+        const auto& tri = mesh.triangles[f];
+        bool degen = false;
+        if (tri[0] >= v_count || tri[1] >= v_count || tri[2] >= v_count) {
+            degen = true;
+        } else if (tri[0] == tri[1] || tri[1] == tri[2] || tri[2] == tri[0]) {
+            degen = true;
+        } else {
+            Vec3d e1 = mesh.vertices[tri[1]] - mesh.vertices[tri[0]];
+            Vec3d e2 = mesh.vertices[tri[2]] - mesh.vertices[tri[0]];
+            double area = 0.5 * e1.cross(e2).length();
+            if (area < area_tol) {
+                degen = true;
+            }
+        }
+
+        if (degen) {
+            report.degenerate_faces.push_back(f);
+            continue;
+        }
+
+        vertex_referenced[tri[0]] = true;
+        vertex_referenced[tri[1]] = true;
+        vertex_referenced[tri[2]] = true;
+
+        vertex_triangles[tri[0]].push_back(f);
+        vertex_triangles[tri[1]].push_back(f);
+        vertex_triangles[tri[2]].push_back(f);
+
+        for (int k = 0; k < 3; ++k) {
+            uint32_t u = tri[k];
+            uint32_t v = tri[(k + 1) % 3];
+            edge_counts[normalize_edge(u, v)]++;
+        }
+    }
+
+    // Check isolated vertices
+    for (uint32_t v = 0; v < v_count; ++v) {
+        if (!vertex_referenced[v]) {
+            report.isolated_vertices.push_back(v);
+        }
+    }
+
+    // Check edges
+    for (const auto& [edge, count] : edge_counts) {
+        if (count == 1) {
+            report.boundary_edges.push_back(edge);
+        } else if (count > 2) {
+            report.non_manifold_edges.push_back(edge);
+        }
+    }
+
+    // Check vertices for 2-manifold link topology
+    for (uint32_t v = 0; v < v_count; ++v) {
+        if (!vertex_referenced[v]) continue;
+
+        const auto& inc_faces = vertex_triangles[v];
+        if (inc_faces.empty()) continue;
+
+        // Build the link graph of vertex v:
+        // For each incident face, the opposite edge is between the other two vertices.
+        std::map<uint32_t, std::vector<uint32_t>> link_adj;
+        std::set<uint32_t> link_nodes;
+
+        for (uint32_t f : inc_faces) {
+            const auto& tri = mesh.triangles[f];
+            uint32_t a = 0;
+            uint32_t b = 0;
+            if (tri[0] == v) { a = tri[1]; b = tri[2]; }
+            else if (tri[1] == v) { a = tri[2]; b = tri[0]; }
+            else { a = tri[0]; b = tri[1]; }
+
+            link_nodes.insert(a);
+            link_nodes.insert(b);
+            link_adj[a].push_back(b);
+            link_adj[b].push_back(a);
+        }
+
+        bool vertex_is_manifold = true;
+        int degree_one_count = 0;
+
+        for (uint32_t node : link_nodes) {
+            size_t deg = link_adj[node].size();
+            if (deg == 1) {
+                degree_one_count++;
+            } else if (deg != 2) {
+                vertex_is_manifold = false;
+                break;
+            }
+        }
+
+        // A valid link graph can either have all degrees == 2 (interior vertex)
+        // or exactly two degree 1 vertices (boundary vertex).
+        if (vertex_is_manifold && !(degree_one_count == 0 || degree_one_count == 2)) {
+            vertex_is_manifold = false;
+        }
+
+        // Check connectivity (must be 1 connected component)
+        if (vertex_is_manifold && !link_nodes.empty()) {
+            std::set<uint32_t> visited;
+            std::vector<uint32_t> stack;
+            uint32_t start = *link_nodes.begin();
+            stack.push_back(start);
+            visited.insert(start);
+
+            while (!stack.empty()) {
+                uint32_t curr = stack.back();
+                stack.pop_back();
+                for (uint32_t neighbor : link_adj[curr]) {
+                    if (visited.insert(neighbor).second) {
+                        stack.push_back(neighbor);
+                    }
+                }
+            }
+
+            if (visited.size() != link_nodes.size()) {
+                vertex_is_manifold = false; // Disconnected umbrella (pinch point)
+            }
+        }
+
+        if (!vertex_is_manifold) {
+            report.non_manifold_vertices.push_back(v);
+        }
+    }
+
+    report.is_manifold = report.non_manifold_vertices.empty() &&
+                         report.non_manifold_edges.empty() &&
+                         report.degenerate_faces.empty();
+    report.is_closed = report.is_manifold && report.boundary_edges.empty();
+
+    return report;
 }
 
 } // namespace shunya::cad3d

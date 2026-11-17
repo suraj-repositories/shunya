@@ -1050,3 +1050,88 @@ TEST_CASE("PH4-05.03.006: Normal orientation inspection (stalks) and automated R
         REQUIRE(stalk.origin.dot(stalk.normal) > 0.0);
     }
 }
+
+TEST_CASE("PH4-05.03.007: Manifold topology verification tools identifying non-manifold vertices, edges, and degenerate faces") {
+    // 1. Clean watertight 2-manifold primitive (Icosphere)
+    IcosphereParams ip;
+    ip.radius = 1.0;
+    ip.subdivisions = 1;
+    auto ico = ParametricPrimitiveGenerator::generate_icosphere(ip);
+    auto clean_report = MeshTopologyOps::verify_manifold_topology(ico);
+    REQUIRE(clean_report.is_manifold);
+    REQUIRE(clean_report.is_closed);
+    REQUIRE(clean_report.boundary_edges.empty());
+    REQUIRE(clean_report.non_manifold_edges.empty());
+    REQUIRE(clean_report.non_manifold_vertices.empty());
+    REQUIRE(clean_report.degenerate_faces.empty());
+    REQUIRE(clean_report.isolated_vertices.empty());
+
+    // Also verify welded cube
+    CubeParams cp;
+    cp.width = 1.0; cp.height = 1.0; cp.depth = 1.0;
+    auto cube = ParametricPrimitiveGenerator::generate_cube(cp);
+    cube.weld_vertices();
+    auto cube_report = MeshTopologyOps::verify_manifold_topology(cube);
+    REQUIRE(cube_report.is_manifold);
+    REQUIRE(cube_report.is_closed);
+
+    // 2. Open manifold mesh (plane / single triangle)
+    SolidMesh3D open_mesh;
+    open_mesh.add_vertex({0.0, 0.0, 0.0});
+    open_mesh.add_vertex({1.0, 0.0, 0.0});
+    open_mesh.add_vertex({0.0, 1.0, 0.0});
+    open_mesh.add_triangle(0, 1, 2);
+
+    auto open_report = MeshTopologyOps::verify_manifold_topology(open_mesh);
+    REQUIRE(open_report.is_manifold);
+    REQUIRE_FALSE(open_report.is_closed);
+    REQUIRE(open_report.boundary_edges.size() == 3);
+    REQUIRE(open_report.non_manifold_edges.empty());
+    REQUIRE(open_report.non_manifold_vertices.empty());
+
+    // 3. Degenerate zero-area face
+    SolidMesh3D degen_mesh = open_mesh;
+    uint32_t degen_idx = static_cast<uint32_t>(degen_mesh.triangles.size());
+    degen_mesh.triangles.push_back({0, 1, 0}); // Directly insert degenerate triangle
+    auto degen_report = MeshTopologyOps::verify_manifold_topology(degen_mesh);
+    REQUIRE_FALSE(degen_report.is_manifold);
+    REQUIRE(degen_report.degenerate_faces.size() == 1);
+    REQUIRE(degen_report.degenerate_faces[0] == degen_idx);
+
+    // 4. Non-manifold edge (3 faces sharing edge 0-1)
+    SolidMesh3D edge_mesh;
+    edge_mesh.add_vertex({0.0, 0.0, 0.0}); // 0
+    edge_mesh.add_vertex({0.0, 0.0, 1.0}); // 1 (shared spine edge 0-1)
+    edge_mesh.add_vertex({1.0, 0.0, 0.0}); // 2 (page 1)
+    edge_mesh.add_vertex({0.0, 1.0, 0.0}); // 3 (page 2)
+    edge_mesh.add_vertex({-1.0, 0.0, 0.0}); // 4 (page 3)
+    edge_mesh.add_triangle(0, 1, 2);
+    edge_mesh.add_triangle(0, 1, 3);
+    edge_mesh.add_triangle(0, 1, 4);
+
+    auto edge_report = MeshTopologyOps::verify_manifold_topology(edge_mesh);
+    REQUIRE_FALSE(edge_report.is_manifold);
+    REQUIRE(edge_report.non_manifold_edges.size() == 1);
+    REQUIRE(edge_report.non_manifold_edges[0] == std::make_pair(0u, 1u));
+
+    // 5. Non-manifold vertex (hourglass / pinch point at vertex 0)
+    SolidMesh3D pinch_mesh;
+    pinch_mesh.add_vertex({0.0, 0.0, 0.0}); // 0 (shared pinch point)
+    pinch_mesh.add_vertex({-1.0, 1.0, 0.0}); // 1
+    pinch_mesh.add_vertex({-1.0, -1.0, 0.0}); // 2
+    pinch_mesh.add_vertex({1.0, 1.0, 0.0}); // 3
+    pinch_mesh.add_vertex({1.0, -1.0, 0.0}); // 4
+    pinch_mesh.add_triangle(0, 1, 2); // left triangle
+    pinch_mesh.add_triangle(0, 3, 4); // right triangle touching ONLY at vertex 0
+
+    auto pinch_report = MeshTopologyOps::verify_manifold_topology(pinch_mesh);
+    REQUIRE_FALSE(pinch_report.is_manifold);
+    REQUIRE(pinch_report.non_manifold_vertices.size() == 1);
+    REQUIRE(pinch_report.non_manifold_vertices[0] == 0);
+
+    // 6. Isolated vertex detection
+    pinch_mesh.add_vertex({5.0, 5.0, 5.0}); // Index 5 unreferenced
+    auto iso_report = MeshTopologyOps::verify_manifold_topology(pinch_mesh);
+    REQUIRE(iso_report.isolated_vertices.size() == 1);
+    REQUIRE(iso_report.isolated_vertices[0] == 5);
+}
