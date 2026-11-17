@@ -504,7 +504,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (17/30 — 56.7%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (18/30 — 60.0%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
@@ -610,14 +610,14 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Materials:* P-type channel, N-type gate diffusions.  
   *Tests:* Transconductance curve verification, low-noise pre-amp behavior.
 
-### Submodule PH4-07.04: Electromechanical & Switching Devices (Components 17 - 20) [~] (1/4)
+### Submodule PH4-07.04: Electromechanical & Switching Devices (Components 17 - 20) [~] (2/4)
 - [x] `PH4-07.04.001`: **17. Push Button (Momentary NO)**  
   *3D Model:* 6mm x 6mm tactile tactile switch with round plastic actuator button and 4 PCB pins.  
   *2D Symbol:* Open contacts with momentary push actuator (2 electrical nets across 4 pins).  
   *Electrical:* Instantaneous closure upon user actuation with contact bounce modeling.  
   *Materials:* Stainless steel snap dome, Brass silver-plated terminals, Nylon case.  
   *Tests:* User click-event triggering, contact bounce filter, current conduction.
-- [ ] `PH4-07.04.002`: **18. SPST Toggle Switch**  
+- [x] `PH4-07.04.002`: **18. SPST Toggle Switch**  
   *3D Model:* Miniature toggle switch with cylindrical metal bat lever and threaded bushing.  
   *2D Symbol:* Single pole, single throw lever diagram (2 pins: IN, OUT).  
   *Electrical:* Ideal bistable conductor ($R \approx 1\text{m}\Omega$) or open ($R \approx 1\text{G}\Omega$).  
