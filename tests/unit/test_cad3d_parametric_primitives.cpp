@@ -776,3 +776,43 @@ TEST_CASE("PH4-05.02.006: Implement Loop Cut and Slide with preview rings and se
     bool ok_slide = MeshTopologyOps::loop_cut(cube, eu, cube.triangles.back()[0], opt_slide);
     REQUIRE(ok_slide);
 }
+
+TEST_CASE("PH4-05.03.001: Subdivide Face operation with linear and Catmull-Clark smoothing modes") {
+    // 1. Linear Face Subdivision on a Plane
+    PlaneParams pl_p;
+    pl_p.width = 4.0; pl_p.height = 4.0; pl_p.segments_x = 1; pl_p.segments_y = 1; // 2 triangles
+    auto plane_linear = ParametricPrimitiveGenerator::generate_plane(pl_p);
+    REQUIRE(plane_linear.triangles.size() == 2);
+
+    // Subdivide triangle 0 with 1 cut (1 -> 4 triangles)
+    bool ok1 = MeshTopologyOps::subdivide_faces(plane_linear, {0}, 1, SubdivideMode::Linear);
+    REQUIRE(ok1);
+    // Triangle 0 was replaced, and 3 added -> net 2 - 1 + 4 = 5 triangles
+    REQUIRE(plane_linear.triangles.size() == 5);
+    // In Linear mode, all vertices remain strictly at Z = 0
+    for (const auto& v : plane_linear.vertices) {
+        REQUIRE(is_close(v.z, 0.0));
+    }
+
+    // 2. Catmull-Clark Smoothing on a Cube
+    CubeParams cp;
+    cp.width = 2.0; cp.height = 2.0; cp.depth = 2.0;
+    auto cube_cc = ParametricPrimitiveGenerator::generate_cube(cp);
+    size_t tri_count_before = cube_cc.triangles.size();
+
+    // Subdivide top face
+    Ray3D ray_top{Point3D{0.0, 0.0, 5.0}, Vec3d{0.0, 0.0, -1.0}};
+    auto pick_res = MeshSelectionEngine::pick(cube_cc, ray_top, MeshSelectionMode::Face);
+    REQUIRE(pick_res.hit);
+
+    bool ok_cc = MeshTopologyOps::subdivide_faces(cube_cc, {pick_res.element_index}, 1, SubdivideMode::CatmullClark);
+    REQUIRE(ok_cc);
+    REQUIRE(cube_cc.triangles.size() == tri_count_before + 3);
+
+    // 3. Multi-cut subdivision (cuts = 2)
+    auto plane_multi = ParametricPrimitiveGenerator::generate_plane(pl_p);
+    bool ok_multi = MeshTopologyOps::subdivide_faces(plane_multi, {0}, 2, SubdivideMode::Linear);
+    REQUIRE(ok_multi);
+    // Level 1: 1 -> 4 tris; Level 2: 4 -> 16 tris. (Original had 2, so 2 - 1 + 16 = 17)
+    REQUIRE(plane_multi.triangles.size() == 17);
+}

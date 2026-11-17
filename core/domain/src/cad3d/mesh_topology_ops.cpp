@@ -284,9 +284,11 @@ bool MeshTopologyOps::subdivide_faces(
 ) {
     if (face_indices.empty()) return false;
     uint32_t num_cuts = std::max(1u, cuts);
+    std::vector<uint32_t> current_faces = face_indices;
 
     for (uint32_t c = 0; c < num_cuts; ++c) {
         std::map<std::pair<uint32_t, uint32_t>, uint32_t> edge_midpoints;
+        std::vector<uint32_t> next_faces;
 
         auto get_or_create_midpoint = [&](uint32_t u, uint32_t v) -> uint32_t {
             auto key = normalize_edge(u, v);
@@ -312,7 +314,7 @@ bool MeshTopologyOps::subdivide_faces(
             return idx;
         };
 
-        for (uint32_t f_idx : face_indices) {
+        for (uint32_t f_idx : current_faces) {
             if (f_idx >= mesh.triangles.size()) continue;
 
             auto tri = mesh.triangles[f_idx];
@@ -330,11 +332,21 @@ bool MeshTopologyOps::subdivide_faces(
 
             // Replace original with corner 0
             mesh.triangles[f_idx] = {tri[0], m01, m20};
-            // Add other 3 sub-triangles
+            next_faces.push_back(f_idx);
+
+            uint32_t t1 = static_cast<uint32_t>(mesh.triangles.size());
             mesh.add_triangle(tri[1], m12, m01);
+            next_faces.push_back(t1);
+
+            uint32_t t2 = static_cast<uint32_t>(mesh.triangles.size());
             mesh.add_triangle(tri[2], m20, m12);
+            next_faces.push_back(t2);
+
+            uint32_t t3 = static_cast<uint32_t>(mesh.triangles.size());
             mesh.add_triangle(m01, m12, m20);
+            next_faces.push_back(t3);
         }
+        current_faces = std::move(next_faces);
     }
 
     return true;
