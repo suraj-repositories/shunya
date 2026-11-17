@@ -484,7 +484,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 - [x] `PH4-06.02.006`: Implement bidirectional selection highlighting: selecting a pin in 3D highlights the corresponding pin in the 2D symbol editor and vice-versa.
 
 ### Submodule PH4-06.03: Multi-Region Material Physics & Electrical Qualification
-- [ ] `PH4-06.03.001`: Develop multi-region material assignment validation: verify that terminal regions are assigned conductive materials ($\sigma > 10^5 \text{ S/m}$) and body housings are assigned insulating or structural materials.
+- [x] `PH4-06.03.001`: Develop multi-region material assignment validation: verify that terminal regions are assigned conductive materials ($\sigma > 10^5 \text{ S/m}$) and body housings are assigned insulating or structural materials.
 - [ ] `PH4-06.03.002`: Implement automated electrical continuity checks through internal 3D geometries between defined terminals.
 - [ ] `PH4-06.03.003`: Calculate equivalent series resistance (ESR) based on geometric lead length, cross-sectional area, and assigned material electrical resistivity.
 - [ ] `PH4-06.03.004`: Calculate total component mass, center of gravity, and inertia tensor from the combined volume and densities of all assigned regions.
