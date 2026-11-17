@@ -35,6 +35,7 @@
 #include "shunya/mat/property_models/chemical_property_model.hpp"
 #include "shunya/mat/property_models/electrical_property_model.hpp"
 #include "shunya/mat/property_models/thermal_property_model.hpp"
+#include "shunya/mat/property_models/mechanical_property_model.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2912,4 +2913,50 @@ TEST_CASE("PH4-03.02.003: Structured Thermal Property Model") {
     CHECK(cu_thermal.heat_of_fusion_j_kg == 205000.0);
     CHECK(cu_thermal.heat_of_vaporization_j_kg == 4730000.0);
     CHECK(!cu_thermal.to_summary_string().empty());
+}
+
+TEST_CASE("PH4-03.02.004: Structured Mechanical Property Model") {
+    using namespace shunya::mat;
+
+    // 1. Copper Mechanical Model & Elastic Moduli
+    MechanicalPropertyModel cu_mech;
+    cu_mech.density_kg_m3 = 8920.0;
+    cu_mech.young_modulus_pa = 110.0e9;
+    cu_mech.poisson_ratio = 0.34;
+    cu_mech.shear_modulus_pa = 48.0e9;
+    cu_mech.bulk_modulus_pa = 140.0e9;
+    cu_mech.yield_strength_pa = 70.0e6;
+    cu_mech.ultimate_tensile_strength_pa = 220.0e6;
+    cu_mech.fracture_toughness_k1c_mpa_m05 = 75.0;
+
+    CHECK(cu_mech.check_elastic_stability());
+
+    // Derived isotropic moduli: G = E / (2*(1+nu)) ~ 41 GPa, K = E / (3*(1-2nu)) ~ 114.6 GPa
+    const double g_derived = cu_mech.derived_shear_modulus_pa();
+    CHECK(g_derived > 40.0e9);
+    CHECK(g_derived < 42.0e9);
+
+    const double k_derived = cu_mech.derived_bulk_modulus_pa();
+    CHECK(k_derived > 110.0e9);
+    CHECK(k_derived < 120.0e9);
+
+    // 2. Acoustic wave speeds: c_L ~ 4700-4800 m/s, c_S ~ 2300 m/s
+    const double c_long = cu_mech.longitudinal_sound_speed_m_s();
+    CHECK(c_long > 4500.0);
+    CHECK(c_long < 5000.0);
+
+    const double c_shear = cu_mech.shear_sound_speed_m_s();
+    CHECK(c_shear > 2200.0);
+    CHECK(c_shear < 2500.0);
+
+    // 3. Fracture Mechanics: G_1c = K_1c^2 * (1 - nu^2) / E
+    const double g1c = cu_mech.critical_energy_release_rate_j_m2();
+    CHECK(g1c > 40000.0); // ~45 kJ/m^2
+    CHECK(g1c < 50000.0);
+
+    // 4. Elastic instability detection
+    MechanicalPropertyModel unstable_mat = cu_mech;
+    unstable_mat.poisson_ratio = 0.65; // Invalid nu > 0.5 (violates positive-definite strain energy)
+    CHECK_FALSE(unstable_mat.check_elastic_stability());
+    CHECK(!cu_mech.to_summary_string().empty());
 }
