@@ -8,6 +8,7 @@
 #include "shunya/cad2d/drawing_tools.hpp"
 #include "shunya/cad2d/dimensioning_tool.hpp"
 #include "shunya/cad2d/vector_text_tool.hpp"
+#include "shunya/cad2d/advanced_curves.hpp"
 
 #include <cmath>
 #include <vector>
@@ -534,4 +535,64 @@ TEST_CASE("PH4-04.01.003: Interactive Vector Text Tool & Typography Engine") {
     CHECK(!committed_ids.empty());
     CHECK(doc.entities().size() == committed_ids.size());
     CHECK(doc.entities().front().layer == "ANNOTATIONS");
+}
+
+// =============================================================================
+// Task PH4-04.01.004: Advanced 2D Drafting Curves (Catmull-Rom, B-Spline, Parabola)
+// =============================================================================
+
+TEST_CASE("PH4-04.01.004: Advanced 2D Drafting Curves") {
+    // 1. CatmullRomSpline2D
+    std::vector<Point2D> pts = {
+        {0.0, 0.0},
+        {5.0, 10.0},
+        {10.0, 0.0},
+        {15.0, 10.0}
+    };
+    CatmullRomSpline2D catmull(pts, false);
+    // Control points must be interpolated exactly
+    CHECK(is_approx(catmull.evaluate(0.0).x, 0.0, 1e-6));
+    CHECK(is_approx(catmull.evaluate(0.0).y, 0.0, 1e-6));
+    CHECK(is_approx(catmull.evaluate(1.0 / 3.0).x, 5.0, 1e-6));
+    CHECK(is_approx(catmull.evaluate(1.0 / 3.0).y, 10.0, 1e-6));
+    CHECK(is_approx(catmull.evaluate(2.0 / 3.0).x, 10.0, 1e-6));
+    CHECK(is_approx(catmull.evaluate(2.0 / 3.0).y, 0.0, 1e-6));
+    CHECK(is_approx(catmull.evaluate(1.0).x, 15.0, 1e-6));
+    CHECK(is_approx(catmull.evaluate(1.0).y, 10.0, 1e-6));
+    CHECK(catmull.total_length() > 30.0);
+
+    // 2. BSpline2D (Uniform cubic B-spline)
+    std::vector<Point2D> b_pts = {
+        {0.0, 0.0},
+        {0.0, 10.0},
+        {10.0, 10.0},
+        {10.0, 0.0},
+        {20.0, 0.0}
+    };
+    BSpline2D bspline(b_pts, false);
+    CHECK(bspline.bounding_box().is_valid());
+    // Verify C2 continuity: evaluation and derivatives are non-zero and finite
+    Vec2d d1 = bspline.derivative(0.5);
+    Vec2d d2 = bspline.second_derivative(0.5);
+    CHECK(std::isfinite(d1.x) && std::isfinite(d1.y));
+    CHECK(std::isfinite(d2.x) && std::isfinite(d2.y));
+
+    // 3. ParabolicArc2D
+    // Vertex at (0, 0), axis along +Y, focal coefficient a = 0.5 (y = 0.5 * x^2)
+    ParabolicArc2D parabola({0.0, 0.0}, 0.5, 0.5 * PI, -4.0, 4.0);
+    // Apex is at t = 0.5 (local x = 0.0)
+    Point2D apex = parabola.evaluate(0.5);
+    CHECK(is_approx(apex.x, 0.0, 1e-6));
+    CHECK(is_approx(apex.y, 0.0, 1e-6));
+    // Curvature at apex: kappa = 2*a = 1.0
+    CHECK(is_approx(parabola.curvature(0.5), 1.0, 1e-6));
+    // Analytical arc length
+    double len = parabola.total_length();
+    CHECK(len > 8.0);
+    CHECK(is_approx(parabola.arc_length(0.0, 0.5) * 2.0, len, 1e-6)); // Symmetrical
+
+    // 3-point parabola factory
+    auto p3 = ParabolicArc2D::from_three_points({-3.0, 4.5}, {0.0, 0.0}, {3.0, 4.5});
+    REQUIRE(p3 != nullptr);
+    CHECK(is_approx(p3->curvature(0.5), 1.0, 0.05));
 }
