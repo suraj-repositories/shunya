@@ -385,7 +385,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-04: Professional 2D Vector & Schematic Drafting Engine (`CAD2D`)
 
 **Objective:** Upgrade the 2D CAD editor into a professional-grade parametric vector sketching environment and seamless electronic schematic capture canvas.  
-**Priority:** P0 | **Complexity:** High | **Dependencies:** `AUDIT`, `OPT` | **Status:** `[~] In Progress` (12/24 — 50.0%)
+**Priority:** P0 | **Complexity:** High | **Dependencies:** `AUDIT`, `OPT` | **Status:** `[~] In Progress` (13/24 — 54.2%)
 
 ### Submodule PH4-04.01: Professional Drawing & Geometric Primitives [x] (100.0% — 6/6)
 - [x] `PH4-04.01.001`: Implement interactive 2D primitive creation tools: Line, Rectangle, Circle, Ellipse, Regular Polygon, Arbitrary Polygon, Arc (3-point and center-radius), Cubic Bezier, and Freehand polyline.
@@ -403,8 +403,8 @@ PH4: Integrated Cyber-Physical Engineering Platform
 - [x] `PH4-04.02.005`: Implement visual snap glyph indicators with tooltip feedback rendering at high frame rates.
 - [x] `PH4-04.02.006`: Add precision numeric coordinate input bars (HUD) allowing exact length, angle, and coordinate entry via keyboard.
 
-### Submodule PH4-04.03: Layer Management & Advanced Object Editing
-- [ ] `PH4-04.03.001`: Architect a hierarchical 2D layer system with visibility toggling, layer locking, color overrides, line weight, and opacity controls.
+### Submodule PH4-04.03: Layer Management & Advanced Object Editing [~] (16.7% — 1/6)
+- [x] `PH4-04.03.001`: Architect a hierarchical 2D layer system with visibility toggling, layer locking, color overrides, line weight, and opacity controls.
 - [ ] `PH4-04.03.002`: Implement multi-selection (marquee rectangle, lasso, Shift-click) with bounding box transform gizmos (Move, Rotate, Scale).
 - [ ] `PH4-04.03.003`: Implement Group and Ungroup operations preserving relative child transforms and layer assignments.
 - [ ] `PH4-04.03.004`: Build full clipboard operations (Copy, Cut, Paste, Duplicate with offset) with deep object cloning.

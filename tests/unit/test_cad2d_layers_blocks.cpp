@@ -162,3 +162,66 @@ TEST_CASE("BlockManager: nested transforms, grouping, and explode into SketchDoc
     REQUIRE(bmgr.find_block("ExplodedGroup") != nullptr);
     REQUIRE(bmgr.resolve_instance_entities(grouped_inst).size() == 2);
 }
+
+TEST_CASE("PH4-04.03.001: Hierarchical 2D layer system with opacity, color overrides, line weight, and hierarchy management") {
+    LayerManager mgr;
+    REQUIRE(mgr.active_layer() == "0");
+
+    // Add layers with hierarchy: 0 -> Electrical -> Wiring -> SignalLines
+    REQUIRE(mgr.add_layer("Electrical", "0", {"#ff5555", 0.5, LinePattern::Solid, 0.8}));
+    REQUIRE(mgr.add_layer("Wiring", "Electrical", {"#50fa7b", 0.35, LinePattern::Dashed, 0.9}));
+    REQUIRE(mgr.add_layer("SignalLines", "Wiring", {"#8be9fd", 0.2, LinePattern::Solid, 0.5}));
+
+    // Check children and ancestors
+    const auto children = mgr.get_children("Electrical");
+    REQUIRE(children.size() == 1);
+    REQUIRE(children[0] == "Wiring");
+
+    const auto ancestors = mgr.get_ancestors("SignalLines");
+    REQUIRE(ancestors.size() == 3);
+    REQUIRE(ancestors[0] == "Wiring");
+    REQUIRE(ancestors[1] == "Electrical");
+    REQUIRE(ancestors[2] == "0");
+
+    // Effective opacity calculation (0.8 * 0.9 * 0.5 = 0.36)
+    REQUIRE(is_approx(mgr.effective_opacity("Electrical"), 0.8, 1e-5));
+    REQUIRE(is_approx(mgr.effective_opacity("Wiring"), 0.72, 1e-5));
+    REQUIRE(is_approx(mgr.effective_opacity("SignalLines"), 0.36, 1e-5));
+
+    // Color overrides
+    REQUIRE(mgr.effective_color("SignalLines") == "#8be9fd");
+    REQUIRE(mgr.set_color_override("SignalLines", "#ffffff"));
+    REQUIRE(mgr.effective_color("SignalLines") == "#ffffff");
+    REQUIRE(mgr.set_color_override("SignalLines", std::nullopt));
+    REQUIRE(mgr.effective_color("SignalLines") == "#8be9fd");
+
+    // Line weight overrides
+    REQUIRE(is_approx(mgr.effective_line_weight("SignalLines"), 0.2, 1e-5));
+    REQUIRE(mgr.set_line_weight_override("SignalLines", 0.75));
+    REQUIRE(is_approx(mgr.effective_line_weight("SignalLines"), 0.75, 1e-5));
+    REQUIRE(mgr.set_line_weight_override("SignalLines", std::nullopt));
+    REQUIRE(is_approx(mgr.effective_line_weight("SignalLines"), 0.2, 1e-5));
+
+    // Active layer switching
+    REQUIRE(mgr.set_active_layer("Wiring"));
+    REQUIRE(mgr.active_layer() == "Wiring");
+    REQUIRE(!mgr.set_active_layer("NonExistentLayer"));
+
+    // Layer reordering
+    REQUIRE(mgr.reorder_layer("SignalLines", 1));
+    const auto ordered = mgr.ordered_layers();
+    REQUIRE(ordered.size() == 4);
+    REQUIRE(ordered[1]->name == "SignalLines");
+
+    // Serialization & Deserialization
+    const std::string serialized = mgr.to_json();
+    REQUIRE(!serialized.empty());
+
+    LayerManager mgr2;
+    REQUIRE(mgr2.from_json(serialized));
+    REQUIRE(mgr2.layer_count() == 4);
+    REQUIRE(mgr2.active_layer() == "Wiring");
+    REQUIRE(is_approx(mgr2.effective_opacity("SignalLines"), 0.36, 1e-5));
+    REQUIRE(mgr2.find_layer("SignalLines") != nullptr);
+}
+
