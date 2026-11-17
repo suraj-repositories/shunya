@@ -6,12 +6,25 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <shared_mutex>
 #include <queue>
 #include <cstdint>
+#include <span>
+#include <optional>
+#include "shunya/core/base/ring_buffer.hpp"
 
 namespace shunya::core::base {
 
 using SubscriptionId = uint64_t;
+
+/**
+ * @brief Telemetry metric packet for wait-free high-frequency streaming.
+ */
+struct TelemetryMetric {
+    uint64_t timestamp_ns{0};
+    uint32_t channel_id{0};
+    double value{0.0};
+};
 
 class EventBus {
 private:
@@ -51,7 +64,7 @@ public:
 
     template <typename EventT>
     SubscriptionId subscribe(std::function<void(const EventT&)> handler) {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::unique_lock<std::shared_mutex> lock(rw_mutex_);
         SubscriptionId id = next_id_++;
         auto wrapper = std::make_shared<HandlerWrapper<EventT>>(std::move(handler));
         wrapper->id = id;
@@ -61,7 +74,7 @@ public:
     }
 
     bool unsubscribe(SubscriptionId id) {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::unique_lock<std::shared_mutex> lock(rw_mutex_);
         auto type_it = id_to_type_.find(id);
         if (type_it == id_to_type_.end()) {
             return false;
@@ -86,7 +99,7 @@ public:
     void publish_immediate(const EventT& event) {
         std::vector<std::shared_ptr<HandlerWrapper<EventT>>> targets;
         {
-            std::lock_guard<std::mutex> lock(mutex_);
+            std::shared_lock<std::shared_mutex> lock(rw_mutex_);
             auto it = handlers_.find(std::type_index(typeid(EventT)));
             if (it != handlers_.end()) {
                 targets.reserve(it->second.size());
@@ -106,14 +119,14 @@ public:
 
     template <typename EventT>
     void enqueue(EventT event) {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::lock_guard<std::mutex> lock(queue_mutex_);
         queue_.push(std::make_unique<QueuedEvent<EventT>>(std::move(event)));
     }
 
     std::size_t flush_queue() {
         std::vector<std::unique_ptr<IQueuedEvent>> batch;
         {
-            std::lock_guard<std::mutex> lock(mutex_);
+            std::lock_guard<std::mutex> lock(queue_mutex_);
             batch.reserve(queue_.size());
             while (!queue_.empty()) {
                 batch.push_back(std::move(queue_.front()));
@@ -130,25 +143,61 @@ public:
     }
 
     [[nodiscard]] std::size_t queued_count() const {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::lock_guard<std::mutex> lock(queue_mutex_);
         return queue_.size();
     }
 
-    void clear() {
-        std::lock_guard<std::mutex> lock(mutex_);
-        handlers_.clear();
-        id_to_type_.clear();
-        while (!queue_.empty()) {
-            queue_.pop();
+    // --- High-throughput Wait-Free Lockless Telemetry (PH4-02.02.004) ---
+
+    void emit_telemetry(uint32_t channel, double value, uint64_t timestamp_ns = 0) noexcept {
+        telemetry_queue_.push_overwrite({timestamp_ns, channel, value});
+    }
+
+    bool try_emit_telemetry(const TelemetryMetric& metric) noexcept {
+        return telemetry_queue_.push(metric);
+    }
+
+    std::optional<TelemetryMetric> poll_telemetry() noexcept {
+        return telemetry_queue_.pop();
+    }
+
+    size_t flush_telemetry(std::span<TelemetryMetric> out_batch) noexcept {
+        size_t count = 0;
+        while (count < out_batch.size()) {
+            auto item = telemetry_queue_.pop();
+            if (!item.has_value()) break;
+            out_batch[count++] = *item;
         }
+        return count;
+    }
+
+    [[nodiscard]] size_t telemetry_queued_count() const noexcept {
+        return telemetry_queue_.size();
+    }
+
+    void clear() {
+        {
+            std::unique_lock<std::shared_mutex> lock(rw_mutex_);
+            handlers_.clear();
+            id_to_type_.clear();
+        }
+        {
+            std::lock_guard<std::mutex> lock(queue_mutex_);
+            while (!queue_.empty()) {
+                queue_.pop();
+            }
+        }
+        while (telemetry_queue_.pop().has_value()) {}
     }
 
 private:
-    mutable std::mutex mutex_;
+    mutable std::shared_mutex rw_mutex_;
+    mutable std::mutex queue_mutex_;
     SubscriptionId next_id_ = 1;
     std::unordered_map<std::type_index, std::vector<std::shared_ptr<IHandlerWrapper>>> handlers_;
     std::unordered_map<SubscriptionId, std::type_index> id_to_type_;
     std::queue<std::unique_ptr<IQueuedEvent>> queue_;
+    RingBuffer<TelemetryMetric> telemetry_queue_{8192};
 };
 
 } // namespace shunya::core::base

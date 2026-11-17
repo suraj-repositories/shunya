@@ -15,6 +15,7 @@
 #include "shunya/perf/work_stealing_pool.hpp"
 #include "shunya/cad3d/bvh_tree.hpp"
 #include "shunya/perf/simd_math.hpp"
+#include "shunya/core/base/event_bus.hpp"
 
 using namespace shunya::eng;
 using namespace shunya::core::base;
@@ -1374,4 +1375,68 @@ TEST_CASE("PH4-02.02.003: Vectorized Constitutive Material Loops & Geometric AAB
         CHECK(b_min_y[idx] <= 2.0f);
         CHECK(b_max_y[idx] >= 2.0f);
     }
+}
+
+TEST_CASE("PH4-02.02.004: EventBus Read-Write Locks & Wait-Free Lockless Telemetry") {
+    struct TestTelemetryTick {
+        int step_id;
+    };
+
+    EventBus bus;
+
+    // 1. Concurrent Shared-Lock Publishing across 8 worker threads
+    std::atomic<int> received_count{0};
+    auto sub_id = bus.subscribe<TestTelemetryTick>([&](const TestTelemetryTick& ev) {
+        (void)ev;
+        received_count.fetch_add(1, std::memory_order_relaxed);
+    });
+    CHECK(sub_id > 0);
+
+    constexpr int THREADS = 8;
+    constexpr int EVENTS_PER_THREAD = 500;
+    std::vector<std::thread> workers;
+    workers.reserve(THREADS);
+
+    for (int t = 0; t < THREADS; ++t) {
+        workers.emplace_back([&, t]() {
+            for (int e = 0; e < EVENTS_PER_THREAD; ++e) {
+                bus.publish_immediate(TestTelemetryTick{t * EVENTS_PER_THREAD + e});
+            }
+        });
+    }
+
+    for (auto& w : workers) {
+        w.join();
+    }
+    workers.clear();
+
+    CHECK(received_count.load() == THREADS * EVENTS_PER_THREAD);
+
+    // 2. Unsubscribe under write lock
+    CHECK(bus.unsubscribe(sub_id));
+    bus.publish_immediate(TestTelemetryTick{999999});
+    CHECK(received_count.load() == THREADS * EVENTS_PER_THREAD);
+
+    // 3. High-Throughput Wait-Free Lockless Telemetry Streaming
+    // Producer thread: streams 2,000 telemetry metrics without locking
+    std::thread producer([&]() {
+        for (uint32_t i = 0; i < 2000; ++i) {
+            bus.emit_telemetry(1, static_cast<double>(i) * 0.1, i * 1000);
+        }
+    });
+
+    producer.join();
+
+    CHECK(bus.telemetry_queued_count() > 0);
+
+    std::vector<TelemetryMetric> batch(3000);
+    size_t flushed = bus.flush_telemetry(batch);
+    CHECK(flushed == 2000);
+    CHECK(batch[0].channel_id == 1);
+    CHECK(std::abs(batch[0].value - 0.0) < 1e-6);
+    CHECK(std::abs(batch[1999].value - 199.9) < 1e-4);
+    CHECK(bus.telemetry_queued_count() == 0);
+
+    bus.clear();
+    CHECK(bus.telemetry_queued_count() == 0);
 }
