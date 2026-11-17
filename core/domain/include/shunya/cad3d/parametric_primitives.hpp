@@ -44,6 +44,12 @@ enum class CircleFillType {
     TriangleFan
 };
 
+enum class AlignmentMode {
+    World,
+    View,
+    SurfaceNormal
+};
+
 // ============================================================================
 // Parameter Structures
 // ============================================================================
@@ -213,6 +219,31 @@ public:
     [[nodiscard]] static MeshQualityReport validate_topology_and_attributes(
         const SolidMesh3D& mesh,
         bool closed_expected = true
+    );
+};
+
+// ============================================================================
+// Primitive Alignment (Task 1: PH4-05.01.006)
+// ============================================================================
+
+class PrimitiveAligner {
+public:
+    [[nodiscard]] static SolidMesh3D align_to_world(
+        const SolidMesh3D& mesh,
+        const Point3D& target_origin = {0.0, 0.0, 0.0}
+    );
+
+    [[nodiscard]] static SolidMesh3D align_to_view(
+        const SolidMesh3D& mesh,
+        const Point3D& target_origin,
+        const Vec3d& view_direction,
+        const Vec3d& view_up = {0.0, 1.0, 0.0}
+    );
+
+    [[nodiscard]] static SolidMesh3D align_to_surface_normal(
+        const SolidMesh3D& mesh,
+        const Point3D& surface_point,
+        const Vec3d& surface_normal
     );
 };
 

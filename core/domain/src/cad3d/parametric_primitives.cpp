@@ -935,6 +935,90 @@ MeshQualityReport ParametricMeshValidator::validate_topology_and_attributes(
 }
 
 // ============================================================================
+// Primitive Alignment (Task 1: PH4-05.01.006)
+// ============================================================================
+
+SolidMesh3D PrimitiveAligner::align_to_world(
+    const SolidMesh3D& mesh,
+    const Point3D& target_origin
+) {
+    SolidMesh3D out = mesh;
+    for (auto& v : out.vertices) {
+        v = v + target_origin;
+    }
+    return out;
+}
+
+SolidMesh3D PrimitiveAligner::align_to_view(
+    const SolidMesh3D& mesh,
+    const Point3D& target_origin,
+    const Vec3d& view_direction,
+    const Vec3d& view_up
+) {
+    SolidMesh3D out = mesh;
+    Vec3d fwd = (-view_direction).normalized(); // face camera
+    Vec3d right = view_up.cross(fwd).normalized();
+    if (right.length_squared() < 1e-6) {
+        right = Vec3d{1.0, 0.0, 0.0};
+    }
+    Vec3d up = fwd.cross(right).normalized();
+
+    // Transform: local X -> right, local Y -> up, local Z -> fwd
+    for (size_t i = 0; i < out.vertices.size(); ++i) {
+        const auto& p = mesh.vertices[i];
+        out.vertices[i] = target_origin + right * p.x + up * p.y + fwd * p.z;
+
+        if (i < out.normals.size()) {
+            const auto& n = mesh.normals[i];
+            out.normals[i] = (right * n.x + up * n.y + fwd * n.z).normalized();
+        }
+    }
+
+    return out;
+}
+
+SolidMesh3D PrimitiveAligner::align_to_surface_normal(
+    const SolidMesh3D& mesh,
+    const Point3D& surface_point,
+    const Vec3d& surface_normal
+) {
+    SolidMesh3D out = mesh;
+    Vec3d target_n = surface_normal.normalized();
+    Vec3d base_z{0.0, 0.0, 1.0};
+
+    double dot_val = std::clamp(base_z.dot(target_n), -1.0, 1.0);
+    Vec3d rot_axis = base_z.cross(target_n);
+    double rot_len = rot_axis.length();
+
+    auto rotate_vec = [&](const Vec3d& v) -> Vec3d {
+        if (dot_val > 0.999999) {
+            return v;
+        }
+        if (dot_val < -0.999999) {
+            // 180 degrees around X
+            return Vec3d{v.x, -v.y, -v.z};
+        }
+        Vec3d axis = rot_axis / rot_len;
+        double angle = std::acos(dot_val);
+        // Rodrigues rotation formula: v*cos(th) + (axis x v)*sin(th) + axis*(axis.v)*(1-cos(th))
+        double cos_th = std::cos(angle);
+        double sin_th = std::sin(angle);
+        return v * cos_th + axis.cross(v) * sin_th + axis * (axis.dot(v)) * (1.0 - cos_th);
+    };
+
+    for (size_t i = 0; i < out.vertices.size(); ++i) {
+        Vec3d rot_p = rotate_vec(mesh.vertices[i]);
+        out.vertices[i] = surface_point + rot_p;
+
+        if (i < out.normals.size()) {
+            out.normals[i] = rotate_vec(mesh.normals[i]).normalized();
+        }
+    }
+
+    return out;
+}
+
+// ============================================================================
 // Analytical Calculations (Task 10: PH4-05.01.005)
 // ============================================================================
 

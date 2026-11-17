@@ -449,3 +449,42 @@ TEST_CASE("PH4-05.01.005: Analytical volume, surface area, and bounding box calc
     REQUIRE(is_close(prim_props.volume, expected_torus_vol));
     REQUIRE(is_close(prim_props.surface_area, expected_torus_area));
 }
+
+TEST_CASE("PH4-05.01.006: Primitive alignment options: Align to World, Align to View, Align to Surface Normal") {
+    // 1. Align to World: translate cylinder to target world origin (10, 20, 30)
+    CylinderParams cyl_p;
+    cyl_p.radius = 1.0; cyl_p.height = 4.0;
+    auto cyl = ParametricPrimitiveGenerator::generate_cylinder(cyl_p);
+
+    auto world_cyl = PrimitiveAligner::align_to_world(cyl, Point3D{10.0, 20.0, 30.0});
+    auto bbox_world = world_cyl.compute_bbox();
+    REQUIRE(is_close((bbox_world.min.x + bbox_world.max.x) * 0.5, 10.0));
+    REQUIRE(is_close((bbox_world.min.y + bbox_world.max.y) * 0.5, 20.0));
+    REQUIRE(is_close((bbox_world.min.z + bbox_world.max.z) * 0.5, 30.0));
+
+    // 2. Align to View: align plane to face view direction (0, 0, -1) with up (0, 1, 0)
+    PlaneParams pl_p;
+    pl_p.width = 2.0; pl_p.height = 2.0;
+    auto plane = ParametricPrimitiveGenerator::generate_plane(pl_p);
+
+    // Camera looking along -Z -> plane normal faces +Z
+    auto view_plane = PrimitiveAligner::align_to_view(plane, Point3D{0.0, 0.0, 5.0}, Vec3d{0.0, 0.0, -1.0}, Vec3d{0.0, 1.0, 0.0});
+    REQUIRE(is_close(view_plane.normals[0].z, 1.0));
+    auto view_bbox = view_plane.compute_bbox();
+    REQUIRE(is_close((view_bbox.min.z + view_bbox.max.z) * 0.5, 5.0));
+
+    // 3. Align to Surface Normal: align cylinder to surface point (5, 5, 5) with normal pointing along +X (1, 0, 0)
+    auto aligned_norm_x = PrimitiveAligner::align_to_surface_normal(cyl, Point3D{5.0, 5.0, 5.0}, Vec3d{1.0, 0.0, 0.0});
+    auto bbox_norm_x = aligned_norm_x.compute_bbox();
+    // Cylinder length (4.0) should now align along X-axis
+    REQUIRE(is_close(bbox_norm_x.size().x, 4.0));
+    REQUIRE(is_close(bbox_norm_x.size().z, 2.0)); // Diameter is 2*radius = 2.0
+    REQUIRE(is_close((bbox_norm_x.min.x + bbox_norm_x.max.x) * 0.5, 5.0));
+    REQUIRE(is_close((bbox_norm_x.min.y + bbox_norm_x.max.y) * 0.5, 5.0));
+    REQUIRE(is_close((bbox_norm_x.min.z + bbox_norm_x.max.z) * 0.5, 5.0));
+
+    // 4. Align to inverted normal -Z (0, 0, -1)
+    auto aligned_norm_neg_z = PrimitiveAligner::align_to_surface_normal(cyl, Point3D{0.0, 0.0, 0.0}, Vec3d{0.0, 0.0, -1.0});
+    auto bbox_neg_z = aligned_norm_neg_z.compute_bbox();
+    REQUIRE(is_close(bbox_neg_z.size().z, 4.0));
+}

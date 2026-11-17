@@ -424,17 +424,17 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-05: Professional 3D Modeling & Mesh Geometry Engine (`CAD3D`)
 
 **Objective:** Build a professional 3D solid and polygonal modeling engine in Shunya, drawing from Blender-caliber usability while maintaining strict engineering tolerances.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT` | **Status:** `[~] In Progress` (5/26 — 19.2%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT` | **Status:** `[~] In Progress` (6/26 — 23.1%)
 
-### Submodule PH4-05.01: Parametric 3D Primitives [~] (83.3% — 5/6)
+### Submodule PH4-05.01: Parametric 3D Primitives [x] (100.0% — 6/6)
 - [x] `PH4-05.01.001`: Implement parametric primitive generation: Cube, Sphere, UV Sphere, Icosphere, Cylinder, Cone, Torus, Plane, Circle, Grid, and Capsule.
 - [x] `PH4-05.01.002`: Develop non-destructive parameter editing for primitives (e.g., radius, height, radial subdivisions, cap fills) available during and after creation.
 - [x] `PH4-05.01.003`: Implement custom primitive generators for engineering fasteners: Hex Bolts, Washers, Nuts, and Cylindrical Pins.
 - [x] `PH4-05.01.004`: Ensure all generated primitives have clean 2-manifold watertight mesh topology with properly calculated normals and UV coordinates.
 - [x] `PH4-05.01.005`: Implement analytical volume, surface area, and bounding box calculation algorithms for all parametric primitives.
-- [ ] `PH4-05.01.006`: Add primitive alignment options (Align to World, Align to View, Align to Surface Normal).
+- [x] `PH4-05.01.006`: Add primitive alignment options (Align to World, Align to View, Align to Surface Normal).
 
-### Submodule PH4-05.02: Polygonal Mesh Editing & Selection Modes
+### Submodule PH4-05.02: Polygonal Mesh Editing & Selection Modes [~] (0.0% — 0/6)
 - [ ] `PH4-05.02.001`: Implement discrete mesh selection modes: Vertex, Edge, Face, and Complete Object selection with raycast picking.
 - [ ] `PH4-05.02.002`: Build Blender-style mesh transform operations: Grab/Translate (G), Rotate (R), and Scale (S) with axis-locking (X, Y, Z).
 - [ ] `PH4-05.02.003`: Implement Face Extrude (along vertex normals and individual faces) with interactive depth handles.
