@@ -504,18 +504,18 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (1/30 — 3.3%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (2/30 — 6.7%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
-### Submodule PH4-07.01: Passive Components (Components 1 - 6) [~] (1/6)
+### Submodule PH4-07.01: Passive Components (Components 1 - 6) [~] (2/6)
 - [x] `PH4-07.01.001`: **1. Resistor**  
   *3D Model:* Cylindrical ceramic body with copper leads and 4-band color rings.  
   *2D Symbol:* IEEE zig-zag / IEC rectangle (2 pins).  
   *Electrical:* $V = I \cdot R$ with temperature coefficient $\Delta R(T) = R_0(1 + \alpha \Delta T)$.  
   *Materials:* Alumina ceramic core, Nichrome resistive film, Copper leads.  
   *Tests:* DC Ohm's law sweep, Joule heating thermal dissipation.
-- [ ] `PH4-07.01.002`: **2. Variable Resistor (Rheostat)**  
+- [x] `PH4-07.01.002`: **2. Variable Resistor (Rheostat)**  
   *3D Model:* Ceramic tube with wound resistive wire and sliding wiper terminal.  
   *2D Symbol:* Resistor with diagonal adjustment arrow (2 pins).  
   *Electrical:* Dynamic resistance $R(\theta) = R_{\min} + \theta (R_{\max} - R_{\min})$.  
