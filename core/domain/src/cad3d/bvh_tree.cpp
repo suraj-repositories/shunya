@@ -1,9 +1,12 @@
 #include "shunya/cad3d/bvh_tree.hpp"
+#include "shunya/perf/work_stealing_pool.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <future>
 #include <limits>
+#include <memory>
 #include <numeric>
 #include <unordered_set>
 
@@ -158,6 +161,301 @@ uint32_t build_bvh_recursive(
     return node_idx;
 }
 
+struct BVHBuildNode {
+    BBox3D bounds;
+    std::unique_ptr<BVHBuildNode> left;
+    std::unique_ptr<BVHBuildNode> right;
+    uint32_t first_prim{0};
+    uint32_t count{0};
+    uint8_t axis{0};
+    [[nodiscard]] bool is_leaf() const noexcept { return count > 0; }
+};
+
+std::unique_ptr<BVHBuildNode> build_bvh_tree_serial(
+    std::vector<uint32_t>& prim_indices,
+    const std::vector<PrimInfo>& prims,
+    uint32_t start,
+    uint32_t end,
+    uint32_t max_leaf_tris
+) {
+    auto node = std::make_unique<BVHBuildNode>();
+    BBox3D node_box;
+    BBox3D centroid_box;
+    for (uint32_t i = start; i < end; ++i) {
+        const auto& info = prims[prim_indices[i]];
+        node_box.expand(info.box);
+        centroid_box.expand(info.centroid);
+    }
+    node->bounds = node_box;
+
+    const uint32_t count = end - start;
+    if (count <= max_leaf_tris) {
+        node->first_prim = start;
+        node->count = count;
+        return node;
+    }
+
+    const Vec3d c_ext = centroid_box.size();
+    uint8_t best_axis = 0;
+    if (c_ext.y > c_ext.x && c_ext.y >= c_ext.z) best_axis = 1;
+    else if (c_ext.z > c_ext.x && c_ext.z > c_ext.y) best_axis = 2;
+
+    const auto coord_at = [](const Point3D& p, uint8_t ax) noexcept {
+        return (ax == 0) ? p.x : ((ax == 1) ? p.y : p.z);
+    };
+
+    const double c_min = coord_at(centroid_box.min, best_axis);
+    const double c_max = coord_at(centroid_box.max, best_axis);
+    const double c_span = c_max - c_min;
+
+    if (c_span <= 1e-12) {
+        const uint32_t mid = start + count / 2;
+        node->axis = best_axis;
+        node->count = 0;
+        node->left = build_bvh_tree_serial(prim_indices, prims, start, mid, max_leaf_tris);
+        node->right = build_bvh_tree_serial(prim_indices, prims, mid, end, max_leaf_tris);
+        return node;
+    }
+
+    constexpr int NUM_BUCKETS = 12;
+    SahBucket buckets[NUM_BUCKETS];
+    for (uint32_t i = start; i < end; ++i) {
+        const auto& info = prims[prim_indices[i]];
+        int b = static_cast<int>(NUM_BUCKETS * ((coord_at(info.centroid, best_axis) - c_min) / c_span));
+        if (b >= NUM_BUCKETS) b = NUM_BUCKETS - 1;
+        if (b < 0) b = 0;
+        ++buckets[b].count;
+        buckets[b].bounds.expand(info.box);
+    }
+
+    double costs[NUM_BUCKETS - 1]{};
+    const double parent_sa = std::max(1e-12, bbox_surface_area(node_box));
+    for (int s = 0; s < NUM_BUCKETS - 1; ++s) {
+        BBox3D b0, b1;
+        uint32_t c0 = 0, c1 = 0;
+        for (int j = 0; j <= s; ++j) {
+            b0.expand(buckets[j].bounds);
+            c0 += buckets[j].count;
+        }
+        for (int j = s + 1; j < NUM_BUCKETS; ++j) {
+            b1.expand(buckets[j].bounds);
+            c1 += buckets[j].count;
+        }
+        if (c0 == 0 || c1 == 0) {
+            costs[s] = std::numeric_limits<double>::infinity();
+        } else {
+            costs[s] = 0.125 + (c0 * bbox_surface_area(b0) + c1 * bbox_surface_area(b1)) / parent_sa;
+        }
+    }
+
+    int min_bucket = 0;
+    double min_cost = costs[0];
+    for (int s = 1; s < NUM_BUCKETS - 1; ++s) {
+        if (costs[s] < min_cost) {
+            min_cost = costs[s];
+            min_bucket = s;
+        }
+    }
+
+    const double leaf_cost = static_cast<double>(count);
+    uint32_t mid = start;
+    if (count > max_leaf_tris || min_cost < leaf_cost) {
+        auto it = std::partition(
+            prim_indices.begin() + static_cast<std::ptrdiff_t>(start),
+            prim_indices.begin() + static_cast<std::ptrdiff_t>(end),
+            [&](uint32_t pid) {
+                int b = static_cast<int>(NUM_BUCKETS * ((coord_at(prims[pid].centroid, best_axis) - c_min) / c_span));
+                if (b >= NUM_BUCKETS) b = NUM_BUCKETS - 1;
+                if (b < 0) b = 0;
+                return b <= min_bucket;
+            }
+        );
+        mid = static_cast<uint32_t>(std::distance(prim_indices.begin(), it));
+        if (mid == start || mid == end) {
+            mid = start + count / 2;
+        }
+    } else {
+        node->first_prim = start;
+        node->count = count;
+        return node;
+    }
+
+    node->axis = best_axis;
+    node->count = 0;
+    node->left = build_bvh_tree_serial(prim_indices, prims, start, mid, max_leaf_tris);
+    node->right = build_bvh_tree_serial(prim_indices, prims, mid, end, max_leaf_tris);
+    return node;
+}
+
+std::unique_ptr<BVHBuildNode> build_bvh_tree_parallel(
+    std::vector<uint32_t>& prim_indices,
+    const std::vector<PrimInfo>& prims,
+    uint32_t start,
+    uint32_t end,
+    uint32_t max_leaf_tris,
+    perf::WorkStealingPool& pool
+) {
+    struct SubtreeTask {
+        std::unique_ptr<BVHBuildNode>* target_slot;
+        uint32_t start;
+        uint32_t end;
+    };
+
+    auto root = std::make_unique<BVHBuildNode>();
+    std::vector<SubtreeTask> current;
+
+    // Root initialization
+    BBox3D root_box, root_centroid_box;
+    for (uint32_t i = start; i < end; ++i) {
+        const auto& info = prims[prim_indices[i]];
+        root_box.expand(info.box);
+        root_centroid_box.expand(info.centroid);
+    }
+    root->bounds = root_box;
+    const uint32_t total_count = end - start;
+    if (total_count <= max_leaf_tris) {
+        root->first_prim = start;
+        root->count = total_count;
+        return root;
+    }
+
+    current.push_back({&root, start, end});
+
+    // Expand top levels up to depth 3 (generating up to 8 subtrees)
+    for (int depth = 0; depth < 3 && !current.empty(); ++depth) {
+        std::vector<SubtreeTask> next;
+        for (auto& task : current) {
+            uint32_t count = task.end - task.start;
+            if (count <= max_leaf_tris) {
+                auto leaf = std::make_unique<BVHBuildNode>();
+                leaf->first_prim = task.start;
+                leaf->count = count;
+                BBox3D b;
+                for (uint32_t i = task.start; i < task.end; ++i) b.expand(prims[prim_indices[i]].box);
+                leaf->bounds = b;
+                *task.target_slot = std::move(leaf);
+                continue;
+            }
+
+            auto node = std::make_unique<BVHBuildNode>();
+            BBox3D node_box, centroid_box;
+            for (uint32_t i = task.start; i < task.end; ++i) {
+                const auto& info = prims[prim_indices[i]];
+                node_box.expand(info.box);
+                centroid_box.expand(info.centroid);
+            }
+            node->bounds = node_box;
+
+            const Vec3d c_ext = centroid_box.size();
+            uint8_t best_axis = 0;
+            if (c_ext.y > c_ext.x && c_ext.y >= c_ext.z) best_axis = 1;
+            else if (c_ext.z > c_ext.x && c_ext.z > c_ext.y) best_axis = 2;
+
+            const auto coord_at = [](const Point3D& p, uint8_t ax) noexcept {
+                return (ax == 0) ? p.x : ((ax == 1) ? p.y : p.z);
+            };
+            const double c_min = coord_at(centroid_box.min, best_axis);
+            const double c_max = coord_at(centroid_box.max, best_axis);
+            const double c_span = c_max - c_min;
+
+            uint32_t mid = task.start + count / 2;
+            if (c_span > 1e-12) {
+                constexpr int NUM_BUCKETS = 12;
+                SahBucket buckets[NUM_BUCKETS];
+                for (uint32_t i = task.start; i < task.end; ++i) {
+                    const auto& info = prims[prim_indices[i]];
+                    int b = static_cast<int>(NUM_BUCKETS * ((coord_at(info.centroid, best_axis) - c_min) / c_span));
+                    if (b >= NUM_BUCKETS) b = NUM_BUCKETS - 1;
+                    if (b < 0) b = 0;
+                    ++buckets[b].count;
+                    buckets[b].bounds.expand(info.box);
+                }
+                double costs[NUM_BUCKETS - 1]{};
+                const double parent_sa = std::max(1e-12, bbox_surface_area(node_box));
+                for (int s = 0; s < NUM_BUCKETS - 1; ++s) {
+                    BBox3D b0, b1;
+                    uint32_t c0 = 0, c1 = 0;
+                    for (int j = 0; j <= s; ++j) {
+                        b0.expand(buckets[j].bounds);
+                        c0 += buckets[j].count;
+                    }
+                    for (int j = s + 1; j < NUM_BUCKETS; ++j) {
+                        b1.expand(buckets[j].bounds);
+                        c1 += buckets[j].count;
+                    }
+                    if (c0 == 0 || c1 == 0) costs[s] = std::numeric_limits<double>::infinity();
+                    else costs[s] = 0.125 + (c0 * bbox_surface_area(b0) + c1 * bbox_surface_area(b1)) / parent_sa;
+                }
+                int min_bucket = 0;
+                double min_cost = costs[0];
+                for (int s = 1; s < NUM_BUCKETS - 1; ++s) {
+                    if (costs[s] < min_cost) {
+                        min_cost = costs[s];
+                        min_bucket = s;
+                    }
+                }
+                if (count > max_leaf_tris || min_cost < static_cast<double>(count)) {
+                    auto it = std::partition(
+                        prim_indices.begin() + static_cast<std::ptrdiff_t>(task.start),
+                        prim_indices.begin() + static_cast<std::ptrdiff_t>(task.end),
+                        [&](uint32_t pid) {
+                            int b = static_cast<int>(NUM_BUCKETS * ((coord_at(prims[pid].centroid, best_axis) - c_min) / c_span));
+                            if (b >= NUM_BUCKETS) b = NUM_BUCKETS - 1;
+                            if (b < 0) b = 0;
+                            return b <= min_bucket;
+                        }
+                    );
+                    mid = static_cast<uint32_t>(std::distance(prim_indices.begin(), it));
+                    if (mid == task.start || mid == task.end) mid = task.start + count / 2;
+                } else {
+                    node->first_prim = task.start;
+                    node->count = count;
+                    *task.target_slot = std::move(node);
+                    continue;
+                }
+            }
+            node->axis = best_axis;
+            node->count = 0;
+            *task.target_slot = std::move(node);
+            BVHBuildNode* parent_ptr = task.target_slot->get();
+            next.push_back({&parent_ptr->left, task.start, mid});
+            next.push_back({&parent_ptr->right, mid, task.end});
+        }
+        current = std::move(next);
+    }
+
+    // Parallel build across the partitioned subtrees
+    if (!current.empty()) {
+        pool.parallel_for(0, current.size(), 1, [&](size_t idx) {
+            auto& t = current[idx];
+            *t.target_slot = build_bvh_tree_serial(prim_indices, prims, t.start, t.end, max_leaf_tris);
+        });
+    }
+
+    return root;
+}
+
+uint32_t flatten_build_tree(
+    const BVHBuildNode* bnode,
+    std::vector<LinearBvhNode>& nodes
+) {
+    if (!bnode) return 0;
+    const uint32_t node_idx = static_cast<uint32_t>(nodes.size());
+    nodes.emplace_back();
+    nodes[node_idx].bounds = bnode->bounds;
+    if (bnode->is_leaf()) {
+        nodes[node_idx].second_child_or_prim = bnode->first_prim;
+        nodes[node_idx].prim_count = static_cast<uint16_t>(bnode->count);
+        return node_idx;
+    }
+    nodes[node_idx].axis = bnode->axis;
+    nodes[node_idx].prim_count = 0;
+    flatten_build_tree(bnode->left.get(), nodes);
+    const uint32_t right_idx = flatten_build_tree(bnode->right.get(), nodes);
+    nodes[node_idx].second_child_or_prim = right_idx;
+    return node_idx;
+}
+
 } // namespace
 
 void LinearBvh3D::clear() noexcept {
@@ -166,7 +464,7 @@ void LinearBvh3D::clear() noexcept {
     prim_indices_.clear();
 }
 
-void LinearBvh3D::build(const SolidMesh3D& mesh, uint32_t max_leaf_tris) {
+void LinearBvh3D::build(const SolidMesh3D& mesh, uint32_t max_leaf_tris, shunya::perf::WorkStealingPool* pool) {
     clear();
     mesh_ = &mesh;
     const size_t n_tris = mesh.triangles.size();
@@ -174,19 +472,43 @@ void LinearBvh3D::build(const SolidMesh3D& mesh, uint32_t max_leaf_tris) {
 
     std::vector<PrimInfo> prims(n_tris);
     prim_indices_.resize(n_tris);
-    for (size_t i = 0; i < n_tris; ++i) {
-        const auto& t = mesh.triangles[i];
-        BBox3D b;
-        b.expand(mesh.vertices[t[0]]);
-        b.expand(mesh.vertices[t[1]]);
-        b.expand(mesh.vertices[t[2]]);
-        prims[i].box = b;
-        prims[i].centroid = (mesh.vertices[t[0]] + mesh.vertices[t[1]] + mesh.vertices[t[2]]) * (1.0 / 3.0);
-        prim_indices_[i] = static_cast<uint32_t>(i);
+
+    if (pool != nullptr && n_tris > 1024) {
+        pool->parallel_for(0, n_tris, 512, [&](size_t i) {
+            const auto& t = mesh.triangles[i];
+            BBox3D b;
+            b.expand(mesh.vertices[t[0]]);
+            b.expand(mesh.vertices[t[1]]);
+            b.expand(mesh.vertices[t[2]]);
+            prims[i].box = b;
+            prims[i].centroid = (mesh.vertices[t[0]] + mesh.vertices[t[1]] + mesh.vertices[t[2]]) * (1.0 / 3.0);
+            prim_indices_[i] = static_cast<uint32_t>(i);
+        });
+    } else {
+        for (size_t i = 0; i < n_tris; ++i) {
+            const auto& t = mesh.triangles[i];
+            BBox3D b;
+            b.expand(mesh.vertices[t[0]]);
+            b.expand(mesh.vertices[t[1]]);
+            b.expand(mesh.vertices[t[2]]);
+            prims[i].box = b;
+            prims[i].centroid = (mesh.vertices[t[0]] + mesh.vertices[t[1]] + mesh.vertices[t[2]]) * (1.0 / 3.0);
+            prim_indices_[i] = static_cast<uint32_t>(i);
+        }
     }
 
     nodes_.reserve(2 * n_tris);
-    build_bvh_recursive(nodes_, prim_indices_, prims, 0, static_cast<uint32_t>(n_tris), std::max<uint32_t>(1, max_leaf_tris));
+    const uint32_t leaf_limit = std::max<uint32_t>(1, max_leaf_tris);
+    if (pool != nullptr && n_tris > 256) {
+        auto root = build_bvh_tree_parallel(prim_indices_, prims, 0, static_cast<uint32_t>(n_tris), leaf_limit, *pool);
+        flatten_build_tree(root.get(), nodes_);
+    } else {
+        build_bvh_recursive(nodes_, prim_indices_, prims, 0, static_cast<uint32_t>(n_tris), leaf_limit);
+    }
+}
+
+void LinearBvh3D::build_parallel(const SolidMesh3D& mesh, shunya::perf::WorkStealingPool& pool, uint32_t max_leaf_tris) {
+    build(mesh, max_leaf_tris, &pool);
 }
 
 RayHit3D LinearBvh3D::raycast(const Ray3D& ray, double max_distance) const noexcept {

@@ -6,6 +6,10 @@
 #include <cstdint>
 #include <vector>
 
+namespace shunya::perf {
+class WorkStealingPool;
+}
+
 namespace shunya::cad3d {
 
 struct LinearBvhNode {
@@ -21,7 +25,8 @@ struct LinearBvhNode {
  */
 class LinearBvh3D {
 public:
-    void build(const SolidMesh3D& mesh, uint32_t max_leaf_tris = 4);
+    void build(const SolidMesh3D& mesh, uint32_t max_leaf_tris = 4, shunya::perf::WorkStealingPool* pool = nullptr);
+    void build_parallel(const SolidMesh3D& mesh, shunya::perf::WorkStealingPool& pool, uint32_t max_leaf_tris = 4);
     void clear() noexcept;
 
     [[nodiscard]] bool is_built() const noexcept { return !nodes_.empty(); }

@@ -13,6 +13,7 @@
 #include "shunya/perf/lru_asset_cache.hpp"
 #include "shunya/perf/task_graph_engine.hpp"
 #include "shunya/perf/work_stealing_pool.hpp"
+#include "shunya/cad3d/bvh_tree.hpp"
 
 using namespace shunya::eng;
 using namespace shunya::core::base;
@@ -1197,4 +1198,69 @@ TEST_CASE("PH4-02.02.001: Task-Graph Execution Engine Multi-Domain Parallelizati
     CHECK(physics_count.load() == 3);
     CHECK(circuit_count.load() == 1);
     CHECK(mesh_count.load() == 2);
+}
+
+TEST_CASE("PH4-02.02.002: Parallelized BVH Reconstruction via Work-Stealing Pool") {
+    // 1. Generate a procedural dense grid mesh (50x50 cells = 5,000 triangles)
+    shunya::cad3d::SolidMesh3D mesh;
+    constexpr int GRID_RES = 50;
+    mesh.vertices.reserve((GRID_RES + 1) * (GRID_RES + 1));
+    for (int y = 0; y <= GRID_RES; ++y) {
+        for (int x = 0; x <= GRID_RES; ++x) {
+            double xf = static_cast<double>(x) * 0.2;
+            double yf = static_cast<double>(y) * 0.2;
+            double zf = std::sin(xf) * std::cos(yf) * 0.5;
+            mesh.vertices.push_back({xf, yf, zf});
+        }
+    }
+    for (int y = 0; y < GRID_RES; ++y) {
+        for (int x = 0; x < GRID_RES; ++x) {
+            uint32_t i0 = static_cast<uint32_t>(y * (GRID_RES + 1) + x);
+            uint32_t i1 = i0 + 1;
+            uint32_t i2 = static_cast<uint32_t>((y + 1) * (GRID_RES + 1) + x);
+            uint32_t i3 = i2 + 1;
+            mesh.triangles.push_back({i0, i1, i2});
+            mesh.triangles.push_back({i1, i3, i2});
+        }
+    }
+    REQUIRE(mesh.triangles.size() == 5000);
+
+    // 2. Build BVH Serially
+    shunya::cad3d::LinearBvh3D serial_bvh;
+    serial_bvh.build(mesh, 4);
+    REQUIRE(serial_bvh.is_built());
+    CHECK(serial_bvh.node_count() > 0);
+
+    // 3. Build BVH in Parallel with WorkStealingPool
+    shunya::perf::WorkStealingPool pool(4);
+    shunya::cad3d::LinearBvh3D parallel_bvh;
+    parallel_bvh.build_parallel(mesh, pool, 4);
+    REQUIRE(parallel_bvh.is_built());
+    CHECK(parallel_bvh.node_count() > 0);
+
+    // 4. Verify raycast parity across 100 sample rays
+    for (int i = 0; i < 100; ++i) {
+        double rx = 0.5 + (i % 10) * 0.9;
+        double ry = 0.5 + (i / 10) * 0.9;
+        shunya::cad3d::Ray3D ray{{rx, ry, 5.0}, {0.0, 0.0, -1.0}};
+
+        auto hit_serial = serial_bvh.raycast(ray);
+        auto hit_parallel = parallel_bvh.raycast(ray);
+
+        CHECK(hit_serial.hit == hit_parallel.hit);
+        if (hit_serial.hit && hit_parallel.hit) {
+            CHECK(std::abs(hit_serial.distance - hit_parallel.distance) < 1e-4);
+            CHECK(std::abs(hit_serial.point.z - hit_parallel.point.z) < 1e-4);
+        }
+
+        CHECK(serial_bvh.any_hit(ray) == parallel_bvh.any_hit(ray));
+    }
+
+    // 5. Query AABB test
+    shunya::cad3d::BBox3D query_box{{2.0, 2.0, -1.0}, {4.0, 4.0, 1.0}};
+    auto serial_aabb = serial_bvh.query_aabb(query_box);
+    auto parallel_aabb = parallel_bvh.query_aabb(query_box);
+    CHECK(serial_aabb.size() > 0);
+    CHECK(parallel_aabb.size() > 0);
+    CHECK(serial_aabb.size() == parallel_aabb.size());
 }
