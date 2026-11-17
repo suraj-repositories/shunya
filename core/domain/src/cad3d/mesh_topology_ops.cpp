@@ -505,4 +505,131 @@ size_t MeshTopologyOps::merge_vertices(
     return remap.size();
 }
 
+// ============================================================================
+// Task 1 (PH4-05.03.004): Edge and Face Dissolve
+// ============================================================================
+
+bool MeshTopologyOps::dissolve_edges(
+    SolidMesh3D& mesh,
+    const std::vector<std::pair<uint32_t, uint32_t>>& edges
+) {
+    if (edges.empty()) return false;
+
+    bool any_dissolved = false;
+    for (const auto& raw_e : edges) {
+        auto e = normalize_edge(raw_e.first, raw_e.second);
+
+        std::vector<uint32_t> sharing_tris;
+        for (uint32_t i = 0; i < mesh.triangles.size(); ++i) {
+            const auto& t = mesh.triangles[i];
+            for (int k = 0; k < 3; ++k) {
+                if (normalize_edge(t[k], t[(k + 1) % 3]) == e) {
+                    sharing_tris.push_back(i);
+                    break;
+                }
+            }
+        }
+
+        // Dissolve valid on internal edges shared by exactly 2 triangles
+        if (sharing_tris.size() == 2) {
+            uint32_t t0 = sharing_tris[0];
+            uint32_t t1 = sharing_tris[1];
+
+            Vec3d n0 = mesh.triangle_normal(t0);
+            Vec3d n1 = mesh.triangle_normal(t1);
+
+            // Coplanarity check (> ~0.99 cosine)
+            if (n0.dot(n1) > 0.98) {
+                // Find opposite vertices
+                uint32_t opp0 = 0, opp1 = 0;
+                for (int k = 0; k < 3; ++k) {
+                    if (mesh.triangles[t0][k] != e.first && mesh.triangles[t0][k] != e.second) {
+                        opp0 = mesh.triangles[t0][k];
+                    }
+                    if (mesh.triangles[t1][k] != e.first && mesh.triangles[t1][k] != e.second) {
+                        opp1 = mesh.triangles[t1][k];
+                    }
+                }
+
+                // Dissolve edge (e.first, e.second) by retriangulating quad across (opp0, opp1)
+                mesh.triangles[t0] = {opp0, opp1, e.first};
+                mesh.triangles[t1] = {opp0, e.second, opp1};
+                any_dissolved = true;
+            }
+        }
+    }
+
+    return any_dissolved;
+}
+
+bool MeshTopologyOps::dissolve_faces(
+    SolidMesh3D& mesh,
+    const std::vector<uint32_t>& face_indices
+) {
+    if (face_indices.size() < 2) return false;
+
+    std::unordered_set<uint32_t> face_set(face_indices.begin(), face_indices.end());
+
+    // Count edge occurrences in the selected faces
+    std::map<std::pair<uint32_t, uint32_t>, int> edge_count;
+    std::map<uint32_t, uint32_t> directed_boundary;
+
+    for (uint32_t f_idx : face_indices) {
+        if (f_idx >= mesh.triangles.size()) continue;
+        const auto& tri = mesh.triangles[f_idx];
+        for (int k = 0; k < 3; ++k) {
+            uint32_t u = tri[k];
+            uint32_t v = tri[(k + 1) % 3];
+            edge_count[normalize_edge(u, v)]++;
+        }
+    }
+
+    // Boundary edges appear exactly once in the selected face set
+    for (uint32_t f_idx : face_indices) {
+        if (f_idx >= mesh.triangles.size()) continue;
+        const auto& tri = mesh.triangles[f_idx];
+        for (int k = 0; k < 3; ++k) {
+            uint32_t u = tri[k];
+            uint32_t v = tri[(k + 1) % 3];
+            if (edge_count[normalize_edge(u, v)] == 1) {
+                directed_boundary[u] = v;
+            }
+        }
+    }
+
+    if (directed_boundary.empty()) return false;
+
+    // Trace boundary loop
+    std::vector<uint32_t> boundary_loop;
+    uint32_t start_v = directed_boundary.begin()->first;
+    uint32_t cur_v = start_v;
+
+    do {
+        boundary_loop.push_back(cur_v);
+        auto it = directed_boundary.find(cur_v);
+        if (it == directed_boundary.end()) break;
+        cur_v = it->second;
+    } while (cur_v != start_v && boundary_loop.size() <= directed_boundary.size());
+
+    if (boundary_loop.size() < 3) return false;
+
+    // Retriangulate boundary polygon via fan from boundary_loop[0]
+    std::vector<std::array<uint32_t, 3>> new_tris;
+    for (size_t i = 1; i + 1 < boundary_loop.size(); ++i) {
+        new_tris.push_back({boundary_loop[0], boundary_loop[i], boundary_loop[i + 1]});
+    }
+
+    // Remove old faces and insert new retriangulated faces
+    std::vector<std::array<uint32_t, 3>> updated_tris;
+    for (uint32_t i = 0; i < mesh.triangles.size(); ++i) {
+        if (face_set.find(i) == face_set.end()) {
+            updated_tris.push_back(mesh.triangles[i]);
+        }
+    }
+    updated_tris.insert(updated_tris.end(), new_tris.begin(), new_tris.end());
+    mesh.triangles = std::move(updated_tris);
+
+    return true;
+}
+
 } // namespace shunya::cad3d

@@ -115,6 +115,19 @@ public:
         VertexMergeMode mode = VertexMergeMode::AtCenter,
         double distance_threshold = 1e-4
     );
+
+    // ========================================================================
+    // Task 1 (PH4-05.03.004): Edge and Face Dissolve
+    // ========================================================================
+    static bool dissolve_edges(
+        SolidMesh3D& mesh,
+        const std::vector<std::pair<uint32_t, uint32_t>>& edges
+    );
+
+    static bool dissolve_faces(
+        SolidMesh3D& mesh,
+        const std::vector<uint32_t>& face_indices
+    );
 };
 
 } // namespace shunya::cad3d

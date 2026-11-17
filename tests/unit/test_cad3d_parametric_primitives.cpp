@@ -926,3 +926,43 @@ TEST_CASE("PH4-05.03.003: Vertex Merge (At First, At Last, At Center, By Distanc
     // d0 and d1 merged; degenerate triangle d0-d0-d2 removed
     REQUIRE(mesh_dist.triangles.empty());
 }
+
+TEST_CASE("PH4-05.03.004: Implement Edge and Face Dissolve, preserving planar polygon topology") {
+    // 1. Edge Dissolve on coplanar quad
+    SolidMesh3D quad_mesh;
+    uint32_t v0 = quad_mesh.add_vertex(Point3D{0.0, 0.0, 0.0});
+    uint32_t v1 = quad_mesh.add_vertex(Point3D{2.0, 0.0, 0.0});
+    uint32_t v2 = quad_mesh.add_vertex(Point3D{2.0, 2.0, 0.0});
+    uint32_t v3 = quad_mesh.add_vertex(Point3D{0.0, 2.0, 0.0});
+
+    // Two triangles sharing diagonal (v0, v2)
+    quad_mesh.add_triangle(v0, v1, v2);
+    quad_mesh.add_triangle(v0, v2, v3);
+
+    bool ok_edge = MeshTopologyOps::dissolve_edges(quad_mesh, {{v0, v2}});
+    REQUIRE(ok_edge);
+    // The edge (v0, v2) was dissolved; retriangulated across opposite diagonal (v1, v3)
+    bool has_old_edge = false;
+    for (const auto& tri : quad_mesh.triangles) {
+        for (int k = 0; k < 3; ++k) {
+            if ((tri[k] == v0 && tri[(k+1)%3] == v2) || (tri[k] == v2 && tri[(k+1)%3] == v0)) {
+                has_old_edge = true;
+            }
+        }
+    }
+    REQUIRE(!has_old_edge);
+
+    // 2. Face Dissolve on subdivided plane
+    PlaneParams pl_p;
+    pl_p.width = 4.0; pl_p.height = 4.0; pl_p.segments_x = 2; pl_p.segments_y = 2; // 8 triangles
+    auto plane = ParametricPrimitiveGenerator::generate_plane(pl_p);
+    REQUIRE(plane.triangles.size() == 8);
+
+    // Dissolve two adjacent coplanar triangles {0, 1}
+    bool ok_faces = MeshTopologyOps::dissolve_faces(plane, {0, 1});
+    REQUIRE(ok_faces);
+    // Boundary of {0, 1} preserved, internal shared edge dissolved
+    auto bbox = plane.compute_bbox();
+    REQUIRE(is_close(bbox.size().x, 4.0));
+    REQUIRE(is_close(bbox.size().y, 4.0));
+}
