@@ -334,7 +334,7 @@ base::Result<std::vector<double>> DenseMatrix::solve_lu(const std::vector<double
     std::vector<size_t> p(n);
     for (size_t i = 0; i < n; ++i) p[i] = i;
 
-    // Gaussian elimination with partial pivoting
+    // Gaussian elimination with partial pivoting (optimized with contiguous row pointers)
     for (size_t k = 0; k < n; ++k) {
         double max_val = std::abs(A(k, k));
         size_t pivot_row = k;
@@ -352,21 +352,27 @@ base::Result<std::vector<double>> DenseMatrix::solve_lu(const std::vector<double
         }
 
         if (pivot_row != k) {
-            // Swap rows in A and RHS
+            double* row_k = &A(k, 0);
+            double* row_p = &A(pivot_row, 0);
             for (size_t c = 0; c < n; ++c) {
-                std::swap(A(k, c), A(pivot_row, c));
+                std::swap(row_k[c], row_p[c]);
             }
             std::swap(x[k], x[pivot_row]);
             std::swap(p[k], p[pivot_row]);
         }
 
+        const double inv_akk = 1.0 / A(k, k);
+        const double* row_k = &A(k, 0);
+        const double xk = x[k];
+
         for (size_t r = k + 1; r < n; ++r) {
-            double factor = A(r, k) / A(k, k);
-            A(r, k) = factor;
+            double* row_r = &A(r, 0);
+            const double factor = row_r[k] * inv_akk;
+            row_r[k] = factor;
             for (size_t c = k + 1; c < n; ++c) {
-                A(r, c) -= factor * A(k, c);
+                row_r[c] -= factor * row_k[c];
             }
-            x[r] -= factor * x[k];
+            x[r] -= factor * xk;
         }
     }
 

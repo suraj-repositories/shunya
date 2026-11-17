@@ -24,6 +24,7 @@
 #include "shunya/perf/performance_hud.hpp"
 #include "shunya/perf/simulation_hardware_profiler.hpp"
 #include "shunya/perf/chrome_tracing_exporter.hpp"
+#include "shunya/perf/hot_loop_profiler.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2370,4 +2371,20 @@ TEST_CASE("PH4-02.04.004: Frame-by-Frame Timeline Capture to Chrome Tracing / Pe
 
     exporter.clear();
     CHECK(exporter.event_count() == 0);
+}
+
+TEST_CASE("PH4-02.04.005: Hot Loop Optimization & Sub-Millisecond Material/Circuit Solves") {
+    using namespace shunya::perf;
+
+    double mixing_mean_us = 0.0;
+    double circuit_mean_us = 0.0;
+
+    const bool passes_guarantees = HotLoopProfiler::verify_sub_millisecond_guarantees(
+        &mixing_mean_us, &circuit_mean_us);
+
+    CHECK(passes_guarantees);
+    CHECK(mixing_mean_us < 1000.0); // Strict sub-millisecond requirement (< 1000 us)
+    CHECK(circuit_mean_us < 1000.0); // Strict sub-millisecond requirement (< 1000 us)
+    CHECK(mixing_mean_us > 0.0);
+    CHECK(circuit_mean_us > 0.0);
 }
