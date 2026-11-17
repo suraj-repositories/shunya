@@ -504,7 +504,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (11/30 — 36.7%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (12/30 — 40.0%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
@@ -572,14 +572,14 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Materials:* Silicon-platinum/gold junction, Molded epoxy compound.  
   *Tests:* High-frequency switching, low-loss forward conduction.
 
-### Submodule PH4-07.03: Transistors (Components 11 - 16) [~] (1/6)
+### Submodule PH4-07.03: Transistors (Components 11 - 16) [~] (2/6)
 - [x] `PH4-07.03.001`: **11. NPN Bipolar Junction Transistor**  
   *3D Model:* TO-92 plastic package with flat face and 3 in-line pins.  
   *2D Symbol:* Circle with Base, Collector, and Emitter pointing outward (3 pins: B, C, E).  
   *Electrical:* Ebers-Moll / Gummel-Poon BJT model: $I_c = \beta I_b$ in active region.  
   *Materials:* N-P-N doped silicon layers, Kovar leadframe, Epoxy encapsulation.  
   *Tests:* Common-emitter amplification, saturation switching ($V_{ce,\text{sat}} \approx 0.2\text{V}$).
-- [ ] `PH4-07.03.002`: **12. PNP Bipolar Junction Transistor**  
+- [x] `PH4-07.03.002`: **12. PNP Bipolar Junction Transistor**  
   *3D Model:* TO-92 plastic package with 3 in-line pins.  
   *2D Symbol:* Circle with Base, Collector, and Emitter pointing inward to Base (3 pins: B, C, E).  
   *Electrical:* Dual complementary BJT: active when base is pulled below emitter voltage.  
