@@ -119,6 +119,7 @@ add_library(shunya_domain_mat OBJECT
     src/mat/property_models/thermal_property_model.cpp
     src/mat/property_models/mechanical_property_model.cpp
     src/mat/property_models/environmental_property_model.cpp
+    src/mat/property_models/material_property_bundle.cpp
 )
 shunya_configure_domain_target(shunya_domain_mat)
 target_link_libraries(shunya_domain_mat PUBLIC shunya_domain_core)

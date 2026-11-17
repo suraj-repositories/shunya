@@ -37,6 +37,7 @@
 #include "shunya/mat/property_models/thermal_property_model.hpp"
 #include "shunya/mat/property_models/mechanical_property_model.hpp"
 #include "shunya/mat/property_models/environmental_property_model.hpp"
+#include "shunya/mat/property_models/material_property_bundle.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2998,3 +2999,72 @@ TEST_CASE("PH4-03.02.005: Structured Environmental Property Model") {
     CHECK(risk_noble == GalvanicRiskLevel::Compatible);
     CHECK(!al_env.to_summary_string().empty());
 }
+
+TEST_CASE("PH4-03.02.006: Unified MaterialPropertyBundle with SI unit constraints") {
+    using namespace shunya::mat;
+
+    MaterialPropertyBundle copper_bundle;
+    copper_bundle.material_id = "elem-Cu";
+    copper_bundle.material_name = "Copper (C10100 pure)";
+
+    // Chemical
+    copper_bundle.chemical.chemical_formula = "Cu";
+    copper_bundle.chemical.molecular_weight_g_mol = 63.546;
+    copper_bundle.chemical.corrosion_resistance = CorrosionResistanceClass::Immune;
+
+    // Mechanical
+    copper_bundle.mechanical.density_kg_m3 = 8960.0;
+    copper_bundle.mechanical.young_modulus_pa = 117.0e9;
+    copper_bundle.mechanical.shear_modulus_pa = 44.0e9;
+    copper_bundle.mechanical.bulk_modulus_pa = 140.0e9;
+    copper_bundle.mechanical.poisson_ratio = 0.34;
+    copper_bundle.mechanical.yield_strength_pa = 70.0e6;
+    copper_bundle.mechanical.ultimate_tensile_strength_pa = 220.0e6;
+    copper_bundle.mechanical.fracture_toughness_k1c_mpa_m05 = 60.0;
+
+    // Thermal
+    copper_bundle.thermal.melting_point_k = 1357.77;
+    copper_bundle.thermal.boiling_point_k = 2835.0;
+    copper_bundle.thermal.heat_of_fusion_j_kg = 205.0e3;
+    copper_bundle.thermal.base_thermal_conductivity_w_mk = 401.0;
+    copper_bundle.thermal.base_specific_heat_j_kgk = 385.0;
+
+    // Electrical
+    copper_bundle.electrical.base_conductivity_s_m = 5.96e7;
+    copper_bundle.electrical.base_resistivity_ohm_m = 1.68e-8;
+    copper_bundle.electrical.reference_temp_k = 293.15;
+    copper_bundle.electrical.tcr_per_k = 0.00386;
+
+    // Environmental
+    copper_bundle.environmental.pilling_bedworth_ratio = 1.77;
+    copper_bundle.environmental.standard_reduction_potential_v = +0.34;
+
+    // 1. Validation test - valid copper bundle
+    BundleValidationResult valid_res = copper_bundle.validate();
+    CHECK(valid_res.is_valid);
+    CHECK(valid_res.errors.empty());
+
+    // 2. Wiedemann-Franz Lorenz number computation
+    // L = k / (sigma * T) = 401 / (5.96e7 * 293.15) approx 2.29e-8 W*Ohm/K^2
+    const double lorenz = copper_bundle.lorenz_number(293.15);
+    CHECK(lorenz > 2.0e-8);
+    CHECK(lorenz < 2.6e-8);
+
+    // 3. Physical constraint violation detection
+    MaterialPropertyBundle invalid_bundle = copper_bundle;
+    invalid_bundle.mechanical.density_kg_m3 = -500.0; // Negative density violation
+    invalid_bundle.thermal.melting_point_k = 3000.0;
+    invalid_bundle.thermal.boiling_point_k = 2000.0; // Melting > Boiling violation
+    invalid_bundle.electrical.base_conductivity_s_m = -100.0; // Negative conductivity violation
+
+    BundleValidationResult invalid_res = invalid_bundle.validate();
+    CHECK_FALSE(invalid_res.is_valid);
+    CHECK(invalid_res.errors.size() >= 3);
+
+    // 4. Summary verification
+    const std::string sum = copper_bundle.summary();
+    CHECK(!sum.empty());
+    CHECK(sum.find("Copper") != std::string::npos);
+    CHECK(sum.find("8960") != std::string::npos);
+}
+
