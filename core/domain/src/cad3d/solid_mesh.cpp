@@ -56,6 +56,8 @@ void SolidMesh3D::append_triangles(std::span<const std::array<uint32_t, 3>> tris
 void SolidMesh3D::clear() noexcept {
     vertices.clear();
     triangles.clear();
+    normals.clear();
+    uvs.clear();
 }
 
 void SolidMesh3D::weld_vertices(double tol) {

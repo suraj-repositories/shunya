@@ -424,10 +424,10 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-05: Professional 3D Modeling & Mesh Geometry Engine (`CAD3D`)
 
 **Objective:** Build a professional 3D solid and polygonal modeling engine in Shunya, drawing from Blender-caliber usability while maintaining strict engineering tolerances.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT` | **Status:** `[~] In Progress` (0/26 — 0.0%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT` | **Status:** `[~] In Progress` (1/26 — 3.8%)
 
-### Submodule PH4-05.01: Parametric 3D Primitives [~] (0.0% — 0/6)
-- [ ] `PH4-05.01.001`: Implement parametric primitive generation: Cube, Sphere, UV Sphere, Icosphere, Cylinder, Cone, Torus, Plane, Circle, Grid, and Capsule.
+### Submodule PH4-05.01: Parametric 3D Primitives [~] (16.7% — 1/6)
+- [x] `PH4-05.01.001`: Implement parametric primitive generation: Cube, Sphere, UV Sphere, Icosphere, Cylinder, Cone, Torus, Plane, Circle, Grid, and Capsule.
 - [ ] `PH4-05.01.002`: Develop non-destructive parameter editing for primitives (e.g., radius, height, radial subdivisions, cap fills) available during and after creation.
 - [ ] `PH4-05.01.003`: Implement custom primitive generators for engineering fasteners: Hex Bolts, Washers, Nuts, and Cylindrical Pins.
 - [ ] `PH4-05.01.004`: Ensure all generated primitives have clean 2-manifold watertight mesh topology with properly calculated normals and UV coordinates.

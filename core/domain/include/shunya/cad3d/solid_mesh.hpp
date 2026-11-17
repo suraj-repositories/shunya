@@ -49,6 +49,8 @@ class SolidMesh3D {
 public:
     std::vector<Point3D> vertices;
     std::vector<std::array<uint32_t, 3>> triangles;
+    std::vector<Vec3d> normals;
+    std::vector<core::base::math::Vec2> uvs;
 
     uint32_t add_vertex(const Point3D& pt);
     void add_triangle(uint32_t i0, uint32_t i1, uint32_t i2);
