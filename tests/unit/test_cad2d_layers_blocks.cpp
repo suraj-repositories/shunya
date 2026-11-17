@@ -7,6 +7,7 @@
 #include "shunya/cad2d/layer_manager.hpp"
 #include "shunya/cad2d/schematic_erc_engine.hpp"
 #include "shunya/cad2d/schematic_netlabel_bus.hpp"
+#include "shunya/cad2d/schematic_sim_overlay.hpp"
 #include "shunya/cad2d/schematic_pin_tool.hpp"
 #include "shunya/cad2d/schematic_symbol_engine.hpp"
 #include "shunya/cad2d/schematic_wire_router.hpp"
@@ -1009,6 +1010,81 @@ TEST_CASE("PH4-04.04.005: Real-time Electrical Rules Check (ERC) highlighting fl
     REQUIRE(erc_engine.active_badges().empty());
     REQUIRE(doc.entities().size() == doc_count_before);
 }
+
+TEST_CASE("PH4-04.04.006: Real-time simulation overlay rendering live node voltages, branch currents, and power") {
+    // 1. SI Prefix Formatting Checks
+    REQUIRE(SchematicSimOverlay::format_voltage(5.0) == "5.00 V");
+    REQUIRE(SchematicSimOverlay::format_voltage(0.0125) == "12.50 mV");
+    REQUIRE(SchematicSimOverlay::format_voltage(0.0) == "0.00 V");
+    REQUIRE(SchematicSimOverlay::format_current(0.015) == "15.00 mA");
+    REQUIRE(SchematicSimOverlay::format_current(2.5) == "2.50 A");
+    REQUIRE(SchematicSimOverlay::format_power(0.075) == "75.00 mW");
+    REQUIRE(SchematicSimOverlay::format_power(1.5) == "1.50 W");
+
+    // Color map check
+    REQUIRE(SchematicSimOverlay::voltage_to_color(5.0) == "#ffb86c");  // Orange
+    REQUIRE(SchematicSimOverlay::voltage_to_color(0.0) == "#8be9fd");  // Cyan
+    REQUIRE(SchematicSimOverlay::voltage_to_color(-5.0) == "#bd93f9"); // Purple
+
+    // 2. Setup Schematic Scene
+    SketchDocument2D doc;
+    SchematicDraftingEngine sch_engine(shunya::pcb::SymbolStandard::IEEE_US);
+    SchematicWireRouter wire_router(&sch_engine);
+
+    // Place Resistor R1 at (20, 30)
+    std::string r1_id = sch_engine.place_symbol(doc, "R", Point2D{20.0, 30.0}, 0, "R1", "1k");
+    REQUIRE(!r1_id.empty());
+
+    // Connect Wire W_VCC at (0, 30) to (15, 30)
+    std::string w_vcc = wire_router.add_wire(doc, {Point2D{0.0, 30.0}, Point2D{15.0, 30.0}}, "VCC");
+    // Connect Wire W_GND at (25, 30) to (50, 30)
+    std::string w_gnd = wire_router.add_wire(doc, {Point2D{25.0, 30.0}, Point2D{50.0, 30.0}}, "GND");
+    REQUIRE(!w_vcc.empty());
+    REQUIRE(!w_gnd.empty());
+
+    // 3. Mock DC Operating Point Simulation Result
+    shunya::core::domain::DCOperatingPointResult sim_res;
+    sim_res.converged = true;
+    sim_res.node_voltages["VCC"] = 5.0;
+    sim_res.node_voltages["GND"] = 0.0;
+    sim_res.branch_currents["R1"] = 0.005; // 5 mA
+    sim_res.component_power["R1"] = 0.025;  // 25 mW
+
+    // 4. Render Simulation Overlay
+    SchematicSimOverlay overlay;
+    size_t doc_count_before = doc.entities().size();
+    overlay.render_overlay(doc, sim_res, sch_engine, wire_router);
+
+    // Verify voltage badges rendered
+    REQUIRE(overlay.voltage_badges().size() == 2);
+    REQUIRE(overlay.voltage_badges()[0].node_name == "GND" || overlay.voltage_badges()[0].node_name == "VCC");
+    REQUIRE(overlay.current_probes().size() == 1);
+    REQUIRE(overlay.current_probes()[0].formatted_text == "5.00 mA");
+    REQUIRE(overlay.power_badges().size() == 1);
+    REQUIRE(overlay.power_badges()[0].formatted_text == "25.00 mW");
+
+    // 5. Interactive Probing
+    // Probe along VCC wire at (5, 30)
+    auto probe_vcc = overlay.probe_at(Point2D{5.0, 30.0}, sim_res, sch_engine, wire_router);
+    REQUIRE(probe_vcc.has_data);
+    REQUIRE(probe_vcc.target_label == "Net: VCC");
+    REQUIRE(is_approx(probe_vcc.voltage_v, 5.0));
+
+    // Probe at component R1 at (20, 30)
+    auto probe_r1 = overlay.probe_at(Point2D{20.0, 30.0}, sim_res, sch_engine, wire_router);
+    REQUIRE(probe_r1.has_data);
+    REQUIRE(probe_r1.target_label == "R1");
+    REQUIRE(is_approx(probe_r1.current_a, 0.005));
+    REQUIRE(is_approx(probe_r1.power_w, 0.025));
+
+    // 6. Clear Overlay
+    overlay.clear_overlay(doc);
+    REQUIRE(overlay.voltage_badges().empty());
+    REQUIRE(overlay.current_probes().empty());
+    REQUIRE(overlay.power_badges().empty());
+    REQUIRE(doc.entities().size() == doc_count_before);
+}
+
 
 
 
