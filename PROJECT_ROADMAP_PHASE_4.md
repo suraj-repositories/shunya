@@ -359,8 +359,8 @@ PH4: Integrated Cyber-Physical Engineering Platform
 - [x] `PH4-03.02.005`: Implement structured **Environmental Property Model**: moisture absorption, UV degradation rate, atmospheric oxidation kinetics, and galvanic potential compatibility index.
 - [x] `PH4-03.02.006`: Design a unified C++ data structure `MaterialPropertyBundle` encapsulating all five domains with rigorous SI unit constraints.
 
-### Submodule PH4-03.03: Scientific Accuracy, Epistemic Tagging & Uncertainty
-- [ ] `PH4-03.03.001`: Establish an explicit 5-tier calculation classification system:
+### Submodule PH4-03.03: Scientific Accuracy, Epistemic Tagging & Uncertainty [~] (16.7% — 1/6)
+- [x] `PH4-03.03.001`: Establish an explicit 5-tier calculation classification system:
   1. *Analytical Formulation* (first-principles closed-form equations).
   2. *Empirical Fit* (NIST/JANAF calibrated polynomial curves).
   3. *Reference Dataset Lookup* (exact measured tabular values from `elements.csv`).

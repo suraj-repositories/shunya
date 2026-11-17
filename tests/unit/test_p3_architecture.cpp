@@ -38,6 +38,7 @@
 #include "shunya/mat/property_models/mechanical_property_model.hpp"
 #include "shunya/mat/property_models/environmental_property_model.hpp"
 #include "shunya/mat/property_models/material_property_bundle.hpp"
+#include "shunya/mat/calculation_classification.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -3067,4 +3068,57 @@ TEST_CASE("PH4-03.02.006: Unified MaterialPropertyBundle with SI unit constraint
     CHECK(sum.find("Copper") != std::string::npos);
     CHECK(sum.find("8960") != std::string::npos);
 }
+
+TEST_CASE("PH4-03.03.001: 5-Tier Calculation Classification System") {
+    using namespace shunya::mat;
+
+    // 1. Verify all 5 tiers exist and have distinct non-empty string representations
+    CHECK(calculation_tier_to_string(CalculationTier::AnalyticalFormulation) == "Analytical Formulation");
+    CHECK(calculation_tier_to_string(CalculationTier::EmpiricalFit) == "Empirical Fit");
+    CHECK(calculation_tier_to_string(CalculationTier::ReferenceDatasetLookup) == "Reference Dataset Lookup");
+    CHECK(calculation_tier_to_string(CalculationTier::RuleOfMixturesApproximation) == "Rule-of-Mixtures Approximation");
+    CHECK(calculation_tier_to_string(CalculationTier::NumericalSimulationEstimate) == "Numerical Simulation Estimate");
+
+    // 2. Descriptions and canonical uncertainty bounds
+    CHECK(!calculation_tier_description(CalculationTier::AnalyticalFormulation).empty());
+    CHECK(!calculation_tier_description(CalculationTier::RuleOfMixturesApproximation).empty());
+
+    CHECK(default_tier_uncertainty_pct(CalculationTier::ReferenceDatasetLookup) <= 1.0);
+    CHECK(default_tier_uncertainty_pct(CalculationTier::AnalyticalFormulation) <= 3.0);
+    CHECK(default_tier_uncertainty_pct(CalculationTier::EmpiricalFit) <= 6.0);
+    CHECK(default_tier_uncertainty_pct(CalculationTier::RuleOfMixturesApproximation) <= 15.0);
+    CHECK(default_tier_uncertainty_pct(CalculationTier::NumericalSimulationEstimate) >= 15.0);
+
+    // 3. Epistemic status mapping
+    CHECK(map_tier_to_epistemic_status(CalculationTier::AnalyticalFormulation) == EpistemicStatus::ConfirmedScientific);
+    CHECK(map_tier_to_epistemic_status(CalculationTier::ReferenceDatasetLookup) == EpistemicStatus::ConfirmedScientific);
+    CHECK(map_tier_to_epistemic_status(CalculationTier::EmpiricalFit) == EpistemicStatus::ApproximateSimulation);
+    CHECK(map_tier_to_epistemic_status(CalculationTier::RuleOfMixturesApproximation) == EpistemicStatus::ApproximateSimulation);
+    CHECK(map_tier_to_epistemic_status(CalculationTier::NumericalSimulationEstimate) == EpistemicStatus::ApproximateSimulation);
+
+    // 4. Structured CalculationClassification metadata
+    CalculationClassification clt_meta;
+    clt_meta.tier = CalculationTier::AnalyticalFormulation;
+    clt_meta.source_model_or_formula = "Classical Laminate Theory ABD Matrix Inversion";
+    clt_meta.reference_standard = "ISO 527-4 / ASTM D3039";
+    clt_meta.relative_uncertainty_pct = 2.0;
+    clt_meta.is_empirically_validated = true;
+
+    CHECK(clt_meta.is_high_fidelity());
+    CHECK(clt_meta.epistemic_status() == EpistemicStatus::ConfirmedScientific);
+    const std::string citation = clt_meta.format_citation();
+    CHECK(citation.find("Analytical Formulation") != std::string::npos);
+    CHECK(citation.find("Classical Laminate Theory") != std::string::npos);
+    CHECK(citation.find("ASTM D3039") != std::string::npos);
+
+    // 5. Rule of Mixtures classification
+    CalculationClassification rom_meta;
+    rom_meta.tier = CalculationTier::RuleOfMixturesApproximation;
+    rom_meta.source_model_or_formula = "Voigt-Reuss Iso-strain/Iso-stress Bound";
+    rom_meta.relative_uncertainty_pct = 12.0;
+
+    CHECK_FALSE(rom_meta.is_high_fidelity());
+    CHECK(rom_meta.epistemic_status() == EpistemicStatus::ApproximateSimulation);
+}
+
 
