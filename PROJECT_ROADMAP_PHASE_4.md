@@ -504,7 +504,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (22/30 — 73.3%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (23/30 — 76.7%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
@@ -636,7 +636,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Materials:* Copper magnetic coil wire, Soft iron core, Silver alloy contacts.  
   *Tests:* Coil pull-in/drop-out voltage hysteresis, galvanic isolation between coil and contacts.
 
-### Submodule PH4-07.05: Power Sources, Protection & Passive Sensors (Components 21 - 27) [~] (2/7)
+### Submodule PH4-07.05: Power Sources, Protection & Passive Sensors (Components 21 - 27) [~] (3/7)
 - [x] `PH4-07.05.001`: **21. Chemical Battery (Secondary Li-ion / Alkaline)**  
   *3D Model:* Cylindrical 18650 cell with positive button top and negative nickel terminal.  
   *2D Symbol:* Alternating long and short parallel lines with + and - markings (2 pins: +, -).  
@@ -649,7 +649,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Electrical:* Strict voltage enforcement $V_+ - V_- = V_{\text{set}}$ independent of load current.  
   *Materials:* Polycarbonate housing, Gold-plated binding terminals.  
   *Tests:* Ideal voltage regulation, short-circuit current limit alert.
-- [ ] `PH4-07.05.003`: **23. AC Voltage Source**  
+- [x] `PH4-07.05.003`: **23. AC Voltage Source**  
   *3D Model:* Benchtop function generator coaxial BNC terminal jack.  
   *2D Symbol:* Circle enclosing a sine wave symbol (2 pins: Live, Neutral).  
   *Electrical:* Sinusoidal voltage $v(t) = V_{\text{peak}} \sin(2\pi f t + \phi) + V_{\text{offset}}$.  
