@@ -876,3 +876,53 @@ TEST_CASE("PH4-05.03.002: Bridge Edge Loops to connect separate face loops and p
     REQUIRE(ok_twist);
     REQUIRE(mesh_twist.triangles.size() == 16);
 }
+
+TEST_CASE("PH4-05.03.003: Vertex Merge (At First, At Last, At Center, By Distance threshold)") {
+    // 1. Merge At Center
+    SolidMesh3D mesh_center;
+    uint32_t v0 = mesh_center.add_vertex(Point3D{0.0, 0.0, 0.0});
+    uint32_t v1 = mesh_center.add_vertex(Point3D{2.0, 0.0, 0.0});
+    uint32_t v2 = mesh_center.add_vertex(Point3D{1.0, 2.0, 0.0});
+    uint32_t v3 = mesh_center.add_vertex(Point3D{1.0, -2.0, 0.0});
+
+    mesh_center.add_triangle(v0, v1, v2);
+    mesh_center.add_triangle(v0, v3, v1);
+
+    // Merge v0 and v1 at center -> midpoint is (1.0, 0.0, 0.0)
+    size_t merged = MeshTopologyOps::merge_vertices(mesh_center, {v0, v1}, VertexMergeMode::AtCenter);
+    REQUIRE(merged == 1);
+    Point3D p_survivor = mesh_center.vertices[v0];
+    REQUIRE(is_close(p_survivor.x, 1.0));
+    REQUIRE(is_close(p_survivor.y, 0.0));
+    REQUIRE(is_close(p_survivor.z, 0.0));
+    // Degenerate triangles where v0 == v1 were removed
+    REQUIRE(mesh_center.triangles.empty());
+
+    // 2. Merge At First
+    SolidMesh3D mesh_first;
+    uint32_t f0 = mesh_first.add_vertex(Point3D{0.0, 0.0, 0.0});
+    uint32_t f1 = mesh_first.add_vertex(Point3D{10.0, 0.0, 0.0});
+    size_t m_first = MeshTopologyOps::merge_vertices(mesh_first, {f0, f1}, VertexMergeMode::AtFirst);
+    REQUIRE(m_first == 1);
+    REQUIRE(is_close(mesh_first.vertices[f0].x, 0.0));
+
+    // 3. Merge At Last
+    SolidMesh3D mesh_last;
+    uint32_t l0 = mesh_last.add_vertex(Point3D{0.0, 0.0, 0.0});
+    uint32_t l1 = mesh_last.add_vertex(Point3D{10.0, 0.0, 0.0});
+    size_t m_last = MeshTopologyOps::merge_vertices(mesh_last, {l0, l1}, VertexMergeMode::AtLast);
+    REQUIRE(m_last == 1);
+    REQUIRE(is_close(mesh_last.vertices[l1].x, 10.0));
+
+    // 4. Merge By Distance Threshold
+    SolidMesh3D mesh_dist;
+    uint32_t d0 = mesh_dist.add_vertex(Point3D{0.0, 0.0, 0.0});
+    uint32_t d1 = mesh_dist.add_vertex(Point3D{0.0001, 0.0, 0.0}); // very close (0.1 mm)
+    uint32_t d2 = mesh_dist.add_vertex(Point3D{5.0, 5.0, 0.0});    // far away
+
+    mesh_dist.add_triangle(d0, d1, d2);
+    size_t m_dist = MeshTopologyOps::merge_vertices(mesh_dist, {d0, d1, d2}, VertexMergeMode::ByDistance, 0.001);
+    REQUIRE(m_dist == 1);
+    // d0 and d1 merged; degenerate triangle d0-d0-d2 removed
+    REQUIRE(mesh_dist.triangles.empty());
+}
