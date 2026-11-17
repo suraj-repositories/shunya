@@ -6,6 +6,7 @@
 #include "shunya/cad2d/profile_offset.hpp"
 #include "shunya/cad2d/fillet_chamfer.hpp"
 #include "shunya/cad2d/drawing_tools.hpp"
+#include "shunya/cad2d/dimensioning_tool.hpp"
 
 #include <cmath>
 #include <vector>
@@ -408,4 +409,80 @@ TEST_CASE("PH4-04.01.001: Interactive 2D Primitive Creation Tools") {
     CHECK(doc.entities().size() == 10);
     // Verified 10 different primitives cleanly created and committed to sketch document
     CHECK(doc.entities().size() == 10);
+}
+
+// =============================================================================
+// Task PH4-04.01.002: High-Precision Dimensioning & Measurement Tool
+// =============================================================================
+
+TEST_CASE("PH4-04.01.002: High-Precision Dimensioning & Associative Measurement") {
+    // 1. Analytical precision measurements
+    auto d_res = PrecisionMeasurementEngine::measure_distance({0.0, 0.0}, {3.0, 4.0});
+    CHECK(is_approx(d_res.value, 5.0));
+    CHECK(is_approx(d_res.dx, 3.0));
+    CHECK(is_approx(d_res.dy, 4.0));
+    CHECK(is_approx(d_res.angle_deg, 53.13, 0.01));
+    CHECK(d_res.formatted_string.find("5.000 mm") != std::string::npos);
+
+    auto a_res = PrecisionMeasurementEngine::measure_angle({0.0, 0.0}, {10.0, 0.0}, {0.0, 10.0});
+    CHECK(is_approx(a_res.angle_deg, 90.0));
+    CHECK(is_approx(a_res.angle_rad, 0.5 * PI));
+
+    Circle2D circle_sample({0.0, 0.0}, 7.5);
+    auto c_res = PrecisionMeasurementEngine::measure_curve(circle_sample);
+    CHECK(is_approx(c_res.value, 2.0 * PI * 7.5));
+    CHECK(c_res.formatted_string.find("Radius 7.500 mm") != std::string::npos);
+
+    auto pt_c_res = PrecisionMeasurementEngine::measure_point_to_curve({0.0, 10.0}, circle_sample);
+    CHECK(is_approx(pt_c_res.value, 2.5)); // 10.0 - 7.5
+    CHECK(is_approx(pt_c_res.closest_pt.x, 0.0));
+    CHECK(is_approx(pt_c_res.closest_pt.y, 7.5));
+
+    // 2. Dimension Manager & Callouts
+    SketchDocument2D doc;
+    auto line_ptr = std::make_shared<LineSegment2D>(Point2D{0.0, 0.0}, Point2D{10.0, 0.0});
+    std::string line_id = doc.add_entity(line_ptr);
+
+    DimensionManager dim_mgr;
+    auto& lin_dim = dim_mgr.add_linear_dimension({0.0, 0.0}, {10.0, 0.0}, 2.0, DimensionCalloutType::LinearAligned, line_id);
+    std::string lin_id = lin_dim.id;
+    CHECK(is_approx(lin_dim.measured_value, 10.0));
+    CHECK(lin_dim.display_text() == "10.000 mm");
+    CHECK(lin_dim.extension_lines.size() == 2);
+    CHECK(lin_dim.dimension_lines.size() == 1);
+    CHECK(lin_dim.arrowheads.size() == 2);
+
+    // 3. Angular Dimension Callout
+    dim_mgr.add_angular_dimension({0.0, 0.0}, {10.0, 0.0}, {0.0, 10.0}, 3.0);
+    const auto* ang_dim = dim_mgr.find_callout("DIM_2");
+    REQUIRE(ang_dim != nullptr);
+    CHECK(is_approx(ang_dim->measured_value, 90.0));
+    CHECK(ang_dim->display_text() == "90.000 °");
+    CHECK(ang_dim->dimension_arcs.size() == 1);
+
+    // 4. Radial & Diametral Callouts
+    auto circ_ptr = std::make_shared<Circle2D>(Point2D{5.0, 5.0}, 4.0);
+    std::string circ_id = doc.add_entity(circ_ptr);
+
+    dim_mgr.add_radial_dimension(circ_id, *circ_ptr, {10.0, 10.0});
+    const auto* rad_dim = dim_mgr.find_callout("DIM_3");
+    REQUIRE(rad_dim != nullptr);
+    CHECK(is_approx(rad_dim->measured_value, 4.0));
+    CHECK(rad_dim->display_text() == "R 4.000 mm");
+
+    dim_mgr.add_diametral_dimension(circ_id, *circ_ptr, {12.0, 5.0});
+    const auto* dia_dim = dim_mgr.find_callout("DIM_4");
+    REQUIRE(dia_dim != nullptr);
+    CHECK(is_approx(dia_dim->measured_value, 8.0));
+    CHECK(dia_dim->display_text() == "Ø 8.000 mm");
+
+    // 5. Associative Recomputation on Document Geometry Change
+    line_ptr->p1 = Point2D{25.0, 0.0};
+    size_t updated = dim_mgr.update_all_associative(doc);
+    CHECK(updated >= 1);
+    const auto* p_lin = dim_mgr.find_callout(lin_id);
+    REQUIRE(p_lin != nullptr);
+    CHECK(is_approx(p_lin->measured_value, 25.0));
+    CHECK(p_lin->display_text() == "25.000 mm");
+    CHECK(is_approx(p_lin->dimension_lines[0].total_length(), 25.0));
 }
