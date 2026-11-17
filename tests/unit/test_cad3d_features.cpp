@@ -185,3 +185,39 @@ TEST_CASE("SweepEngine & LoftEngine: RMF orthogonality, helical pipe sweep, and 
     REQUIRE(lf_rep.euler_characteristic == 2);
     REQUIRE(lofted.compute_volume() > 500.0);
 }
+
+TEST_CASE("PH4-05.04.001: Extrude Sketch feature creating 3D solid from closed 2D profile along normal vector") {
+    // 1. Regular polygon profile (hexagon, radius 5, area = 3*sqrt(3)/2 * 25 ≈ 64.9519)
+    Path2D hex_profile;
+    const double r = 5.0;
+    for (int i = 0; i < 6; ++i) {
+        double angle = i * PI / 3.0;
+        hex_profile.push_back({r * std::cos(angle), r * std::sin(angle)});
+    }
+    const double expected_hex_area = 1.5 * std::sqrt(3.0) * r * r;
+
+    ExtrusionParams params;
+    params.depth = 12.0;
+    params.end_condition = EndCondition::Blind;
+    params.plane = SketchPlane3D::xy(0.0);
+
+    SolidMesh3D prism = ExtrusionEngine::extrude(hex_profile, {}, params);
+    REQUIRE(prism.vertices.size() >= 12);
+    REQUIRE(!prism.triangles.empty());
+
+    auto manifold = prism.analyze_manifold();
+    REQUIRE(manifold.is_watertight);
+    REQUIRE(manifold.is_2_manifold);
+    REQUIRE(manifold.euler_characteristic == 2);
+
+    double vol = prism.compute_volume();
+    REQUIRE(rel_close(vol, expected_hex_area * 12.0, 1e-4));
+
+    // 2. Extrude along arbitrary 3D normal vector
+    Vec3d direction{0.0, 0.0, 15.0};
+    SolidMesh3D vector_prism = ExtrusionEngine::extrude_along_vector(hex_profile, direction);
+    auto vec_manifold = vector_prism.analyze_manifold();
+    REQUIRE(vec_manifold.is_watertight);
+    REQUIRE(vec_manifold.is_2_manifold);
+    REQUIRE(rel_close(vector_prism.compute_volume(), expected_hex_area * 15.0, 1e-4));
+}

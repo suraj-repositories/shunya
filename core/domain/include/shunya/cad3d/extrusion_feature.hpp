@@ -43,6 +43,7 @@ struct ExtrusionParams {
     double draft_angle_rad{0.0}; // positive = flare outward along extrusion direction
     EndCondition end_condition{EndCondition::Blind};
     SketchPlane3D plane{SketchPlane3D::xy()};
+    std::optional<Vec3d> custom_normal{std::nullopt};
 };
 
 /**
@@ -54,6 +55,16 @@ public:
         const cad2d::Path2D& outer,
         const cad2d::Paths2D& holes = {},
         const ExtrusionParams& params = {}
+    );
+
+    /**
+     * @brief Extrudes a closed 2D profile along an arbitrary 3D direction vector.
+     */
+    [[nodiscard]] static SolidMesh3D extrude_along_vector(
+        const cad2d::Path2D& outer,
+        const Vec3d& direction_vector,
+        const cad2d::Paths2D& holes = {},
+        const SketchPlane3D& plane = SketchPlane3D::xy()
     );
 
     /**

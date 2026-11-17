@@ -133,8 +133,16 @@ SolidMesh3D ExtrusionEngine::extrude(
     for (uint32_t i = 0; i < n_verts; ++i) {
         mesh.add_vertex(params.plane.to_3d(tess.vertices[i], z0));
     }
+    Vec3d extrude_offset = params.custom_normal.has_value() 
+        ? *params.custom_normal 
+        : params.plane.normal() * span;
     for (uint32_t i = 0; i < n_verts; ++i) {
-        mesh.add_vertex(params.plane.to_3d(top_2d[i], z1));
+        if (params.custom_normal.has_value()) {
+            Point3D base_pt = params.plane.to_3d(top_2d[i], z0);
+            mesh.add_vertex(base_pt + extrude_offset);
+        } else {
+            mesh.add_vertex(params.plane.to_3d(top_2d[i], z1));
+        }
     }
 
     // Bottom cap (reversed winding -> normal points along -plane.normal())
@@ -159,6 +167,19 @@ SolidMesh3D ExtrusionEngine::extrude(
 
     mesh.ensure_outward_winding();
     return mesh;
+}
+
+SolidMesh3D ExtrusionEngine::extrude_along_vector(
+    const cad2d::Path2D& outer,
+    const Vec3d& direction_vector,
+    const cad2d::Paths2D& holes,
+    const SketchPlane3D& plane
+) {
+    ExtrusionParams params;
+    params.depth = direction_vector.length();
+    params.plane = plane;
+    params.custom_normal = direction_vector;
+    return extrude(outer, holes, params);
 }
 
 std::vector<SolidMesh3D> ExtrusionEngine::extrude_paths(
