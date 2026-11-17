@@ -50,6 +50,7 @@
 #include "shunya/mat/thermal_deformation_engine.hpp"
 #include "shunya/eng/component_generator.hpp"
 #include "shunya/eng/interactive_circuit.hpp"
+#include "shunya/mat/shunyamat_serializer.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -3768,6 +3769,87 @@ TEST_CASE("PH4-03.04.005: Insulator materials prevent electrical current flow an
     auto circuit_issues = circuit.validate();
     CHECK_FALSE(circuit_issues.empty()); // Open circuit detected, preventing current flow
 }
+
+TEST_CASE("PH4-03.04.006: Portable .shunyamat JSON export/import preserving scientific provenance") {
+    using namespace shunya::mat;
+
+    MaterialPropertyBundle copper_original;
+    copper_original.material_id = "mat-cu-c10100";
+    copper_original.material_name = "Oxygen-Free Electronic Copper";
+
+    copper_original.chemical.chemical_formula = "Cu";
+    copper_original.chemical.molecular_weight_g_mol = 63.546;
+    copper_original.chemical.corrosion_resistance = CorrosionResistanceClass::Moderate;
+
+    copper_original.mechanical.density_kg_m3 = 8960.0;
+    copper_original.mechanical.young_modulus_pa = 117.0e9;
+    copper_original.mechanical.shear_modulus_pa = 44.0e9;
+    copper_original.mechanical.bulk_modulus_pa = 140.0e9;
+    copper_original.mechanical.poisson_ratio = 0.34;
+    copper_original.mechanical.yield_strength_pa = 70.0e6;
+    copper_original.mechanical.ultimate_tensile_strength_pa = 220.0e6;
+    copper_original.mechanical.fracture_toughness_k1c_mpa_m05 = 60.0;
+
+    copper_original.thermal.melting_point_k = 1357.77;
+    copper_original.thermal.boiling_point_k = 2835.0;
+    copper_original.thermal.base_thermal_conductivity_w_mk = 401.0;
+    copper_original.thermal.base_specific_heat_j_kgk = 385.0;
+    copper_original.thermal.linear_thermal_expansion_1_k = 16.5e-6;
+
+    copper_original.electrical.base_conductivity_s_m = 5.96e7;
+    copper_original.electrical.base_resistivity_ohm_m = 1.68e-8;
+    copper_original.electrical.tcr_per_k = 0.00393;
+    copper_original.electrical.reference_temp_k = 293.15;
+    copper_original.electrical.carrier_density_m3 = 8.49e28;
+
+    copper_original.environmental.pilling_bedworth_ratio = 1.77;
+    copper_original.environmental.standard_reduction_potential_v = 0.34;
+
+    MaterialProvenanceMetadata prov;
+    prov.creator = "Dr. S. Sharma, Shunya Materials Group";
+    prov.creation_timestamp_iso8601 = "2026-11-17T18:25:00Z";
+    prov.standard_reference = "ASTM B152 / CDA C10100 Specification";
+    prov.notes = "Calibrated for cryo to 1000K aerospace busbar simulation";
+
+    // 1. Export to JSON string
+    std::string json_exported = ShunyaMatSerializer::export_to_json(copper_original, prov);
+    CHECK(!json_exported.empty());
+    CHECK(json_exported.find("\"format\": \"shunyamat\"") != std::string::npos);
+    CHECK(json_exported.find("\"version\": \"4.0.0\"") != std::string::npos);
+    CHECK(json_exported.find("Oxygen-Free Electronic Copper") != std::string::npos);
+    CHECK(json_exported.find("ASTM B152") != std::string::npos);
+
+    // 2. Import from JSON string
+    auto import_res = ShunyaMatSerializer::import_from_json(json_exported);
+    REQUIRE(import_res.is_ok());
+    const auto& imported = import_res.value();
+
+    CHECK(imported.material_id == copper_original.material_id);
+    CHECK(imported.material_name == copper_original.material_name);
+    CHECK(imported.chemical.chemical_formula == "Cu");
+    CHECK(std::abs(imported.mechanical.density_kg_m3 - 8960.0) < 1e-4);
+    CHECK(std::abs(imported.mechanical.young_modulus_pa - 117.0e9) < 1e-3);
+    CHECK(std::abs(imported.thermal.melting_point_k - 1357.77) < 1e-3);
+    CHECK(std::abs(imported.thermal.base_thermal_conductivity_w_mk - 401.0) < 1e-4);
+    CHECK(std::abs(imported.electrical.base_conductivity_s_m - 5.96e7) < 1e-2);
+    CHECK(std::abs(imported.environmental.pilling_bedworth_ratio - 1.77) < 1e-4);
+
+    // 3. Round-trip file export & import
+    const auto temp_path = std::filesystem::temp_directory_path() / "test_copper.shunyamat";
+    auto file_exp = ShunyaMatSerializer::export_to_file(copper_original, temp_path, prov);
+    REQUIRE(file_exp.is_ok());
+    CHECK(std::filesystem::exists(temp_path));
+
+    auto file_imp = ShunyaMatSerializer::import_from_file(temp_path);
+    REQUIRE(file_imp.is_ok());
+    CHECK(file_imp.value().material_name == copper_original.material_name);
+    std::filesystem::remove(temp_path);
+
+    // 4. Corrupt JSON rejection
+    auto corrupt_res = ShunyaMatSerializer::import_from_json("{\"format\": \"invalid_format\"}");
+    CHECK(corrupt_res.is_err());
+}
+
 
 
 
