@@ -161,3 +161,43 @@ TEST_CASE("ShellEngine: thin-wall open-top box shell and uniform solid offsettin
     REQUIRE(expanded.analyze_manifold().is_2_manifold);
     REQUIRE(is_close(expanded.compute_volume(), 12.0 * 12.0 * 12.0, 1e-6));
 }
+
+TEST_CASE("PH4-05.04.005: Robust CSG Boolean operations (Union, Difference, Intersection) backed by BSP trees") {
+    // Two overlapping cubes:
+    // Box A: [-5, 5] x [-5, 5] x [0, 10] -> Vol = 1000
+    // Box B: [0, 10] x [-5, 5] x [0, 10] -> Vol = 1000
+    // Intersection: [0, 5] x [-5, 5] x [0, 10] -> Vol = 500
+    // Union: [-5, 10] x [-5, 5] x [0, 10] -> Vol = 1500
+    // Difference (A - B): [-5, 0] x [-5, 5] x [0, 10] -> Vol = 500
+    const SolidMesh3D cube_a = make_box(0.0, 0.0, 0.0, 10.0, 10.0, 10.0);
+    const SolidMesh3D cube_b = make_box(5.0, 0.0, 0.0, 10.0, 10.0, 10.0);
+
+    // 1. Union
+    SolidMesh3D u = CsgBooleanEngine::boolean_union(cube_a, cube_b);
+    auto u_rep = u.analyze_manifold();
+    REQUIRE(u_rep.is_watertight);
+    REQUIRE(u_rep.is_2_manifold);
+    REQUIRE(is_close(u.compute_volume(), 1500.0, 1e-4));
+
+    // 2. Difference
+    SolidMesh3D diff = CsgBooleanEngine::boolean_difference(cube_a, cube_b);
+    auto d_rep = diff.analyze_manifold();
+    REQUIRE(d_rep.is_watertight);
+    REQUIRE(d_rep.is_2_manifold);
+    REQUIRE(is_close(diff.compute_volume(), 500.0, 1e-4));
+
+    // 3. Intersection
+    SolidMesh3D inter = CsgBooleanEngine::boolean_intersection(cube_a, cube_b);
+    auto i_rep = inter.analyze_manifold();
+    REQUIRE(i_rep.is_watertight);
+    REQUIRE(i_rep.is_2_manifold);
+    REQUIRE(is_close(inter.compute_volume(), 500.0, 1e-4));
+
+    // 4. Multi-body Union All: 3 cubes along X axis forming a 20x10x10 slab
+    const SolidMesh3D cube_c = make_box(10.0, 0.0, 0.0, 10.0, 10.0, 10.0);
+    SolidMesh3D multi_u = CsgBooleanEngine::boolean_union_all({cube_a, cube_b, cube_c});
+    auto m_rep = multi_u.analyze_manifold();
+    REQUIRE(m_rep.is_watertight);
+    REQUIRE(m_rep.is_2_manifold);
+    REQUIRE(is_close(multi_u.compute_volume(), 2000.0, 1e-4));
+}

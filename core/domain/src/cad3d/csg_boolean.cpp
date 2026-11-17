@@ -143,4 +143,15 @@ void CsgBooleanEngine::repair_tjunctions(SolidMesh3D& mesh, double tol) {
     }
 }
 
+SolidMesh3D CsgBooleanEngine::boolean_union_all(
+    const std::vector<SolidMesh3D>& solids
+) {
+    if (solids.empty()) return {};
+    SolidMesh3D result = solids[0];
+    for (size_t i = 1; i < solids.size(); ++i) {
+        result = boolean_union(result, solids[i]);
+    }
+    return result;
+}
+
 } // namespace shunya::cad3d
