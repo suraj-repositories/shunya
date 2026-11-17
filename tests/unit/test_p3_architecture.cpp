@@ -11,6 +11,8 @@
 #include "shunya/core/domain/smart_asset_handle.hpp"
 #include "shunya/core/base/zero_copy_views.hpp"
 #include "shunya/perf/lru_asset_cache.hpp"
+#include "shunya/perf/task_graph_engine.hpp"
+#include "shunya/perf/work_stealing_pool.hpp"
 
 using namespace shunya::eng;
 using namespace shunya::core::base;
@@ -1069,4 +1071,130 @@ TEST_CASE("PH4-02.01.006: Memory Leak & Double-Free Sanitizer (ASan/LSan) CI Con
     // 4. Runtime memory leak detector fixture sanity check
     shunya::test::ScopedMemoryLeakDetector detector("SanitizerFixtureScope", 50 * 1024 * 1024);
     CHECK(!detector.has_leak());
+}
+
+TEST_CASE("PH4-02.02.001: Task-Graph Execution Engine Multi-Domain Parallelization") {
+    using namespace shunya::perf;
+
+    // 1. Cycle Detection Verification
+    {
+        TaskGraphExecutionEngine cyclic_engine;
+        size_t t0 = cyclic_engine.add_task("Node0", TaskDomain::General, []() {});
+        size_t t1 = cyclic_engine.add_task("Node1", TaskDomain::General, []() {}, {t0});
+        (void)cyclic_engine.add_task("Node2_Cycle", TaskDomain::General, []() {}, {t1, t0});
+        CHECK(!cyclic_engine.has_cycle());
+
+        // Now test cycle detection when invalid dependency index or cycle is present
+        TaskGraphExecutionEngine bad_engine;
+        (void)bad_engine.add_task("A", TaskDomain::General, []() {});
+        (void)bad_engine.add_task("B_OutOfRange", TaskDomain::General, []() {}, {999});
+        CHECK(bad_engine.has_cycle());
+        auto bad_sort = bad_engine.topological_sort();
+        CHECK(!bad_sort.is_ok());
+    }
+
+    // 2. Multi-Domain DAG: Physics + Circuit + Mesh Tessellation
+    TaskGraphExecutionEngine engine;
+    std::atomic<int> exec_flags{0};
+    std::atomic<int> physics_count{0};
+    std::atomic<int> circuit_count{0};
+    std::atomic<int> mesh_count{0};
+
+    // Root node
+    size_t n_init = engine.add_task("Init_Timestep", TaskDomain::General, [&]() {
+        exec_flags.fetch_or(1);
+    });
+
+    // Decoupled Physics Bodies
+    size_t n_phys1 = engine.add_task("Physics_Chassis", TaskDomain::PhysicsBody, [&]() {
+        CHECK((exec_flags.load() & 1) != 0);
+        physics_count.fetch_add(1);
+    }, {n_init});
+
+    size_t n_phys2 = engine.add_task("Physics_WheelLeft", TaskDomain::PhysicsBody, [&]() {
+        CHECK((exec_flags.load() & 1) != 0);
+        physics_count.fetch_add(1);
+    }, {n_init});
+
+    size_t n_phys3 = engine.add_task("Physics_WheelRight", TaskDomain::PhysicsBody, [&]() {
+        CHECK((exec_flags.load() & 1) != 0);
+        physics_count.fetch_add(1);
+    }, {n_init});
+
+    // Decoupled Circuit Matrix Solve
+    size_t n_circ = engine.add_task("Circuit_MNA_Solve", TaskDomain::CircuitMatrix, [&]() {
+        CHECK((exec_flags.load() & 1) != 0);
+        circuit_count.fetch_add(1);
+    }, {n_init});
+
+    // Decoupled Mesh Tessellation
+    size_t n_mesh1 = engine.add_task("Mesh_Tessellate_LOD0", TaskDomain::MeshTessellation, [&]() {
+        CHECK((exec_flags.load() & 1) != 0);
+        mesh_count.fetch_add(1);
+    }, {n_init});
+
+    size_t n_mesh2 = engine.add_task("Mesh_Tessellate_LOD1", TaskDomain::MeshTessellation, [&]() {
+        CHECK((exec_flags.load() & 1) != 0);
+        mesh_count.fetch_add(1);
+    }, {n_init});
+
+    // Electro-Mechanical Coupling Node (aggregates physics and circuit)
+    size_t n_couple = engine.add_task("Coupling_Torque", TaskDomain::General, [&]() {
+        CHECK(physics_count.load() == 3);
+        CHECK(circuit_count.load() == 1);
+        exec_flags.fetch_or(2);
+    }, {n_phys1, n_phys2, n_phys3, n_circ});
+
+    // Final Sync Node (depends on coupling and mesh tessellation)
+    size_t n_sync = engine.add_task("Render_State_Sync", TaskDomain::General, [&]() {
+        CHECK((exec_flags.load() & 2) != 0);
+        CHECK(mesh_count.load() == 2);
+        exec_flags.fetch_or(4);
+    }, {n_couple, n_mesh1, n_mesh2});
+
+    (void)n_sync;
+
+    // 3. Structural & Domain Checks
+    CHECK(engine.task_count() == 9);
+    CHECK(engine.domain_task_count(TaskDomain::PhysicsBody) == 3);
+    CHECK(engine.domain_task_count(TaskDomain::CircuitMatrix) == 1);
+    CHECK(engine.domain_task_count(TaskDomain::MeshTessellation) == 2);
+    CHECK(engine.domain_task_count(TaskDomain::General) == 3);
+    CHECK(!engine.has_cycle());
+
+    auto sort_res = engine.topological_sort();
+    REQUIRE(sort_res.is_ok());
+    const auto& order = sort_res.value();
+    REQUIRE(order.size() == 9);
+    CHECK(order.front() == n_init);
+    CHECK(order.back() == n_sync);
+
+    // 4. Concurrent Multi-Threaded Execution
+    WorkStealingPool pool(4);
+    auto run_res = engine.execute(pool);
+    REQUIRE(run_res.is_ok());
+
+    const TaskGraphMetrics& m = run_res.value();
+    CHECK(m.total_tasks == 9);
+    CHECK(m.completed_tasks == 9);
+    CHECK(m.failed_tasks == 0);
+    CHECK(m.total_wall_time_us > 0.0);
+    CHECK(exec_flags.load() == 7);
+    CHECK(physics_count.load() == 3);
+    CHECK(circuit_count.load() == 1);
+    CHECK(mesh_count.load() == 2);
+
+    // 5. Reusable Execution Plan (Simulating Next Time Step)
+    exec_flags.store(0);
+    physics_count.store(0);
+    circuit_count.store(0);
+    mesh_count.store(0);
+
+    auto step2_res = engine.execute(pool);
+    REQUIRE(step2_res.is_ok());
+    CHECK(step2_res.value().completed_tasks == 9);
+    CHECK(exec_flags.load() == 7);
+    CHECK(physics_count.load() == 3);
+    CHECK(circuit_count.load() == 1);
+    CHECK(mesh_count.load() == 2);
 }
