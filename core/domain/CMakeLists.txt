@@ -261,12 +261,16 @@ add_library(shunya_domain_perf OBJECT
     src/perf/simulation_hardware_profiler.cpp
     src/perf/chrome_tracing_exporter.cpp
     src/perf/hot_loop_profiler.cpp
+    src/perf/memory_budget.cpp
     src/bench/scientific_ci_runner.cpp
     src/bench/visual_regression_runner.cpp
     src/bench/perf_regression_gate.cpp
 )
 shunya_configure_domain_target(shunya_domain_perf)
 target_link_libraries(shunya_domain_perf PUBLIC shunya_domain_mat shunya_domain_core shunya_domain_pcb)
+if (WIN32)
+    target_link_libraries(shunya_domain_perf PUBLIC psapi)
+endif()
 
 # 7. Phase 3 Unified Engineering Pipeline (Elements -> Materials -> Objects -> Components -> Circuits)
 add_library(shunya_domain_eng OBJECT

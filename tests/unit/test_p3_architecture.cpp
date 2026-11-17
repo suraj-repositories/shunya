@@ -25,6 +25,7 @@
 #include "shunya/perf/simulation_hardware_profiler.hpp"
 #include "shunya/perf/chrome_tracing_exporter.hpp"
 #include "shunya/perf/hot_loop_profiler.hpp"
+#include "shunya/perf/memory_budget.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2387,4 +2388,36 @@ TEST_CASE("PH4-02.04.005: Hot Loop Optimization & Sub-Millisecond Material/Circu
     CHECK(circuit_mean_us < 1000.0); // Strict sub-millisecond requirement (< 1000 us)
     CHECK(mixing_mean_us > 0.0);
     CHECK(circuit_mean_us > 0.0);
+}
+
+TEST_CASE("PH4-02.04.006: Memory Footprint Limits (Idle < 250 MB, 100k Scene < 800 MB)") {
+    using namespace shunya::perf;
+
+    MemoryFootprintEnforcer enforcer;
+    CHECK(enforcer.limits().base_studio_idle_limit_mb == 250.0);
+    CHECK(enforcer.limits().complex_scene_100k_limit_mb == 800.0);
+
+    // 1. Validate idle memory footprint
+    const double current_rss_mb = MemoryFootprintEnforcer::query_process_rss_mb();
+    CHECK(current_rss_mb > 0.0);
+    CHECK(enforcer.validate_idle_budget(current_rss_mb)); // Must be < 250 MB
+
+    // 2. Evaluate current live process metrics
+    auto metrics = enforcer.evaluate_current_footprint(0);
+    CHECK(metrics.is_within_idle_budget);
+    CHECK(metrics.is_within_scene_budget);
+    CHECK(metrics.diagnostic_summary.find("PASSED") != std::string::npos);
+
+    // 3. Analytical estimation for a 100,000-vertex, 200,000-triangle CAD 3D scene
+    constexpr size_t kVertices = 100000;
+    constexpr size_t kTriangles = 200000;
+    const double estimated_100k_scene_mb = enforcer.estimate_scene_footprint_mb(kVertices, kTriangles, 4);
+
+    // Ensure estimated 100k-vertex footprint is well within the 800 MB budget
+    CHECK(estimated_100k_scene_mb < 800.0);
+    CHECK(enforcer.validate_scene_budget(kVertices, estimated_100k_scene_mb));
+
+    // 4. Boundary checks on oversized / regressed memory allocations
+    CHECK_FALSE(enforcer.validate_idle_budget(251.0));
+    CHECK_FALSE(enforcer.validate_scene_budget(kVertices, 805.0));
 }
