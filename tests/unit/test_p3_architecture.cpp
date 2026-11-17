@@ -21,6 +21,7 @@
 #include "shunya/cad3d/shader_pipeline_cache.hpp"
 #include "shunya/perf/simd_math.hpp"
 #include "shunya/perf/thread_scaling_benchmark.hpp"
+#include "shunya/perf/performance_hud.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
 using namespace shunya::eng;
@@ -2067,4 +2068,84 @@ TEST_CASE("PH4-02.03.006: Shader Pipeline Caching & Mode Switch Hitch Eliminatio
     RhiRendererEngine engine;
     REQUIRE(engine.initialize({RhiBackendApi::Vulkan, 320, 240, true}));
     CHECK(engine.pipeline_cache().size() >= 7);
+}
+
+TEST_CASE("PH4-02.04.001: In-App Real-Time Performance HUD Telemetry") {
+    using namespace shunya::perf;
+
+    // 1. Initialize Performance HUD model
+    PerformanceHudConfig config;
+    config.history_capacity = 60;
+    config.target_fps = 60.0;
+    config.low_fps_threshold = 30.0;
+    config.ram_warning_mb = 800.0;
+    config.vram_warning_mb = 1024.0;
+    config.dock_position = HudDockPosition::TopRight;
+    config.visible = true;
+
+    PerformanceHudModel hud(config);
+    CHECK(hud.is_visible());
+    CHECK(hud.dock_position() == HudDockPosition::TopRight);
+
+    // 2. Record 60 smooth frames (4ms CPU + 8ms GPU = 12ms frame time -> ~83.3 FPS)
+    for (int i = 0; i < 60; ++i) {
+        hud.record_frame(4.0, 8.0, 24, 15000, 2);
+    }
+
+    CHECK(hud.history().size() == 60);
+    CHECK(hud.current_fps() > 80.0);
+    CHECK(hud.average_fps() > 80.0);
+    CHECK(hud.cpu_frame_time_ms() == 4.0);
+    CHECK(hud.gpu_render_time_ms() == 8.0);
+    CHECK(hud.draw_calls() == 24);
+    CHECK(hud.triangles_submitted() == 15000);
+    CHECK(hud.compute_dispatches() == 2);
+    CHECK(!hud.is_low_fps());
+
+    // 3. Low FPS trigger evaluation (e.g. heavy physics solve frame: 25ms CPU + 25ms GPU = 50ms -> 20 FPS)
+    hud.record_frame(25.0, 25.0, 100, 80000, 10);
+    CHECK(hud.current_fps() == 20.0);
+    CHECK(hud.is_low_fps());
+
+    // 4. Memory consumption & warning thresholds
+    CHECK(hud.ram_usage_mb() > 0.0);
+    CHECK(hud.vram_usage_mb() > 0.0);
+    CHECK(!hud.is_ram_warning());
+    CHECK(!hud.is_vram_warning());
+
+    // Trigger RAM warning limit
+    hud.record_frame(4.0, 8.0, 10, 5000, 0, 950.0, 500.0);
+    CHECK(hud.is_ram_warning());
+    CHECK(!hud.is_vram_warning());
+
+    // Trigger VRAM warning limit
+    hud.record_frame(4.0, 8.0, 10, 5000, 0, 400.0, 1200.0);
+    CHECK(!hud.is_ram_warning());
+    CHECK(hud.is_vram_warning());
+
+    // 5. Formatted HUD Text strings for UI/QML overlay
+    const std::string fps_text = hud.formatted_fps_text();
+    CHECK(fps_text.find("FPS:") != std::string::npos);
+
+    const std::string cpu_text = hud.formatted_cpu_time_text();
+    CHECK(cpu_text.find("CPU:") != std::string::npos);
+
+    const std::string gpu_text = hud.formatted_gpu_time_text();
+    CHECK(gpu_text.find("GPU:") != std::string::npos);
+
+    const std::string mem_text = hud.formatted_memory_text();
+    CHECK(mem_text.find("RAM:") != std::string::npos);
+    CHECK(mem_text.find("VRAM:") != std::string::npos);
+
+    const std::string draw_text = hud.formatted_draw_calls_text();
+    CHECK(draw_text.find("Draw Calls:") != std::string::npos);
+
+    // 6. Controls: toggle visibility & dock positioning
+    hud.toggle_visible();
+    CHECK(!hud.is_visible());
+    hud.set_visible(true);
+    CHECK(hud.is_visible());
+
+    hud.set_dock_position(HudDockPosition::BottomLeft);
+    CHECK(hud.dock_position() == HudDockPosition::BottomLeft);
 }
