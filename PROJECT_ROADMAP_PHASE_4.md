@@ -504,7 +504,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (21/30 — 70.0%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (22/30 — 73.3%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
@@ -636,14 +636,14 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Materials:* Copper magnetic coil wire, Soft iron core, Silver alloy contacts.  
   *Tests:* Coil pull-in/drop-out voltage hysteresis, galvanic isolation between coil and contacts.
 
-### Submodule PH4-07.05: Power Sources, Protection & Passive Sensors (Components 21 - 27) [~] (1/7)
+### Submodule PH4-07.05: Power Sources, Protection & Passive Sensors (Components 21 - 27) [~] (2/7)
 - [x] `PH4-07.05.001`: **21. Chemical Battery (Secondary Li-ion / Alkaline)**  
   *3D Model:* Cylindrical 18650 cell with positive button top and negative nickel terminal.  
   *2D Symbol:* Alternating long and short parallel lines with + and - markings (2 pins: +, -).  
   *Electrical:* Dual-RC Thevenin equivalent circuit model with state-of-charge (SOC) dependent open circuit voltage $V_{\text{ocv}}(\text{SOC})$ and internal resistance $R_0$.  
   *Materials:* Lithium iron phosphate cathode, Graphite anode, Copper/aluminum foils.  
   *Tests:* Discharge curve under constant current, C-rate thermal rise.
-- [ ] `PH4-07.05.002`: **22. Ideal DC Voltage Source**  
+- [x] `PH4-07.05.002`: **22. Ideal DC Voltage Source**  
   *3D Model:* Laboratory DC power supply terminal module with binding posts.  
   *2D Symbol:* Circle with + and - signs (2 pins: Positive, Negative).  
   *Electrical:* Strict voltage enforcement $V_+ - V_- = V_{\text{set}}$ independent of load current.  
