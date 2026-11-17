@@ -44,6 +44,7 @@
 #include "shunya/mat/material_boundary_checker.hpp"
 #include "shunya/mat/shomate_engine.hpp"
 #include "shunya/mat/scientific_certification.hpp"
+#include "shunya/mat/iron_oxidation_engine.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -3420,6 +3421,55 @@ TEST_CASE("PH4-03.03.006: Separation of scientifically certified results from ap
     CHECK(pres_lo.badge == ScientificFidelityBadge::ApproximatePreview);
     CHECK(pres_lo.requires_disclaimer);
 }
+
+TEST_CASE("PH4-03.04.001: Iron oxidation and rust accumulation engine") {
+    using namespace shunya::mat;
+
+    // 1. Dry environment below critical RH threshold (RH = 40% < 60%)
+    AtmosphericExposureEnvironment dry_env;
+    dry_env.relative_humidity_pct = 40.0;
+    dry_env.temperature_k = 293.15;
+    dry_env.oxygen_concentration_pct = 21.0;
+
+    const double r_dry = IronOxidationEngine::compute_instantaneous_corrosion_rate_um_year(dry_env);
+    CHECK(r_dry < 1.0); // Negligible rust below critical RH
+
+    // 2. Humid marine environment (RH = 90%, 25 mg/m^2/day salt)
+    AtmosphericExposureEnvironment marine_env;
+    marine_env.relative_humidity_pct = 90.0;
+    marine_env.temperature_k = 300.0;
+    marine_env.oxygen_concentration_pct = 21.0;
+    marine_env.airborne_salinity_mg_m2_day = 25.0;
+
+    const double r_marine = IronOxidationEngine::compute_instantaneous_corrosion_rate_um_year(marine_env);
+    CHECK(r_marine > 20.0); // Severe atmospheric corrosion (>20 um/yr)
+    CHECK(r_marine > r_dry * 20.0);
+
+    // 3. 10-year atmospheric simulation on 5 mm structural steel plate (87,600 hours)
+    const double initial_thickness_mm = 5.0;
+    const double duration_10_years = 87600.0;
+    auto rust_state = IronOxidationEngine::simulate_exposure(initial_thickness_mm, duration_10_years, marine_env);
+
+    CHECK(rust_state.penetrated_depth_microns > 50.0);
+    CHECK(rust_state.consumed_iron_mass_g_m2 > 500.0);
+    CHECK(rust_state.accumulated_rust_mass_g_m2 > rust_state.consumed_iron_mass_g_m2); // Mass gain from O2/H2O
+    CHECK(rust_state.rust_layer_thickness_microns > rust_state.penetrated_depth_microns * 2.0); // PBR ~ 2.15 volume swelling
+    CHECK(rust_state.residual_load_capacity_factor < 1.0);
+    CHECK(rust_state.residual_load_capacity_factor > 0.90); // 5mm retains >90% load capacity
+
+    // 4. Anoxic environment ([O2] = 0.0%)
+    AtmosphericExposureEnvironment anoxic_env = marine_env;
+    anoxic_env.oxygen_concentration_pct = 0.0;
+    const double r_anoxic = IronOxidationEngine::compute_instantaneous_corrosion_rate_um_year(anoxic_env);
+    CHECK(r_anoxic == 0.0); // No cathodic reduction without oxygen
+
+    // 5. Epistemic scalar evaluation
+    auto ep_depth = IronOxidationEngine::evaluate_penetration_depth(initial_thickness_mm, duration_10_years, marine_env);
+    CHECK(ep_depth.value == rust_state.penetrated_depth_microns);
+    CHECK(ep_depth.classification.tier == CalculationTier::EmpiricalFit);
+    CHECK(ep_depth.epistemic_status() == EpistemicStatus::ApproximateSimulation);
+}
+
 
 
 
