@@ -221,3 +221,74 @@ TEST_CASE("PH4-05.01.002: Non-destructive parameter editing for 3D primitives du
     REQUIRE(is_close(m4.compute_bbox().size().x, 1.0));
     REQUIRE(is_close(m4.compute_bbox().size().z, 1.0));
 }
+
+TEST_CASE("PH4-05.01.003: Custom primitive generators for engineering fasteners: Hex Bolts, Washers, Nuts, Pins") {
+    // 1. Hex Bolt (ISO 4014 standard preset M6 & M8)
+    auto bolt_m6_params = ParametricPrimitiveGenerator::iso4014_hex_bolt("M6", 40.0);
+    REQUIRE(is_close(bolt_m6_params.nominal_diameter, 6.0));
+    REQUIRE(is_close(bolt_m6_params.total_length, 40.0));
+    REQUIRE(is_close(bolt_m6_params.head_across_flats, 10.0));
+
+    auto bolt_mesh = ParametricPrimitiveGenerator::generate_hex_bolt(bolt_m6_params);
+    REQUIRE(!bolt_mesh.vertices.empty());
+    REQUIRE(!bolt_mesh.triangles.empty());
+    REQUIRE(bolt_mesh.normals.size() == bolt_mesh.vertices.size());
+    REQUIRE(bolt_mesh.uvs.size() == bolt_mesh.vertices.size());
+    auto bolt_bbox = bolt_mesh.compute_bbox();
+    REQUIRE(is_close(bolt_bbox.size().z, 44.0)); // head_height (4.0) + total_length (40.0)
+
+    auto bolt_m8_params = ParametricPrimitiveGenerator::iso4014_hex_bolt("M8", 50.0);
+    REQUIRE(is_close(bolt_m8_params.nominal_diameter, 8.0));
+    REQUIRE(is_close(bolt_m8_params.head_across_flats, 13.0));
+
+    // 2. Washer (DIN 125 standard preset M6 & M10)
+    auto washer_m6_params = ParametricPrimitiveGenerator::din125_washer("M6");
+    REQUIRE(is_close(washer_m6_params.inner_diameter, 6.4));
+    REQUIRE(is_close(washer_m6_params.outer_diameter, 12.0));
+    REQUIRE(is_close(washer_m6_params.thickness, 1.6));
+
+    auto washer_mesh = ParametricPrimitiveGenerator::generate_washer(washer_m6_params);
+    REQUIRE(!washer_mesh.vertices.empty());
+    REQUIRE(!washer_mesh.triangles.empty());
+    REQUIRE(washer_mesh.normals.size() == washer_mesh.vertices.size());
+    REQUIRE(washer_mesh.uvs.size() == washer_mesh.vertices.size());
+    auto washer_bbox = washer_mesh.compute_bbox();
+    REQUIRE(is_close(washer_bbox.size().x, 12.0));
+    REQUIRE(is_close(washer_bbox.size().z, 1.6));
+
+    // 3. Nut (DIN 934 standard preset M6 & M8)
+    auto nut_m6_params = ParametricPrimitiveGenerator::din934_nut("M6");
+    REQUIRE(is_close(nut_m6_params.nominal_diameter, 6.0));
+    REQUIRE(is_close(nut_m6_params.across_flats, 10.0));
+    REQUIRE(is_close(nut_m6_params.height, 5.0));
+
+    auto nut_mesh = ParametricPrimitiveGenerator::generate_nut(nut_m6_params);
+    REQUIRE(!nut_mesh.vertices.empty());
+    REQUIRE(!nut_mesh.triangles.empty());
+    REQUIRE(nut_mesh.normals.size() == nut_mesh.vertices.size());
+    REQUIRE(nut_mesh.uvs.size() == nut_mesh.vertices.size());
+    auto nut_bbox = nut_mesh.compute_bbox();
+    REQUIRE(is_close(nut_bbox.size().z, 5.0));
+
+    // 4. Dowel Pin (ISO 8734 6x30mm)
+    auto pin_params = ParametricPrimitiveGenerator::iso8734_dowel_pin(6.0, 30.0);
+    REQUIRE(is_close(pin_params.diameter, 6.0));
+    REQUIRE(is_close(pin_params.length, 30.0));
+
+    auto pin_mesh = ParametricPrimitiveGenerator::generate_pin(pin_params);
+    REQUIRE(!pin_mesh.vertices.empty());
+    REQUIRE(!pin_mesh.triangles.empty());
+    REQUIRE(pin_mesh.normals.size() == pin_mesh.vertices.size());
+    auto pin_bbox = pin_mesh.compute_bbox();
+    REQUIRE(is_close(pin_bbox.size().x, 6.0));
+    REQUIRE(is_close(pin_bbox.size().z, 30.0));
+
+    // 5. Fasteners wrapped in ParametricPrimitive with non-destructive editing
+    ParametricPrimitive prim_bolt(PrimitiveType::HexBolt, bolt_m6_params);
+    REQUIRE(prim_bolt.has_property("nominal_diameter"));
+    REQUIRE(prim_bolt.has_property("total_length"));
+    REQUIRE(is_close(prim_bolt.get_double_property("total_length"), 40.0));
+    prim_bolt.set_double_property("total_length", 60.0);
+    const auto& updated_bolt_mesh = prim_bolt.mesh();
+    REQUIRE(is_close(updated_bolt_mesh.compute_bbox().size().z, 64.0));
+}
