@@ -23,6 +23,7 @@
 #include "shunya/perf/thread_scaling_benchmark.hpp"
 #include "shunya/perf/performance_hud.hpp"
 #include "shunya/perf/simulation_hardware_profiler.hpp"
+#include "shunya/perf/chrome_tracing_exporter.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2303,4 +2304,70 @@ TEST_CASE("PH4-02.04.003: Automated Performance Regression Test Suite (>10% Thre
     restored_suite.record_candidate("cad_render_frame_time_ms", {16.1, 16.0, 16.2});
     auto restored_eval = restored_suite.run_evaluation();
     CHECK(restored_eval.passed);
+}
+
+TEST_CASE("PH4-02.04.004: Frame-by-Frame Timeline Capture to Chrome Tracing / Perfetto JSON") {
+    using namespace shunya::perf;
+
+    ChromeTracingExporter exporter;
+    CHECK(exporter.is_capturing());
+    CHECK(exporter.event_count() == 0);
+
+    // 1. Record complete events using explicit recording and ScopedTraceEvent
+    exporter.record_complete_event("RenderFrame", "cad3d", 1000, 16000, 1, {{"fps", 62.5}, {"draw_calls", 14.0}});
+
+    {
+        ScopedTraceEvent scoped(exporter, "CircuitSolve_MNA", "circuit", 2, {{"nodes", 48.0}, {"iterations", 3.0}});
+        volatile int dummy = 0;
+        for (int i = 0; i < 1000; ++i) dummy += i;
+        (void)dummy;
+    }
+
+    {
+        ScopedTraceEvent scoped(exporter, "PhysicsStep_PGS", "physics", 3, {{"bodies", 12.0}});
+        volatile double acc = 0.0;
+        for (int i = 0; i < 500; ++i) acc += i * 0.1;
+        (void)acc;
+    }
+
+    // 2. Record instant markers and memory/vram counters
+    exporter.record_instant("VSyncSignal", "display", 17000, 1);
+    exporter.record_counter("RAM_Usage_MB", "memory", "allocated_mb", 185.4, 17050);
+    exporter.record_counter("VRAM_Usage_MB", "memory", "vram_mb", 240.2, 17050);
+
+    CHECK(exporter.event_count() == 6);
+
+    // 3. Export to Chrome Tracing / Perfetto JSON format
+    const std::string json_trace = exporter.export_json();
+    CHECK(json_trace.find("\"traceEvents\": [") != std::string::npos);
+    CHECK(json_trace.find("\"name\": \"RenderFrame\"") != std::string::npos);
+    CHECK(json_trace.find("\"cat\": \"cad3d\"") != std::string::npos);
+    CHECK(json_trace.find("\"ph\": \"X\"") != std::string::npos);
+    CHECK(json_trace.find("\"dur\": 16000") != std::string::npos);
+    CHECK(json_trace.find("\"name\": \"CircuitSolve_MNA\"") != std::string::npos);
+    CHECK(json_trace.find("\"name\": \"PhysicsStep_PGS\"") != std::string::npos);
+    CHECK(json_trace.find("\"name\": \"VSyncSignal\"") != std::string::npos);
+    CHECK(json_trace.find("\"ph\": \"I\"") != std::string::npos);
+    CHECK(json_trace.find("\"name\": \"RAM_Usage_MB\"") != std::string::npos);
+    CHECK(json_trace.find("\"ph\": \"C\"") != std::string::npos);
+    CHECK(json_trace.find("\"allocated_mb\": 185.4") != std::string::npos);
+
+    // 4. File export test
+    const std::string test_file = "build/test_chrome_trace.json";
+    CHECK(exporter.export_to_file(test_file));
+    std::ifstream in(test_file);
+    CHECK(in.is_open());
+    std::string file_content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    CHECK(file_content == json_trace);
+    in.close();
+    std::filesystem::remove(test_file);
+
+    // 5. Start/stop capture verification
+    exporter.stop_capture();
+    CHECK_FALSE(exporter.is_capturing());
+    exporter.record_instant("IgnoredEvent", "test");
+    CHECK(exporter.event_count() == 6);
+
+    exporter.clear();
+    CHECK(exporter.event_count() == 0);
 }
