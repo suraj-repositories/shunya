@@ -1,10 +1,14 @@
 #include "shunya/ecad3d/symbol_association_engine.hpp"
 
 #include <algorithm>
+#include <cmath>
+#include <set>
 
 namespace shunya::ecad3d {
 
 namespace {
+
+constexpr double DEG_TO_RAD = 3.14159265358979323846 / 180.0;
 
 inline core::base::Result<void> make_fail(std::string msg) {
     core::base::Error err;
@@ -221,8 +225,262 @@ std::optional<std::string> PinTerminalMapper::get_terminal_for_symbol_pin(const 
 }
 
 // ============================================================================
+// SpatialMountingOrientation Implementation
+// ============================================================================
+
+cad3d::Point3D SpatialMountingOrientation::transform_terminal_to_pcb(
+    const cad3d::Point3D& local_pos,
+    double yaw_deg,
+    bool mirror_bottom
+) const {
+    double total_yaw = (default_rotation_deg + yaw_deg) * DEG_TO_RAD;
+    double cos_theta = std::cos(total_yaw);
+    double sin_theta = std::sin(total_yaw);
+
+    // Apply local center offset
+    double x = local_pos.x - center_offset.x;
+    double y = local_pos.y - center_offset.y;
+    double z = local_pos.z - center_offset.z;
+
+    // Apply mounting plane transformation
+    cad3d::Point3D pcb_pos;
+    switch (mounting_plane) {
+        case MountingPlane::XY_TopSurface:
+            pcb_pos.x = x * cos_theta - y * sin_theta;
+            pcb_pos.y = x * sin_theta + y * cos_theta;
+            pcb_pos.z = z + seating_height_mm;
+            break;
+        case MountingPlane::XY_BottomSurface:
+            // Mirrored across X for bottom mount
+            pcb_pos.x = -(x * cos_theta - y * sin_theta);
+            pcb_pos.y = x * sin_theta + y * cos_theta;
+            pcb_pos.z = -(z + seating_height_mm);
+            break;
+        case MountingPlane::XZ_Vertical:
+            // Component standing upright along Z, footprint along X
+            pcb_pos.x = x * cos_theta - z * sin_theta;
+            pcb_pos.y = y;
+            pcb_pos.z = x * sin_theta + z * cos_theta + seating_height_mm;
+            break;
+        case MountingPlane::YZ_Vertical:
+            pcb_pos.x = x;
+            pcb_pos.y = y * cos_theta - z * sin_theta;
+            pcb_pos.z = y * sin_theta + z * cos_theta + seating_height_mm;
+            break;
+        case MountingPlane::ThroughHole_Z:
+            pcb_pos.x = x * cos_theta - y * sin_theta;
+            pcb_pos.y = x * sin_theta + y * cos_theta;
+            pcb_pos.z = z - std::abs(seating_height_mm); // Penetrating through PCB
+            break;
+    }
+
+    if (mirror_bottom && mounting_plane != MountingPlane::XY_BottomSurface) {
+        pcb_pos.x = -pcb_pos.x;
+    }
+
+    return pcb_pos;
+}
+
+std::pair<cad3d::Point3D, cad3d::Point3D> SpatialMountingOrientation::compute_mounting_footprint_bounds(
+    const std::vector<PhysicalTerminal3D>& terminals,
+    double clearance_mm
+) const {
+    if (terminals.empty()) {
+        return {cad3d::Point3D{-clearance_mm, -clearance_mm, 0.0},
+                cad3d::Point3D{clearance_mm, clearance_mm, 0.0}};
+    }
+
+    double min_x = 1e9, min_y = 1e9, min_z = 1e9;
+    double max_x = -1e9, max_y = -1e9, max_z = -1e9;
+
+    for (const auto& term : terminals) {
+        auto pcb_p = transform_terminal_to_pcb(term.contact_point);
+        min_x = std::min(min_x, pcb_p.x);
+        min_y = std::min(min_y, pcb_p.y);
+        min_z = std::min(min_z, pcb_p.z);
+        max_x = std::max(max_x, pcb_p.x);
+        max_y = std::max(max_y, pcb_p.y);
+        max_z = std::max(max_z, pcb_p.z);
+    }
+
+    return {
+        cad3d::Point3D{min_x - clearance_mm, min_y - clearance_mm, min_z},
+        cad3d::Point3D{max_x + clearance_mm, max_y + clearance_mm, max_z}
+    };
+}
+
+// ============================================================================
+// SelectionHighlightCoordinator Implementation
+// ============================================================================
+
+void SelectionHighlightCoordinator::select_from_3d(
+    const std::string& terminal_3d_id,
+    const PinTerminalMapper& mapper
+) {
+    current_.source = SelectionSource::Viewport3D;
+    current_.terminal_3d_id = terminal_3d_id;
+
+    auto sym_pin_opt = mapper.get_symbol_pin_for_terminal(terminal_3d_id);
+    if (sym_pin_opt.has_value()) {
+        current_.symbol_pin_id = sym_pin_opt.value();
+    } else {
+        current_.symbol_pin_id.clear();
+    }
+
+    // Lookup pin number if mapped
+    for (const auto& m : mapper.mappings()) {
+        if (m.terminal_3d_id == terminal_3d_id) {
+            current_.pin_number = m.pin_number;
+            break;
+        }
+    }
+
+    if (listener_) {
+        listener_(current_);
+    }
+}
+
+void SelectionHighlightCoordinator::select_from_2d(
+    const std::string& symbol_pin_id,
+    const PinTerminalMapper& mapper
+) {
+    current_.source = SelectionSource::Schematic2D;
+    current_.symbol_pin_id = symbol_pin_id;
+
+    auto term_opt = mapper.get_terminal_for_symbol_pin(symbol_pin_id);
+    if (term_opt.has_value()) {
+        current_.terminal_3d_id = term_opt.value();
+    } else {
+        current_.terminal_3d_id.clear();
+    }
+
+    for (const auto& m : mapper.mappings()) {
+        if (m.symbol_pin_id == symbol_pin_id) {
+            current_.pin_number = m.pin_number;
+            break;
+        }
+    }
+
+    if (listener_) {
+        listener_(current_);
+    }
+}
+
+void SelectionHighlightCoordinator::select_by_pin_number(
+    int pin_number,
+    const PinTerminalMapper& mapper
+) {
+    current_.source = SelectionSource::None;
+    current_.pin_number = pin_number;
+    current_.terminal_3d_id.clear();
+    current_.symbol_pin_id.clear();
+
+    for (const auto& m : mapper.mappings()) {
+        if (m.pin_number == pin_number) {
+            current_.terminal_3d_id = m.terminal_3d_id;
+            current_.symbol_pin_id = m.symbol_pin_id;
+            break;
+        }
+    }
+
+    if (listener_) {
+        listener_(current_);
+    }
+}
+
+void SelectionHighlightCoordinator::clear_selection() {
+    current_ = SelectionHighlightEvent{};
+    if (listener_) {
+        listener_(current_);
+    }
+}
+
+// ============================================================================
 // ComponentSymbolCouplingEngine Implementation
 // ============================================================================
+
+ComponentSymbolCouplingEngine::PinParityReport ComponentSymbolCouplingEngine::verify_pin_parity(
+    const ComponentAuthoringData& component_3d,
+    const SchematicSymbol2D& symbol_2d
+) {
+    PinParityReport report;
+    report.is_valid = true;
+
+    // 1. Total terminal vs pin count parity
+    if (component_3d.terminals.size() != symbol_2d.pins.size()) {
+        report.is_valid = false;
+        report.parity_violations.push_back(
+            "Pin count parity mismatch: 3D model defines " +
+            std::to_string(component_3d.terminals.size()) +
+            " terminals, but 2D symbol defines " +
+            std::to_string(symbol_2d.pins.size()) + " pins"
+        );
+    }
+
+    // 2. Check duplicate pin numbers in 3D terminals
+    std::set<int> term_pin_numbers;
+    for (const auto& t : component_3d.terminals) {
+        if (term_pin_numbers.count(t.pin_number) > 0) {
+            report.is_valid = false;
+            report.parity_violations.push_back(
+                "Duplicate 3D terminal pin number: " + std::to_string(t.pin_number)
+            );
+        }
+        term_pin_numbers.insert(t.pin_number);
+    }
+
+    // 3. Check duplicate pin numbers in 2D symbol pins
+    std::set<int> sym_pin_numbers;
+    for (const auto& p : symbol_2d.pins) {
+        if (sym_pin_numbers.count(p.pin_number) > 0) {
+            report.is_valid = false;
+            report.parity_violations.push_back(
+                "Duplicate 2D schematic symbol pin number: " + std::to_string(p.pin_number)
+            );
+        }
+        sym_pin_numbers.insert(p.pin_number);
+    }
+
+    // 4. Exact pin numbering set parity
+    for (int num : term_pin_numbers) {
+        if (sym_pin_numbers.count(num) == 0) {
+            report.is_valid = false;
+            report.parity_violations.push_back(
+                "Pin number parity failure: 3D terminal pin " + std::to_string(num) +
+                " does not exist in 2D symbol"
+            );
+        }
+    }
+    for (int num : sym_pin_numbers) {
+        if (term_pin_numbers.count(num) == 0) {
+            report.is_valid = false;
+            report.parity_violations.push_back(
+                "Pin number parity failure: 2D symbol pin " + std::to_string(num) +
+                " does not exist in 3D model"
+            );
+        }
+    }
+
+    // 5. Polarity parity
+    for (const auto& t : component_3d.terminals) {
+        auto it = std::find_if(symbol_2d.pins.begin(), symbol_2d.pins.end(), [&](const SchematicSymbolPin& p) {
+            return p.pin_number == t.pin_number;
+        });
+        if (it != symbol_2d.pins.end()) {
+            if (t.polarity != core::domain::ElectricalPinPolarity::PassiveBiDirectional &&
+                it->polarity != core::domain::ElectricalPinPolarity::PassiveBiDirectional &&
+                t.polarity != it->polarity) {
+                report.is_valid = false;
+                report.parity_violations.push_back(
+                    "Pin polarity conflict on pin " + std::to_string(t.pin_number) +
+                    ": 3D terminal polarity differs from 2D symbol pin polarity"
+                );
+            }
+        }
+    }
+
+    return report;
+}
 
 ComponentSymbolCouplingEngine::VerificationResult ComponentSymbolCouplingEngine::verify_coupling(
     const ComponentAuthoringData& component_3d,
@@ -253,7 +511,16 @@ ComponentSymbolCouplingEngine::VerificationResult ComponentSymbolCouplingEngine:
         res.is_coupled = false;
     }
 
-    // 4. Invariant: PinTerminalMapper must be 100% complete and verified
+    // 4. Invariant: Pin parity verification
+    auto parity = verify_pin_parity(component_3d, symbol_2d);
+    if (!parity.is_valid) {
+        for (auto& err : parity.parity_violations) {
+            res.rejection_reasons.push_back(std::move(err));
+        }
+        res.is_coupled = false;
+    }
+
+    // 5. Invariant: PinTerminalMapper must be 100% complete and verified
     if (!mapper.is_complete()) {
         res.rejection_reasons.push_back("Pin-to-terminal mapping is incomplete or unverified");
         res.is_coupled = false;

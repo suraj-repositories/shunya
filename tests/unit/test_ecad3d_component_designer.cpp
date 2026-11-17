@@ -2,6 +2,8 @@
 
 #include "shunya/cad3d/parametric_primitives.hpp"
 #include "shunya/ecad3d/component_designer_workspace.hpp"
+#include "shunya/ecad3d/component_manifest.hpp"
+#include "shunya/ecad3d/component_physics_qualification.hpp"
 #include "shunya/ecad3d/symbol_association_engine.hpp"
 
 #include <cmath>
@@ -265,4 +267,329 @@ TEST_CASE("PH4-06.02.003: Interactive pin-to-terminal mapper: link each 3D conta
 
     REQUIRE(mapper.mounting_orientation().default_rotation_deg == 90.0);
     REQUIRE(mapper.mounting_orientation().mounting_normal.z == 1.0);
+}
+
+TEST_CASE("PH4-06.02.004: Enforce pin numbering and naming parity between 3D model geometry and 2D schematic symbols") {
+    ComponentAuthoringData comp;
+    comp.name = "Test_Diode";
+    comp.terminals = {
+        PhysicalTerminal3D("T1", 1, ElectricalPinPolarity::Anode, {-2.0, 0.0, 0.0}, {-1.0, 0.0, 0.0}),
+        PhysicalTerminal3D("T2", 2, ElectricalPinPolarity::Cathode, {2.0, 0.0, 0.0}, {1.0, 0.0, 0.0})
+    };
+
+    SchematicSymbol2D sym;
+    sym.pins = {
+        SchematicSymbolPin("P1", 1, "A", ElectricalPinPolarity::Anode),
+        SchematicSymbolPin("P2", 2, "K", ElectricalPinPolarity::Cathode)
+    };
+
+    // 1. Valid parity
+    auto report1 = ComponentSymbolCouplingEngine::verify_pin_parity(comp, sym);
+    REQUIRE(report1.is_valid);
+    REQUIRE(report1.parity_violations.empty());
+
+    // 2. Count mismatch
+    sym.pins.push_back(SchematicSymbolPin("P3", 3, "NC", ElectricalPinPolarity::PassiveBiDirectional));
+    auto report2 = ComponentSymbolCouplingEngine::verify_pin_parity(comp, sym);
+    REQUIRE_FALSE(report2.is_valid);
+
+    // 3. Duplicate pin numbers in 3D
+    sym.pins.pop_back();
+    comp.terminals[1].pin_number = 1; // Duplicate pin 1
+    auto report3 = ComponentSymbolCouplingEngine::verify_pin_parity(comp, sym);
+    REQUIRE_FALSE(report3.is_valid);
+
+    // 4. Polarity conflict
+    comp.terminals[1].pin_number = 2;
+    comp.terminals[1].polarity = ElectricalPinPolarity::Anode; // Conflict: Cathode vs Anode on pin 2
+    auto report4 = ComponentSymbolCouplingEngine::verify_pin_parity(comp, sym);
+    REQUIRE_FALSE(report4.is_valid);
+}
+
+TEST_CASE("PH4-06.02.005: Spatial orientation mapping: define component default orientation, rotation axes, and mounting planes") {
+    SpatialMountingOrientation mount;
+    mount.mounting_plane = MountingPlane::XY_TopSurface;
+    mount.seating_height_mm = 0.25; // 0.25mm solder paste standoff
+    mount.default_rotation_deg = 90.0;
+    mount.center_offset = Point3D{0.0, 0.0, 0.0};
+
+    REQUIRE(mount.is_valid());
+
+    // Local terminal at (10, 0, 0)
+    Point3D term_pos{10.0, 0.0, 0.0};
+
+    // With 90 deg rotation, (10, 0) transforms to (0, 10), and Z gets +0.25 standoff
+    auto pcb_p = mount.transform_terminal_to_pcb(term_pos);
+    REQUIRE(std::abs(pcb_p.x) < 1e-4);
+    REQUIRE(std::abs(pcb_p.y - 10.0) < 1e-4);
+    REQUIRE(std::abs(pcb_p.z - 0.25) < 1e-4);
+
+    // Bottom mounting mirrors X
+    mount.mounting_plane = MountingPlane::XY_BottomSurface;
+    auto pcb_bot = mount.transform_terminal_to_pcb(term_pos);
+    REQUIRE(std::abs(pcb_bot.x) < 1e-4);
+    REQUIRE(std::abs(pcb_bot.y - 10.0) < 1e-4);
+    REQUIRE(std::abs(pcb_bot.z - (-0.25)) < 1e-4);
+
+    // Footprint bounds computation
+    std::vector<PhysicalTerminal3D> terms = {
+        PhysicalTerminal3D("T1", 1, ElectricalPinPolarity::PassiveBiDirectional, {-5.0, -2.0, 0.0}),
+        PhysicalTerminal3D("T2", 2, ElectricalPinPolarity::PassiveBiDirectional, {5.0, 2.0, 0.0})
+    };
+    mount.mounting_plane = MountingPlane::XY_TopSurface;
+    mount.default_rotation_deg = 0.0;
+    auto bounds = mount.compute_mounting_footprint_bounds(terms, 0.5);
+    REQUIRE(bounds.first.x == -5.5);
+    REQUIRE(bounds.second.x == 5.5);
+    REQUIRE(bounds.first.y == -2.5);
+    REQUIRE(bounds.second.y == 2.5);
+}
+
+TEST_CASE("PH4-06.02.006: Bidirectional selection highlighting: selecting a pin in 3D highlights 2D symbol pin and vice-versa") {
+    SelectionHighlightCoordinator coordinator;
+
+    std::vector<PhysicalTerminal3D> terminals = {
+        PhysicalTerminal3D("TERM_1", 1, ElectricalPinPolarity::Positive, {-5.0, 0.0, 0.0}),
+        PhysicalTerminal3D("TERM_2", 2, ElectricalPinPolarity::Negative, {5.0, 0.0, 0.0})
+    };
+    auto sym = SchematicSymbolSynthesizer::synthesize_symbol(ComponentKind::Resistor);
+
+    PinTerminalMapper mapper;
+    mapper.initialize(terminals, sym);
+    REQUIRE(mapper.auto_map_by_number_and_polarity().is_ok());
+
+    SelectionHighlightEvent captured_event;
+    coordinator.set_listener([&](const SelectionHighlightEvent& ev) {
+        captured_event = ev;
+    });
+
+    // 1. Select from 3D viewport
+    coordinator.select_from_3d("TERM_1", mapper);
+    REQUIRE(coordinator.is_terminal_highlighted("TERM_1"));
+    REQUIRE(coordinator.is_pin_highlighted("1"));
+    REQUIRE(captured_event.source == SelectionSource::Viewport3D);
+    REQUIRE(captured_event.pin_number == 1);
+
+    // 2. Select from 2D schematic editor
+    coordinator.select_from_2d("2", mapper);
+    REQUIRE(coordinator.is_pin_highlighted("2"));
+    REQUIRE(coordinator.is_terminal_highlighted("TERM_2"));
+    REQUIRE(captured_event.source == SelectionSource::Schematic2D);
+    REQUIRE(captured_event.pin_number == 2);
+
+    // 3. Clear
+    coordinator.clear_selection();
+    REQUIRE_FALSE(coordinator.is_terminal_highlighted("TERM_1"));
+    REQUIRE_FALSE(coordinator.is_pin_highlighted("2"));
+}
+
+TEST_CASE("PH4-06.03.001: Multi-region material assignment validation: terminal conductivity & body insulation") {
+    ComponentAuthoringData comp;
+    comp.name = "SMD_Inductor";
+
+    // 1. Valid assignments: Copper leads, Ferrite body
+    comp.regions["reg_lead1"] = MeshRegionMaterial{"reg_lead1", "Copper", 5.8e7, 400.0, 8960.0, 1.0, 1.0, true, {}};
+    comp.regions["reg_lead2"] = MeshRegionMaterial{"reg_lead2", "Copper", 5.8e7, 400.0, 8960.0, 1.0, 1.0, true, {}};
+    comp.regions["reg_body"] = MeshRegionMaterial{"reg_body", "Alumina", 1.0e-12, 30.0, 3950.0, 9.0, 1.0, false, {}};
+
+    auto report1 = ComponentPhysicsEngine::validate_material_assignments(comp);
+    REQUIRE(report1.is_valid);
+    REQUIRE(report1.violations.empty());
+
+    // 2. Invalid assignment: Terminal assigned Alumina ceramic (insulator < 1e5 S/m)
+    comp.regions["reg_lead1"].material_name = "Alumina";
+    auto report2 = ComponentPhysicsEngine::validate_material_assignments(comp);
+    REQUIRE_FALSE(report2.is_valid);
+    REQUIRE_FALSE(report2.violations.empty());
+
+    // 3. Warning: Housing assigned conductive Copper
+    comp.regions["reg_lead1"].material_name = "Copper";
+    comp.regions["reg_body"].material_name = "Copper"; // body assigned Copper
+    auto report3 = ComponentPhysicsEngine::validate_material_assignments(comp);
+    REQUIRE_FALSE(report3.warnings.empty());
+}
+
+TEST_CASE("PH4-06.03.002: Automated electrical continuity checks through internal 3D geometries between terminals") {
+    ComponentAuthoringData comp;
+    comp.name = "Resistor_0603";
+    comp.kind = ComponentKind::Resistor;
+    comp.specs.nominal_primary_value = 100.0;
+    comp.terminals = {
+        PhysicalTerminal3D("T1", 1, ElectricalPinPolarity::PassiveBiDirectional, Point3D{-0.8, 0.0, 0.0}, Vec3d{-1.0, 0.0, 0.0}, "reg_t1"),
+        PhysicalTerminal3D("T2", 2, ElectricalPinPolarity::PassiveBiDirectional, Point3D{0.8, 0.0, 0.0}, Vec3d{1.0, 0.0, 0.0}, "reg_t2")
+    };
+    comp.regions["reg_t1"] = MeshRegionMaterial{"reg_t1", "Copper", 5.8e7, 400.0, 8960.0, 1.0, 1.0, true, {}};
+    comp.regions["reg_t2"] = MeshRegionMaterial{"reg_t2", "Copper", 5.8e7, 400.0, 8960.0, 1.0, 1.0, true, {}};
+    comp.regions["reg_body"] = MeshRegionMaterial{"reg_body", "Alumina", 1.0e-12, 30.0, 3950.0, 9.0, 1.0, false, {}};
+
+    // 1. Resistor continuity check
+    auto cont_res = ComponentPhysicsEngine::check_electrical_continuity(comp, 0, 1);
+    REQUIRE(cont_res.status == ContinuityReport::Status::Continuous);
+    REQUIRE(cont_res.estimated_dc_conductance_siemens == 0.01); // 1 / 100 ohm
+
+    // 2. Capacitor DC open-circuit check
+    comp.kind = ComponentKind::Capacitor;
+    auto cont_cap = ComponentPhysicsEngine::check_electrical_continuity(comp, 0, 1);
+    REQUIRE(cont_cap.status == ContinuityReport::Status::OpenCircuit);
+    REQUIRE(cont_cap.estimated_dc_conductance_siemens < 1e-9);
+
+    // 3. Capacitor short-circuit breach (both terminals mapped to same region)
+    comp.terminals[1].bound_region_id = "reg_t1";
+    auto cont_short = ComponentPhysicsEngine::check_electrical_continuity(comp, 0, 1);
+    REQUIRE(cont_short.status == ContinuityReport::Status::ShortCircuitIsolationBreach);
+}
+
+TEST_CASE("PH4-06.03.003: Calculate equivalent series resistance (ESR) based on geometric lead length, area, resistivity") {
+    ComponentAuthoringData comp;
+    comp.terminals = {
+        PhysicalTerminal3D("T1", 1, ElectricalPinPolarity::PassiveBiDirectional, Point3D{-2.0, 0.0, 0.0}),
+        PhysicalTerminal3D("T2", 2, ElectricalPinPolarity::PassiveBiDirectional, Point3D{2.0, 0.0, 0.0})
+    };
+
+    // Lead parameters: length 2mm, area 0.2 mm^2, copper rho = 1.68e-8
+    std::vector<LeadGeometricSpec> leads = {
+        LeadGeometricSpec{2.0, 0.2, 1.68e-8},
+        LeadGeometricSpec{2.0, 0.2, 1.68e-8}
+    };
+
+    double internal_r = 0.050; // 50 milliohms internal element
+    auto esr = ComponentPhysicsEngine::calculate_esr(comp, internal_r, leads);
+
+    // R_lead = 2 * (1.68e-8 * 0.002 / 0.2e-6) = 2 * 0.000168 = 0.000336 ohms
+    REQUIRE(std::abs(esr.terminal_leads_resistance_ohms - 0.000336) < 1e-6);
+    REQUIRE(esr.internal_element_resistance_ohms == 0.050);
+    REQUIRE(std::abs(esr.total_esr_ohms - 0.050336) < 1e-6);
+    REQUIRE(esr.esr_at_100khz_ohms > esr.total_esr_ohms);
+}
+
+TEST_CASE("PH4-06.03.004: Calculate total component mass, center of gravity, and inertia tensor") {
+    ComponentAuthoringData comp;
+    comp.name = "Alumina_Resistor";
+    // Box 4mm x 2mm x 1mm
+    comp.mesh_geometry = ParametricPrimitiveGenerator::generate_cube(CubeParams{.width = 4.0, .height = 2.0, .depth = 1.0});
+    comp.regions["reg_body"] = MeshRegionMaterial{"reg_body", "Alumina", 1e-12, 30.0, 3950.0, 9.0, 1.0, false, {}};
+
+    auto mass_prop = ComponentPhysicsEngine::calculate_mass_properties(comp);
+
+    // Volume = 4 * 2 * 1 mm^3 = 8e-9 m^3. Alumina density = 3950 kg/m^3.
+    // Mass = 8e-9 * 3950 = 3.16e-5 kg = 0.0316 grams.
+    REQUIRE(mass_prop.total_mass_kg > 3.0e-5);
+    REQUIRE(mass_prop.total_mass_kg < 3.3e-5);
+
+    // Center of gravity centered near origin (symmetric box)
+    REQUIRE(std::abs(mass_prop.center_of_gravity_mm.x) < 1e-3);
+    REQUIRE(std::abs(mass_prop.center_of_gravity_mm.y) < 1e-3);
+    REQUIRE(std::abs(mass_prop.center_of_gravity_mm.z) < 1e-3);
+
+    // Principal diagonal inertia components must be positive
+    REQUIRE(mass_prop.inertia_tensor_kg_m2[0][0] > 0.0);
+    REQUIRE(mass_prop.inertia_tensor_kg_m2[1][1] > 0.0);
+    REQUIRE(mass_prop.inertia_tensor_kg_m2[2][2] > 0.0);
+}
+
+TEST_CASE("PH4-06.03.005: Thermal dissipation rating calculations based on 3D surface area and convective HTC") {
+    ComponentAuthoringData comp;
+    // Box 4mm x 2mm x 1mm -> Surface area = 2 * (4*2 + 2*1 + 4*1) = 28 mm^2
+    comp.mesh_geometry = ParametricPrimitiveGenerator::generate_cube(CubeParams{.width = 4.0, .height = 2.0, .depth = 1.0});
+
+    ThermalDissipationSpec spec;
+    spec.ambient_temp_c = 25.0;
+    spec.max_operating_temp_c = 125.0;
+    spec.convective_htc_w_m2k = 15.0;
+
+    auto thermal = ComponentPhysicsEngine::calculate_thermal_dissipation(comp, spec);
+
+    REQUIRE(std::abs(thermal.total_surface_area_mm2 - 28.0) < 1e-3);
+    REQUIRE(thermal.max_continuous_power_watts > 0.040); // > 40 mW
+    REQUIRE(thermal.thermal_resistance_deg_c_per_watt > 0.0);
+    REQUIRE(thermal.derated_power_at_70c_watts < thermal.max_continuous_power_watts);
+}
+
+TEST_CASE("PH4-06.03.006: Component Qualification Inspector: reject registration if isolation breached or requirements missing") {
+    ComponentAuthoringData comp;
+    comp.name = "Power_Resistor_10R";
+    comp.kind = ComponentKind::Resistor;
+    comp.mesh_geometry = ParametricPrimitiveGenerator::generate_cube(CubeParams{.width = 5.0, .height = 3.0, .depth = 2.0});
+    comp.regions["r1"] = MeshRegionMaterial{"r1", "Copper", 5.8e7, 400.0, 8960.0, 1.0, 1.0, true, {}};
+    comp.regions["r2"] = MeshRegionMaterial{"r2", "Copper", 5.8e7, 400.0, 8960.0, 1.0, 1.0, true, {}};
+    comp.regions["r3"] = MeshRegionMaterial{"r3", "Alumina", 1e-12, 30.0, 3950.0, 9.0, 1.0, false, {}};
+
+    comp.terminals = {
+        PhysicalTerminal3D("T1", 1, ElectricalPinPolarity::PassiveBiDirectional, Point3D{-2.5, 0.0, 0.0}, Vec3d{-1.0, 0.0, 0.0}, "r1"),
+        PhysicalTerminal3D("T2", 2, ElectricalPinPolarity::PassiveBiDirectional, Point3D{2.5, 0.0, 0.0}, Vec3d{1.0, 0.0, 0.0}, "r2")
+    };
+    comp.spice_model.netlist_template = "R1 1 2 10.0";
+
+    auto sym = SchematicSymbolSynthesizer::synthesize_symbol(ComponentKind::Resistor);
+    PinTerminalMapper mapper;
+    mapper.initialize(comp.terminals, sym);
+    REQUIRE(mapper.auto_map_by_number_and_polarity().is_ok());
+
+    // 1. Qualified component
+    auto cert1 = ComponentQualificationInspector::inspect_and_qualify(comp, sym, mapper);
+    REQUIRE(cert1.is_qualified);
+    REQUIRE_FALSE(cert1.certification_id.empty());
+    REQUIRE(cert1.critical_failures.empty());
+    REQUIRE(cert1.evaluated_max_power_w > 0.0);
+
+    // 2. Disqualified: Missing SPICE equation
+    comp.spice_model.netlist_template = "";
+    auto cert2 = ComponentQualificationInspector::inspect_and_qualify(comp, sym, mapper);
+    REQUIRE_FALSE(cert2.is_qualified);
+    REQUIRE_FALSE(cert2.critical_failures.empty());
+}
+
+TEST_CASE("PH4-06.04.001: Unified component manifest schema (.shunyacomp.json) serialization and round-trip") {
+    ComponentAuthoringData comp;
+    comp.name = "Precision_Resistor_100R";
+    comp.kind = ComponentKind::Resistor;
+    comp.metadata.manufacturer = "Vishay / Shunya Precision";
+    comp.metadata.part_number = "SHUNYA-RES-0603-100R";
+    comp.metadata.package_type = "SMD 0603";
+    comp.metadata.description = "Thick Film Chip Resistor 100 Ohm 0.1W 1%";
+    comp.specs.nominal_primary_value = 100.0;
+    comp.specs.max_power_dissipation_w = 0.1;
+    comp.specs.tolerance_percent = 1.0;
+    comp.spice_model.netlist_template = "R1 1 2 100.0";
+    comp.selected_material_names = {"Copper", "Alumina", "Nichrome"};
+    comp.mesh_geometry = ParametricPrimitiveGenerator::generate_cube(CubeParams{.width = 1.6, .height = 0.8, .depth = 0.45});
+    comp.terminals = {
+        PhysicalTerminal3D("T1", 1, ElectricalPinPolarity::PassiveBiDirectional, Point3D{-0.8, 0.0, 0.0}),
+        PhysicalTerminal3D("T2", 2, ElectricalPinPolarity::PassiveBiDirectional, Point3D{0.8, 0.0, 0.0})
+    };
+
+    auto sym = SchematicSymbolSynthesizer::synthesize_symbol(ComponentKind::Resistor);
+    PinTerminalMapper mapper;
+    mapper.initialize(comp.terminals, sym);
+    REQUIRE(mapper.auto_map_by_number_and_polarity().is_ok());
+
+    ComponentQualificationInspector::QualificationCertificate cert;
+    cert.is_qualified = true;
+    cert.certification_id = "CERT-998877-QUALIFIED";
+
+    // Create manifest
+    auto manifest = ComponentManifestSerializer::create_manifest(comp, sym, mapper, cert);
+    REQUIRE(manifest.schema_identifier == "shunyacomp");
+    REQUIRE(manifest.name == "Precision_Resistor_100R");
+    REQUIRE(manifest.is_qualified);
+
+    // Serialize to JSON
+    std::string json_str = ComponentManifestSerializer::to_json(manifest);
+    REQUIRE_FALSE(json_str.empty());
+
+    // Schema validation
+    auto valid_res = ComponentManifestSerializer::validate_schema(json_str);
+    REQUIRE(valid_res.is_ok());
+
+    // Deserialization round-trip
+    auto roundtrip_res = ComponentManifestSerializer::from_json(json_str);
+    REQUIRE(roundtrip_res.is_ok());
+    const auto& rt = roundtrip_res.value();
+    REQUIRE(rt.name == "Precision_Resistor_100R");
+    REQUIRE(rt.manufacturer == "Vishay / Shunya Precision");
+    REQUIRE(rt.part_number == "SHUNYA-RES-0603-100R");
+    REQUIRE(rt.specs.nominal_primary_value == 100.0);
+    REQUIRE(rt.specs.max_power_dissipation_w == 0.1);
+    REQUIRE(rt.is_qualified);
+    REQUIRE(rt.certification_id == "CERT-998877-QUALIFIED");
 }

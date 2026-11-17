@@ -331,6 +331,8 @@ add_library(shunya_domain_eng OBJECT
     src/eng/physics_runtime.cpp
     src/ecad3d/component_designer_workspace.cpp
     src/ecad3d/symbol_association_engine.cpp
+    src/ecad3d/component_physics_qualification.cpp
+    src/ecad3d/component_manifest.cpp
 )
 shunya_configure_domain_target(shunya_domain_eng)
 target_link_libraries(shunya_domain_eng
