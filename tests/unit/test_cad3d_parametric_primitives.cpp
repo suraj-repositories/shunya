@@ -695,3 +695,43 @@ TEST_CASE("PH4-05.02.004: Implement Inset Faces with thickness and depth paramet
     REQUIRE(val.is_watertight);
     REQUIRE(val.is_2_manifold);
 }
+
+TEST_CASE("PH4-05.02.005: Edge and Vertex Beveling with multi-segment profile rounding") {
+    // 1. Vertex Beveling
+    CubeParams cp;
+    cp.width = 2.0; cp.height = 2.0; cp.depth = 2.0;
+    auto cube_v = ParametricPrimitiveGenerator::generate_cube(cp);
+
+    // Pick top-corner vertex (1, 1, 1)
+    Ray3D ray_corner{Point3D{0.9, 0.9, 5.0}, Vec3d{0.0, 0.0, -1.0}};
+    auto pick_v = MeshSelectionEngine::pick(cube_v, ray_corner, MeshSelectionMode::Vertex);
+    REQUIRE(pick_v.hit);
+    uint32_t corner_idx = pick_v.element_index;
+    Point3D pos_before = cube_v.vertices[corner_idx];
+
+    BevelOptions v_opt;
+    v_opt.vertex_only = true;
+    v_opt.offset = 0.3;
+    bool ok_v = MeshTopologyOps::bevel(cube_v, {}, {corner_idx}, v_opt);
+    REQUIRE(ok_v);
+
+    Point3D pos_after = cube_v.vertices[corner_idx];
+    // Position should have truncated inwards towards center
+    REQUIRE(pos_after.length() < pos_before.length());
+
+    // 2. Edge Beveling
+    auto cube_e = ParametricPrimitiveGenerator::generate_cube(cp);
+    size_t vert_count_before = cube_e.vertices.size();
+
+    Ray3D ray_edge{Point3D{0.0, 0.95, 5.0}, Vec3d{0.0, 0.0, -1.0}};
+    auto pick_e = MeshSelectionEngine::pick(cube_e, ray_edge, MeshSelectionMode::Edge);
+    REQUIRE(pick_e.hit);
+
+    BevelOptions e_opt;
+    e_opt.vertex_only = false;
+    e_opt.offset = 0.15;
+    e_opt.segments = 2;
+    bool ok_e = MeshTopologyOps::bevel(cube_e, {pick_e.edge}, {}, e_opt);
+    REQUIRE(ok_e);
+    REQUIRE(cube_e.vertices.size() > vert_count_before);
+}
