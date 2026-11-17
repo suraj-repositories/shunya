@@ -488,7 +488,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 - [x] `PH4-06.03.002`: Implement automated electrical continuity checks through internal 3D geometries between defined terminals.
 - [x] `PH4-06.03.003`: Calculate equivalent series resistance (ESR) based on geometric lead length, cross-sectional area, and assigned material electrical resistivity.
 - [x] `PH4-06.03.004`: Calculate total component mass, center of gravity, and inertia tensor from the combined volume and densities of all assigned regions.
-- [ ] `PH4-06.03.005`: Implement thermal dissipation rating calculations based on 3D surface area and material convective heat transfer coefficients.
+- [x] `PH4-06.03.005`: Implement thermal dissipation rating calculations based on 3D surface area and material convective heat transfer coefficients.
 - [ ] `PH4-06.03.006`: Build an automated Component Qualification Inspector: reject registration if electrical isolation is breached, pins are unassigned, or materials are missing.
 
 ### Submodule PH4-06.04: Component Serialization & Packaging
