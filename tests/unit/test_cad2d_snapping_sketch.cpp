@@ -276,3 +276,58 @@ TEST_CASE("PH4-04.02.001: Intelligent Magnetic Snap Engine (7 Snaps)") {
     Vec2d tangent_line = anchor_tan - s_tan->world_pos;
     CHECK(is_approx(radius_vec.dot(tangent_line), 0.0, 1e-4));
 }
+
+// =============================================================================
+// Task PH4-04.02.002: Polar Tracking Guides with Customizable Increments
+// =============================================================================
+
+TEST_CASE("PH4-04.02.002: Polar Tracking Guides with Customizable Increments (15, 30, 45, 90 deg)") {
+    PolarTrackingEngine polar;
+
+    // 1. Preset 15 degrees: snaps to 75 deg
+    polar.set_preset(PolarIncrementPreset::Deg15);
+    double r = 10.0;
+    double rad_75 = 75.2 * (PI / 180.0);
+    auto m15 = polar.evaluate({0.0, 0.0}, {r * std::cos(rad_75), r * std::sin(rad_75)});
+    REQUIRE(m15.active);
+    CHECK(is_approx(m15.snapped_angle_deg, 75.0, 1e-4));
+    CHECK(m15.hud_tooltip.find("75.0°") != std::string::npos);
+
+    // 2. Preset 45 degrees: 75 deg will NOT snap, but 45 deg and 135 deg will
+    polar.set_preset(PolarIncrementPreset::Deg45);
+    auto m45_reject = polar.evaluate({0.0, 0.0}, {r * std::cos(rad_75), r * std::sin(rad_75)});
+    CHECK(!m45_reject.active);
+
+    double rad_135 = 134.8 * (PI / 180.0);
+    auto m45_accept = polar.evaluate({0.0, 0.0}, {r * std::cos(rad_135), r * std::sin(rad_135)});
+    REQUIRE(m45_accept.active);
+    CHECK(is_approx(m45_accept.snapped_angle_deg, 135.0, 1e-4));
+
+    // 3. Preset 90 degrees: strictly orthogonal
+    polar.set_preset(PolarIncrementPreset::Deg90);
+    double rad_89 = 89.2 * (PI / 180.0);
+    auto m90 = polar.evaluate({0.0, 0.0}, {r * std::cos(rad_89), r * std::sin(rad_89)});
+    REQUIRE(m90.active);
+    CHECK(is_approx(m90.snapped_angle_deg, 90.0, 1e-4));
+
+    // 4. Custom auxiliary angle: add 22.5 deg
+    polar.add_custom_angle(22.5);
+    double rad_22 = 22.3 * (PI / 180.0);
+    auto m_custom = polar.evaluate({0.0, 0.0}, {r * std::cos(rad_22), r * std::sin(rad_22)});
+    REQUIRE(m_custom.active);
+    CHECK(is_approx(m_custom.snapped_angle_deg, 22.5, 1e-4));
+
+    // 5. Relative polar tracking
+    polar.track_relative_to_segment = true;
+    polar.set_reference_orientation(30.0); // Preceding segment oriented at 30 deg
+    // An angle of 45 deg relative to segment yields 75 deg in world space
+    double rad_rel = (30.0 + 44.9) * (PI / 180.0);
+    polar.set_preset(PolarIncrementPreset::Deg45);
+    auto m_rel = polar.evaluate({0.0, 0.0}, {r * std::cos(rad_rel), r * std::sin(rad_rel)});
+    REQUIRE(m_rel.active);
+    CHECK(is_approx(m_rel.snapped_angle_deg, 75.0, 1e-4));
+
+    // 6. Visual guide ray generation
+    auto ray = PolarTrackingEngine::generate_visual_guide_ray(m_rel, 500.0);
+    CHECK(is_approx(ray.total_length(), 500.0, 1e-4));
+}
