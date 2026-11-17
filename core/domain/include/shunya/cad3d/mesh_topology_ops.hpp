@@ -33,6 +33,22 @@ struct LoopCutOptions {
     double slide{0.0}; // -1.0 to +1.0 relative slide factor
 };
 
+struct Plane3D {
+    Point3D point{0.0, 0.0, 0.0};
+    Vec3d normal{0.0, 0.0, 1.0};
+
+    [[nodiscard]] double signed_distance(const Point3D& p) const noexcept {
+        return (p - point).dot(normal);
+    }
+};
+
+struct BisectOptions {
+    bool clear_inner{false};
+    bool clear_outer{false};
+    bool fill_cap{true};
+    constexpr BisectOptions() noexcept = default;
+};
+
 enum class SubdivideMode {
     Linear,
     CatmullClark
@@ -127,6 +143,15 @@ public:
     static bool dissolve_faces(
         SolidMesh3D& mesh,
         const std::vector<uint32_t>& face_indices
+    );
+
+    // ========================================================================
+    // Task 2 (PH4-05.03.005): Knife and Bisect Tools
+    // ========================================================================
+    static bool bisect(
+        SolidMesh3D& mesh,
+        const Plane3D& plane,
+        const BisectOptions& options = {}
     );
 };
 

@@ -966,3 +966,49 @@ TEST_CASE("PH4-05.03.004: Implement Edge and Face Dissolve, preserving planar po
     REQUIRE(is_close(bbox.size().x, 4.0));
     REQUIRE(is_close(bbox.size().y, 4.0));
 }
+
+TEST_CASE("PH4-05.03.005: Knife and Bisect tools allowing manual slicing of geometry across planes") {
+    // 1. Bisect Cube with clearing inner half-space and filling cap
+    CubeParams cp;
+    cp.width = 2.0; cp.height = 2.0; cp.depth = 2.0; // [-1, 1]^3
+    auto cube = ParametricPrimitiveGenerator::generate_cube(cp);
+    double initial_vol = cube.compute_volume();
+    REQUIRE(is_close(initial_vol, 8.0));
+
+    Plane3D slice_plane;
+    slice_plane.point = Point3D{0.0, 0.0, 0.0};
+    slice_plane.normal = Vec3d{0.0, 0.0, 1.0}; // Slice along XY plane at Z = 0
+
+    BisectOptions opt;
+    opt.clear_inner = true; // Remove Z < 0
+    opt.clear_outer = false;
+    opt.fill_cap = true;
+
+    bool ok = MeshTopologyOps::bisect(cube, slice_plane, opt);
+    REQUIRE(ok);
+
+    auto bbox = cube.compute_bbox();
+    REQUIRE(is_close(bbox.max.z, 1.0));
+    REQUIRE(is_close(bbox.min.z, 0.0)); // Lower bound truncated at Z = 0
+    REQUIRE(is_close(bbox.size().z, 1.0));
+
+    // Volume of remaining half should be approximately 4.0
+    double bisected_vol = cube.compute_volume();
+    REQUIRE(is_close(bisected_vol, 4.0, 0.1));
+
+    // 2. Knife slice without clearing (topology cut)
+    auto cube_knife = ParametricPrimitiveGenerator::generate_cube(cp);
+    size_t tri_count_before = cube_knife.triangles.size();
+
+    BisectOptions opt_knife;
+    opt_knife.clear_inner = false;
+    opt_knife.clear_outer = false;
+    opt_knife.fill_cap = false;
+
+    bool ok_knife = MeshTopologyOps::bisect(cube_knife, slice_plane, opt_knife);
+    REQUIRE(ok_knife);
+    // Intersected triangles were split into 3 each
+    REQUIRE(cube_knife.triangles.size() > tri_count_before);
+    auto bbox_knife = cube_knife.compute_bbox();
+    REQUIRE(is_close(bbox_knife.size().z, 2.0)); // Intact geometry
+}

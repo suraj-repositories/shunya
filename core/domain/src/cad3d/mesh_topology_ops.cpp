@@ -632,4 +632,169 @@ bool MeshTopologyOps::dissolve_faces(
     return true;
 }
 
+// ============================================================================
+// Task 2 (PH4-05.03.005): Knife and Bisect Tools
+// ============================================================================
+
+bool MeshTopologyOps::bisect(
+    SolidMesh3D& mesh,
+    const Plane3D& in_plane,
+    const BisectOptions& options
+) {
+    if (mesh.triangles.empty() || mesh.vertices.empty()) return false;
+
+    Plane3D plane = in_plane;
+    plane.normal = plane.normal.normalized();
+    if (plane.normal.length_squared() < 1e-6) {
+        plane.normal = Vec3d{0.0, 0.0, 1.0};
+    }
+
+    std::vector<std::array<uint32_t, 3>> kept_tris;
+    std::vector<std::pair<uint32_t, uint32_t>> cut_segments;
+
+    auto add_cut_vert = [&](const Point3D& pt) -> uint32_t {
+        uint32_t idx = static_cast<uint32_t>(mesh.vertices.size());
+        mesh.vertices.push_back(pt);
+        mesh.normals.push_back(plane.normal);
+        mesh.uvs.push_back(Vec2d{0.5, 0.5});
+        return idx;
+    };
+
+    const double tol = 1e-9;
+
+    for (const auto& tri : mesh.triangles) {
+        uint32_t i0 = tri[0], i1 = tri[1], i2 = tri[2];
+        Point3D p0 = mesh.vertices[i0];
+        Point3D p1 = mesh.vertices[i1];
+        Point3D p2 = mesh.vertices[i2];
+
+        double d0 = plane.signed_distance(p0);
+        double d1 = plane.signed_distance(p1);
+        double d2 = plane.signed_distance(p2);
+
+        bool pos0 = d0 >= -tol, pos1 = d1 >= -tol, pos2 = d2 >= -tol;
+        bool neg0 = d0 <= tol, neg1 = d1 <= tol, neg2 = d2 <= tol;
+
+        if (pos0 && pos1 && pos2) {
+            // Entirely in positive half-space
+            if (!options.clear_outer) {
+                kept_tris.push_back(tri);
+            }
+            continue;
+        }
+
+        if (neg0 && neg1 && neg2) {
+            // Entirely in negative half-space
+            if (!options.clear_inner) {
+                kept_tris.push_back(tri);
+            }
+            continue;
+        }
+
+        // Triangle crosses the plane.
+        // Identify the single isolated vertex
+        uint32_t a = i0, b = i1, c = i2;
+        double da = d0, db = d1, dc = d2;
+        bool a_is_pos = false;
+
+        if ((d0 > 0 && d1 <= 0 && d2 <= 0) || (d0 < 0 && d1 >= 0 && d2 >= 0)) {
+            a = i0; b = i1; c = i2; da = d0; db = d1; dc = d2;
+        } else if ((d1 > 0 && d0 <= 0 && d2 <= 0) || (d1 < 0 && d0 >= 0 && d2 >= 0)) {
+            a = i1; b = i2; c = i0; da = d1; db = d2; dc = d0;
+        } else {
+            a = i2; b = i0; c = i1; da = d2; db = d0; dc = d1;
+        }
+        a_is_pos = (da > 0);
+
+        // Interpolate intersection points
+        double tab = da / (da - db);
+        Point3D pab = mesh.vertices[a] + (mesh.vertices[b] - mesh.vertices[a]) * tab;
+        uint32_t i_ab = add_cut_vert(pab);
+
+        double tac = da / (da - dc);
+        Point3D pac = mesh.vertices[a] + (mesh.vertices[c] - mesh.vertices[a]) * tac;
+        uint32_t i_ac = add_cut_vert(pac);
+
+        if (a_is_pos) {
+            cut_segments.push_back({i_ab, i_ac});
+            // Side A (positive)
+            if (!options.clear_outer) {
+                kept_tris.push_back({a, i_ab, i_ac});
+            }
+            // Side BC (negative)
+            if (!options.clear_inner) {
+                kept_tris.push_back({b, c, i_ac});
+                kept_tris.push_back({b, i_ac, i_ab});
+            }
+        } else {
+            cut_segments.push_back({i_ac, i_ab});
+            // Side A (negative)
+            if (!options.clear_inner) {
+                kept_tris.push_back({a, i_ab, i_ac});
+            }
+            // Side BC (positive)
+            if (!options.clear_outer) {
+                kept_tris.push_back({b, c, i_ac});
+                kept_tris.push_back({b, i_ac, i_ab});
+            }
+        }
+    }
+
+    // Fill cap along cutting plane if requested
+    if (options.fill_cap && (options.clear_inner || options.clear_outer) && !cut_segments.empty()) {
+        Point3D center{0.0, 0.0, 0.0};
+        for (const auto& seg : cut_segments) {
+            center = center + mesh.vertices[seg.first] + mesh.vertices[seg.second];
+        }
+        center = center * (1.0 / static_cast<double>(cut_segments.size() * 2));
+        uint32_t cap_center = add_cut_vert(center);
+
+        for (const auto& seg : cut_segments) {
+            if (options.clear_inner) {
+                // Outer preserved; cap normal faces -plane.normal
+                kept_tris.push_back({cap_center, seg.second, seg.first});
+            } else {
+                // Inner preserved; cap normal faces +plane.normal
+                kept_tris.push_back({cap_center, seg.first, seg.second});
+            }
+        }
+    }
+
+    mesh.triangles = std::move(kept_tris);
+
+    // Compact unreferenced vertices so bounding box and topology reflect only active triangles
+    std::vector<bool> referenced(mesh.vertices.size(), false);
+    for (const auto& tri : mesh.triangles) {
+        if (tri[0] < mesh.vertices.size()) referenced[tri[0]] = true;
+        if (tri[1] < mesh.vertices.size()) referenced[tri[1]] = true;
+        if (tri[2] < mesh.vertices.size()) referenced[tri[2]] = true;
+    }
+
+    std::vector<uint32_t> remap(mesh.vertices.size(), 0);
+    std::vector<Point3D> compact_verts;
+    std::vector<Vec3d> compact_normals;
+    std::vector<Vec2d> compact_uvs;
+
+    for (size_t i = 0; i < mesh.vertices.size(); ++i) {
+        if (referenced[i]) {
+            remap[i] = static_cast<uint32_t>(compact_verts.size());
+            compact_verts.push_back(mesh.vertices[i]);
+            if (i < mesh.normals.size()) compact_normals.push_back(mesh.normals[i]);
+            if (i < mesh.uvs.size()) compact_uvs.push_back(mesh.uvs[i]);
+        }
+    }
+
+    for (auto& tri : mesh.triangles) {
+        tri[0] = remap[tri[0]];
+        tri[1] = remap[tri[1]];
+        tri[2] = remap[tri[2]];
+    }
+
+    mesh.vertices = std::move(compact_verts);
+    mesh.normals = std::move(compact_normals);
+    mesh.uvs = std::move(compact_uvs);
+
+    return true;
+}
+
 } // namespace shunya::cad3d
