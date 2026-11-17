@@ -36,6 +36,7 @@
 #include "shunya/mat/property_models/electrical_property_model.hpp"
 #include "shunya/mat/property_models/thermal_property_model.hpp"
 #include "shunya/mat/property_models/mechanical_property_model.hpp"
+#include "shunya/mat/property_models/environmental_property_model.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2959,4 +2960,41 @@ TEST_CASE("PH4-03.02.004: Structured Mechanical Property Model") {
     unstable_mat.poisson_ratio = 0.65; // Invalid nu > 0.5 (violates positive-definite strain energy)
     CHECK_FALSE(unstable_mat.check_elastic_stability());
     CHECK(!cu_mech.to_summary_string().empty());
+}
+
+TEST_CASE("PH4-03.02.005: Structured Environmental Property Model") {
+    using namespace shunya::mat;
+
+    // 1. Pilling-Bedworth Passivating Oxide Protection Criteria
+    EnvironmentalPropertyModel al_env;
+    al_env.pilling_bedworth_ratio = 1.28; // Al2O3 on Aluminum
+    CHECK(al_env.is_oxide_protective());
+
+    EnvironmentalPropertyModel mg_env;
+    mg_env.pilling_bedworth_ratio = 0.81; // MgO on Magnesium (porous, linear non-protective)
+    CHECK_FALSE(mg_env.is_oxide_protective());
+
+    EnvironmentalPropertyModel fe_env;
+    fe_env.pilling_bedworth_ratio = 2.15; // Fe2O3 rust (spalling/buckling)
+    CHECK_FALSE(fe_env.is_oxide_protective());
+
+    // 2. Hygroscopic Moisture Swelling
+    EnvironmentalPropertyModel nylon_env;
+    nylon_env.saturation_moisture_content_pct = 2.5; // 2.5 wt% saturation
+    nylon_env.hygroscopic_expansion_coefficient = 0.0025;
+    const double swelling = nylon_env.compute_hygroscopic_strain(2.0);
+    CHECK(swelling > 0.0);
+    CHECK(swelling < 0.001);
+
+    // 3. Galvanic Coupling Risk Evaluation
+    // Cu (+0.34 V) coupled with Zn (-0.76 V): Delta V = 1.10 V (Severe galvanic corrosion of Zn sacrificial anode)
+    auto [v_cuzn, risk_cuzn] = EnvironmentalPropertyModel::evaluate_galvanic_coupling(+0.34, -0.76);
+    CHECK(std::abs(v_cuzn - 1.10) < 1e-4);
+    CHECK(risk_cuzn == GalvanicRiskLevel::SevereCorrosionHazard);
+
+    // Gold (+1.50 V) coupled with Platinum (+1.48 V): Delta V = 0.02 V (Harsh marine / space compatible)
+    auto [v_noble, risk_noble] = EnvironmentalPropertyModel::evaluate_galvanic_coupling(+1.50, +1.48);
+    CHECK(std::abs(v_noble - 0.02) < 1e-4);
+    CHECK(risk_noble == GalvanicRiskLevel::Compatible);
+    CHECK(!al_env.to_summary_string().empty());
 }
