@@ -46,6 +46,7 @@
 #include "shunya/mat/scientific_certification.hpp"
 #include "shunya/mat/iron_oxidation_engine.hpp"
 #include "shunya/mat/copper_patina_engine.hpp"
+#include "shunya/mat/material_mutation_propagator.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -3504,6 +3505,90 @@ TEST_CASE("PH4-03.04.002: Copper surface patina and electrical contact resistanc
     CHECK(ep_rc.classification.tier == CalculationTier::EmpiricalFit);
     CHECK(ep_rc.epistemic_status() == EpistemicStatus::ApproximateSimulation);
 }
+
+TEST_CASE("PH4-03.04.003: Reactive material mutation propagation to dependent 3D objects") {
+    using namespace shunya::mat;
+    using namespace shunya::eng;
+    using namespace shunya::core::base;
+
+    MaterialMutationPropagator propagator;
+
+    // 1. Setup Material: Aluminum alloy 6061
+    const Uuid al_id = Uuid::generate_random();
+    MaterialPropertyBundle al_mat;
+    al_mat.material_name = "Aluminum 6061-T6";
+    al_mat.mechanical.density_kg_m3 = 2700.0;
+    al_mat.mechanical.young_modulus_pa = 69.0e9;
+    al_mat.electrical.base_conductivity_s_m = 2.5e7; // 2.5e7 S/m
+    propagator.register_material(al_id, al_mat);
+
+    // 2. Setup 3D Physical Object: Busbar Beam (Box 0.2m x 0.05m x 0.01m)
+    PhysicalObject busbar;
+    busbar.name = "Battery Busbar Conductor";
+    busbar.geometry.kind = ObjectShapeKind::Box;
+    busbar.geometry.dim_x_m = 0.2;  // Length
+    busbar.geometry.dim_y_m = 0.05; // Width
+    busbar.geometry.dim_z_m = 0.01; // Thickness
+    busbar.geometry.position = math::Vector3<double>{1.0, 2.0, 0.0};
+
+    ObjectRegion reg;
+    reg.material_id = al_id;
+    reg.volume_fraction = 1.0;
+    busbar.regions.push_back(reg);
+
+    propagator.register_object(busbar);
+    CHECK(propagator.registered_objects_count() == 1);
+
+    // Initial state check
+    // Volume = 0.2 * 0.05 * 0.01 = 0.0001 m^3
+    // Initial Mass = 0.0001 * 2700 = 0.27 kg
+    const auto* init_ptr = propagator.get_object_state(busbar.id);
+    REQUIRE(init_ptr != nullptr);
+    const ObjectPhysicalState init_state = *init_ptr;
+    CHECK(std::abs(init_state.mass_kg - 0.27) < 1e-4);
+    CHECK(init_state.is_conductive);
+    CHECK(init_state.electrical_resistance_ohm > 0.0);
+    CHECK(std::abs(init_state.center_of_gravity.x - 1.0) < 1e-4);
+    CHECK(std::abs(init_state.center_of_gravity.y - 2.0) < 1e-4);
+    CHECK(std::abs(init_state.center_of_gravity.z - 0.005) < 1e-4); // Mid-thickness
+
+    // 3. Attach reactive mutation listener
+    bool listener_fired = false;
+    uint64_t observed_tick = 0;
+    std::string last_prop;
+    propagator.add_listener([&](const MaterialMutationEvent& evt, const PropagationReport& rep) {
+        listener_fired = true;
+        observed_tick = evt.mutation_tick;
+        last_prop = evt.property_name;
+        CHECK(rep.affected_objects_count == 1);
+    });
+
+    // 4. Mutate material density (e.g. replacing Aluminum with Copper: density 2700 -> 8960)
+    auto report = propagator.mutate_material_property(al_id, "density", 8960.0);
+    CHECK(listener_fired);
+    CHECK(last_prop == "density");
+    CHECK(report.affected_objects_count == 1);
+    CHECK(report.propagation_tick == observed_tick);
+
+    // 5. Assert immediate reactive recalculation of mass, inertia, and state
+    const auto* updated_state = propagator.get_object_state(busbar.id);
+    REQUIRE(updated_state != nullptr);
+    // New Mass = 0.0001 * 8960 = 0.896 kg
+    CHECK(std::abs(updated_state->mass_kg - 0.896) < 1e-4);
+    CHECK(updated_state->effective_density_kg_m3 == 8960.0);
+    // Inertia scales directly with mass: 0.896 / 0.27 ~ 3.318x
+    CHECK(updated_state->moment_of_inertia.x > init_state.moment_of_inertia.x * 3.0);
+
+    // 6. Mutate electrical conductivity (e.g. insulating coating: conductivity -> 0.001 S/m)
+    auto elec_report = propagator.mutate_material_property(al_id, "conductivity", 0.001);
+    CHECK(elec_report.affected_objects_count == 1);
+    CHECK(last_prop == "conductivity");
+    const auto* ins_state = propagator.get_object_state(busbar.id);
+    REQUIRE(ins_state != nullptr);
+    CHECK_FALSE(ins_state->is_conductive);
+    CHECK(ins_state->electrical_resistance_ohm >= 1e12); // Open circuit isolation
+}
+
 
 
 
