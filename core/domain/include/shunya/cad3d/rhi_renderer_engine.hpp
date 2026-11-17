@@ -2,6 +2,7 @@
 
 #include "shunya/cad3d/render_pass.hpp"
 #include "shunya/cad3d/shader_compiler.hpp"
+#include "shunya/cad3d/shader_pipeline_cache.hpp"
 #include "shunya/cad3d/solid_mesh.hpp"
 #include "shunya/core/base/math.hpp"
 #include "shunya/core/domain/rendering.hpp"
@@ -124,6 +125,8 @@ public:
     [[nodiscard]] const RhiRenderTarget& framebuffer() const noexcept { return framebuffer_; }
     [[nodiscard]] const RhiFrameMetrics& frame_metrics() const noexcept { return metrics_; }
     [[nodiscard]] ShaderCompiler& shader_compiler() noexcept { return compiler_; }
+    [[nodiscard]] ShaderPipelineCache& pipeline_cache() noexcept { return pipeline_cache_; }
+    [[nodiscard]] const ShaderPipelineCache& pipeline_cache() const noexcept { return pipeline_cache_; }
     [[nodiscard]] RenderPassGraph& pass_graph() noexcept { return pass_graph_; }
 
 private:
@@ -131,6 +134,7 @@ private:
     bool initialized_{false};
     RhiRenderTarget framebuffer_{};
     ShaderCompiler compiler_{};
+    ShaderPipelineCache pipeline_cache_{};
     RenderPassGraph pass_graph_{};
     std::vector<PipelineStateDesc> pso_table_;
     std::unordered_map<std::string, uint32_t> sampler_cache_;

@@ -125,6 +125,8 @@ bool RhiRendererEngine::initialize(const RhiSwapchainConfig& config) {
     pass_graph_.add_pass({"DepthPrePass", {"depth_prepass", true, true, RhiCompareOp::Less, RhiBlendMode::Opaque, RhiCullMode::Back}, false, true});
     pass_graph_.add_pass({"MainOpaquePass", pso_table_[0], true, false});
 
+    pipeline_cache_.prewarm_standard_pipelines(compiler_, api);
+
     initialized_ = true;
     return true;
 }

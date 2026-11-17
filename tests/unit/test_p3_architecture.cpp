@@ -18,6 +18,7 @@
 #include "shunya/cad3d/hierarchical_culler.hpp"
 #include "shunya/cad3d/gpu_vertex_buffer.hpp"
 #include "shunya/cad3d/gpu_compute_pipeline.hpp"
+#include "shunya/cad3d/shader_pipeline_cache.hpp"
 #include "shunya/perf/simd_math.hpp"
 #include "shunya/perf/thread_scaling_benchmark.hpp"
 #include "shunya/core/base/event_bus.hpp"
@@ -2002,4 +2003,68 @@ TEST_CASE("PH4-02.03.005: Compute Shaders for Parallel Particles & Thermal Field
     for (size_t i = 0; i < grid_cells; ++i) {
         CHECK(std::abs(grid_gpu[i] - grid_cpu[i]) < 1e-4f);
     }
+}
+
+TEST_CASE("PH4-02.03.006: Shader Pipeline Caching & Mode Switch Hitch Elimination") {
+    using namespace shunya::cad3d;
+
+    // 1. Prewarm standard pipelines
+    ShaderCompiler compiler;
+    ShaderPipelineCache cache;
+    cache.prewarm_standard_pipelines(compiler, ShaderTargetApi::SpirV_Vulkan);
+
+    CHECK(cache.size() >= 7);
+    CHECK(cache.metrics().prewarmed_count >= 7);
+
+    // 2. Querying prewarmed modes guarantees immediate cache hits with 0 compile latency
+    PipelineCacheKey opaque_key{};
+    opaque_key.pso_desc = PipelineStateDesc{"opaque_pbr", true, true, RhiCompareOp::Less, RhiBlendMode::Opaque, RhiCullMode::Back};
+    opaque_key.target_api = ShaderTargetApi::SpirV_Vulkan;
+    opaque_key.vs_hash = 0x12345678ULL;
+    opaque_key.fs_hash = 0x87654321ULL;
+
+    const auto* opaque_blob = cache.find(opaque_key);
+    REQUIRE(opaque_blob != nullptr);
+    CHECK(opaque_blob->pipeline_name == "Opaque_PBR");
+
+    PipelineCacheKey wboit_key{};
+    wboit_key.pso_desc = PipelineStateDesc{"transparent_wboit", true, false, RhiCompareOp::Less, RhiBlendMode::AlphaBlend, RhiCullMode::None};
+    wboit_key.target_api = ShaderTargetApi::SpirV_Vulkan;
+    wboit_key.vs_hash = 0x12345678ULL;
+    wboit_key.fs_hash = 0x87654321ULL;
+
+    const auto* wboit_blob = cache.find(wboit_key);
+    REQUIRE(wboit_blob != nullptr);
+    CHECK(wboit_blob->pipeline_name == "Transparent_WBOIT");
+
+    CHECK(cache.metrics().lookups == 2);
+    CHECK(cache.metrics().hits == 2);
+    CHECK(cache.metrics().misses == 0);
+    CHECK(cache.metrics().hit_ratio() == 1.0);
+
+    // 3. Binary serialization & persistent disk round-trip
+    const auto exported = cache.export_blob();
+    CHECK(!exported.empty());
+
+    ShaderPipelineCache imported_cache;
+    REQUIRE(imported_cache.import_blob(exported));
+    CHECK(imported_cache.size() == cache.size());
+
+    // Verify imported cache resolves keys accurately
+    const auto* imported_opaque = imported_cache.find(opaque_key);
+    REQUIRE(imported_opaque != nullptr);
+    CHECK(imported_opaque->pipeline_name == "Opaque_PBR");
+
+    // 4. Data corruption rejection test (flip bit in payload -> CRC32 failure)
+    auto corrupted_bytes = exported;
+    if (!corrupted_bytes.empty()) {
+        corrupted_bytes.back() ^= 0xFF;
+    }
+    ShaderPipelineCache corrupt_test_cache;
+    CHECK(!corrupt_test_cache.import_blob(corrupted_bytes));
+
+    // 5. Integration with RhiRendererEngine
+    RhiRendererEngine engine;
+    REQUIRE(engine.initialize({RhiBackendApi::Vulkan, 320, 240, true}));
+    CHECK(engine.pipeline_cache().size() >= 7);
 }
