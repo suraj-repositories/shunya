@@ -125,6 +125,7 @@ add_library(shunya_domain_mat OBJECT
     src/mat/state_dependent_evaluator.cpp
     src/mat/material_boundary_checker.cpp
     src/mat/shomate_engine.cpp
+    src/mat/scientific_certification.cpp
 )
 shunya_configure_domain_target(shunya_domain_mat)
 target_link_libraries(shunya_domain_mat PUBLIC shunya_domain_core)

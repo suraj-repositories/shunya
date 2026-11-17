@@ -43,6 +43,7 @@
 #include "shunya/mat/state_dependent_evaluator.hpp"
 #include "shunya/mat/material_boundary_checker.hpp"
 #include "shunya/mat/shomate_engine.hpp"
+#include "shunya/mat/scientific_certification.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -3349,6 +3350,77 @@ TEST_CASE("PH4-03.03.005: NIST Shomate polynomials for heat capacity, enthalpy, 
     auto cp_spec_fe = ShomateEngine::compute_specific_heat_capacity(298.15, fe_coeff);
     CHECK(std::abs(cp_spec_fe.value - 449.0) < 15.0); // ~449 J/(kg*K) for Alpha Iron
 }
+
+TEST_CASE("PH4-03.03.006: Separation of scientifically certified results from approximate previews") {
+    using namespace shunya::mat;
+
+    // 1. Certified scientific result type
+    CalculationClassification cert_meta;
+    cert_meta.tier = CalculationTier::ReferenceDatasetLookup;
+    cert_meta.source_model_or_formula = "elements.csv [CRC Handbook]";
+    cert_meta.reference_standard = "CRC Handbook of Chemistry & Physics 104th Ed.";
+    cert_meta.relative_uncertainty_pct = 0.5;
+    cert_meta.is_empirically_validated = true;
+
+    CertifiedScientificResult<double> cert_density(8960.0, cert_meta);
+    CHECK(cert_density.value() == 8960.0);
+    CHECK(cert_density.is_certified());
+
+    UiScientificPresentation cert_ui = cert_density.presentation("kg/m^3");
+    CHECK(cert_ui.badge == ScientificFidelityBadge::CertifiedScientific);
+    CHECK(cert_ui.badge_text == "[CERTIFIED SCIENTIFIC]");
+    CHECK(cert_ui.css_class == "badge-certified-scientific");
+    CHECK_FALSE(cert_ui.requires_disclaimer);
+    CHECK(cert_ui.formatted_value.find("8960") != std::string::npos);
+
+    // 2. Approximate preview result type
+    CalculationClassification prev_meta;
+    prev_meta.tier = CalculationTier::RuleOfMixturesApproximation;
+    prev_meta.source_model_or_formula = "Voigt Iso-strain Linear Mixture";
+    prev_meta.relative_uncertainty_pct = 15.0;
+    prev_meta.is_empirically_validated = false;
+
+    ApproximatePreviewResult<double> prev_modulus(95.0e9, prev_meta, "Experimental binary powder blend preview");
+    CHECK(prev_modulus.value() == 95.0e9);
+    CHECK_FALSE(prev_modulus.is_certified());
+
+    UiScientificPresentation prev_ui = prev_modulus.presentation("Pa");
+    CHECK(prev_ui.badge == ScientificFidelityBadge::ApproximatePreview);
+    CHECK(prev_ui.badge_text == "[APPROXIMATE PREVIEW]");
+    CHECK(prev_ui.css_class == "badge-approximate-preview");
+    CHECK(prev_ui.requires_disclaimer);
+    CHECK(prev_ui.tooltip_citation.find("PREVIEW:") != std::string::npos);
+
+    // 3. Validation rejection of promotion when uncertainty is too large
+    auto promo_fail = ScientificCertificationEngine::promote_to_certified(prev_modulus, "ASTM E111", 12.0);
+    CHECK(promo_fail.is_err());
+    CHECK(promo_fail.error().message.find("exceeds certified threshold") != std::string::npos);
+
+    // 4. Rejection when standard citation is omitted
+    auto promo_no_cit = ScientificCertificationEngine::promote_to_certified(prev_modulus, "", 2.0);
+    CHECK(promo_no_cit.is_err());
+    CHECK(promo_no_cit.error().message.find("citation") != std::string::npos);
+
+    // 5. Successful promotion after empirical calibration & audit
+    auto promo_ok = ScientificCertificationEngine::promote_to_certified(prev_modulus, "ASTM E111-17", 1.8);
+    CHECK(promo_ok.is_ok());
+    CertifiedScientificResult<double> promoted = promo_ok.value();
+    CHECK(promoted.is_certified());
+    CHECK(promoted.metadata().relative_uncertainty_pct == 1.8);
+    CHECK(promoted.metadata().reference_standard == "ASTM E111-17");
+
+    // 6. Generic EpistemicScalar presentation formatter
+    EpistemicScalar high_fid(401.0, CalculationTier::AnalyticalFormulation, 1.5);
+    auto pres_hi = ScientificCertificationEngine::format_presentation(high_fid, "W/(m*K)");
+    CHECK(pres_hi.badge == ScientificFidelityBadge::CertifiedScientific);
+    CHECK_FALSE(pres_hi.requires_disclaimer);
+
+    EpistemicScalar low_fid(350.0, CalculationTier::RuleOfMixturesApproximation, 18.0);
+    auto pres_lo = ScientificCertificationEngine::format_presentation(low_fid, "W/(m*K)");
+    CHECK(pres_lo.badge == ScientificFidelityBadge::ApproximatePreview);
+    CHECK(pres_lo.requires_disclaimer);
+}
+
 
 
 
