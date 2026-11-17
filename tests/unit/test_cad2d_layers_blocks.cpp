@@ -5,6 +5,7 @@
 #include "shunya/cad2d/context_menu_model.hpp"
 #include "shunya/cad2d/group_manager.hpp"
 #include "shunya/cad2d/layer_manager.hpp"
+#include "shunya/cad2d/schematic_netlabel_bus.hpp"
 #include "shunya/cad2d/schematic_pin_tool.hpp"
 #include "shunya/cad2d/schematic_symbol_engine.hpp"
 #include "shunya/cad2d/schematic_wire_router.hpp"
@@ -859,6 +860,64 @@ TEST_CASE("PH4-04.04.003: Schematic pin placement tool defining electrical termi
     REQUIRE(pin_tool.pin_count() == 3);
     REQUIRE(pin_tool.find_pin(p1_id) == nullptr);
 }
+
+TEST_CASE("PH4-04.04.004: Netlabel callouts and hierarchical bus connectors for clean schematic organization") {
+    // 1. Bus Specification Parsing
+    auto parsed_bus = SchematicNetlabelBusManager::parse_bus_spec("DATA[0..7]");
+    REQUIRE(parsed_bus.has_value());
+    REQUIRE(parsed_bus->prefix == "DATA");
+    REQUIRE(parsed_bus->member_nets.size() == 8);
+    REQUIRE(parsed_bus->member_nets.front() == "DATA0");
+    REQUIRE(parsed_bus->member_nets.back() == "DATA7");
+    REQUIRE(parsed_bus->contains_net("DATA3"));
+    REQUIRE(!parsed_bus->contains_net("DATA8"));
+
+    SketchDocument2D doc;
+    SchematicNetlabelBusManager mgr;
+
+    // 2. Place Hierarchical Bus in document
+    std::vector<Point2D> bus_path = {Point2D{0.0, 50.0}, Point2D{100.0, 50.0}};
+    std::string bus_id = mgr.place_bus(doc, bus_path, "DATA[0..7]");
+    REQUIRE(!bus_id.empty());
+    REQUIRE(mgr.bus_count() == 1);
+
+    // 3. Place Bus Taps
+    // Valid tap: breakout DATA3 at contact (40, 50)
+    std::string tap1_id = mgr.place_bus_tap(doc, bus_id, Point2D{40.0, 50.0}, "DATA3", 5.0, true);
+    REQUIRE(!tap1_id.empty());
+    REQUIRE(mgr.bus_tap_count() == 1);
+    const auto* tap1 = mgr.find_bus_tap(tap1_id);
+    REQUIRE(tap1 != nullptr);
+    REQUIRE(tap1->member_net == "DATA3");
+    REQUIRE(is_approx(tap1->bus_contact_pos.x, 40.0));
+    // 45-deg tap end: 40 + 5*0.7071 = 43.5355, 50 + 5*0.7071 = 53.5355
+    REQUIRE(is_approx(tap1->tap_end_pos.x, 40.0 + 5.0 * 0.70710678, 1e-4));
+
+    // Invalid tap: net not on bus is rejected
+    REQUIRE(mgr.place_bus_tap(doc, bus_id, Point2D{60.0, 50.0}, "CLOCK").empty());
+
+    // 4. Place Netlabel Callouts
+    std::string l1_id = mgr.place_netlabel(doc, Point2D{10.0, 20.0}, "VCC", NetLabelType::Global);
+    std::string l2_id = mgr.place_netlabel(doc, Point2D{80.0, 20.0}, "VCC", NetLabelType::Global);
+    std::string l3_id = mgr.place_netlabel(doc, Point2D{43.5355, 53.5355}, "DATA3", NetLabelType::Local);
+    REQUIRE(mgr.netlabel_count() == 3);
+
+    // 5. Query Wireless Unified Net Connections
+    auto vcc_pts = mgr.find_all_positions_for_net("VCC");
+    REQUIRE(vcc_pts.size() == 2);
+    REQUIRE(is_approx(vcc_pts[0].x, 10.0));
+    REQUIRE(is_approx(vcc_pts[1].x, 80.0));
+
+    auto data3_pts = mgr.find_all_positions_for_net("DATA3");
+    REQUIRE(data3_pts.size() == 2); // 1 netlabel + 1 bus tap
+
+    // 6. Bus removal cascades to attached taps
+    REQUIRE(mgr.remove_bus(doc, bus_id));
+    REQUIRE(mgr.bus_count() == 0);
+    REQUIRE(mgr.bus_tap_count() == 0); // taps cleaned up
+    REQUIRE(mgr.netlabel_count() == 3); // netlabels remain
+}
+
 
 
 

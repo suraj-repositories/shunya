@@ -172,6 +172,7 @@ add_library(shunya_domain_cad OBJECT
     src/cad2d/schematic_symbol_engine.cpp
     src/cad2d/schematic_wire_router.cpp
     src/cad2d/schematic_pin_tool.cpp
+    src/cad2d/schematic_netlabel_bus.cpp
     src/cad3d/solid_mesh.cpp
     src/cad3d/polygon_tessellator.cpp
     src/cad3d/extrusion_feature.cpp
