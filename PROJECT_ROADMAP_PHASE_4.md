@@ -504,7 +504,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (18/30 — 60.0%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (19/30 — 63.3%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
@@ -610,7 +610,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Materials:* P-type channel, N-type gate diffusions.  
   *Tests:* Transconductance curve verification, low-noise pre-amp behavior.
 
-### Submodule PH4-07.04: Electromechanical & Switching Devices (Components 17 - 20) [~] (2/4)
+### Submodule PH4-07.04: Electromechanical & Switching Devices (Components 17 - 20) [~] (3/4)
 - [x] `PH4-07.04.001`: **17. Push Button (Momentary NO)**  
   *3D Model:* 6mm x 6mm tactile tactile switch with round plastic actuator button and 4 PCB pins.  
   *2D Symbol:* Open contacts with momentary push actuator (2 electrical nets across 4 pins).  
@@ -623,7 +623,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Electrical:* Ideal bistable conductor ($R \approx 1\text{m}\Omega$) or open ($R \approx 1\text{G}\Omega$).  
   *Materials:* Nickel-plated brass lever, Silver-nickel contacts, Diallyl phthalate case.  
   *Tests:* State toggling, arc modeling under high-current DC disconnect.
-- [ ] `PH4-07.04.003`: **19. SPDT Slide Switch**  
+- [x] `PH4-07.04.003`: **19. SPDT Slide Switch**  
   *3D Model:* Rectangular metal casing with sliding plastic knob and 3 PCB pins.  
   *2D Symbol:* Single pole, double throw switch (3 pins: Common, Throw 1, Throw 2).  
   *Electrical:* Break-before-make routing from Common to either Throw 1 or Throw 2.  
