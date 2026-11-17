@@ -388,3 +388,42 @@ TEST_CASE("PH4-05.04.006: Connect 2D-to-3D features to dependency graph with aut
     REQUIRE(rep2.is_watertight);
     REQUIRE(rep2.is_2_manifold);
 }
+
+TEST_CASE("PH4-05.04.007: Draft Angles and Tapered Extrusions for injection molding and casting design") {
+    // 10x10 square base extruded to depth 10
+    Path2D sq{{-5.0, -5.0}, {5.0, -5.0}, {5.0, 5.0}, {-5.0, 5.0}};
+    const double depth = 10.0;
+    const double base_side = 10.0;
+    const double a1 = base_side * base_side; // 100.0
+
+    // 1. Outward Draft Angle (+5 degrees) -> Mold cavity release
+    const double draft_deg = 5.0;
+    SolidMesh3D outward = ExtrusionEngine::extrude_drafted(sq, depth, draft_deg);
+    auto out_rep = outward.analyze_manifold();
+    REQUIRE(out_rep.is_watertight);
+    REQUIRE(out_rep.is_2_manifold);
+    REQUIRE(out_rep.euler_characteristic == 2);
+
+    const double delta_out = depth * std::tan(draft_deg * PI / 180.0);
+    const double top_side_out = base_side + 2.0 * delta_out;
+    const double a2_out = top_side_out * top_side_out;
+    const double expected_out_vol = (depth / 3.0) * (a1 + a2_out + std::sqrt(a1 * a2_out));
+    REQUIRE(rel_close(outward.compute_volume(), expected_out_vol, 1e-4));
+
+    // 2. Inward Taper Draft Angle (-5 degrees) -> Mold core release
+    SolidMesh3D inward = ExtrusionEngine::extrude_drafted(sq, depth, -draft_deg);
+    auto in_rep = inward.analyze_manifold();
+    REQUIRE(in_rep.is_watertight);
+    REQUIRE(in_rep.is_2_manifold);
+    REQUIRE(in_rep.euler_characteristic == 2);
+
+    const double delta_in = depth * std::tan(-draft_deg * PI / 180.0);
+    const double top_side_in = base_side + 2.0 * delta_in;
+    const double a2_in = top_side_in * top_side_in;
+    const double expected_in_vol = (depth / 3.0) * (a1 + a2_in + std::sqrt(a1 * a2_in));
+    REQUIRE(rel_close(inward.compute_volume(), expected_in_vol, 1e-4));
+
+    // Inward volume must be smaller than prismatic 1000, and outward must be larger
+    REQUIRE(inward.compute_volume() < 1000.0);
+    REQUIRE(outward.compute_volume() > 1000.0);
+}

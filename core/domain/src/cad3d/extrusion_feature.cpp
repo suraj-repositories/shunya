@@ -182,6 +182,22 @@ SolidMesh3D ExtrusionEngine::extrude_along_vector(
     return extrude(outer, holes, params);
 }
 
+SolidMesh3D ExtrusionEngine::extrude_drafted(
+    const cad2d::Path2D& outer,
+    double depth,
+    double draft_angle_deg,
+    const cad2d::Paths2D& holes,
+    EndCondition end_condition,
+    const SketchPlane3D& plane
+) {
+    ExtrusionParams params;
+    params.depth = depth;
+    params.draft_angle_rad = draft_angle_deg * (core::base::math::PI / 180.0);
+    params.end_condition = end_condition;
+    params.plane = plane;
+    return extrude(outer, holes, params);
+}
+
 std::vector<SolidMesh3D> ExtrusionEngine::extrude_paths(
     const cad2d::Paths2D& profile_paths,
     const ExtrusionParams& params

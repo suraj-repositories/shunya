@@ -68,6 +68,19 @@ public:
     );
 
     /**
+     * @brief Extrudes a closed 2D profile with an explicit draft angle (in degrees) for molding/casting.
+     *        Positive angle flares outward; negative angle tapers inward.
+     */
+    [[nodiscard]] static SolidMesh3D extrude_drafted(
+        const cad2d::Path2D& outer,
+        double depth,
+        double draft_angle_deg,
+        const cad2d::Paths2D& holes = {},
+        EndCondition end_condition = EndCondition::Blind,
+        const SketchPlane3D& plane = SketchPlane3D::xy()
+    );
+
+    /**
      * @brief Extrudes an already-classified multi-loop profile set (outer CCW loops + CW holes via PolygonBooleanEngine).
      */
     [[nodiscard]] static std::vector<SolidMesh3D> extrude_paths(
