@@ -27,6 +27,7 @@
 #include "shunya/perf/hot_loop_profiler.hpp"
 #include "shunya/perf/memory_budget.hpp"
 #include "shunya/mat/formation_scenarios.hpp"
+#include "shunya/mat/compound_validator.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2498,4 +2499,81 @@ TEST_CASE("PH4-03.01.001: Modular Material Formation Scenario Dispatcher") {
         if (note.find("Electronegativity delta") != std::string::npos) found_en_delta = true;
     }
     CHECK(found_en_delta);
+}
+
+TEST_CASE("PH4-03.01.002: Chemical Compound Stoichiometric Balance & Pauling Electronegativity") {
+    using namespace shunya::mat;
+    using namespace shunya::matdb;
+
+    // 1. Empirical Formula Synthesis
+    NormalizedConstituent h_const;
+    h_const.symbol = "H";
+    h_const.atomic_number = 1;
+    h_const.moles = 2.0;
+    h_const.mole_fraction = 2.0 / 3.0;
+
+    NormalizedConstituent o_const;
+    o_const.symbol = "O";
+    o_const.atomic_number = 8;
+    o_const.moles = 1.0;
+    o_const.mole_fraction = 1.0 / 3.0;
+
+    std::vector<NormalizedConstituent> h2o_constituents = {h_const, o_const};
+    CHECK(CompoundValidator::synthesize_empirical_formula(h2o_constituents) == "H2O");
+
+    NormalizedConstituent na_const;
+    na_const.symbol = "Na";
+    na_const.atomic_number = 11;
+    na_const.moles = 1.0;
+    na_const.mole_fraction = 0.5;
+
+    NormalizedConstituent cl_const;
+    cl_const.symbol = "Cl";
+    cl_const.atomic_number = 17;
+    cl_const.moles = 1.0;
+    cl_const.mole_fraction = 0.5;
+
+    std::vector<NormalizedConstituent> nacl_constituents = {na_const, cl_const};
+    CHECK(CompoundValidator::synthesize_empirical_formula(nacl_constituents) == "NaCl");
+
+    // 2. Pauling Ionic Character Equation: P = (1 - e^(-0.25 * (Delta Chi)^2)) * 100%
+    // NaCl: Na = 0.93, Cl = 3.16 -> Delta Chi = 2.23
+    const double delta_chi_nacl = 2.23;
+    const double ionic_nacl = CompoundValidator::compute_pauling_ionic_pct(delta_chi_nacl);
+    // 1 - exp(-0.25 * 2.23^2) = 1 - exp(-1.243225) = 1 - 0.28845 = 0.7115 -> ~71.15%
+    CHECK(ionic_nacl > 70.0);
+    CHECK(ionic_nacl < 72.0);
+
+    // Covalent H2: Delta Chi = 0.0 -> 0% ionic
+    CHECK(CompoundValidator::compute_pauling_ionic_pct(0.0) == 0.0);
+
+    // 3. Validation with Element Database
+    const auto& db = ElementDatabase::global();
+    const auto* na_rec = db.find_by_symbol("Na");
+    const auto* cl_rec = db.find_by_symbol("Cl");
+    REQUIRE(na_rec != nullptr);
+    REQUIRE(cl_rec != nullptr);
+
+    std::vector<const ElementRecord*> nacl_recs = {na_rec, cl_rec};
+    auto val_res = CompoundValidator::validate_compound(nacl_constituents, nacl_recs);
+    CHECK(val_res.is_stoichiometrically_balanced);
+    CHECK(val_res.is_valence_saturated);
+    CHECK(val_res.bond_character == BondCharacter::Ionic);
+    CHECK(val_res.pauling_electronegativity_delta > 2.0);
+    CHECK(val_res.empirical_formula == "NaCl");
+
+    // 4. Reject Noble Gas in valence saturation
+    const auto* he_rec = db.find_by_symbol("He");
+    REQUIRE(he_rec != nullptr);
+    NormalizedConstituent he_const;
+    he_const.symbol = "He";
+    he_const.atomic_number = 2;
+    he_const.moles = 1.0;
+    he_const.mole_fraction = 0.5;
+
+    std::vector<NormalizedConstituent> fake_he_constituents = {he_const, cl_const};
+    std::vector<const ElementRecord*> fake_recs = {he_rec, cl_rec};
+    auto fake_res = CompoundValidator::validate_compound(fake_he_constituents, fake_recs);
+    CHECK_FALSE(fake_res.is_stoichiometrically_balanced);
+    CHECK_FALSE(fake_res.is_valence_saturated);
 }
