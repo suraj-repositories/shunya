@@ -10,6 +10,7 @@
 #include "shunya/cad2d/vector_text_tool.hpp"
 #include "shunya/cad2d/advanced_curves.hpp"
 #include "shunya/cad2d/associative_fillet_chamfer.hpp"
+#include "shunya/cad2d/trim_extend_tool.hpp"
 
 #include <cmath>
 #include <vector>
@@ -647,4 +648,57 @@ TEST_CASE("PH4-04.01.005: Associative 2D Fillet and Chamfer Tool") {
     size_t updated = tool.update_all_features(doc);
     CHECK(updated >= 1);
     CHECK(is_approx(l2->total_length(), 18.0, 1e-6));
+}
+
+// =============================================================================
+// Task PH4-04.01.006: Eraser and Trim/Extend Tool
+// =============================================================================
+
+TEST_CASE("PH4-04.01.006: Eraser and Trim/Extend Tool") {
+    // 1. Trim Curve
+    SketchDocument2D doc;
+    // Cross: horizontal line (0, 5)->(10, 5) and vertical line (5, 0)->(5, 10)
+    auto horiz = std::make_shared<LineSegment2D>(Point2D{0.0, 5.0}, Point2D{10.0, 5.0});
+    auto vert = std::make_shared<LineSegment2D>(Point2D{5.0, 0.0}, Point2D{5.0, 10.0});
+    std::string h_id = doc.add_entity(horiz);
+    std::string v_id = doc.add_entity(vert);
+
+    // Trim left side of horizontal line by picking at (2, 5)
+    auto trim_res = TrimExtendEngine::trim_curve(doc, h_id, {2.0, 5.0});
+    REQUIRE(trim_res.is_ok());
+    CHECK(trim_res.value().remaining_curves.size() == 1);
+    // Remaining curve is from (5, 5) to (10, 5) with length 5.0
+    CHECK(is_approx(trim_res.value().remaining_curves[0]->total_length(), 5.0, 1e-4));
+    CHECK(doc.find_entity(h_id) == nullptr); // Replaced in doc
+
+    // 2. Extend Curve
+    SketchDocument2D doc_ext;
+    auto l_probe = std::make_shared<LineSegment2D>(Point2D{0.0, 0.0}, Point2D{4.0, 0.0});
+    auto l_wall = std::make_shared<LineSegment2D>(Point2D{8.0, -5.0}, Point2D{8.0, 5.0});
+    std::string probe_id = doc_ext.add_entity(l_probe);
+    doc_ext.add_entity(l_wall);
+
+    auto ext_res = TrimExtendEngine::extend_curve(doc_ext, probe_id, {3.8, 0.0});
+    REQUIRE(ext_res.is_ok());
+    CHECK(is_approx(ext_res.value().x, 8.0, 1e-4));
+    CHECK(is_approx(ext_res.value().y, 0.0, 1e-4));
+    CHECK(is_approx(l_probe->total_length(), 8.0, 1e-4));
+
+    // 3. Eraser Tool
+    CHECK(TrimExtendEngine::erase_entity(doc_ext, probe_id));
+    CHECK(doc_ext.find_entity(probe_id) == nullptr);
+
+    // 4. Stroke Eraser
+    SketchDocument2D doc_stroke;
+    doc_stroke.add_entity(std::make_shared<LineSegment2D>(Point2D{0.0, 0.0}, Point2D{10.0, 0.0}));
+    doc_stroke.add_entity(std::make_shared<LineSegment2D>(Point2D{0.0, 5.0}, Point2D{10.0, 5.0}));
+    doc_stroke.add_entity(std::make_shared<LineSegment2D>(Point2D{0.0, 100.0}, Point2D{10.0, 100.0}));
+    CHECK(doc_stroke.entities().size() == 3);
+
+    // Stroke crossing y=0 and y=5
+    std::vector<Point2D> stroke = { {5.0, -2.0}, {5.0, 8.0} };
+    size_t erased = TrimExtendEngine::erase_along_stroke(doc_stroke, stroke, 0.5);
+    CHECK(erased == 2);
+    CHECK(doc_stroke.entities().size() == 1);
+    CHECK(doc_stroke.entities()[0].curve->evaluate(0.0).y > 50.0); // Far line untouched
 }

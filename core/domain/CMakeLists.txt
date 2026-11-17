@@ -160,6 +160,7 @@ add_library(shunya_domain_cad OBJECT
     src/cad2d/vector_text_tool.cpp
     src/cad2d/advanced_curves.cpp
     src/cad2d/associative_fillet_chamfer.cpp
+    src/cad2d/trim_extend_tool.cpp
     src/cad3d/solid_mesh.cpp
     src/cad3d/polygon_tessellator.cpp
     src/cad3d/extrusion_feature.cpp
