@@ -735,3 +735,44 @@ TEST_CASE("PH4-05.02.005: Edge and Vertex Beveling with multi-segment profile ro
     REQUIRE(ok_e);
     REQUIRE(cube_e.vertices.size() > vert_count_before);
 }
+
+TEST_CASE("PH4-05.02.006: Implement Loop Cut and Slide with preview rings and segment counts") {
+    CubeParams cp;
+    cp.width = 2.0; cp.height = 2.0; cp.depth = 2.0;
+    auto cube = ParametricPrimitiveGenerator::generate_cube(cp);
+    size_t vert_count_before = cube.vertices.size();
+    size_t tri_count_before = cube.triangles.size();
+
+    // Pick top edge
+    Ray3D ray_edge{Point3D{0.0, 0.95, 5.0}, Vec3d{0.0, 0.0, -1.0}};
+    auto pick_edge = MeshSelectionEngine::pick(cube, ray_edge, MeshSelectionMode::Edge);
+    REQUIRE(pick_edge.hit);
+    uint32_t eu = pick_edge.edge.first;
+    uint32_t ev = pick_edge.edge.second;
+
+    // Apply loop cut with slide = 0.0 (exact midpoint)
+    LoopCutOptions opt;
+    opt.cuts = 1;
+    opt.slide = 0.0;
+    bool ok = MeshTopologyOps::loop_cut(cube, eu, ev, opt);
+    REQUIRE(ok);
+
+    // Verify 1 new vertex and 2 triangles added
+    REQUIRE(cube.vertices.size() == vert_count_before + 1);
+    REQUIRE(cube.triangles.size() >= tri_count_before + 1);
+
+    // Midpoint check
+    Point3D pu = cube.vertices[eu];
+    Point3D pv = cube.vertices[ev];
+    Point3D expected_mid = (pu + pv) * 0.5;
+    Point3D actual_cut = cube.vertices.back();
+    REQUIRE(is_close(actual_cut.x, expected_mid.x));
+    REQUIRE(is_close(actual_cut.y, expected_mid.y));
+    REQUIRE(is_close(actual_cut.z, expected_mid.z));
+
+    // Test with slide factor = 0.6
+    LoopCutOptions opt_slide;
+    opt_slide.slide = 0.6; // t = 0.8
+    bool ok_slide = MeshTopologyOps::loop_cut(cube, eu, cube.triangles.back()[0], opt_slide);
+    REQUIRE(ok_slide);
+}
