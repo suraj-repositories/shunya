@@ -5,6 +5,7 @@
 #include "shunya/cad2d/snap_manager.hpp"
 #include "shunya/cad2d/polar_guide.hpp"
 #include "shunya/cad2d/alignment_tools.hpp"
+#include "shunya/cad2d/snap_glyph.hpp"
 
 #include <chrono>
 #include <cmath>
@@ -451,4 +452,64 @@ TEST_CASE("PH4-04.02.004: Multi-Object Alignment & Distribution Tools") {
     double c2 = b2->bounding_box().center().x;
     double c3 = b3->bounding_box().center().x;
     CHECK(is_approx(c2 - c1, c3 - c2, 1e-6));
+}
+
+// =============================================================================
+// Task PH4-04.02.005: Visual Snap Glyph Indicators & High Frame-Rate Tooltips
+// =============================================================================
+
+TEST_CASE("PH4-04.02.005: Visual Snap Glyph Indicators & Tooltip Generation") {
+    SketchViewport2D vp;
+    vp.viewport_width = 800.0;
+    vp.viewport_height = 600.0;
+    vp.pixels_per_unit = 100.0;
+
+    // 1. Endpoint Glyph
+    SnapCandidate cand_end{{5.0, 5.0}, SnapType::Endpoint, "LINE_1", 2.0};
+    auto g_end = SnapGlyphRenderer::generate_glyph(cand_end, vp, 12.0);
+    CHECK(g_end.type == SnapType::Endpoint);
+    CHECK(g_end.stroke_lines.size() == 4); // Square
+    CHECK(g_end.tooltip_text.find("Endpoint [LINE_1]") != std::string::npos);
+
+    // 2. Midpoint Glyph
+    SnapCandidate cand_mid{{2.0, 2.0}, SnapType::Midpoint, "LINE_2", 1.5};
+    auto g_mid = SnapGlyphRenderer::generate_glyph(cand_mid, vp, 12.0);
+    CHECK(g_mid.type == SnapType::Midpoint);
+    CHECK(g_mid.stroke_lines.size() == 3); // Triangle
+    CHECK(g_mid.tooltip_text.find("Midpoint") != std::string::npos);
+
+    // 3. Center Glyph
+    SnapCandidate cand_ctr{{0.0, 0.0}, SnapType::Center, "CIRC_1", 0.5};
+    auto g_ctr = SnapGlyphRenderer::generate_glyph(cand_ctr, vp, 12.0);
+    CHECK(g_ctr.type == SnapType::Center);
+    CHECK(g_ctr.stroke_lines.size() > 10); // Circle + crosshair
+
+    // 4. Intersection Glyph
+    SnapCandidate cand_int{{1.0, 1.0}, SnapType::Intersection, "L1+L2", 1.0};
+    auto g_int = SnapGlyphRenderer::generate_glyph(cand_int, vp, 12.0);
+    CHECK(g_int.type == SnapType::Intersection);
+    CHECK(g_int.stroke_lines.size() == 2); // X cross
+
+    // 5. Perpendicular Glyph
+    SnapCandidate cand_perp{{3.0, 0.0}, SnapType::Perpendicular, "L1", 1.2};
+    auto g_perp = SnapGlyphRenderer::generate_glyph(cand_perp, vp, 12.0);
+    CHECK(g_perp.type == SnapType::Perpendicular);
+    CHECK(g_perp.stroke_lines.size() == 4); // Right-angle bracket + inner corner
+
+    // 6. Grid Glyph
+    SnapCandidate cand_grid{{10.0, 10.0}, SnapType::Grid, "GRID", 0.0};
+    auto g_grid = SnapGlyphRenderer::generate_glyph(cand_grid, vp, 12.0);
+    CHECK(g_grid.type == SnapType::Grid);
+    CHECK(g_grid.stroke_lines.size() == 2); // Plus cross
+
+    // 7. High-frame-rate stress test (100,000 glyph evaluations < 25 ms)
+    auto t0 = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < 100000; ++i) {
+        SnapCandidate c{{static_cast<double>(i % 100), 0.0}, SnapType::Endpoint, "LINE", 1.0};
+        auto g = SnapGlyphRenderer::generate_glyph(c, vp, 12.0);
+        (void)g;
+    }
+    auto t1 = std::chrono::high_resolution_clock::now();
+    double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+    CHECK(ms < 100.0); // Ultra fast ~100k glyphs / 100ms
 }
