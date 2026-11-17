@@ -471,7 +471,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 - [x] `PH4-06.01.001`: Create the dedicated 3D Electronic Component Designer workspace layout in Qt Quick/QML.
 - [x] `PH4-06.01.002`: Implement Step 1-2 workflow: select active chemical elements or engineered materials from the Project Material Registry.
 - [x] `PH4-06.01.003`: Implement Step 3-5 workflow: construct 3D geometry in the editor and assign distinct materials to individual mesh regions (e.g., copper leads, ceramic body, silicon die).
-- [ ] `PH4-06.01.004`: Implement Step 6 workflow: configure nominal electrical specifications, maximum voltage/current ratings, thermal limits, and physical tolerances.
+- [x] `PH4-06.01.004`: Implement Step 6 workflow: configure nominal electrical specifications, maximum voltage/current ratings, thermal limits, and physical tolerances.
 - [ ] `PH4-06.01.005`: Implement Step 7 workflow: define physical 3D contact terminals, snap anchors, and terminal polarity.
 - [ ] `PH4-06.01.006`: Implement Step 8-10 workflow: define SPICE behavioral equations, metadata (manufacturer, part number, package type), and save component to the project catalog.
 
