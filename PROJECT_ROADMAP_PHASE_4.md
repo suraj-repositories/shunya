@@ -359,7 +359,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 - [x] `PH4-03.02.005`: Implement structured **Environmental Property Model**: moisture absorption, UV degradation rate, atmospheric oxidation kinetics, and galvanic potential compatibility index.
 - [x] `PH4-03.02.006`: Design a unified C++ data structure `MaterialPropertyBundle` encapsulating all five domains with rigorous SI unit constraints.
 
-### Submodule PH4-03.03: Scientific Accuracy, Epistemic Tagging & Uncertainty [~] (66.7% — 4/6)
+### Submodule PH4-03.03: Scientific Accuracy, Epistemic Tagging & Uncertainty [~] (83.3% — 5/6)
 - [x] `PH4-03.03.001`: Establish an explicit 5-tier calculation classification system:
   1. *Analytical Formulation* (first-principles closed-form equations).
   2. *Empirical Fit* (NIST/JANAF calibrated polynomial curves).
@@ -369,7 +369,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 - [x] `PH4-03.03.002`: Attach `EpistemicStatus` and numerical confidence bounds ($\pm \delta\%$) to every calculated property value.
 - [x] `PH4-03.03.003`: Implement temperature ($T$) and pressure ($P$) state-dependent evaluation functions: $P_{\text{calc}} = f(T, P, \text{composition})$.
 - [x] `PH4-03.03.004`: Create a validation boundary checker that generates explicit engineering warnings when operating temperature or stress exceeds physical material limits.
-- [ ] `PH4-03.03.005`: Implement Shomate equation polynomials for high-temperature specific heat, enthalpy, and entropy calculations.
+- [x] `PH4-03.03.005`: Implement Shomate equation polynomials for high-temperature specific heat, enthalpy, and entropy calculations.
 - [ ] `PH4-03.03.006`: Separate scientifically certified results from approximate previews across both C++ data types and UI presentations.
 
 ### Submodule PH4-03.04: Reactive Environmental Degradation & Material Propagation

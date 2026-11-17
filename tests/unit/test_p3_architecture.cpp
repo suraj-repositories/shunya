@@ -42,6 +42,7 @@
 #include "shunya/mat/epistemic_value.hpp"
 #include "shunya/mat/state_dependent_evaluator.hpp"
 #include "shunya/mat/material_boundary_checker.hpp"
+#include "shunya/mat/shomate_engine.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -3298,6 +3299,57 @@ TEST_CASE("PH4-03.03.004: Validation boundary checker for temperature and stress
     CHECK(elec_rep.warnings[0].code == "DIELECTRIC-BREAKDOWN");
     CHECK(!elec_rep.format_report().empty());
 }
+
+TEST_CASE("PH4-03.03.005: NIST Shomate polynomials for heat capacity, enthalpy, and entropy") {
+    using namespace shunya::mat;
+
+    // 1. Copper Solid NIST validation at T = 298.15 K
+    // Literature reference (NIST Chemistry WebBook SRD 69):
+    // Standard molar heat capacity Cp_m(298.15) ~ 24.44 J/(mol*K)
+    // Specific heat capacity Cp(298.15) = 24.44 / 0.063546 ~ 384.6 J/(kg*K)
+    // Enthalpy increment H - H_298 at 298.15 K = 0.0 kJ/mol
+    // Standard entropy S(298.15) ~ 33.15 J/(mol*K)
+    const auto cu_coeff = ShomateEngine::copper_solid_nist();
+    CHECK(cu_coeff.is_temperature_in_range(298.15));
+    CHECK(cu_coeff.is_temperature_in_range(1000.0));
+    CHECK_FALSE(cu_coeff.is_temperature_in_range(1500.0)); // Beyond melting point
+
+    auto cp_m_cu = ShomateEngine::compute_molar_heat_capacity(298.15, cu_coeff);
+    CHECK(std::abs(cp_m_cu.value - 24.44) < 0.20);
+    CHECK(cp_m_cu.classification.tier == CalculationTier::EmpiricalFit);
+    CHECK(cp_m_cu.epistemic_status() == EpistemicStatus::ApproximateSimulation);
+
+    auto cp_spec_cu = ShomateEngine::compute_specific_heat_capacity(298.15, cu_coeff);
+    CHECK(std::abs(cp_spec_cu.value - 384.6) < 4.0); // ~385 J/(kg*K)
+
+    auto h_inc_cu = ShomateEngine::compute_molar_enthalpy_increment(298.15, cu_coeff);
+    CHECK(std::abs(h_inc_cu.value) < 0.05); // Exactly 0 at 298.15 K
+
+    auto s_cu = ShomateEngine::compute_molar_entropy(298.15, cu_coeff);
+    CHECK(std::abs(s_cu.value - 53.16) < 0.50);
+
+    // 2. High-Temperature Sweep (T = 1000 K)
+    auto cp_m_1000 = ShomateEngine::compute_molar_heat_capacity(1000.0, cu_coeff);
+    CHECK(cp_m_1000.value > cp_m_cu.value); // Dulong-Petit anharmonic increase at high temperature
+    CHECK(cp_m_1000.value < 35.0);
+
+    auto h_inc_1000 = ShomateEngine::compute_molar_enthalpy_increment(1000.0, cu_coeff);
+    CHECK(h_inc_1000.value > 15.0); // Substantial enthalpy accumulation (kJ/mol)
+
+    auto s_1000 = ShomateEngine::compute_molar_entropy(1000.0, cu_coeff);
+    CHECK(s_1000.value > s_cu.value); // Second Law: entropy increases monotonically with T
+
+    // 3. Aluminum Solid NIST validation at T = 298.15 K
+    const auto al_coeff = ShomateEngine::aluminum_solid_nist();
+    auto cp_spec_al = ShomateEngine::compute_specific_heat_capacity(298.15, al_coeff);
+    CHECK(std::abs(cp_spec_al.value - 1021.5) < 5.0); // Al NIST Shomate fit ~1021 J/(kg*K)
+
+    // 4. Iron Solid NIST validation
+    const auto fe_coeff = ShomateEngine::iron_solid_nist();
+    auto cp_spec_fe = ShomateEngine::compute_specific_heat_capacity(298.15, fe_coeff);
+    CHECK(std::abs(cp_spec_fe.value - 449.0) < 15.0); // ~449 J/(kg*K) for Alpha Iron
+}
+
 
 
 
