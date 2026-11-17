@@ -48,6 +48,8 @@
 #include "shunya/mat/copper_patina_engine.hpp"
 #include "shunya/mat/material_mutation_propagator.hpp"
 #include "shunya/mat/thermal_deformation_engine.hpp"
+#include "shunya/eng/component_generator.hpp"
+#include "shunya/eng/interactive_circuit.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -3651,6 +3653,122 @@ TEST_CASE("PH4-03.04.004: Thermal expansion and thermal stress deformation in 3D
     CHECK(ep_stress.classification.tier == CalculationTier::AnalyticalFormulation);
     CHECK(ep_stress.epistemic_status() == EpistemicStatus::ConfirmedScientific);
 }
+
+TEST_CASE("PH4-03.04.005: Insulator materials prevent electrical current flow and conductive materials permit current flow according to Ohm's law") {
+    using namespace shunya::mat;
+    using namespace shunya::eng;
+    using namespace shunya::core::base;
+    using namespace shunya::core::domain;
+
+    // 1. Setup Material Registry with Copper (Conductor) and PTFE (Insulator)
+    MaterialRegistry reg;
+
+    Material cu(Uuid::generate_random(), "Copper_Conductor", MaterialPhysicalState::Solid, 8960.0);
+    ElectricalProperties cu_ep;
+    cu_ep.electrical_conductivity = 5.96e7;   // 5.96e7 S/m
+    cu_ep.electrical_resistivity = 1.68e-8;   // 1.68e-8 Ohm*m
+    cu.set_electrical(cu_ep);
+    REQUIRE(reg.register_material(cu).is_ok());
+
+    Material ptfe(Uuid::generate_random(), "PTFE_Insulator", MaterialPhysicalState::Solid, 2200.0);
+    ElectricalProperties ptfe_ep;
+    ptfe_ep.electrical_conductivity = 1.0e-15; // 1e-15 S/m (pure insulator)
+    ptfe_ep.electrical_resistivity = 1.0e15;   // 1e15 Ohm*m
+    ptfe_ep.dielectric_breakdown_strength = 60.0e6; // 60 MV/m
+    ptfe.set_electrical(ptfe_ep);
+    REQUIRE(reg.register_material(ptfe).is_ok());
+
+    // 2. Geometry: Test Conductor Bar (L = 0.5 m, cross-section = 0.01m x 0.002m = 2e-5 m^2)
+    PhysicalObjectManager obj_mgr;
+
+    PhysicalObject cu_bar;
+    cu_bar.name = "Copper_Busbar_Bar";
+    cu_bar.geometry.kind = ObjectShapeKind::Box;
+    cu_bar.geometry.dim_x_m = 0.5;   // Length
+    cu_bar.geometry.dim_y_m = 0.01;  // Width
+    cu_bar.geometry.dim_z_m = 0.002; // Thickness
+    cu_bar.regions = {{"whole", "Cu", cu.id(), 1.0, 0.0, true}};
+    auto cu_obj_id = obj_mgr.add_object(cu_bar, reg).value();
+
+    PhysicalObject ptfe_bar = cu_bar;
+    ptfe_bar.id = Uuid::generate_random();
+    ptfe_bar.name = "PTFE_Insulator_Bar";
+    ptfe_bar.regions = {{"whole", "PTFE", ptfe.id(), 1.0, 0.0, false}};
+    auto ptfe_obj_id = obj_mgr.add_object(ptfe_bar, reg).value();
+
+    // 3. Evaluate Physical Object Electrical Parameters
+    const auto* cu_eval = obj_mgr.get_object(cu_obj_id);
+    REQUIRE(cu_eval != nullptr);
+    CHECK(cu_eval->computed.has_conductive_path);
+    // R = rho * L / A = 1.68e-8 * 0.5 / 2e-5 = 4.2e-4 Ohm (0.42 mOhm)
+    CHECK(std::abs(cu_eval->computed.axial_electrical_resistance_ohm - 4.2e-4) < 1e-6);
+
+    const auto* ptfe_eval = obj_mgr.get_object(ptfe_obj_id);
+    REQUIRE(ptfe_eval != nullptr);
+    CHECK_FALSE(ptfe_eval->computed.has_conductive_path);
+    // Insulator resistance should be astronomically high (> 1e9 Ohm)
+    CHECK(ptfe_eval->computed.axial_electrical_resistance_ohm >= 1e9);
+
+    // 4. Component Generation & Wire Qualification
+    ComponentTypeConfig cfg;
+    cfg.conductor_length_m = 0.5;
+    std::vector<ComponentTerminal> terms = {
+        {"A", ElectricalPinPolarity::PassiveBiDirectional, {-0.25, 0.0, 0.0}, "whole"},
+        {"B", ElectricalPinPolarity::PassiveBiDirectional, {0.25, 0.0, 0.0}, "whole"}
+    };
+
+    auto cu_comp = ComponentGenerator::generate(
+        "Cu_Wire_Component", *cu_eval, ComponentKind::ConductorWire, cfg, terms, reg);
+    REQUIRE(cu_comp.is_ok());
+    CHECK(cu_comp.value().derived.is_qualified);
+    CHECK(std::abs(cu_comp.value().derived.primary_value - 4.2e-4) < 1e-6);
+
+    auto ptfe_comp = ComponentGenerator::generate(
+        "PTFE_Wire_Component", *ptfe_eval, ComponentKind::ConductorWire, cfg, terms, reg);
+    // Insulating material strictly fails wire qualification and rejects component creation
+    CHECK(ptfe_comp.is_err());
+
+    // 5. Ohm's Law Current Flow Verification
+    // Given applied voltage V = 12.0 V:
+    const double applied_voltage = 12.0;
+    // For Copper conductor: I = V / R
+    const double i_cu = applied_voltage / cu_eval->computed.axial_electrical_resistance_ohm;
+    CHECK(i_cu > 20000.0); // Conductor permits massive electrical current flow (~28,571 A)
+
+    // With 10 Ohm series load: I_circuit = V / (R_wire + R_load)
+    const double r_load = 10.0;
+    const double i_circuit = applied_voltage / (cu_eval->computed.axial_electrical_resistance_ohm + r_load);
+    CHECK(std::abs(i_circuit - 1.19995) < 0.001);
+
+    // For PTFE insulator: I = V / R_insulator
+    const double i_ptfe = applied_voltage / ptfe_eval->computed.axial_electrical_resistance_ohm;
+    CHECK(i_ptfe < 1.0e-8); // Current flow is strictly prevented (< 0.01 microamps)
+
+    // 6. Interactive Circuit Open-Circuit Isolation Verification
+    InteractiveCircuitDocument circuit("Insulator_Ohm_Verification");
+    PlacedCircuitComponent vsrc;
+    vsrc.id = "V1";
+    vsrc.kind = CircuitSymbolKind::VoltageSourceDC;
+    vsrc.primary_value = 12.0;
+    circuit.add_component(vsrc);
+
+    PlacedCircuitComponent resistor;
+    resistor.id = "R1";
+    resistor.kind = CircuitSymbolKind::Resistor;
+    resistor.primary_value = 100.0;
+    circuit.add_component(resistor);
+
+    PlacedCircuitComponent gnd;
+    gnd.id = "G1";
+    gnd.kind = CircuitSymbolKind::Ground;
+    circuit.add_component(gnd);
+
+    // Without complete conductive loop (disconnected/open wire), circuit simulator reports open loop
+    circuit.resolve_connectivity();
+    auto circuit_issues = circuit.validate();
+    CHECK_FALSE(circuit_issues.empty()); // Open circuit detected, preventing current flow
+}
+
 
 
 
