@@ -29,16 +29,57 @@ struct RhiSwapchainConfig {
     bool enable_depth{true};
 };
 
+struct RhiInstanceData {
+    core::base::math::Matrix4x4<double> transform{core::base::math::Matrix4x4<double>::identity()};
+    std::array<double, 4> color_tint{1.0, 1.0, 1.0, 1.0};
+};
+
 struct RhiDrawItem {
     const SolidMesh3D* mesh{nullptr};
     core::base::math::Matrix4x4<double> model_matrix{core::base::math::Matrix4x4<double>::identity()};
     std::array<double, 4> base_color{0.75, 0.78, 0.85, 1.0};
     double roughness{0.4};
     double metallic{0.0};
+    std::vector<RhiInstanceData> instances{};
+};
+
+struct RhiInstancedBatch {
+    const SolidMesh3D* mesh{nullptr};
+    std::vector<RhiInstanceData> instances{};
+    std::array<double, 4> base_color{0.75, 0.78, 0.85, 1.0};
+    double roughness{0.4};
+    double metallic{0.0};
+
+    [[nodiscard]] size_t size() const noexcept { return instances.size(); }
+    [[nodiscard]] bool empty() const noexcept { return instances.empty(); }
+
+    void add_instance(const core::base::math::Matrix4x4<double>& transform,
+                      const std::array<double, 4>& color_tint = {1.0, 1.0, 1.0, 1.0}) {
+        instances.push_back({transform, color_tint});
+    }
+
+    void reserve(size_t n) {
+        instances.reserve(n);
+    }
+
+    void clear() noexcept {
+        instances.clear();
+    }
+
+    [[nodiscard]] RhiDrawItem build() const {
+        RhiDrawItem item;
+        item.mesh = mesh;
+        item.base_color = base_color;
+        item.roughness = roughness;
+        item.metallic = metallic;
+        item.instances = instances;
+        return item;
+    }
 };
 
 struct RhiFrameMetrics {
     uint32_t draw_calls{0};
+    uint32_t instances_rendered{0};
     uint32_t triangles_submitted{0};
     uint32_t pixels_shaded{0};
     uint32_t pso_binds{0};

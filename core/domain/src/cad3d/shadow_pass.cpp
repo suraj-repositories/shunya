@@ -144,43 +144,51 @@ void ShadowPass::render_shadow_maps(
 
         for (const auto& item : casters) {
             if (!item.mesh || item.mesh->triangles.empty()) continue;
-            const Mat4 mvp = vp * item.model_matrix;
+            const bool has_instances = !item.instances.empty();
+            const size_t num_instances = has_instances ? item.instances.size() : 1;
 
-            for (const auto& tri : item.mesh->triangles) {
-                const auto p0 = mvp.transform_point(item.mesh->vertices[tri[0]]);
-                const auto p1 = mvp.transform_point(item.mesh->vertices[tri[1]]);
-                const auto p2 = mvp.transform_point(item.mesh->vertices[tri[2]]);
+            for (size_t inst_idx = 0; inst_idx < num_instances; ++inst_idx) {
+                const auto model = has_instances
+                    ? (item.model_matrix * item.instances[inst_idx].transform)
+                    : item.model_matrix;
+                const Mat4 mvp = vp * model;
 
-                const double sx0 = (p0.x * 0.5 + 0.5) * res;
-                const double sy0 = (0.5 - p0.y * 0.5) * res;
-                const double sz0 = p0.z * 0.5 + 0.5;
-                const double sx1 = (p1.x * 0.5 + 0.5) * res;
-                const double sy1 = (0.5 - p1.y * 0.5) * res;
-                const double sz1 = p1.z * 0.5 + 0.5;
-                const double sx2 = (p2.x * 0.5 + 0.5) * res;
-                const double sy2 = (0.5 - p2.y * 0.5) * res;
-                const double sz2 = p2.z * 0.5 + 0.5;
+                for (const auto& tri : item.mesh->triangles) {
+                    const auto p0 = mvp.transform_point(item.mesh->vertices[tri[0]]);
+                    const auto p1 = mvp.transform_point(item.mesh->vertices[tri[1]]);
+                    const auto p2 = mvp.transform_point(item.mesh->vertices[tri[2]]);
 
-                const double area2 = (sx1 - sx0) * (sy2 - sy0) - (sy1 - sy0) * (sx2 - sx0);
-                if (std::abs(area2) <= 1e-9) continue;
+                    const double sx0 = (p0.x * 0.5 + 0.5) * res;
+                    const double sy0 = (0.5 - p0.y * 0.5) * res;
+                    const double sz0 = p0.z * 0.5 + 0.5;
+                    const double sx1 = (p1.x * 0.5 + 0.5) * res;
+                    const double sy1 = (0.5 - p1.y * 0.5) * res;
+                    const double sz1 = p1.z * 0.5 + 0.5;
+                    const double sx2 = (p2.x * 0.5 + 0.5) * res;
+                    const double sy2 = (0.5 - p2.y * 0.5) * res;
+                    const double sz2 = p2.z * 0.5 + 0.5;
 
-                const int min_x = std::max(0, static_cast<int>(std::floor(std::min({sx0, sx1, sx2}))));
-                const int max_x = std::min(static_cast<int>(res) - 1, static_cast<int>(std::ceil(std::max({sx0, sx1, sx2}))));
-                const int min_y = std::max(0, static_cast<int>(std::floor(std::min({sy0, sy1, sy2}))));
-                const int max_y = std::min(static_cast<int>(res) - 1, static_cast<int>(std::ceil(std::max({sy0, sy1, sy2}))));
+                    const double area2 = (sx1 - sx0) * (sy2 - sy0) - (sy1 - sy0) * (sx2 - sx0);
+                    if (std::abs(area2) <= 1e-9) continue;
 
-                for (int py = min_y; py <= max_y; ++py) {
-                    for (int px = min_x; px <= max_x; ++px) {
-                        const double x = static_cast<double>(px) + 0.5;
-                        const double y = static_cast<double>(py) + 0.5;
-                        const double w0 = ((sx1 - sx2) * (y - sy2) - (sy1 - sy2) * (x - sx2)) / (-area2);
-                        const double w1 = ((sx2 - sx0) * (y - sy0) - (sy2 - sy0) * (x - sx0)) / (-area2);
-                        const double w2 = 1.0 - w0 - w1;
-                        if (w0 < -1e-6 || w1 < -1e-6 || w2 < -1e-6) continue;
-                        const double z = w0 * sz0 + w1 * sz1 + w2 * sz2;
-                        if (z < 0.0 || z > 1.0) continue;
-                        const size_t idx = static_cast<size_t>(py) * res + static_cast<size_t>(px);
-                        if (z < dbuf[idx]) dbuf[idx] = z;
+                    const int min_x = std::max(0, static_cast<int>(std::floor(std::min({sx0, sx1, sx2}))));
+                    const int max_x = std::min(static_cast<int>(res) - 1, static_cast<int>(std::ceil(std::max({sx0, sx1, sx2}))));
+                    const int min_y = std::max(0, static_cast<int>(std::floor(std::min({sy0, sy1, sy2}))));
+                    const int max_y = std::min(static_cast<int>(res) - 1, static_cast<int>(std::ceil(std::max({sy0, sy1, sy2}))));
+
+                    for (int py = min_y; py <= max_y; ++py) {
+                        for (int px = min_x; px <= max_x; ++px) {
+                            const double x = static_cast<double>(px) + 0.5;
+                            const double y = static_cast<double>(py) + 0.5;
+                            const double w0 = ((sx1 - sx2) * (y - sy2) - (sy1 - sy2) * (x - sx2)) / (-area2);
+                            const double w1 = ((sx2 - sx0) * (y - sy0) - (sy2 - sy0) * (x - sx0)) / (-area2);
+                            const double w2 = 1.0 - w0 - w1;
+                            if (w0 < -1e-6 || w1 < -1e-6 || w2 < -1e-6) continue;
+                            const double z = w0 * sz0 + w1 * sz1 + w2 * sz2;
+                            if (z < 0.0 || z > 1.0) continue;
+                            const size_t idx = static_cast<size_t>(py) * res + static_cast<size_t>(px);
+                            if (z < dbuf[idx]) dbuf[idx] = z;
+                        }
                     }
                 }
             }

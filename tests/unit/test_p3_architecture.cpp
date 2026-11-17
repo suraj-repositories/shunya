@@ -1599,3 +1599,87 @@ TEST_CASE("PH4-02.03.001: Qt Quick RHI Viewport Hardware Rendering Pipeline") {
     CHECK(vk_engine.frame_metrics().pixels_shaded == d3d12_engine.frame_metrics().pixels_shaded);
     CHECK(vk_engine.framebuffer().quantized_checksum() == d3d12_engine.framebuffer().quantized_checksum());
 }
+
+TEST_CASE("PH4-02.03.002: GPU Instanced Rendering for Repetitive Pins and Fasteners") {
+    using namespace shunya::cad3d;
+    using shunya::core::base::math::Matrix4x4;
+
+    // 1. Create a base pin/fastener mesh (12 triangles)
+    SolidMesh3D pin_mesh;
+    pin_mesh.vertices = {
+        {-0.1, -0.5, -0.1}, {0.1, -0.5, -0.1}, {0.1, 0.5, -0.1}, {-0.1, 0.5, -0.1},
+        {-0.1, -0.5,  0.1}, {0.1, -0.5,  0.1}, {0.1, 0.5,  0.1}, {-0.1, 0.5,  0.1}
+    };
+    pin_mesh.triangles = {
+        {0, 2, 1}, {0, 3, 2}, {4, 5, 6}, {4, 6, 7},
+        {0, 1, 5}, {0, 5, 4}, {2, 3, 7}, {2, 7, 6},
+        {0, 4, 7}, {0, 7, 3}, {1, 2, 6}, {1, 6, 5}
+    };
+
+    // 2. Build instanced batch representing a 64-pin IC package (8x8 pin grid)
+    RhiInstancedBatch ic_pins_batch;
+    ic_pins_batch.mesh = &pin_mesh;
+    ic_pins_batch.base_color = {0.95, 0.85, 0.2, 1.0}; // Gold plated pins
+    ic_pins_batch.reserve(64);
+
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            const double x = (c - 3.5) * 0.4;
+            const double z = (r - 3.5) * 0.4;
+            ic_pins_batch.add_instance(Matrix4x4<double>::translation({x, 0.0, z}));
+        }
+    }
+    CHECK(ic_pins_batch.size() == 64);
+
+    // 3. Build instanced batch representing 4 corner mounting bolts
+    RhiInstancedBatch bolts_batch;
+    bolts_batch.mesh = &pin_mesh;
+    bolts_batch.base_color = {0.7, 0.72, 0.75, 1.0}; // Steel bolts
+    bolts_batch.add_instance(Matrix4x4<double>::translation({-2.0, 0.2, -2.0}));
+    bolts_batch.add_instance(Matrix4x4<double>::translation({ 2.0, 0.2, -2.0}));
+    bolts_batch.add_instance(Matrix4x4<double>::translation({-2.0, 0.2,  2.0}));
+    bolts_batch.add_instance(Matrix4x4<double>::translation({ 2.0, 0.2,  2.0}));
+    CHECK(bolts_batch.size() == 4);
+
+    ViewportCamera cam;
+    cam.position = {0.0, 6.0, 6.0};
+    cam.target = {0.0, 0.0, 0.0};
+    cam.aspect_ratio = 4.0 / 3.0;
+    cam.fov_degrees = 50.0;
+
+    // Single IC pin batch render test
+    RhiRendererEngine vk_engine;
+    REQUIRE(vk_engine.initialize({RhiBackendApi::Vulkan, 320, 240, true}));
+    vk_engine.begin_frame();
+    vk_engine.render_scene(cam, {ic_pins_batch.build()});
+    vk_engine.end_frame();
+
+    // Verify GPU instancing metric guarantees: exactly 1 draw call for all 64 pins!
+    CHECK(vk_engine.frame_metrics().draw_calls == 1);
+    CHECK(vk_engine.frame_metrics().instances_rendered == 64);
+    CHECK(vk_engine.frame_metrics().triangles_submitted == 64 * 12);
+    CHECK(vk_engine.frame_metrics().pixels_shaded > 0);
+
+    // Combined multi-batch render test (IC pins + bolts)
+    vk_engine.begin_frame();
+    vk_engine.render_scene(cam, {ic_pins_batch.build(), bolts_batch.build()});
+    vk_engine.end_frame();
+
+    // Exactly 2 draw calls for 68 distinct 3D parts
+    CHECK(vk_engine.frame_metrics().draw_calls == 2);
+    CHECK(vk_engine.frame_metrics().instances_rendered == 68);
+    CHECK(vk_engine.frame_metrics().triangles_submitted == 68 * 12);
+    CHECK(vk_engine.frame_metrics().pixels_shaded > 0);
+
+    // Backend parity verification with Direct3D12
+    RhiRendererEngine d3d12_engine;
+    REQUIRE(d3d12_engine.initialize({RhiBackendApi::Direct3D12, 320, 240, true}));
+    d3d12_engine.begin_frame();
+    d3d12_engine.render_scene(cam, {ic_pins_batch.build(), bolts_batch.build()});
+    d3d12_engine.end_frame();
+
+    CHECK(d3d12_engine.frame_metrics().draw_calls == 2);
+    CHECK(d3d12_engine.frame_metrics().instances_rendered == 68);
+    CHECK(d3d12_engine.frame_metrics().pixels_shaded == vk_engine.frame_metrics().pixels_shaded);
+    CHECK(d3d12_engine.framebuffer().quantized_checksum() == vk_engine.framebuffer().quantized_checksum());
+}

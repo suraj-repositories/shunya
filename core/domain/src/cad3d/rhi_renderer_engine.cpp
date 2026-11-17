@@ -175,83 +175,103 @@ void RhiRendererEngine::render_scene(
     for (const auto& item : draw_items) {
         if (!item.mesh || item.mesh->triangles.empty()) continue;
         ++metrics_.draw_calls;
-        const auto mvp = vp * item.model_matrix;
 
-        for (size_t ti = 0; ti < item.mesh->triangles.size(); ++ti) {
-            const auto& tri = item.mesh->triangles[ti];
-            ++metrics_.triangles_submitted;
+        const bool has_instances = !item.instances.empty();
+        const size_t num_instances = has_instances ? item.instances.size() : 1;
+        metrics_.instances_rendered += static_cast<uint32_t>(num_instances);
 
-            const Point3D wp0 = transform_pos(item.model_matrix, item.mesh->vertices[tri[0]]);
-            const Point3D wp1 = transform_pos(item.model_matrix, item.mesh->vertices[tri[1]]);
-            const Point3D wp2 = transform_pos(item.model_matrix, item.mesh->vertices[tri[2]]);
-            const Vec3d world_n = transform_dir(item.model_matrix, (wp1 - wp0).cross(wp2 - wp0));
-            const Vec3d raw_n = (wp1 - wp0).cross(wp2 - wp0).normalized();
-
-            const ClipVert c0 = transform_point(mvp, item.mesh->vertices[tri[0]]);
-            const ClipVert c1 = transform_point(mvp, item.mesh->vertices[tri[1]]);
-            const ClipVert c2 = transform_point(mvp, item.mesh->vertices[tri[2]]);
-            if (c0.w <= 1e-5 || c1.w <= 1e-5 || c2.w <= 1e-5) continue;
-
-            // NDC [-1, 1] -> Screen [0, w] x [0, h]
-            const auto to_screen = [&](const ClipVert& c) -> std::array<double, 3> {
-                const double nx = c.x / c.w;
-                const double ny = c.y / c.w;
-                const double nz = c.z / c.w;
-                return {
-                    (nx * 0.5 + 0.5) * static_cast<double>(w),
-                    (0.5 - ny * 0.5) * static_cast<double>(h),
-                    nz * 0.5 + 0.5
-                };
+        for (size_t inst_idx = 0; inst_idx < num_instances; ++inst_idx) {
+            const auto model = has_instances
+                ? (item.model_matrix * item.instances[inst_idx].transform)
+                : item.model_matrix;
+            const auto tint = has_instances
+                ? item.instances[inst_idx].color_tint
+                : std::array<double, 4>{1.0, 1.0, 1.0, 1.0};
+            const std::array<double, 4> eff_color = {
+                std::clamp(item.base_color[0] * tint[0], 0.0, 1.0),
+                std::clamp(item.base_color[1] * tint[1], 0.0, 1.0),
+                std::clamp(item.base_color[2] * tint[2], 0.0, 1.0),
+                std::clamp(item.base_color[3] * tint[3], 0.0, 1.0)
             };
-            auto s0 = to_screen(c0);
-            auto s1 = to_screen(c1);
-            auto s2 = to_screen(c2);
 
-            double signed_area2 = (s1[0] - s0[0]) * (s2[1] - s0[1]) - (s1[1] - s0[1]) * (s2[0] - s0[0]);
-            if (pso.cull_mode == RhiCullMode::Back && signed_area2 >= 0.0) {
-                continue;
-            }
-            if (pso.cull_mode == RhiCullMode::Front && signed_area2 <= 0.0) {
-                continue;
-            }
-            if (signed_area2 > 0.0) {
-                std::swap(s1, s2);
-                signed_area2 = -signed_area2;
-            }
-            if (std::abs(signed_area2) <= 1e-9) continue;
+            const auto mvp = vp * model;
 
-            const int min_x = std::max(0, static_cast<int>(std::floor(std::min({s0[0], s1[0], s2[0]}))));
-            const int max_x = std::min(static_cast<int>(w) - 1, static_cast<int>(std::ceil(std::max({s0[0], s1[0], s2[0]}))));
-            const int min_y = std::max(0, static_cast<int>(std::floor(std::min({s0[1], s1[1], s2[1]}))));
-            const int max_y = std::min(static_cast<int>(h) - 1, static_cast<int>(std::ceil(std::max({s0[1], s1[1], s2[1]}))));
+            for (size_t ti = 0; ti < item.mesh->triangles.size(); ++ti) {
+                const auto& tri = item.mesh->triangles[ti];
+                ++metrics_.triangles_submitted;
 
-            const double n_dot_l = std::max(0.0, raw_n.dot(ldir));
-            const double shade = 0.2 + 0.8 * n_dot_l;
-            (void)world_n;
+                const Point3D wp0 = transform_pos(model, item.mesh->vertices[tri[0]]);
+                const Point3D wp1 = transform_pos(model, item.mesh->vertices[tri[1]]);
+                const Point3D wp2 = transform_pos(model, item.mesh->vertices[tri[2]]);
+                const Vec3d world_n = transform_dir(model, (wp1 - wp0).cross(wp2 - wp0));
+                const Vec3d raw_n = (wp1 - wp0).cross(wp2 - wp0).normalized();
 
-            for (int py = min_y; py <= max_y; ++py) {
-                for (int px = min_x; px <= max_x; ++px) {
-                    const double x = static_cast<double>(px) + 0.5;
-                    const double y = static_cast<double>(py) + 0.5;
-                    const double w0 = ((s1[0] - s2[0]) * (y - s2[1]) - (s1[1] - s2[1]) * (x - s2[0])) / (-signed_area2);
-                    const double w1 = ((s2[0] - s0[0]) * (y - s0[1]) - (s2[1] - s0[1]) * (x - s0[0])) / (-signed_area2);
-                    const double w2 = 1.0 - w0 - w1;
-                    if (w0 < -1e-6 || w1 < -1e-6 || w2 < -1e-6) continue;
+                const ClipVert c0 = transform_point(mvp, item.mesh->vertices[tri[0]]);
+                const ClipVert c1 = transform_point(mvp, item.mesh->vertices[tri[1]]);
+                const ClipVert c2 = transform_point(mvp, item.mesh->vertices[tri[2]]);
+                if (c0.w <= 1e-5 || c1.w <= 1e-5 || c2.w <= 1e-5) continue;
 
-                    const double z = w0 * s0[2] + w1 * s1[2] + w2 * s2[2];
-                    if (z < 0.0 || z > 1.0) continue;
-
-                    const size_t idx = static_cast<size_t>(py) * w + static_cast<size_t>(px);
-                    if (pso.depth_test && z >= framebuffer_.depth[idx]) continue;
-                    if (pso.depth_write) framebuffer_.depth[idx] = z;
-
-                    framebuffer_.color_rgba[idx] = {
-                        std::clamp(item.base_color[0] * shade, 0.0, 1.0),
-                        std::clamp(item.base_color[1] * shade, 0.0, 1.0),
-                        std::clamp(item.base_color[2] * shade, 0.0, 1.0),
-                        item.base_color[3]
+                // NDC [-1, 1] -> Screen [0, w] x [0, h]
+                const auto to_screen = [&](const ClipVert& c) -> std::array<double, 3> {
+                    const double nx = c.x / c.w;
+                    const double ny = c.y / c.w;
+                    const double nz = c.z / c.w;
+                    return {
+                        (nx * 0.5 + 0.5) * static_cast<double>(w),
+                        (0.5 - ny * 0.5) * static_cast<double>(h),
+                        nz * 0.5 + 0.5
                     };
-                    ++metrics_.pixels_shaded;
+                };
+                auto s0 = to_screen(c0);
+                auto s1 = to_screen(c1);
+                auto s2 = to_screen(c2);
+
+                double signed_area2 = (s1[0] - s0[0]) * (s2[1] - s0[1]) - (s1[1] - s0[1]) * (s2[0] - s0[0]);
+                if (pso.cull_mode == RhiCullMode::Back && signed_area2 >= 0.0) {
+                    continue;
+                }
+                if (pso.cull_mode == RhiCullMode::Front && signed_area2 <= 0.0) {
+                    continue;
+                }
+                if (signed_area2 > 0.0) {
+                    std::swap(s1, s2);
+                    signed_area2 = -signed_area2;
+                }
+                if (std::abs(signed_area2) <= 1e-9) continue;
+
+                const int min_x = std::max(0, static_cast<int>(std::floor(std::min({s0[0], s1[0], s2[0]}))));
+                const int max_x = std::min(static_cast<int>(w) - 1, static_cast<int>(std::ceil(std::max({s0[0], s1[0], s2[0]}))));
+                const int min_y = std::max(0, static_cast<int>(std::floor(std::min({s0[1], s1[1], s2[1]}))));
+                const int max_y = std::min(static_cast<int>(h) - 1, static_cast<int>(std::ceil(std::max({s0[1], s1[1], s2[1]}))));
+
+                const double n_dot_l = std::max(0.0, raw_n.dot(ldir));
+                const double shade = 0.2 + 0.8 * n_dot_l;
+                (void)world_n;
+
+                for (int py = min_y; py <= max_y; ++py) {
+                    for (int px = min_x; px <= max_x; ++px) {
+                        const double x = static_cast<double>(px) + 0.5;
+                        const double y = static_cast<double>(py) + 0.5;
+                        const double w0 = ((s1[0] - s2[0]) * (y - s2[1]) - (s1[1] - s2[1]) * (x - s2[0])) / (-signed_area2);
+                        const double w1 = ((s2[0] - s0[0]) * (y - s0[1]) - (s2[1] - s0[1]) * (x - s0[0])) / (-signed_area2);
+                        const double w2 = 1.0 - w0 - w1;
+                        if (w0 < -1e-6 || w1 < -1e-6 || w2 < -1e-6) continue;
+
+                        const double z = w0 * s0[2] + w1 * s1[2] + w2 * s2[2];
+                        if (z < 0.0 || z > 1.0) continue;
+
+                        const size_t idx = static_cast<size_t>(py) * w + static_cast<size_t>(px);
+                        if (pso.depth_test && z >= framebuffer_.depth[idx]) continue;
+                        if (pso.depth_write) framebuffer_.depth[idx] = z;
+
+                        framebuffer_.color_rgba[idx] = {
+                            std::clamp(eff_color[0] * shade, 0.0, 1.0),
+                            std::clamp(eff_color[1] * shade, 0.0, 1.0),
+                            std::clamp(eff_color[2] * shade, 0.0, 1.0),
+                            eff_color[3]
+                        };
+                        ++metrics_.pixels_shaded;
+                    }
                 }
             }
         }

@@ -53,56 +53,73 @@ void WboitPass::accumulate(
 
     for (const auto& item : transparent_items) {
         if (!item.mesh || item.mesh->triangles.empty()) continue;
-        const double alpha = std::clamp(item.base_color[3], 0.0, 1.0);
-        if (alpha <= 1e-6) continue;
+        const bool has_instances = !item.instances.empty();
+        const size_t num_instances = has_instances ? item.instances.size() : 1;
 
-        const auto mvp = vp * item.model_matrix;
-        for (const auto& tri : item.mesh->triangles) {
-            const ClipV c0 = xform_clip(mvp, item.mesh->vertices[tri[0]]);
-            const ClipV c1 = xform_clip(mvp, item.mesh->vertices[tri[1]]);
-            const ClipV c2 = xform_clip(mvp, item.mesh->vertices[tri[2]]);
-            if (c0.w <= 1e-5 || c1.w <= 1e-5 || c2.w <= 1e-5) continue;
+        for (size_t inst_idx = 0; inst_idx < num_instances; ++inst_idx) {
+            const auto model = has_instances
+                ? (item.model_matrix * item.instances[inst_idx].transform)
+                : item.model_matrix;
+            const auto tint = has_instances
+                ? item.instances[inst_idx].color_tint
+                : std::array<double, 4>{1.0, 1.0, 1.0, 1.0};
+            const double alpha = std::clamp(item.base_color[3] * tint[3], 0.0, 1.0);
+            if (alpha <= 1e-6) continue;
 
-            const auto to_s = [&](const ClipV& c) -> std::array<double, 3> {
-                return {
-                    ((c.x / c.w) * 0.5 + 0.5) * width_,
-                    (0.5 - (c.y / c.w) * 0.5) * height_,
-                    (c.z / c.w) * 0.5 + 0.5
-                };
+            const std::array<double, 3> eff_rgb = {
+                std::clamp(item.base_color[0] * tint[0], 0.0, 1.0),
+                std::clamp(item.base_color[1] * tint[1], 0.0, 1.0),
+                std::clamp(item.base_color[2] * tint[2], 0.0, 1.0)
             };
-            const auto s0 = to_s(c0);
-            const auto s1 = to_s(c1);
-            const auto s2 = to_s(c2);
 
-            const double signed_area2 = (s1[0] - s0[0]) * (s2[1] - s0[1]) - (s1[1] - s0[1]) * (s2[0] - s0[0]);
-            if (signed_area2 >= -1e-9) continue; // front-face only
+            const auto mvp = vp * model;
+            for (const auto& tri : item.mesh->triangles) {
+                const ClipV c0 = xform_clip(mvp, item.mesh->vertices[tri[0]]);
+                const ClipV c1 = xform_clip(mvp, item.mesh->vertices[tri[1]]);
+                const ClipV c2 = xform_clip(mvp, item.mesh->vertices[tri[2]]);
+                if (c0.w <= 1e-5 || c1.w <= 1e-5 || c2.w <= 1e-5) continue;
 
-            const int min_x = std::max(0, static_cast<int>(std::floor(std::min({s0[0], s1[0], s2[0]}))));
-            const int max_x = std::min(static_cast<int>(width_) - 1, static_cast<int>(std::ceil(std::max({s0[0], s1[0], s2[0]}))));
-            const int min_y = std::max(0, static_cast<int>(std::floor(std::min({s0[1], s1[1], s2[1]}))));
-            const int max_y = std::min(static_cast<int>(height_) - 1, static_cast<int>(std::ceil(std::max({s0[1], s1[1], s2[1]}))));
+                const auto to_s = [&](const ClipV& c) -> std::array<double, 3> {
+                    return {
+                        ((c.x / c.w) * 0.5 + 0.5) * width_,
+                        (0.5 - (c.y / c.w) * 0.5) * height_,
+                        (c.z / c.w) * 0.5 + 0.5
+                    };
+                };
+                const auto s0 = to_s(c0);
+                const auto s1 = to_s(c1);
+                const auto s2 = to_s(c2);
 
-            for (int py = min_y; py <= max_y; ++py) {
-                for (int px = min_x; px <= max_x; ++px) {
-                    const double x = static_cast<double>(px) + 0.5;
-                    const double y = static_cast<double>(py) + 0.5;
-                    const double w0 = ((s1[0] - s2[0]) * (y - s2[1]) - (s1[1] - s2[1]) * (x - s2[0])) / (-signed_area2);
-                    const double w1 = ((s2[0] - s0[0]) * (y - s0[1]) - (s2[1] - s0[1]) * (x - s0[0])) / (-signed_area2);
-                    const double w2 = 1.0 - w0 - w1;
-                    if (w0 < -1e-6 || w1 < -1e-6 || w2 < -1e-6) continue;
+                const double signed_area2 = (s1[0] - s0[0]) * (s2[1] - s0[1]) - (s1[1] - s0[1]) * (s2[0] - s0[0]);
+                if (signed_area2 >= -1e-9) continue; // front-face only
 
-                    const double z = w0 * s0[2] + w1 * s1[2] + w2 * s2[2];
-                    if (z < 0.0 || z > 1.0) continue;
+                const int min_x = std::max(0, static_cast<int>(std::floor(std::min({s0[0], s1[0], s2[0]}))));
+                const int max_x = std::min(static_cast<int>(width_) - 1, static_cast<int>(std::ceil(std::max({s0[0], s1[0], s2[0]}))));
+                const int min_y = std::max(0, static_cast<int>(std::floor(std::min({s0[1], s1[1], s2[1]}))));
+                const int max_y = std::min(static_cast<int>(height_) - 1, static_cast<int>(std::ceil(std::max({s0[1], s1[1], s2[1]}))));
 
-                    const size_t idx = static_cast<size_t>(py) * width_ + static_cast<size_t>(px);
-                    if (has_depth && z >= opaque_depth[idx]) continue;
+                for (int py = min_y; py <= max_y; ++py) {
+                    for (int px = min_x; px <= max_x; ++px) {
+                        const double x = static_cast<double>(px) + 0.5;
+                        const double y = static_cast<double>(py) + 0.5;
+                        const double w0 = ((s1[0] - s2[0]) * (y - s2[1]) - (s1[1] - s2[1]) * (x - s2[0])) / (-signed_area2);
+                        const double w1 = ((s2[0] - s0[0]) * (y - s0[1]) - (s2[1] - s0[1]) * (x - s0[0])) / (-signed_area2);
+                        const double w2 = 1.0 - w0 - w1;
+                        if (w0 < -1e-6 || w1 < -1e-6 || w2 < -1e-6) continue;
 
-                    const double wt = wboit_weight(z, alpha);
-                    accum_[idx][0] += item.base_color[0] * alpha * wt;
-                    accum_[idx][1] += item.base_color[1] * alpha * wt;
-                    accum_[idx][2] += item.base_color[2] * alpha * wt;
-                    accum_[idx][3] += alpha * wt;
-                    revealage_[idx] *= (1.0 - alpha);
+                        const double z = w0 * s0[2] + w1 * s1[2] + w2 * s2[2];
+                        if (z < 0.0 || z > 1.0) continue;
+
+                        const size_t idx = static_cast<size_t>(py) * width_ + static_cast<size_t>(px);
+                        if (has_depth && z >= opaque_depth[idx]) continue;
+
+                        const double wt = wboit_weight(z, alpha);
+                        accum_[idx][0] += eff_rgb[0] * alpha * wt;
+                        accum_[idx][1] += eff_rgb[1] * alpha * wt;
+                        accum_[idx][2] += eff_rgb[2] * alpha * wt;
+                        accum_[idx][3] += alpha * wt;
+                        revealage_[idx] *= (1.0 - alpha);
+                    }
                 }
             }
         }
