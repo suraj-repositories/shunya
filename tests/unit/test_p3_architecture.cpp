@@ -32,6 +32,7 @@
 #include "shunya/mat/hume_rothery.hpp"
 #include "shunya/mat/solution_solubility_engine.hpp"
 #include "shunya/mat/directional_layup_engine.hpp"
+#include "shunya/mat/property_models/chemical_property_model.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2781,4 +2782,47 @@ TEST_CASE("PH4-03.01.006: Multi-Axial Layup CLT & Orientation Tensors") {
     auto unsym_res = DirectionalLayupEngine::evaluate_laminate(unsymmetric);
     CHECK_FALSE(unsym_res.is_symmetric);
     CHECK(unsym_res.orientation_tensor[0][1] > 0.0); // Non-zero off-diagonal shear alignment
+}
+
+TEST_CASE("PH4-03.02.001: Structured Chemical Property Model") {
+    using namespace shunya::mat;
+
+    // 1. Water (H2O) stoichiometry and oxidation balance
+    ChemicalPropertyModel h2o;
+    h2o.chemical_formula = "H2O";
+    h2o.iupac_name = "Oxidane";
+    h2o.molecular_weight_g_mol = 18.015;
+    h2o.constituents = {
+        {"H", 1, 2, 0.1119, 0.6667, +1},
+        {"O", 8, 1, 0.8881, 0.3333, -2}
+    };
+    h2o.reactivity = ReactivityRating::Low;
+    h2o.corrosion_resistance = CorrosionResistanceClass::Moderate;
+
+    CHECK(h2o.net_oxidation_sum() == 0);
+    CHECK(h2o.is_chemically_balanced());
+    CHECK_FALSE(h2o.is_noble());
+
+    // 2. Gold (Au) nobility
+    ChemicalPropertyModel gold;
+    gold.chemical_formula = "Au";
+    gold.iupac_name = "Gold";
+    gold.molecular_weight_g_mol = 196.9665;
+    gold.constituents = {{"Au", 79, 1, 1.0, 1.0, 0}};
+    gold.corrosion_resistance = CorrosionResistanceClass::Immune;
+    gold.reactivity = ReactivityRating::Inert;
+
+    CHECK(gold.is_noble());
+    CHECK(gold.is_chemically_balanced());
+
+    // 3. Unbalanced radical test
+    ChemicalPropertyModel hydroxyl;
+    hydroxyl.chemical_formula = "OH";
+    hydroxyl.constituents = {
+        {"O", 8, 1, 0.94, 0.5, -2},
+        {"H", 1, 1, 0.06, 0.5, +1}
+    };
+    CHECK(hydroxyl.net_oxidation_sum() == -1);
+    CHECK_FALSE(hydroxyl.is_chemically_balanced());
+    CHECK(!h2o.to_summary_string().empty());
 }

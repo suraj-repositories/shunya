@@ -114,6 +114,7 @@ add_library(shunya_domain_mat OBJECT
     src/mat/hume_rothery.cpp
     src/mat/solution_solubility_engine.cpp
     src/mat/directional_layup_engine.cpp
+    src/mat/property_models/chemical_property_model.cpp
 )
 shunya_configure_domain_target(shunya_domain_mat)
 target_link_libraries(shunya_domain_mat PUBLIC shunya_domain_core)
