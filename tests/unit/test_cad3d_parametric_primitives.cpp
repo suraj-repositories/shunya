@@ -2,6 +2,7 @@
 
 #include "shunya/cad3d/parametric_primitives.hpp"
 #include "shunya/cad3d/mesh_selection_engine.hpp"
+#include "shunya/cad3d/mesh_transform_ops.hpp"
 #include "shunya/cad3d/solid_mesh.hpp"
 #include "shunya/core/base/math.hpp"
 
@@ -565,4 +566,63 @@ TEST_CASE("PH4-05.02.001: Discrete mesh selection modes (Vertex, Edge, Face, Obj
     REQUIRE(sel.selected_vertices.size() == cube.vertices.size());
     sel.deselect_all();
     REQUIRE(sel.empty());
+}
+
+TEST_CASE("PH4-05.02.002: Blender-style mesh transform operations: Grab (G), Rotate (R), Scale (S) with axis-locking") {
+    CubeParams cp;
+    cp.width = 2.0; cp.height = 2.0; cp.depth = 2.0; // [-1, 1]^3
+    auto cube = ParametricPrimitiveGenerator::generate_cube(cp);
+
+    MeshSelection sel;
+    sel.set_mode(MeshSelectionMode::Object);
+    sel.select_object(true);
+
+    // 1. Grab/Translate (G) with X-axis locking
+    MeshTransformOps::translate(cube, sel, Vec3d{5.0, 10.0, 15.0}, TransformAxisLock::X);
+    auto bbox_g_x = cube.compute_bbox();
+    // Only X should have moved by +5.0; Y and Z center remain 0.0
+    REQUIRE(is_close((bbox_g_x.min.x + bbox_g_x.max.x) * 0.5, 5.0));
+    REQUIRE(is_close((bbox_g_x.min.y + bbox_g_x.max.y) * 0.5, 0.0));
+    REQUIRE(is_close((bbox_g_x.min.z + bbox_g_x.max.z) * 0.5, 0.0));
+
+    // 2. Grab with PlaneXY locking (Shift+Z): only X and Y change, Z unchanged
+    MeshTransformOps::translate(cube, sel, Vec3d{2.0, 3.0, 99.0}, TransformAxisLock::PlaneXY);
+    auto bbox_g_xy = cube.compute_bbox();
+    REQUIRE(is_close((bbox_g_xy.min.x + bbox_g_xy.max.x) * 0.5, 7.0));
+    REQUIRE(is_close((bbox_g_xy.min.y + bbox_g_xy.max.y) * 0.5, 3.0));
+    REQUIRE(is_close((bbox_g_xy.min.z + bbox_g_xy.max.z) * 0.5, 0.0));
+
+    // 3. Rotate (R) around Z-axis with pivot at WorldOrigin (0, 0, 0)
+    // First reset position to origin
+    auto cube_rot = ParametricPrimitiveGenerator::generate_cube(cp);
+    MeshSelection sel_rot;
+    sel_rot.set_mode(MeshSelectionMode::Object);
+    sel_rot.select_object(true);
+
+    MeshTransformOps::rotate(cube_rot, sel_rot, 0.5 * std::numbers::pi, TransformAxisLock::Z, {0,0,1}, TransformPivot::WorldOrigin);
+    // After 90-degree Z rotation, bbox of a cube [-1, 1]^3 remains [-1, 1]^3
+    auto bbox_rot = cube_rot.compute_bbox();
+    REQUIRE(is_close(bbox_rot.size().x, 2.0));
+    REQUIRE(is_close(bbox_rot.size().y, 2.0));
+    REQUIRE(is_close(bbox_rot.size().z, 2.0));
+
+    // 4. Scale (S) with axis locking (X only)
+    auto cube_scale = ParametricPrimitiveGenerator::generate_cube(cp);
+    MeshSelection sel_scale;
+    sel_scale.set_mode(MeshSelectionMode::Object);
+    sel_scale.select_object(true);
+
+    MeshTransformOps::scale(cube_scale, sel_scale, Vec3d{3.0, 10.0, 10.0}, TransformAxisLock::X, TransformPivot::WorldOrigin);
+    auto bbox_scale_x = cube_scale.compute_bbox();
+    // X width scaled by 3.0 (from 2.0 to 6.0), Y and Z remain 2.0
+    REQUIRE(is_close(bbox_scale_x.size().x, 6.0));
+    REQUIRE(is_close(bbox_scale_x.size().y, 2.0));
+    REQUIRE(is_close(bbox_scale_x.size().z, 2.0));
+
+    // 5. Scale with PlaneXZ locking (Shift+Y): X and Z scaled by 2.0, Y unchanged
+    MeshTransformOps::scale(cube_scale, sel_scale, Vec3d{2.0, 99.0, 2.0}, TransformAxisLock::PlaneXZ, TransformPivot::WorldOrigin);
+    auto bbox_scale_xz = cube_scale.compute_bbox();
+    REQUIRE(is_close(bbox_scale_xz.size().x, 12.0)); // 6.0 * 2.0
+    REQUIRE(is_close(bbox_scale_xz.size().y, 2.0));  // Unchanged
+    REQUIRE(is_close(bbox_scale_xz.size().z, 4.0));  // 2.0 * 2.0
 }
