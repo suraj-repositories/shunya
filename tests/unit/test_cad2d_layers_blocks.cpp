@@ -5,6 +5,7 @@
 #include "shunya/cad2d/context_menu_model.hpp"
 #include "shunya/cad2d/group_manager.hpp"
 #include "shunya/cad2d/layer_manager.hpp"
+#include "shunya/cad2d/schematic_symbol_engine.hpp"
 #include "shunya/cad2d/selection_gizmo.hpp"
 #include "shunya/cad2d/sketch_commands.hpp"
 #include "shunya/core/base/math.hpp"
@@ -644,6 +645,86 @@ TEST_CASE("PH4-04.03.006: Right-click contextual menus with properties, transfor
     REQUIRE(menu_model.execute_action("action_ungroup", doc, lmgr, gmgr, gizmo));
     REQUIRE(gmgr.group_count() == 0);
 }
+
+TEST_CASE("PH4-04.04.001: Integrated electronic schematic symbol drafting with strict mechanical isolation") {
+    SketchDocument2D doc;
+    LayerManager lmgr;
+    SchematicDraftingEngine sch_engine(shunya::pcb::SymbolStandard::IEEE_US);
+
+    // Ensure schematic layers exist in layer manager
+    sch_engine.ensure_schematic_layers(lmgr);
+    REQUIRE(lmgr.find_layer(SchematicDraftingEngine::SCHEMATIC_LAYER_SYMBOLS) != nullptr);
+    REQUIRE(lmgr.find_layer(SchematicDraftingEngine::SCHEMATIC_LAYER_PINS) != nullptr);
+    REQUIRE(lmgr.find_layer(SchematicDraftingEngine::SCHEMATIC_LAYER_WIRES) != nullptr);
+
+    // 1. Create a Mechanical Solid Profile in the document (4 boundary lines forming a closed box 0,0 to 100,50)
+    const auto m1 = doc.add_entity(std::make_shared<LineSegment2D>(Point2D{0.0, 0.0}, Point2D{100.0, 0.0}), false, "0");
+    const auto m2 = doc.add_entity(std::make_shared<LineSegment2D>(Point2D{100.0, 0.0}, Point2D{100.0, 50.0}), false, "0");
+    const auto m3 = doc.add_entity(std::make_shared<LineSegment2D>(Point2D{100.0, 50.0}, Point2D{0.0, 50.0}), false, "0");
+    const auto m4 = doc.add_entity(std::make_shared<LineSegment2D>(Point2D{0.0, 50.0}, Point2D{0.0, 0.0}), false, "0");
+
+    REQUIRE(doc.solid_entities().size() == 4);
+    auto initial_profiles = doc.extract_solid_profile_loops();
+    REQUIRE(initial_profiles.size() == 1); // 1 closed mechanical loop
+
+    // 2. Switch Mode to Schematic Capture
+    sch_engine.set_mode(DraftingDomain::Schematic);
+    REQUIRE(sch_engine.current_mode() == DraftingDomain::Schematic);
+
+    // 3. Place Resistor "R" at (20, 25)
+    std::string r1_id = sch_engine.place_symbol(doc, "R", Point2D{20.0, 25.0}, 0, "R1", "10k");
+    REQUIRE(!r1_id.empty());
+    REQUIRE(sch_engine.instance_count() == 1);
+
+    const auto* r1_inst = sch_engine.find_instance(r1_id);
+    REQUIRE(r1_inst != nullptr);
+    REQUIRE(r1_inst->reference_designator == "R1");
+    REQUIRE(r1_inst->value == "10k");
+    REQUIRE(r1_inst->pins.size() == 2);
+
+    // 4. Place Capacitor "C" at (60, 25) rotated 90 deg
+    std::string c1_id = sch_engine.place_symbol(doc, "C", Point2D{60.0, 25.0}, 90, "C1", "100nF");
+    REQUIRE(!c1_id.empty());
+    REQUIRE(sch_engine.instance_count() == 2);
+
+    // Pin queries
+    const auto pins = sch_engine.all_pins();
+    REQUIRE(pins.size() == 4); // 2 on R1 + 2 on C1
+    const auto* found_pin = sch_engine.find_pin(pins[0].pin_id);
+    REQUIRE(found_pin != nullptr);
+    REQUIRE(sch_engine.find_instance_by_pin(pins[0].pin_id) != nullptr);
+
+    // 5. CRUCIAL ARCHITECTURAL INVARIANT: Strict Mechanical Isolation
+    // Despite having added schematic symbols, the solid entities count must still be exactly 4!
+    REQUIRE(doc.solid_entities().size() == 4);
+
+    // Pure mechanical profile loops must still be exactly 1, completely unaffected by R1 and C1!
+    auto mechanical_profiles = sch_engine.extract_pure_mechanical_profiles(doc);
+    REQUIRE(mechanical_profiles.size() == 1);
+    REQUIRE(sch_engine.validate_mechanical_isolation(doc));
+
+    // Entity filtering
+    auto mech_entities = sch_engine.filter_mechanical_entities(doc);
+    REQUIRE(mech_entities.size() == 4);
+    REQUIRE(mech_entities[0] == m1);
+    REQUIRE(mech_entities[1] == m2);
+    REQUIRE(mech_entities[2] == m3);
+    REQUIRE(mech_entities[3] == m4);
+
+    auto sch_entities = sch_engine.filter_schematic_entities(doc);
+    REQUIRE(!sch_entities.empty());
+
+    // 6. Clean removal of schematic component
+    REQUIRE(sch_engine.remove_symbol(doc, c1_id));
+    REQUIRE(sch_engine.instance_count() == 1);
+    REQUIRE(sch_engine.find_instance(c1_id) == nullptr);
+
+    // Mechanical profile remains 100% intact and valid
+    REQUIRE(sch_engine.validate_mechanical_isolation(doc));
+    auto final_profiles = sch_engine.extract_pure_mechanical_profiles(doc);
+    REQUIRE(final_profiles.size() == 1);
+}
+
 
 
 
