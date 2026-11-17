@@ -5,6 +5,7 @@
 #include "shunya/cad2d/polygon_boolean.hpp"
 #include "shunya/cad2d/profile_offset.hpp"
 #include "shunya/cad2d/fillet_chamfer.hpp"
+#include "shunya/cad2d/drawing_tools.hpp"
 
 #include <cmath>
 #include <vector>
@@ -279,4 +280,132 @@ TEST_CASE("CAD2D: Corner Filleting G1 Continuity & Analytical Chamfering") {
     Path2D filleted = FilletChamferEngine::fillet_polygon(rect, 2.0, 24);
     double expected_fillet_area = 100.0 - (4.0 - PI) * 4.0;
     CHECK(is_approx(PolygonBooleanEngine::area(filleted), expected_fillet_area, 0.05));
+}
+
+// =============================================================================
+// Task PH4-04.01.001: Interactive 2D Primitive Creation Tools
+// =============================================================================
+
+TEST_CASE("PH4-04.01.001: Interactive 2D Primitive Creation Tools") {
+    SketchDocument2D doc;
+    DrawingToolController controller;
+
+    // 1. Line Tool
+    controller.select_tool(DrawingToolType::Line);
+    CHECK(controller.active_tool_type() == DrawingToolType::Line);
+    controller.on_pointer_down({0.0, 0.0});
+    controller.on_pointer_move({10.0, 0.0});
+    auto line_prev = controller.preview_curves();
+    REQUIRE(line_prev.size() == 1);
+    CHECK(is_approx(line_prev[0]->total_length(), 10.0));
+    controller.on_pointer_down({10.0, 0.0});
+    controller.on_pointer_up({10.0, 0.0});
+    size_t line_cnt = controller.commit_to_document(doc);
+    CHECK(line_cnt == 1);
+    CHECK(doc.entities().size() == 1);
+
+    // 2. Rectangle Tool
+    controller.select_tool(DrawingToolType::Rectangle);
+    controller.on_pointer_down({0.0, 0.0});
+    controller.on_pointer_move({8.0, 5.0});
+    controller.on_pointer_down({8.0, 5.0});
+    controller.on_pointer_up({8.0, 5.0});
+    size_t rect_cnt = controller.commit_to_document(doc);
+    CHECK(rect_cnt == 1);
+    CHECK(doc.entities().size() == 2);
+    CHECK(is_approx(doc.entities().back().curve->total_length(), 26.0));
+
+    // 3. Circle Tool
+    controller.select_tool(DrawingToolType::Circle);
+    controller.on_pointer_down({0.0, 0.0});
+    controller.on_pointer_move({3.0, 4.0}); // radius 5.0
+    controller.on_pointer_down({3.0, 4.0});
+    controller.on_pointer_up({3.0, 4.0});
+    size_t circ_cnt = controller.commit_to_document(doc);
+    CHECK(circ_cnt == 1);
+    CHECK(doc.entities().size() == 3);
+    CHECK(is_approx(doc.entities().back().curve->total_length(), 2.0 * PI * 5.0));
+
+    // 4. Ellipse Tool
+    controller.select_tool(DrawingToolType::Ellipse);
+    controller.on_pointer_down({0.0, 0.0}); // Center
+    controller.on_pointer_down({5.0, 0.0}); // Major rx = 5.0
+    controller.on_pointer_down({0.0, 2.0}); // Minor ry = 2.0
+    controller.on_pointer_up({0.0, 2.0});
+    size_t el_cnt = controller.commit_to_document(doc);
+    CHECK(el_cnt == 1);
+    CHECK(doc.entities().size() == 4);
+
+    // 5. Regular Polygon Tool (Hexagon)
+    controller.select_tool(DrawingToolType::RegularPolygon);
+    controller.on_pointer_down({0.0, 0.0});
+    controller.on_pointer_move({10.0, 0.0});
+    controller.on_pointer_down({10.0, 0.0});
+    controller.on_pointer_up({10.0, 0.0});
+    size_t poly_cnt = controller.commit_to_document(doc);
+    CHECK(poly_cnt == 1);
+    CHECK(doc.entities().size() == 5);
+    // Regular hexagon with circumradius 10 has perimeter = 6 * 10 = 60
+    CHECK(is_approx(doc.entities().back().curve->total_length(), 60.0, 1e-4));
+
+    // 6. Arbitrary Polygon Tool
+    controller.select_tool(DrawingToolType::ArbitraryPolygon);
+    controller.on_pointer_down({0.0, 0.0});
+    controller.on_pointer_down({5.0, 0.0});
+    controller.on_pointer_down({5.0, 5.0});
+    controller.on_pointer_down({0.0, 5.0});
+    auto* arb_tool = dynamic_cast<ArbitraryPolygonTool*>(controller.active_tool());
+    REQUIRE(arb_tool != nullptr);
+    arb_tool->finish();
+    size_t arb_cnt = controller.commit_to_document(doc);
+    CHECK(arb_cnt == 1);
+    CHECK(doc.entities().size() == 6);
+    CHECK(is_approx(doc.entities().back().curve->total_length(), 20.0));
+
+    // 7. Arc 3-Point Tool (Passes through (1,0), (0,1), (-1,0) -> semicircle of radius 1)
+    controller.select_tool(DrawingToolType::Arc3Point);
+    controller.on_pointer_down({1.0, 0.0});
+    controller.on_pointer_down({0.0, 1.0});
+    controller.on_pointer_down({-1.0, 0.0});
+    controller.on_pointer_up({-1.0, 0.0});
+    size_t arc3_cnt = controller.commit_to_document(doc);
+    CHECK(arc3_cnt == 1);
+    CHECK(doc.entities().size() == 7);
+    CHECK(is_approx(doc.entities().back().curve->total_length(), PI, 1e-4));
+
+    // 8. Arc Center-Radius Tool
+    controller.select_tool(DrawingToolType::ArcCenterRadius);
+    controller.on_pointer_down({0.0, 0.0}); // Center
+    controller.on_pointer_down({4.0, 0.0}); // Radius 4 at angle 0
+    controller.on_pointer_down({0.0, 4.0}); // Quarter arc to pi/2
+    controller.on_pointer_up({0.0, 4.0});
+    size_t arcc_cnt = controller.commit_to_document(doc);
+    CHECK(arcc_cnt == 1);
+    CHECK(doc.entities().size() == 8);
+    CHECK(is_approx(doc.entities().back().curve->total_length(), 2.0 * PI, 1e-4));
+
+    // 9. Cubic Bezier Tool
+    controller.select_tool(DrawingToolType::CubicBezier);
+    controller.on_pointer_down({0.0, 0.0});
+    controller.on_pointer_down({1.0, 2.0});
+    controller.on_pointer_down({3.0, 2.0});
+    controller.on_pointer_down({4.0, 0.0});
+    controller.on_pointer_up({4.0, 0.0});
+    size_t bez_cnt = controller.commit_to_document(doc);
+    CHECK(bez_cnt == 1);
+    CHECK(doc.entities().size() == 9);
+
+    // 10. Freehand Polyline Tool with Ramer-Douglas-Peucker simplification
+    controller.select_tool(DrawingToolType::FreehandPolyline);
+    controller.on_pointer_down({0.0, 0.0});
+    for (int i = 1; i <= 20; ++i) {
+        // Collinear points with slight sub-micron jitter below simplification tolerance
+        controller.on_pointer_move({static_cast<double>(i), 0.001 * (i % 2)});
+    }
+    controller.on_pointer_up({20.0, 0.0});
+    size_t free_cnt = controller.commit_to_document(doc);
+    CHECK(free_cnt == 1);
+    CHECK(doc.entities().size() == 10);
+    // Verified 10 different primitives cleanly created and committed to sketch document
+    CHECK(doc.entities().size() == 10);
 }

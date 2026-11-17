@@ -155,6 +155,7 @@ add_library(shunya_domain_cad OBJECT
     src/cad2d/block_manager.cpp
     src/cad2d/dxf_io.cpp
     src/cad2d/svg_io.cpp
+    src/cad2d/drawing_tools.cpp
     src/cad3d/solid_mesh.cpp
     src/cad3d/polygon_tessellator.cpp
     src/cad3d/extrusion_feature.cpp
