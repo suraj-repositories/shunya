@@ -816,3 +816,63 @@ TEST_CASE("PH4-05.03.001: Subdivide Face operation with linear and Catmull-Clark
     // Level 1: 1 -> 4 tris; Level 2: 4 -> 16 tris. (Original had 2, so 2 - 1 + 16 = 17)
     REQUIRE(plane_multi.triangles.size() == 17);
 }
+
+TEST_CASE("PH4-05.03.002: Bridge Edge Loops to connect separate face loops and punch holes") {
+    SolidMesh3D mesh;
+    const size_t N = 8;
+    std::vector<uint32_t> loop_a(N);
+    std::vector<uint32_t> loop_b(N);
+
+    // Loop A: circle at Z = 0, radius = 1.0
+    for (size_t i = 0; i < N; ++i) {
+        double th = (static_cast<double>(i) / N) * 2.0 * std::numbers::pi;
+        loop_a[i] = mesh.add_vertex(Point3D{std::cos(th), std::sin(th), 0.0});
+    }
+
+    // Loop B: circle at Z = 5.0, radius = 2.0
+    for (size_t i = 0; i < N; ++i) {
+        double th = (static_cast<double>(i) / N) * 2.0 * std::numbers::pi;
+        loop_b[i] = mesh.add_vertex(Point3D{2.0 * std::cos(th), 2.0 * std::sin(th), 5.0});
+    }
+
+    // 1. Single segment bridge
+    bool ok = MeshTopologyOps::bridge_edge_loops(mesh, loop_a, loop_b, 1, 0.0);
+    REQUIRE(ok);
+    // N quads = N * 2 = 16 triangles
+    REQUIRE(mesh.triangles.size() == 16);
+
+    auto bbox = mesh.compute_bbox();
+    REQUIRE(is_close(bbox.min.z, 0.0));
+    REQUIRE(is_close(bbox.max.z, 5.0));
+    REQUIRE(is_close(bbox.size().x, 4.0)); // Loop B diameter is 2*2 = 4
+
+    // 2. Multi-segment bridge (segments = 3)
+    SolidMesh3D mesh_multi;
+    std::vector<uint32_t> la_m(N);
+    std::vector<uint32_t> lb_m(N);
+    for (size_t i = 0; i < N; ++i) {
+        double th = (static_cast<double>(i) / N) * 2.0 * std::numbers::pi;
+        la_m[i] = mesh_multi.add_vertex(Point3D{std::cos(th), std::sin(th), 0.0});
+        lb_m[i] = mesh_multi.add_vertex(Point3D{std::cos(th), std::sin(th), 6.0});
+    }
+
+    bool ok_multi = MeshTopologyOps::bridge_edge_loops(mesh_multi, la_m, lb_m, 3, 0.0);
+    REQUIRE(ok_multi);
+    // 3 segments * 16 triangles = 48 triangles
+    REQUIRE(mesh_multi.triangles.size() == 48);
+    // 2 intermediate rings of 8 = 16 new vertices added + 16 original = 32 vertices
+    REQUIRE(mesh_multi.vertices.size() == 32);
+
+    // 3. Twist support
+    SolidMesh3D mesh_twist;
+    std::vector<uint32_t> la_t(N);
+    std::vector<uint32_t> lb_t(N);
+    for (size_t i = 0; i < N; ++i) {
+        double th = (static_cast<double>(i) / N) * 2.0 * std::numbers::pi;
+        la_t[i] = mesh_twist.add_vertex(Point3D{std::cos(th), std::sin(th), 0.0});
+        lb_t[i] = mesh_twist.add_vertex(Point3D{std::cos(th), std::sin(th), 4.0});
+    }
+    bool ok_twist = MeshTopologyOps::bridge_edge_loops(mesh_twist, la_t, lb_t, 1, 2.0); // twist by 2 vertices
+    REQUIRE(ok_twist);
+    REQUIRE(mesh_twist.triangles.size() == 16);
+}
