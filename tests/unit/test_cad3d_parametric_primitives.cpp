@@ -150,3 +150,74 @@ TEST_CASE("PH4-05.01.001: Parametric primitive generation for all 11 core 3D sha
     REQUIRE(is_close(cap_bbox.size().x, 2.0));
     REQUIRE(is_close(cap_bbox.size().z, 6.0)); // 4.0 + 2*1.0
 }
+
+TEST_CASE("PH4-05.01.002: Non-destructive parameter editing for 3D primitives during and after creation") {
+    // 1. Create a Cylinder primitive
+    ParametricPrimitive prim(PrimitiveType::Cylinder);
+    REQUIRE(prim.type() == PrimitiveType::Cylinder);
+    REQUIRE(prim.is_dirty());
+
+    // Generate initial mesh
+    const auto& m1 = prim.mesh();
+    REQUIRE(!prim.is_dirty());
+    REQUIRE(is_close(prim.get_double_property("radius"), 1.0));
+    REQUIRE(is_close(prim.get_double_property("height"), 2.0));
+    REQUIRE(prim.get_uint_property("radial_segments") == 32);
+    auto bbox1 = m1.compute_bbox();
+    REQUIRE(is_close(bbox1.size().x, 2.0));
+    REQUIRE(is_close(bbox1.size().z, 2.0));
+
+    // 2. Non-destructive parameter modification: Change radius and height
+    prim.set_double_property("radius", 3.0);
+    prim.set_double_property("height", 8.0);
+    REQUIRE(prim.is_dirty());
+
+    // Rebuild mesh and verify non-destructive update
+    const auto& m2 = prim.mesh();
+    REQUIRE(!prim.is_dirty());
+    auto bbox2 = m2.compute_bbox();
+    REQUIRE(is_close(bbox2.size().x, 6.0));
+    REQUIRE(is_close(bbox2.size().z, 8.0));
+
+    // 3. Edit radial subdivisions non-destructively
+    size_t tri_count_before = m2.triangles.size();
+    prim.set_uint_property("radial_segments", 64);
+    REQUIRE(prim.is_dirty());
+    const auto& m3 = prim.mesh();
+    REQUIRE(!prim.is_dirty());
+    REQUIRE(m3.triangles.size() > tri_count_before);
+
+    // 4. Test Cube parameter editing
+    ParametricPrimitive cube_prim(PrimitiveType::Cube);
+    REQUIRE(cube_prim.has_property("width"));
+    REQUIRE(cube_prim.has_property("height"));
+    REQUIRE(cube_prim.has_property("depth"));
+    cube_prim.set_double_property("width", 5.0);
+    cube_prim.set_double_property("height", 10.0);
+    cube_prim.set_double_property("depth", 15.0);
+    const auto& cube_m = cube_prim.mesh();
+    auto cube_bbox = cube_m.compute_bbox();
+    REQUIRE(is_close(cube_bbox.size().x, 5.0));
+    REQUIRE(is_close(cube_bbox.size().y, 10.0));
+    REQUIRE(is_close(cube_bbox.size().z, 15.0));
+
+    // 5. Test Torus parameter editing
+    ParametricPrimitive torus_prim(PrimitiveType::Torus);
+    torus_prim.set_double_property("major_radius", 5.0);
+    torus_prim.set_double_property("minor_radius", 1.0);
+    const auto& torus_m = torus_prim.mesh();
+    auto torus_bbox = torus_m.compute_bbox();
+    REQUIRE(is_close(torus_bbox.size().x, 12.0)); // 2 * (5.0 + 1.0)
+    REQUIRE(is_close(torus_bbox.size().z, 2.0));  // 2 * 1.0
+
+    // 6. Test whole parameter variant assignment via set_params()
+    CylinderParams new_cyl_p;
+    new_cyl_p.radius = 0.5;
+    new_cyl_p.height = 1.0;
+    new_cyl_p.radial_segments = 16;
+    prim.set_params(new_cyl_p);
+    REQUIRE(prim.is_dirty());
+    const auto& m4 = prim.mesh();
+    REQUIRE(is_close(m4.compute_bbox().size().x, 1.0));
+    REQUIRE(is_close(m4.compute_bbox().size().z, 1.0));
+}
