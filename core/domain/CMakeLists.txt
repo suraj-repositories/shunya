@@ -333,6 +333,8 @@ add_library(shunya_domain_eng OBJECT
     src/ecad3d/symbol_association_engine.cpp
     src/ecad3d/component_physics_qualification.cpp
     src/ecad3d/component_manifest.cpp
+    src/ecad3d/component_package.cpp
+    src/lib30/passive_components.cpp
 )
 shunya_configure_domain_target(shunya_domain_eng)
 target_link_libraries(shunya_domain_eng
