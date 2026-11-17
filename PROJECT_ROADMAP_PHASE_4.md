@@ -15,9 +15,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 276 | 88.5% |
+| `[ ]` | Not Started | 181 | 58.0% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 58 | 18.6% |
+| `[x]` | Completed | 131 | 42.0% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -28,10 +28,10 @@ Parent-level completion status and progress percentages are **strictly calculate
 |:---:|---|---|:---:|:---:|:---:|:---:|:---:|
 | 1 | `AUDIT` | Existing Architecture Audit & Technical Foundation | P0 | 24 | 24 | 100.0% | `[x]` |
 | 2 | `OPT` | Performance, Resource & Memory Optimization | P0 | 24 | 24 | 100.0% | `[x]` |
-| 3 | `MATENG` | Scientific Material Engineering & Property Engine | P0 | 26 | 10 | 38.5% | `[~]` |
-| 4 | `CAD2D` | Professional 2D Vector & Schematic Drafting Engine | P0 | 24 | 0 | 0.0% | `[ ]` |
-| 5 | `CAD3D` | Professional 3D Modeling & Mesh Geometry Engine | P0 | 26 | 0 | 0.0% | `[ ]` |
-| 6 | `ECAD3D` | 3D Electronic Component Designer & Specification Engine | P0 | 24 | 0 | 0.0% | `[ ]` |
+| 3 | `MATENG` | Scientific Material Engineering & Property Engine | P0 | 24 | 24 | 100.0% | `[x]` |
+| 4 | `CAD2D` | Professional 2D Vector & Schematic Drafting Engine | P0 | 24 | 24 | 100.0% | `[x]` |
+| 5 | `CAD3D` | Professional 3D Modeling & Mesh Geometry Engine | P0 | 26 | 26 | 100.0% | `[x]` |
+| 6 | `ECAD3D` | 3D Electronic Component Designer & Specification Engine | P0 | 24 | 9 | 37.5% | `[~]` |
 | 7 | `LIB30` | 30-Component Library & Dual 3D/2D Symbol System | P0 | 30 | 0 | 0.0% | `[ ]` |
 | 8 | `CIRSIM` | Dedicated Circuit Simulation Engine (DC, AC, Transient & Non-Linear) | P0 | 26 | 0 | 0.0% | `[ ]` |
 | 9 | `PHYSIM` | 3D Physics & Multi-Body Mechanical Machine Simulator | P0 | 26 | 0 | 0.0% | `[ ]` |
@@ -39,7 +39,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 11 | `RIG3D` | Advanced Modifiers, Organic Modeling & Skeletal Rigging | P1 | 20 | 0 | 0.0% | `[ ]` |
 | 12 | `UIUX` | Professional UI Polish & VS Code-Style Menu System | P0 | 18 | 0 | 0.0% | `[ ]` |
 | 13 | `QA` | Verification, Test Automation & CI/CD Pipeline | P0 | 20 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 4 Integrated Engineering Platform** | **--** | **312** | **51** | **16.3%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 4 Integrated Engineering Platform** | **--** | **312** | **131** | **42.0%** | `[~]` |
 
 ---
 
@@ -465,7 +465,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-06: 3D Electronic Component Designer & Specification Engine (`ECAD3D`)
 
 **Objective:** Create an end-to-end workflow allowing users to construct 3D physical electronic components from engineered materials, assign terminals, configure electrical behavior, and associate 2D circuit representations.  
-**Priority:** P0 | **Complexity:** High | **Dependencies:** `MATENG`, `CAD3D`, `CAD2D` | **Status:** `[ ] Not Started` (0/24)
+**Priority:** P0 | **Complexity:** High | **Dependencies:** `MATENG`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (9/24 — 37.5%)
 
 ### Submodule PH4-06.01: Component Authoring Workflow & Interface [x] (100.0% — 6/6)
 - [x] `PH4-06.01.001`: Create the dedicated 3D Electronic Component Designer workspace layout in Qt Quick/QML.
@@ -478,7 +478,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ### Submodule PH4-06.02: 3D Component & 2D Circuit Symbol Association
 - [x] `PH4-06.02.001`: Implement the core architectural invariant: no 3D model can be registered as an electronic component without a verified, coupled 2D circuit schematic symbol.
 - [x] `PH4-06.02.002`: Develop an automated 2D symbol generator that synthesizes standard IEEE/IEC schematic symbols based on component classification.
-- [ ] `PH4-06.02.003`: Build an interactive pin-to-terminal mapper UI: link each 3D contact point (e.g., Pin 1 Anode, Pin 2 Cathode) directly to the corresponding 2D symbol pins.
+- [x] `PH4-06.02.003`: Build an interactive pin-to-terminal mapper UI: link each 3D contact point (e.g., Pin 1 Anode, Pin 2 Cathode) directly to the corresponding 2D symbol pins.
 - [ ] `PH4-06.02.004`: Enforce pin numbering and naming parity between 3D model geometry and 2D schematic symbols.
 - [ ] `PH4-06.02.005`: Implement spatial orientation mapping: define component default orientation, rotation axes, and mounting planes in 3D space.
 - [ ] `PH4-06.02.006`: Implement bidirectional selection highlighting: selecting a pin in 3D highlights the corresponding pin in the 2D symbol editor and vice-versa.
