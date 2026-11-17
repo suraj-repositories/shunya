@@ -302,7 +302,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-02: Performance, Resource & Memory Optimization (`OPT`)
 
 **Objective:** Implement comprehensive memory pooling, multi-threading, GPU-accelerated graphics pipelines, and real-time performance telemetry across existing and new Phase 4 systems.  
-**Priority:** P0 | **Complexity:** High | **Dependencies:** `AUDIT` | **Status:** `[~] In Progress` (20/24 — 83.3%)
+**Priority:** P0 | **Complexity:** High | **Dependencies:** `AUDIT` | **Status:** `[~] In Progress` (21/24 — 87.5%)
 
 ### Submodule PH4-02.01: Memory Management & Allocation Arenas [x] (100.0% — 6/6)
 - [x] `PH4-02.01.001`: Implement polymorphic memory resource (PMR) linear arenas for high-frequency transient simulation time-step allocations.
@@ -328,10 +328,10 @@ PH4: Integrated Cyber-Physical Engineering Platform
 - [x] `PH4-02.03.005`: Evaluate and implement compute shaders for parallel particle simulations and large-scale thermal field diffusion.
 - [x] `PH4-02.03.006`: Implement shader pipeline caching to eliminate runtime compilation hitches when switching rendering modes.
 
-### Submodule PH4-02.04: Real-Time Performance Monitoring & Profiling Telemetry [~] (33.3% — 2/6)
+### Submodule PH4-02.04: Real-Time Performance Monitoring & Profiling Telemetry [~] (50.0% — 3/6)
 - [x] `PH4-02.04.001`: Create an in-app real-time HUD displaying FPS, CPU frame time, GPU render time, RAM consumption, and VRAM utilization.
 - [x] `PH4-02.04.002`: Instrument circuit and physics simulation loops with microsecond-resolution hardware performance counters.
-- [ ] `PH4-02.04.003`: Implement an automated performance regression test suite failing any build where frame times or solve times exceed baselines by >10%.
+- [x] `PH4-02.04.003`: Implement an automated performance regression test suite failing any build where frame times or solve times exceed baselines by >10%.
 - [ ] `PH4-02.04.004`: Add frame-by-frame timeline capture exportable to Chrome Tracing / Perfetto JSON format for profiling.
 - [ ] `PH4-02.04.005`: Profile existing Phase 3 Material Mixing and Circuit solves, optimizing hot loops to achieve sub-millisecond execution.
 - [ ] `PH4-02.04.006`: Establish memory footprint limits: base studio idle < 250 MB RAM, complex 100k-vertex 3D scene < 800 MB RAM.

@@ -236,7 +236,7 @@ void ShunyaViewport3DItem::paint(QPainter* p) {
         };
         cam.target = {pan_x_, pan_y_, 0.0};
         cam.aspect_ratio = W / H;
-        cam.fov_y_deg = 45.0;
+        cam.fov_degrees = 45.0;
 
         std::vector<cad3d::SolidMesh3D> scene_meshes;
         std::vector<cad3d::RhiDrawItem> draw_items;
@@ -262,6 +262,7 @@ void ShunyaViewport3DItem::paint(QPainter* p) {
                     }
                     tempK = body->temperature_k;
                     thermScale = 1.0 + body->thermal_strain;
+                    (void)thermScale;
                 }
             }
 
@@ -272,7 +273,7 @@ void ShunyaViewport3DItem::paint(QPainter* p) {
                 baseCol = baseCol.lighter(120);
             }
 
-            core::base::math::Matrix4x4<double> model = core::base::math::Matrix4x4<double>::translation(pos.x, pos.y, pos.z);
+            core::base::math::Matrix4x4<double> model = core::base::math::Matrix4x4<double>::translation({pos.x, pos.y, pos.z});
             draw_items.push_back(cad3d::RhiDrawItem{
                 &scene_meshes.back(),
                 model,
@@ -290,12 +291,12 @@ void ShunyaViewport3DItem::paint(QPainter* p) {
         rhi_engine_->end_frame();
 
         const auto& fb = rhi_engine_->framebuffer();
-        if (fb.width > 0 && fb.height > 0 && !fb.color_attachment.empty()) {
+        if (fb.width > 0 && fb.height > 0 && !fb.color_rgba.empty()) {
             QImage img(fb.width, fb.height, QImage::Format_RGBA8888);
             for (uint32_t y = 0; y < fb.height; ++y) {
                 auto* line = reinterpret_cast<uint32_t*>(img.scanLine(y));
                 for (uint32_t x = 0; x < fb.width; ++x) {
-                    const auto& c = fb.color_attachment[y * fb.width + x];
+                    const auto& c = fb.color_rgba[y * fb.width + x];
                     uint8_t r = static_cast<uint8_t>(std::clamp(c[0] * 255.0, 0.0, 255.0));
                     uint8_t g = static_cast<uint8_t>(std::clamp(c[1] * 255.0, 0.0, 255.0));
                     uint8_t b = static_cast<uint8_t>(std::clamp(c[2] * 255.0, 0.0, 255.0));
@@ -334,6 +335,7 @@ void ShunyaViewport3DItem::paint(QPainter* p) {
                     }
                     tempK = body->temperature_k;
                     thermScale = 1.0 + body->thermal_strain;
+                    (void)thermScale;
                 }
             }
 

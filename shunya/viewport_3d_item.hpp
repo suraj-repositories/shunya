@@ -8,10 +8,7 @@
 #include <memory>
 
 #include "shunya/eng/engineering_pipeline.hpp"
-
-namespace shunya::cad3d {
-class RhiRendererEngine;
-}
+#include "shunya/cad3d/rhi_renderer_engine.hpp"
 
 namespace shunya::gui {
 
