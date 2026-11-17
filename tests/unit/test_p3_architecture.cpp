@@ -15,6 +15,7 @@
 #include "shunya/perf/work_stealing_pool.hpp"
 #include "shunya/cad3d/bvh_tree.hpp"
 #include "shunya/perf/simd_math.hpp"
+#include "shunya/perf/thread_scaling_benchmark.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
 using namespace shunya::eng;
@@ -1517,4 +1518,28 @@ TEST_CASE("PH4-02.02.005: Background File Serialization, Parsing & Cancellation"
     // Cleanup
     std::error_code ec;
     std::filesystem::remove_all(temp_dir, ec);
+}
+
+TEST_CASE("PH4-02.02.006: Multi-Threaded Scaling (1 to 32 Threads) & False Sharing Elimination") {
+    using namespace shunya::perf;
+
+    // 1. Benchmark scaling from 1 to 32 worker threads
+    const std::vector<size_t> thread_configs = {1, 2, 4, 8, 16, 32};
+    auto report = ThreadScalingBenchmark::benchmark_parallel_for(50000, thread_configs);
+
+    REQUIRE(report.results.size() == 6);
+    CHECK(report.meets_scaling_floor);
+
+    // Assert bit-for-bit mathematical consistency across all thread counts
+    const uint64_t golden_checksum = report.results[0].checksum;
+    for (const auto& res : report.results) {
+        CHECK(res.checksum == golden_checksum);
+        CHECK(res.duration_us > 0.0);
+    }
+
+    // Assert speedup on multi-core
+    CHECK(report.results[1].speedup > 1.0); // 2 threads vs 1 thread
+
+    // 2. Evaluate false sharing cache line isolation
+    CHECK(ThreadScalingBenchmark::evaluate_false_sharing_isolation(100000));
 }

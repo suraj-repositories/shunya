@@ -252,6 +252,7 @@ add_library(shunya_domain_perf OBJECT
     src/perf/linear_arena.cpp
     src/perf/simulation_step_arena.cpp
     src/perf/task_graph_engine.cpp
+    src/perf/thread_scaling_benchmark.cpp
     src/bench/scientific_ci_runner.cpp
     src/bench/visual_regression_runner.cpp
     src/bench/perf_regression_gate.cpp
