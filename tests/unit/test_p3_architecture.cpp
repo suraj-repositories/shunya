@@ -40,6 +40,7 @@
 #include "shunya/mat/property_models/material_property_bundle.hpp"
 #include "shunya/mat/calculation_classification.hpp"
 #include "shunya/mat/epistemic_value.hpp"
+#include "shunya/mat/state_dependent_evaluator.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -3161,6 +3162,71 @@ TEST_CASE("PH4-03.03.002: EpistemicStatus and numerical confidence bounds") {
     // rel_z = sqrt(1.0^2 + 2.0^2) = sqrt(5) ~ 2.236%
     CHECK(std::abs(voltage.classification.relative_uncertainty_pct - std::sqrt(5.0)) < 1e-3);
 }
+
+TEST_CASE("PH4-03.03.003: State-dependent evaluation functions P_calc = f(T, P)") {
+    using namespace shunya::mat;
+
+    MaterialPropertyBundle cu;
+    cu.material_name = "Copper";
+    cu.mechanical.density_kg_m3 = 8960.0;
+    cu.mechanical.young_modulus_pa = 117.0e9;
+    cu.mechanical.yield_strength_pa = 70.0e6;
+    cu.mechanical.bulk_modulus_pa = 140.0e9;
+    cu.thermal.melting_point_k = 1357.77;
+    cu.thermal.linear_thermal_expansion_1_k = 16.5e-6;
+    cu.thermal.volumetric_thermal_expansion_1_k = 49.5e-6;
+    cu.thermal.base_thermal_conductivity_w_mk = 401.0;
+    cu.electrical.base_conductivity_s_m = 5.96e7;
+    cu.electrical.base_resistivity_ohm_m = 1.68e-8;
+    cu.electrical.reference_temp_k = 293.15;
+    cu.electrical.tcr_per_k = 0.00393;
+
+    // 1. Standard Ambient State (T=293.15 K, P=101,325 Pa)
+    ThermodynamicState ambient{293.15, 101325.0};
+    CHECK(ambient.is_standard_ambient());
+
+    auto rho_amb = StateDependentEvaluator::evaluate_density(cu, ambient);
+    CHECK(std::abs(rho_amb.value - 8960.0) < 1e-3);
+    CHECK(rho_amb.classification.tier == CalculationTier::AnalyticalFormulation);
+
+    // 2. High Temperature State (T = 800 K) -> Thermal expansion causes density decrease, modulus softening
+    ThermodynamicState hot{800.0, 101325.0};
+    CHECK_FALSE(hot.is_standard_ambient());
+
+    auto rho_hot = StateDependentEvaluator::evaluate_density(cu, hot);
+    CHECK(rho_hot.value < 8960.0);
+    CHECK(rho_hot.value > 8500.0); // Expansion ~2.5% decrease in density
+
+    auto e_hot = StateDependentEvaluator::evaluate_young_modulus(cu, hot);
+    CHECK(e_hot.value < 117.0e9);
+    CHECK(e_hot.value > 80.0e9); // Softened from 117 GPa
+
+    auto sig_y_hot = StateDependentEvaluator::evaluate_yield_strength(cu, hot);
+    CHECK(sig_y_hot.value < 70.0e6); // Yield strength softened from 70 MPa
+
+    // 3. High Pressure State (P = 1 GPa = 1e9 Pa) -> Compression increases density and electrical conductivity
+    ThermodynamicState high_press{293.15, 1.0e9};
+    auto rho_press = StateDependentEvaluator::evaluate_density(cu, high_press);
+    CHECK(rho_press.value > 8960.0); // Isothermal compression increases density
+
+    auto sigma_press = StateDependentEvaluator::evaluate_electrical_conductivity(cu, high_press);
+    CHECK(sigma_press.value > 5.96e7); // Piezo-resistive pressure enhancement
+
+    // 4. Melted State (T = 1400 K > T_m 1357.77 K)
+    ThermodynamicState molten{1400.0, 101325.0};
+    auto e_molten = StateDependentEvaluator::evaluate_young_modulus(cu, molten);
+    CHECK(e_molten.value == 0.0); // Loss of solid shear/tensile elasticity in liquid phase
+
+    auto sig_y_molten = StateDependentEvaluator::evaluate_yield_strength(cu, molten);
+    CHECK(sig_y_molten.value == 0.0);
+
+    // 5. Full state bundle transformation
+    MaterialPropertyBundle hot_bundle = StateDependentEvaluator::evaluate_state_bundle(cu, hot);
+    CHECK(hot_bundle.mechanical.density_kg_m3 < cu.mechanical.density_kg_m3);
+    CHECK(hot_bundle.mechanical.young_modulus_pa < cu.mechanical.young_modulus_pa);
+    CHECK(hot_bundle.electrical.base_conductivity_s_m < cu.electrical.base_conductivity_s_m);
+}
+
 
 
 

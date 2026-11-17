@@ -122,6 +122,7 @@ add_library(shunya_domain_mat OBJECT
     src/mat/property_models/material_property_bundle.cpp
     src/mat/calculation_classification.cpp
     src/mat/epistemic_value.cpp
+    src/mat/state_dependent_evaluator.cpp
 )
 shunya_configure_domain_target(shunya_domain_mat)
 target_link_libraries(shunya_domain_mat PUBLIC shunya_domain_core)
