@@ -504,7 +504,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (12/30 — 40.0%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (13/30 — 43.3%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
@@ -572,7 +572,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Materials:* Silicon-platinum/gold junction, Molded epoxy compound.  
   *Tests:* High-frequency switching, low-loss forward conduction.
 
-### Submodule PH4-07.03: Transistors (Components 11 - 16) [~] (2/6)
+### Submodule PH4-07.03: Transistors (Components 11 - 16) [~] (3/6)
 - [x] `PH4-07.03.001`: **11. NPN Bipolar Junction Transistor**  
   *3D Model:* TO-92 plastic package with flat face and 3 in-line pins.  
   *2D Symbol:* Circle with Base, Collector, and Emitter pointing outward (3 pins: B, C, E).  
@@ -585,7 +585,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Electrical:* Dual complementary BJT: active when base is pulled below emitter voltage.  
   *Materials:* P-N-P doped silicon, Copper leads, Epoxy encapsulation.  
   *Tests:* High-side switching, push-pull complementary output stage test.
-- [ ] `PH4-07.03.003`: **13. N-Channel MOSFET (Enhancement)**  
+- [x] `PH4-07.03.003`: **13. N-Channel MOSFET (Enhancement)**  
   *3D Model:* TO-220 power package with metal heatsink tab and 3 heavy leads.  
   *2D Symbol:* Gate, Drain, Source with inward channel arrow and dashed line (3 pins: G, D, S).  
   *Electrical:* Square-law MOSFET: $I_d = \frac{1}{2}\mu C_{\text{ox}}\frac{W}{L}(V_{gs} - V_{th})^2$ in saturation; low $R_{ds,\text{on}}$ in linear region.  
