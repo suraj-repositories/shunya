@@ -111,4 +111,18 @@ SolidMesh3D SweepEngine::sweep(
     return mesh;
 }
 
+SolidMesh3D SweepEngine::sweep_spline(
+    const cad2d::Path2D& profile_outer,
+    const Point3D& p0,
+    const Point3D& p1,
+    const Point3D& p2,
+    const Point3D& p3,
+    const cad2d::Paths2D& profile_holes,
+    size_t curve_samples,
+    const SweepParams& params
+) {
+    const auto traj = TrajectoryCurve3D::sample_cubic_bezier(p0, p1, p2, p3, curve_samples);
+    return sweep(profile_outer, profile_holes, traj, params);
+}
+
 } // namespace shunya::cad3d

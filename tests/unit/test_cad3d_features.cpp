@@ -260,3 +260,33 @@ TEST_CASE("PH4-05.04.002: Revolve Sketch feature rotating 2D profile around defi
     REQUIRE(rep_90.is_2_manifold);
     REQUIRE(rel_close(rev_90.compute_volume(), rev_360.compute_volume() * 0.25, 0.005));
 }
+
+TEST_CASE("PH4-05.04.003: Sweep Sketch feature guiding 2D profile along 3D guide curve or spline") {
+    // 1. Sweep circle profile along 3D cubic Bezier S-curve
+    const Path2D circle_prof = make_circle_loop(0.0, 0.0, 1.5, 32);
+    Point3D p0{0.0, 0.0, 0.0};
+    Point3D p1{5.0, 10.0, 2.0};
+    Point3D p2{10.0, -10.0, 8.0};
+    Point3D p3{15.0, 0.0, 12.0};
+
+    SolidMesh3D swept_solid = SweepEngine::sweep_spline(circle_prof, p0, p1, p2, p3, {}, 48);
+    REQUIRE(!swept_solid.vertices.empty());
+    REQUIRE(!swept_solid.triangles.empty());
+
+    auto rep = swept_solid.analyze_manifold();
+    REQUIRE(rep.is_watertight);
+    REQUIRE(rep.is_2_manifold);
+    REQUIRE(rep.euler_characteristic == 2);
+    REQUIRE(swept_solid.compute_volume() > 50.0);
+
+    // 2. Hollow swept pipe along guide curve (outer circle r=2, inner bore r=1)
+    const Path2D outer_pipe = make_circle_loop(0.0, 0.0, 2.0, 32);
+    const Path2D inner_pipe = make_circle_loop(0.0, 0.0, 1.0, 32);
+    SolidMesh3D hollow_pipe = SweepEngine::sweep_spline(outer_pipe, p0, p1, p2, p3, {inner_pipe}, 48);
+    auto hollow_rep = hollow_pipe.analyze_manifold();
+    REQUIRE(hollow_rep.is_watertight);
+    REQUIRE(hollow_rep.is_2_manifold);
+    // Hollow open-ended tube with capped ring ends -> Euler characteristic = 0 (genus 1)
+    REQUIRE(hollow_rep.euler_characteristic == 0);
+    REQUIRE(hollow_pipe.compute_volume() > 30.0);
+}

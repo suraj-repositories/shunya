@@ -27,6 +27,20 @@ public:
         const std::vector<Point3D>& trajectory_points,
         const SweepParams& params = {}
     );
+
+    /**
+     * @brief Guides a 2D profile along an arbitrary 3D cubic Bezier spline curve.
+     */
+    [[nodiscard]] static SolidMesh3D sweep_spline(
+        const cad2d::Path2D& profile_outer,
+        const Point3D& p0,
+        const Point3D& p1,
+        const Point3D& p2,
+        const Point3D& p3,
+        const cad2d::Paths2D& profile_holes = {},
+        size_t curve_samples = 48,
+        const SweepParams& params = {}
+    );
 };
 
 } // namespace shunya::cad3d
