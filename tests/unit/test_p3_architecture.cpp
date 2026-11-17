@@ -14,6 +14,7 @@
 #include "shunya/perf/task_graph_engine.hpp"
 #include "shunya/perf/work_stealing_pool.hpp"
 #include "shunya/cad3d/bvh_tree.hpp"
+#include "shunya/cad3d/rhi_renderer_engine.hpp"
 #include "shunya/perf/simd_math.hpp"
 #include "shunya/perf/thread_scaling_benchmark.hpp"
 #include "shunya/core/base/event_bus.hpp"
@@ -1542,4 +1543,59 @@ TEST_CASE("PH4-02.02.006: Multi-Threaded Scaling (1 to 32 Threads) & False Shari
 
     // 2. Evaluate false sharing cache line isolation
     CHECK(ThreadScalingBenchmark::evaluate_false_sharing_isolation(100000));
+}
+
+TEST_CASE("PH4-02.03.001: Qt Quick RHI Viewport Hardware Rendering Pipeline") {
+    using namespace shunya::cad3d;
+    using shunya::core::base::math::Matrix4x4;
+
+    // 1. Generate test geometry (box)
+    SolidMesh3D box_mesh;
+    box_mesh.vertices = {
+        {-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1},
+        {-1, -1,  1}, {1, -1,  1}, {1, 1,  1}, {-1, 1,  1}
+    };
+    box_mesh.triangles = {
+        {0, 2, 1}, {0, 3, 2}, {4, 5, 6}, {4, 6, 7},
+        {0, 1, 5}, {0, 5, 4}, {2, 3, 7}, {2, 7, 6},
+        {0, 4, 7}, {0, 7, 3}, {1, 2, 6}, {1, 6, 5}
+    };
+
+    ViewportCamera cam;
+    cam.position = {3.0, 3.0, 4.0};
+    cam.target = {0.0, 0.0, 0.0};
+    cam.aspect_ratio = 4.0 / 3.0;
+    cam.fov_degrees = 45.0;
+
+    std::vector<RhiDrawItem> items{
+        {&box_mesh, Matrix4x4<double>::identity(), {0.8, 0.3, 0.2, 1.0}, 0.3, 0.2}
+    };
+
+    // 2. Initialize and render on Vulkan backend
+    RhiRendererEngine vk_engine;
+    REQUIRE(vk_engine.initialize({RhiBackendApi::Vulkan, 320, 240, true}));
+    CHECK(vk_engine.is_initialized());
+    CHECK(vk_engine.active_backend() == RhiBackendApi::Vulkan);
+
+    vk_engine.begin_frame({0.1, 0.1, 0.1, 1.0});
+    vk_engine.render_scene(cam, items);
+    vk_engine.end_frame();
+
+    CHECK(vk_engine.frame_metrics().draw_calls == 1);
+    CHECK(vk_engine.frame_metrics().triangles_submitted == 12);
+    CHECK(vk_engine.frame_metrics().pixels_shaded > 0);
+
+    // 3. Initialize and render on Direct3D12 backend
+    RhiRendererEngine d3d12_engine;
+    REQUIRE(d3d12_engine.initialize({RhiBackendApi::Direct3D12, 320, 240, true}));
+    d3d12_engine.begin_frame({0.1, 0.1, 0.1, 1.0});
+    d3d12_engine.render_scene(cam, items);
+    d3d12_engine.end_frame();
+
+    CHECK(d3d12_engine.frame_metrics().draw_calls == 1);
+    CHECK(d3d12_engine.frame_metrics().pixels_shaded > 0);
+
+    // Assert rendering parity between backends
+    CHECK(vk_engine.frame_metrics().pixels_shaded == d3d12_engine.frame_metrics().pixels_shaded);
+    CHECK(vk_engine.framebuffer().quantized_checksum() == d3d12_engine.framebuffer().quantized_checksum());
 }

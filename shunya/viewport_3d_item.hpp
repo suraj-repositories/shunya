@@ -9,6 +9,10 @@
 
 #include "shunya/eng/engineering_pipeline.hpp"
 
+namespace shunya::cad3d {
+class RhiRendererEngine;
+}
+
 namespace shunya::gui {
 
 /**
@@ -29,6 +33,10 @@ class ShunyaViewport3DItem : public QQuickPaintedItem {
     Q_PROPERTY(QString selectedObjectId READ selectedObjectId WRITE setSelectedObjectId NOTIFY selectionChanged)
     Q_PROPERTY(int meshCount READ meshCount NOTIFY sceneUpdated)
     Q_PROPERTY(int triangleCount READ triangleCount NOTIFY sceneUpdated)
+    Q_PROPERTY(bool rhiEnabled READ rhiEnabled WRITE setRhiEnabled NOTIFY rhiBackendChanged)
+    Q_PROPERTY(QString rhiBackend READ rhiBackend WRITE setRhiBackend NOTIFY rhiBackendChanged)
+    Q_PROPERTY(int drawCalls READ drawCalls NOTIFY sceneUpdated)
+    Q_PROPERTY(int pixelsShaded READ pixelsShaded NOTIFY sceneUpdated)
 
 public:
     explicit ShunyaViewport3DItem(QQuickItem* parent = nullptr);
@@ -66,6 +74,15 @@ public:
     int meshCount() const { return mesh_count_; }
     int triangleCount() const { return triangle_count_; }
 
+    bool rhiEnabled() const { return rhi_enabled_; }
+    void setRhiEnabled(bool v) { if (rhi_enabled_ != v) { rhi_enabled_ = v; emit rhiBackendChanged(); update(); } }
+
+    QString rhiBackend() const { return rhi_backend_; }
+    void setRhiBackend(const QString& b) { if (rhi_backend_ != b) { rhi_backend_ = b; emit rhiBackendChanged(); update(); } }
+
+    int drawCalls() const { return draw_calls_; }
+    int pixelsShaded() const { return pixels_shaded_; }
+
     Q_INVOKABLE void orbitBy(double dyawDeg, double dpitchDeg);
     Q_INVOKABLE void panBy(double dxPx, double dyPx);
     Q_INVOKABLE void zoomBy(double factor);
@@ -78,6 +95,7 @@ signals:
     void viewChanged();
     void selectionChanged();
     void sceneUpdated();
+    void rhiBackendChanged();
 
 protected:
     void paint(QPainter* painter) override;
@@ -97,6 +115,11 @@ private:
     QString selected_id_;
     int mesh_count_{0};
     int triangle_count_{0};
+    bool rhi_enabled_{true};
+    QString rhi_backend_{"Vulkan"};
+    int draw_calls_{0};
+    int pixels_shaded_{0};
+    std::unique_ptr<cad3d::RhiRendererEngine> rhi_engine_;
 };
 
 } // namespace shunya::gui

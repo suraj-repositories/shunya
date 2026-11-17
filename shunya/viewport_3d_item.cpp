@@ -1,5 +1,7 @@
 #include "viewport_3d_item.hpp"
+#include "shunya/cad3d/rhi_renderer_engine.hpp"
 
+#include <QImage>
 #include <QPainter>
 #include <QPolygonF>
 #include <algorithm>
@@ -208,6 +210,107 @@ void ShunyaViewport3DItem::paint(QPainter* p) {
         }
     }
 
+    if (rhi_enabled_ && ws_ && !ws_->object_manager().objects().empty()) {
+        const uint32_t rhi_w = std::clamp(static_cast<uint32_t>(W), 64u, 3840u);
+        const uint32_t rhi_h = std::clamp(static_cast<uint32_t>(H), 64u, 2160u);
+        cad3d::RhiBackendApi backend_api = cad3d::RhiBackendApi::Vulkan;
+        if (rhi_backend_ == "Direct3D12") backend_api = cad3d::RhiBackendApi::Direct3D12;
+        else if (rhi_backend_ == "OpenGL") backend_api = cad3d::RhiBackendApi::OpenGL;
+        else if (rhi_backend_ == "Metal") backend_api = cad3d::RhiBackendApi::Metal;
+
+        if (!rhi_engine_ || !rhi_engine_->is_initialized() ||
+            rhi_engine_->active_backend() != backend_api ||
+            rhi_engine_->framebuffer().width != rhi_w ||
+            rhi_engine_->framebuffer().height != rhi_h) {
+            rhi_engine_ = std::make_unique<cad3d::RhiRendererEngine>();
+            rhi_engine_->initialize({backend_api, rhi_w, rhi_h, true});
+        }
+
+        core::domain::ViewportCamera cam;
+        const double radYaw = yaw_deg_ * kDegToRad;
+        const double radPitch = pitch_deg_ * kDegToRad;
+        cam.position = {
+            pan_x_ + dist_ * std::sin(radYaw) * std::cos(radPitch),
+            pan_y_ + dist_ * std::sin(radPitch),
+            dist_ * std::cos(radYaw) * std::cos(radPitch)
+        };
+        cam.target = {pan_x_, pan_y_, 0.0};
+        cam.aspect_ratio = W / H;
+        cam.fov_y_deg = 45.0;
+
+        std::vector<cad3d::SolidMesh3D> scene_meshes;
+        std::vector<cad3d::RhiDrawItem> draw_items;
+        const auto& objs = ws_->object_manager().objects();
+        scene_meshes.reserve(objs.size());
+        draw_items.reserve(objs.size());
+
+        for (size_t idx = 0; idx < objs.size(); ++idx) {
+            const auto& obj = objs[idx];
+            scene_meshes.push_back(obj.geometry.generate_solid_mesh());
+            auto pos = obj.geometry.position;
+            if (objs.size() > 1 && std::abs(pos.x) < 1e-6 && std::abs(pos.z) < 1e-6) {
+                pos.x = (static_cast<double>(idx) - 0.5 * (objs.size() - 1)) * 0.14;
+            }
+
+            double thermScale = 1.0;
+            double tempK = obj.operating_temp_k;
+            if (physics_active_) {
+                if (const auto* body = ws_->physics_runtime().find_body(obj.id)) {
+                    pos = body->position;
+                    if (objs.size() > 1 && std::abs(pos.x) < 1e-6 && std::abs(pos.z) < 1e-6) {
+                        pos.x = (static_cast<double>(idx) - 0.5 * (objs.size() - 1)) * 0.14;
+                    }
+                    tempK = body->temperature_k;
+                    thermScale = 1.0 + body->thermal_strain;
+                }
+            }
+
+            QColor baseCol = show_thermal_
+                ? thermalColor(tempK)
+                : materialBaseColor(obj, ws_->material_registry(), dark_mode_);
+            if (!selected_id_.isEmpty() && selected_id_.toStdString() == obj.id.to_string()) {
+                baseCol = baseCol.lighter(120);
+            }
+
+            core::base::math::Matrix4x4<double> model = core::base::math::Matrix4x4<double>::translation(pos.x, pos.y, pos.z);
+            draw_items.push_back(cad3d::RhiDrawItem{
+                &scene_meshes.back(),
+                model,
+                {baseCol.redF(), baseCol.greenF(), baseCol.blueF(), baseCol.alphaF()},
+                0.4,
+                0.1
+            });
+        }
+
+        const std::array<double, 4> clear_col = dark_mode_ ?
+            std::array<double, 4>{0.11, 0.11, 0.11, 1.0} :
+            std::array<double, 4>{0.95, 0.95, 0.95, 1.0};
+        rhi_engine_->begin_frame(clear_col);
+        rhi_engine_->render_scene(cam, draw_items);
+        rhi_engine_->end_frame();
+
+        const auto& fb = rhi_engine_->framebuffer();
+        if (fb.width > 0 && fb.height > 0 && !fb.color_attachment.empty()) {
+            QImage img(fb.width, fb.height, QImage::Format_RGBA8888);
+            for (uint32_t y = 0; y < fb.height; ++y) {
+                auto* line = reinterpret_cast<uint32_t*>(img.scanLine(y));
+                for (uint32_t x = 0; x < fb.width; ++x) {
+                    const auto& c = fb.color_attachment[y * fb.width + x];
+                    uint8_t r = static_cast<uint8_t>(std::clamp(c[0] * 255.0, 0.0, 255.0));
+                    uint8_t g = static_cast<uint8_t>(std::clamp(c[1] * 255.0, 0.0, 255.0));
+                    uint8_t b = static_cast<uint8_t>(std::clamp(c[2] * 255.0, 0.0, 255.0));
+                    uint8_t a = static_cast<uint8_t>(std::clamp(c[3] * 255.0, 0.0, 255.0));
+                    line[x] = (static_cast<uint32_t>(a) << 24) |
+                              (static_cast<uint32_t>(b) << 16) |
+                              (static_cast<uint32_t>(g) << 8)  |
+                              (static_cast<uint32_t>(r));
+                }
+            }
+            p->drawImage(QPointF(0, 0), img);
+        }
+        draw_calls_ = rhi_engine_->frame_metrics().draw_calls;
+        pixels_shaded_ = rhi_engine_->frame_metrics().pixels_shaded;
+    } else {
     // Collect projected triangles from all workspace PhysicalObjects
     std::vector<ProjectedTri> tris;
     if (ws_) {
@@ -321,6 +424,7 @@ void ShunyaViewport3DItem::paint(QPainter* p) {
         }
         p->drawPolygon(poly);
     }
+    } // end else (!rhi_enabled_)
 
     // Coordinate triad at bottom-right
     const QPointF org(W - 44.0, H - 44.0);
