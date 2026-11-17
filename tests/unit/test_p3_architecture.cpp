@@ -22,6 +22,7 @@
 #include "shunya/perf/simd_math.hpp"
 #include "shunya/perf/thread_scaling_benchmark.hpp"
 #include "shunya/perf/performance_hud.hpp"
+#include "shunya/perf/simulation_hardware_profiler.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
 using namespace shunya::eng;
@@ -2148,4 +2149,103 @@ TEST_CASE("PH4-02.04.001: In-App Real-Time Performance HUD Telemetry") {
 
     hud.set_dock_position(HudDockPosition::BottomLeft);
     CHECK(hud.dock_position() == HudDockPosition::BottomLeft);
+}
+
+TEST_CASE("PH4-02.04.002: Microsecond Hardware Profiler for Simulation Loops") {
+    using namespace shunya::perf;
+
+    // 1. Hardware CPU Cycle counter verification
+    const uint64_t c1 = SimulationHardwareProfiler::read_cpu_cycles();
+    const uint64_t c2 = SimulationHardwareProfiler::read_cpu_cycles();
+    CHECK(c2 >= c1);
+
+    SimulationHardwareProfiler profiler;
+
+    // 2. Instrument simulated 100-step Circuit Simulation Loop
+    for (int step = 0; step < 100; ++step) {
+        ScopedHardwareStageTimer total_timer(profiler, SimulationStage::Total_Step);
+
+        {
+            ScopedHardwareStageTimer stage_timer(profiler, SimulationStage::Circuit_MatrixAssembly);
+            volatile double acc = 0.0;
+            for (int k = 0; k < 200; ++k) acc += k * 0.001;
+            (void)acc;
+        }
+
+        {
+            ScopedHardwareStageTimer stage_timer(profiler, SimulationStage::Circuit_Factorization);
+            volatile double acc = 1.0;
+            for (int k = 1; k < 150; ++k) acc *= 1.0001;
+            (void)acc;
+        }
+
+        {
+            ScopedHardwareStageTimer stage_timer(profiler, SimulationStage::Circuit_TriangularSolve);
+            volatile double acc = 5.0;
+            for (int k = 0; k < 100; ++k) acc -= 0.01;
+            (void)acc;
+        }
+
+        {
+            ScopedHardwareStageTimer stage_timer(profiler, SimulationStage::Circuit_ConvergenceCheck);
+            volatile double acc = 0.0001;
+            (void)acc;
+        }
+    }
+
+    CHECK(profiler.stage_metrics(SimulationStage::Circuit_MatrixAssembly).call_count == 100);
+    CHECK(profiler.stage_metrics(SimulationStage::Circuit_Factorization).call_count == 100);
+    CHECK(profiler.stage_metrics(SimulationStage::Circuit_TriangularSolve).call_count == 100);
+    CHECK(profiler.stage_metrics(SimulationStage::Circuit_ConvergenceCheck).call_count == 100);
+
+    CHECK(profiler.stage_avg_us(SimulationStage::Circuit_MatrixAssembly) > 0.0);
+    CHECK(profiler.stage_avg_us(SimulationStage::Circuit_Factorization) > 0.0);
+    CHECK(profiler.stage_last_us(SimulationStage::Circuit_TriangularSolve) > 0.0);
+    CHECK(profiler.stage_metrics(SimulationStage::Circuit_MatrixAssembly).total_cpu_cycles > 0);
+
+    // 3. Instrument simulated 100-step 3D Physics Simulation Loop
+    for (int step = 0; step < 100; ++step) {
+        {
+            ScopedHardwareStageTimer stage_timer(profiler, SimulationStage::Physics_BroadPhase);
+            volatile double acc = 0.0;
+            for (int k = 0; k < 100; ++k) acc += k;
+            (void)acc;
+        }
+
+        {
+            ScopedHardwareStageTimer stage_timer(profiler, SimulationStage::Physics_NarrowPhase);
+            volatile double acc = 0.0;
+            for (int k = 0; k < 150; ++k) acc += k * 0.5;
+            (void)acc;
+        }
+
+        {
+            ScopedHardwareStageTimer stage_timer(profiler, SimulationStage::Physics_ConstraintSolver);
+            volatile double acc = 100.0;
+            for (int k = 0; k < 250; ++k) acc -= 0.1;
+            (void)acc;
+        }
+
+        {
+            ScopedHardwareStageTimer stage_timer(profiler, SimulationStage::Physics_PositionIntegration);
+            volatile double acc = 0.0;
+            for (int k = 0; k < 80; ++k) acc += 1.0;
+            (void)acc;
+        }
+    }
+
+    CHECK(profiler.stage_metrics(SimulationStage::Physics_BroadPhase).call_count == 100);
+    CHECK(profiler.stage_metrics(SimulationStage::Physics_NarrowPhase).call_count == 100);
+    CHECK(profiler.stage_metrics(SimulationStage::Physics_ConstraintSolver).call_count == 100);
+    CHECK(profiler.stage_metrics(SimulationStage::Physics_PositionIntegration).call_count == 100);
+
+    const auto& pgs_metrics = profiler.stage_metrics(SimulationStage::Physics_ConstraintSolver);
+    CHECK(pgs_metrics.min_time_us <= pgs_metrics.max_time_us);
+    CHECK(pgs_metrics.ema_time_us > 0.0);
+
+    // 4. Summary report generation
+    const std::string summary = profiler.format_profile_summary();
+    CHECK(summary.find("Circuit: Matrix Assembly") != std::string::npos);
+    CHECK(summary.find("Physics: Constraint PGS Solve") != std::string::npos);
+    CHECK(summary.find("Overall Simulation Step") != std::string::npos);
 }

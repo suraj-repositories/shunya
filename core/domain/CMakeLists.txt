@@ -258,6 +258,7 @@ add_library(shunya_domain_perf OBJECT
     src/perf/task_graph_engine.cpp
     src/perf/thread_scaling_benchmark.cpp
     src/perf/performance_hud.cpp
+    src/perf/simulation_hardware_profiler.cpp
     src/bench/scientific_ci_runner.cpp
     src/bench/visual_regression_runner.cpp
     src/bench/perf_regression_gate.cpp
