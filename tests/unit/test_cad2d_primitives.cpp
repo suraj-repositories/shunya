@@ -7,6 +7,7 @@
 #include "shunya/cad2d/fillet_chamfer.hpp"
 #include "shunya/cad2d/drawing_tools.hpp"
 #include "shunya/cad2d/dimensioning_tool.hpp"
+#include "shunya/cad2d/vector_text_tool.hpp"
 
 #include <cmath>
 #include <vector>
@@ -485,4 +486,52 @@ TEST_CASE("PH4-04.01.002: High-Precision Dimensioning & Associative Measurement"
     CHECK(is_approx(p_lin->measured_value, 25.0));
     CHECK(p_lin->display_text() == "25.000 mm");
     CHECK(is_approx(p_lin->dimension_lines[0].total_length(), 25.0));
+}
+
+// =============================================================================
+// Task PH4-04.01.003: Interactive Vector Text Tool
+// =============================================================================
+
+TEST_CASE("PH4-04.01.003: Interactive Vector Text Tool & Typography Engine") {
+    // 1. Vector glyph generation
+    TextProperties props;
+    props.content = "SHUNYA";
+    props.position = {0.0, 0.0};
+    props.font_size = 10.0;
+    props.h_align = TextHAlign::Left;
+    props.v_align = TextVAlign::Bottom;
+
+    auto curves = VectorFontEngine::generate_vector_strokes(props);
+    CHECK(!curves.empty());
+    auto bbox = VectorFontEngine::compute_text_bounds(props);
+    CHECK(bbox.is_valid());
+    CHECK(bbox.height() > 5.0);
+    CHECK(bbox.width() > 10.0);
+
+    // 2. Alignment variations
+    props.h_align = TextHAlign::Center;
+    props.position = {100.0, 50.0};
+    auto bbox_center = VectorFontEngine::compute_text_bounds(props);
+    CHECK(is_approx(bbox_center.center().x, 100.0, 5.0));
+
+    // 3. Rotation transformation (90 degrees)
+    props.rotation_rad = 0.5 * PI;
+    auto bbox_rot = VectorFontEngine::compute_text_bounds(props);
+    // At 90 deg rotation, width and height exchange aspect ratio
+    CHECK(bbox_rot.height() > bbox_rot.width());
+
+    // 4. Interactive VectorTextTool & Document Commit
+    SketchDocument2D doc;
+    VectorTextTool tool;
+    tool.start_placement({10.0, 20.0}, "CAD 2026", 8.0);
+    CHECK(tool.is_placing);
+    auto previews = tool.preview_curves();
+    CHECK(!previews.empty());
+
+    tool.update_cursor({15.0, 25.0});
+    auto committed_ids = tool.commit_to_document(doc, false, "ANNOTATIONS");
+    CHECK(!tool.is_placing);
+    CHECK(!committed_ids.empty());
+    CHECK(doc.entities().size() == committed_ids.size());
+    CHECK(doc.entities().front().layer == "ANNOTATIONS");
 }
