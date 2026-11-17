@@ -295,4 +295,56 @@ ComponentManifest PassiveComponentsFactory::create_electrolytic_capacitor(
     return ComponentManifestSerializer::create_manifest(comp, sym, mapper, cert);
 }
 
+// ============================================================================
+// Component 6: Inductor (PH4-07.01.006)
+// ============================================================================
+
+ComponentManifest PassiveComponentsFactory::create_inductor(
+    double inductance_henries,
+    double max_current_amperes,
+    std::string_view standard
+) {
+    ComponentAuthoringData comp;
+    comp.name = "Ferrite_Core_Inductor";
+    comp.kind = eng::ComponentKind::Inductor;
+    comp.metadata.manufacturer = "Shunya Magnetics Lab";
+    comp.metadata.part_number = "SHUNYA-IND-" + std::to_string(static_cast<int>(inductance_henries * 1e3)) + "MH";
+    comp.metadata.package_type = "Axial Toroid / Choke";
+    comp.metadata.description = "Ferrite Core Wrapped Inductor " + std::to_string(inductance_henries) + " H";
+
+    comp.specs.nominal_primary_value = inductance_henries;
+    comp.specs.tolerance_percent = 10.0;
+    comp.specs.max_current_a = max_current_amperes;
+    comp.specs.max_power_dissipation_w = 0.5 * max_current_amperes * max_current_amperes * 0.15; // I^2 * ESR
+
+    comp.selected_material_names = {"Copper", "Ferrite"};
+    // Cylinder body: radius 3.5mm, height 8.0mm
+    comp.mesh_geometry = ParametricPrimitiveGenerator::generate_cylinder(
+        CylinderParams{.radius = 3.5, .height = 8.0, .radial_segments = 24}
+    );
+
+    comp.regions["lead_1"] = MeshRegionMaterial{"lead_1", "Copper", 5.8e7, 400.0, 8960.0, 1.0, 1.0, true, {}};
+    comp.regions["lead_2"] = MeshRegionMaterial{"lead_2", "Copper", 5.8e7, 400.0, 8960.0, 1.0, 1.0, true, {}};
+    comp.regions["core"] = MeshRegionMaterial{"core", "Ferrite", 1.0e-2, 4.0, 4800.0, 12.0, 1000.0, false, {}};
+
+    comp.terminals = {
+        PhysicalTerminal3D("T1", 1, ElectricalPinPolarity::PassiveBiDirectional, Point3D{0.0, 0.0, -6.0}, Vec3d{0.0, 0.0, -1.0}, "lead_1"),
+        PhysicalTerminal3D("T2", 2, ElectricalPinPolarity::PassiveBiDirectional, Point3D{0.0, 0.0, 6.0}, Vec3d{0.0, 0.0, 1.0}, "lead_2")
+    };
+
+    comp.spice_model.netlist_template = "L1 1 2 " + std::to_string(inductance_henries);
+
+    auto sym = SchematicSymbolSynthesizer::synthesize_symbol(eng::ComponentKind::Inductor, standard);
+
+    PinTerminalMapper mapper;
+    mapper.initialize(comp.terminals, sym);
+    (void)mapper.auto_map_by_number_and_polarity();
+
+    ComponentQualificationInspector::QualificationCertificate cert;
+    cert.is_qualified = true;
+    cert.certification_id = "CERT-IND-" + core::base::Uuid::generate_random().to_string().substr(0, 8);
+
+    return ComponentManifestSerializer::create_manifest(comp, sym, mapper, cert);
+}
+
 } // namespace shunya::lib30

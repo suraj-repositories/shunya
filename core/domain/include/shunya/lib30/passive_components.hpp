@@ -57,6 +57,15 @@ public:
         double max_voltage_volts = 25.0,
         std::string_view standard = "IEEE"
     );
+
+    /**
+     * @brief Component 6: Inductor (Roadmap task PH4-07.01.006)
+     */
+    [[nodiscard]] static ecad3d::ComponentManifest create_inductor(
+        double inductance_henries = 10.0e-3, // 10 mH
+        double max_current_amperes = 2.0,
+        std::string_view standard = "IEEE"
+    );
 };
 
 } // namespace shunya::lib30

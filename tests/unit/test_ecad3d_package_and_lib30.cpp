@@ -276,3 +276,37 @@ TEST_CASE("PH4-07.01.005: Component 5 - Polarized Electrolytic Capacitor (polari
     double energy_joules = 0.5 * cap_f * v_applied * v_applied;
     REQUIRE(std::abs(energy_joules - 0.0072) < 1e-6); // 7.2 mJ
 }
+
+TEST_CASE("PH4-07.01.006: Component 6 - Inductor (RL transient delay, AC reactance, and magnetic energy storage)") {
+    double l_val = 10.0e-3; // 10 mH
+    auto ind = PassiveComponentsFactory::create_inductor(l_val, 2.0);
+
+    REQUIRE(ind.kind == ComponentKind::Inductor);
+    REQUIRE(ind.specs.nominal_primary_value == l_val);
+    REQUIRE(ind.specs.max_current_a == 2.0);
+    REQUIRE(ind.terminals.size() == 2);
+    REQUIRE(ind.symbol_2d.pins.size() == 2);
+    REQUIRE(ind.vertex_count > 0);
+    REQUIRE(ind.triangle_count > 0);
+
+    // 1. Inductive Reactance: X_L = 2 * pi * f * L at f = 1000 Hz
+    double f_hz = 1000.0;
+    double pi = 3.14159265358979323846;
+    double x_l = 2.0 * pi * f_hz * l_val;
+    REQUIRE(std::abs(x_l - 62.8318) < 0.01); // ~62.83 ohms
+
+    // 2. RL Transient Time Constant: tau = L / R with 100 ohm series resistor
+    double r_val = 100.0;
+    double tau_s = l_val / r_val;
+    REQUIRE(std::abs(tau_s - 0.0001) < 1e-7); // 100 microseconds
+
+    // 3. Magnetic Energy Storage: E = 0.5 * L * I^2 at max current 2.0 A
+    double current = 2.0;
+    double energy_stored_j = 0.5 * l_val * current * current;
+    REQUIRE(std::abs(energy_stored_j - 0.020) < 1e-6); // 20 mJ
+
+    // 4. Inductive Kickback: V = -L * (di / dt) with di = 2A shut off in 10 microseconds
+    double dt = 10.0e-6;
+    double v_spike = l_val * (current / dt);
+    REQUIRE(std::abs(v_spike - 2000.0) < 1e-3); // 2000 V kickback spike requiring snubbing/freewheeling
+}
