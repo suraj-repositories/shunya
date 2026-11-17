@@ -62,6 +62,16 @@ public:
         double max_drain_current_a = 0.020,
         std::string_view standard = "IEEE"
     );
+
+    /**
+     * @brief Component 16: P-Channel JFET (Roadmap task PH4-07.03.006)
+     */
+    [[nodiscard]] static ecad3d::ComponentManifest create_p_jfet(
+        double i_dss_amperes = 8.0e-3, // 8 mA
+        double v_pinchoff_volts = 2.5,
+        double max_drain_current_a = 0.015,
+        std::string_view standard = "IEEE"
+    );
 };
 
 } // namespace shunya::lib30

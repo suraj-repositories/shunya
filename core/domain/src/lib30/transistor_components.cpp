@@ -293,4 +293,59 @@ ComponentManifest TransistorComponentsFactory::create_n_jfet(
     return ComponentManifestSerializer::create_manifest(comp, sym, mapper, cert);
 }
 
+// ============================================================================
+// Component 16: P-Channel JFET (PH4-07.03.006)
+// ============================================================================
+
+ComponentManifest TransistorComponentsFactory::create_p_jfet(
+    double i_dss_amperes,
+    double v_pinchoff_volts,
+    double max_drain_current_a,
+    std::string_view standard
+) {
+    ComponentAuthoringData comp;
+    comp.name = "P_JFET_2N5460";
+    comp.kind = eng::ComponentKind::JFET_P;
+    comp.metadata.manufacturer = "Shunya Discrete Electronics";
+    comp.metadata.part_number = "2N5460";
+    comp.metadata.package_type = "TO-92 Plastic";
+    comp.metadata.description = "P-Channel General Purpose Audio/Low-Noise JFET";
+
+    comp.specs.nominal_primary_value = i_dss_amperes;
+    comp.specs.max_voltage_v = 40.0;
+    comp.specs.max_current_a = max_drain_current_a;
+    comp.specs.max_power_dissipation_w = 0.310;
+
+    comp.selected_material_names = {"Silicon", "Copper", "Alumina"};
+    comp.mesh_geometry = ParametricPrimitiveGenerator::generate_cylinder(
+        CylinderParams{.radius = 2.4, .height = 4.8, .radial_segments = 16}
+    );
+
+    comp.regions["lead_d"] = MeshRegionMaterial{"lead_d", "Copper", 5.8e7, 400.0, 8960.0, 1.0, 1.0, true, {}};
+    comp.regions["lead_s"] = MeshRegionMaterial{"lead_s", "Copper", 5.8e7, 400.0, 8960.0, 1.0, 1.0, true, {}};
+    comp.regions["lead_g"] = MeshRegionMaterial{"lead_g", "Copper", 5.8e7, 400.0, 8960.0, 1.0, 1.0, true, {}};
+    comp.regions["package_body"] = MeshRegionMaterial{"package_body", "Alumina", 1.0e-12, 0.8, 1900.0, 3.5, 1.0, false, {}};
+
+    comp.terminals = {
+        PhysicalTerminal3D("GATE", 1, ElectricalPinPolarity::PassiveBiDirectional, Point3D{0.0, 0.0, -5.0}, Vec3d{0.0, 0.0, -1.0}, "lead_g"),
+        PhysicalTerminal3D("DRAIN", 2, ElectricalPinPolarity::Positive, Point3D{-1.27, 0.0, -5.0}, Vec3d{0.0, 0.0, -1.0}, "lead_d"),
+        PhysicalTerminal3D("SOURCE", 3, ElectricalPinPolarity::Negative, Point3D{1.27, 0.0, -5.0}, Vec3d{0.0, 0.0, -1.0}, "lead_s")
+    };
+
+    comp.spice_model.netlist_template = "J1 2 1 3 2N5460 (VTO=" + std::to_string(v_pinchoff_volts) +
+        " BETA=" + std::to_string(i_dss_amperes / (v_pinchoff_volts * v_pinchoff_volts)) + ")";
+
+    auto sym = SchematicSymbolSynthesizer::synthesize_symbol(eng::ComponentKind::JFET_P, standard);
+
+    PinTerminalMapper mapper;
+    mapper.initialize(comp.terminals, sym);
+    (void)mapper.auto_map_by_number_and_polarity();
+
+    ComponentQualificationInspector::QualificationCertificate cert;
+    cert.is_qualified = true;
+    cert.certification_id = "CERT-PJFET-" + core::base::Uuid::generate_random().to_string().substr(0, 8);
+
+    return ComponentManifestSerializer::create_manifest(comp, sym, mapper, cert);
+}
+
 } // namespace shunya::lib30

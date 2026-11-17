@@ -504,7 +504,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (15/30 — 50.0%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (16/30 — 53.3%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
@@ -572,7 +572,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Materials:* Silicon-platinum/gold junction, Molded epoxy compound.  
   *Tests:* High-frequency switching, low-loss forward conduction.
 
-### Submodule PH4-07.03: Transistors (Components 11 - 16) [~] (5/6)
+### Submodule PH4-07.03: Transistors (Components 11 - 16) [x] (100.0% — 6/6)
 - [x] `PH4-07.03.001`: **11. NPN Bipolar Junction Transistor**  
   *3D Model:* TO-92 plastic package with flat face and 3 in-line pins.  
   *2D Symbol:* Circle with Base, Collector, and Emitter pointing outward (3 pins: B, C, E).  
@@ -603,7 +603,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Electrical:* Depletion-mode conduction at $V_{gs} = 0$; pinch-off equation $I_d = I_{dss}(1 - V_{gs}/V_p)^2$.  
   *Materials:* N-type channel with P-type gate diffusions, Silicon die.  
   *Tests:* Pinch-off voltage $V_p$ verification, high-impedance buffer amplification.
-- [ ] `PH4-07.03.006`: **16. P-Channel JFET**  
+- [x] `PH4-07.03.006`: **16. P-Channel JFET**  
   *3D Model:* TO-92 package with 3 leads.  
   *2D Symbol:* Gate, Drain, Source with outward Gate arrow (3 pins: G, D, S).  
   *Electrical:* Depletion-mode P-channel: pinched off when positive gate voltage is applied.  

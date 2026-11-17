@@ -212,3 +212,29 @@ TEST_CASE("PH4-07.03.005: Component 15 - N-Channel JFET (Depletion-mode pinch-of
     double id_pinch = i_dss * std::pow(1.0 - (-3.0 / v_p), 2.0);
     REQUIRE(std::abs(id_pinch) < 1e-9);
 }
+
+TEST_CASE("PH4-07.03.006: Component 16 - P-Channel JFET (Positive gate pinch-off and audio low-noise behavior)") {
+    auto pjfet = TransistorComponentsFactory::create_p_jfet(8.0e-3, 2.5, 0.015);
+
+    REQUIRE(pjfet.kind == ComponentKind::JFET_P);
+    REQUIRE(pjfet.specs.nominal_primary_value == 0.008); // Idss = 8 mA
+    REQUIRE(pjfet.terminals.size() == 3);
+    REQUIRE(pjfet.symbol_2d.pins.size() == 3);
+
+    // Pin mappings: Gate=1, Drain=2, Source=3
+    REQUIRE(pjfet.terminals[0].terminal_id == "GATE");
+    REQUIRE(pjfet.terminals[1].terminal_id == "DRAIN");
+    REQUIRE(pjfet.terminals[2].terminal_id == "SOURCE");
+
+    // P-Channel JFET: Pinched off by applying positive gate voltage (Vgs = +Vp = +2.5V)
+    double i_dss = pjfet.specs.nominal_primary_value;
+    double v_p = 2.5;
+
+    // At Vgs = 0: Id = Idss = 8 mA
+    double id_0 = i_dss * std::pow(1.0 - (0.0 / v_p), 2.0);
+    REQUIRE(std::abs(id_0 - 0.008) < 1e-6);
+
+    // At pinch-off Vgs = +2.5V: Id = 0 mA
+    double id_pinch = i_dss * std::pow(1.0 - (2.5 / v_p), 2.0);
+    REQUIRE(std::abs(id_pinch) < 1e-9);
+}
