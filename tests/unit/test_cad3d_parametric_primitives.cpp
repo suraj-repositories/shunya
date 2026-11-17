@@ -661,3 +661,37 @@ TEST_CASE("PH4-05.02.003: Face Extrude along vertex/face normals with interactiv
     REQUIRE(val.is_watertight);
     REQUIRE(val.is_2_manifold);
 }
+
+TEST_CASE("PH4-05.02.004: Implement Inset Faces with thickness and depth parameters") {
+    CubeParams cp;
+    cp.width = 2.0; cp.height = 2.0; cp.depth = 2.0; // [-1, 1]^3
+    auto cube = ParametricPrimitiveGenerator::generate_cube(cp);
+    size_t tri_count_before = cube.triangles.size();
+    size_t vert_count_before = cube.vertices.size();
+
+    // Pick top face (+Z)
+    Ray3D ray_top{Point3D{0.0, 0.0, 5.0}, Vec3d{0.0, 0.0, -1.0}};
+    auto pick_res = MeshSelectionEngine::pick(cube, ray_top, MeshSelectionMode::Face);
+    REQUIRE(pick_res.hit);
+    uint32_t top_face = pick_res.element_index;
+
+    // Inset face: thickness = 0.4 (shrink towards centroid), depth = -0.5 (recessed pocket)
+    InsetOptions in_opt;
+    in_opt.thickness = 0.4;
+    in_opt.depth = -0.5;
+    bool ok = MeshTopologyOps::inset_faces(cube, {top_face}, in_opt);
+    REQUIRE(ok);
+
+    REQUIRE(cube.vertices.size() == vert_count_before + 3);
+    REQUIRE(cube.triangles.size() == tri_count_before + 6);
+
+    // Verify the newly created inset vertices are recessed at Z = 1.0 - 0.5 = 0.5
+    for (size_t i = vert_count_before; i < cube.vertices.size(); ++i) {
+        REQUIRE(is_close(cube.vertices[i].z, 0.5));
+    }
+
+    // Verify watertight 2-manifold topology is preserved
+    auto val = ParametricMeshValidator::validate_topology_and_attributes(cube, true);
+    REQUIRE(val.is_watertight);
+    REQUIRE(val.is_2_manifold);
+}
