@@ -32,14 +32,14 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 4 | `CAD2D` | Professional 2D Vector & Schematic Drafting Engine | P0 | 24 | 24 | 100.0% | `[x]` |
 | 5 | `CAD3D` | Professional 3D Modeling & Mesh Geometry Engine | P0 | 26 | 26 | 100.0% | `[x]` |
 | 6 | `ECAD3D` | 3D Electronic Component Designer & Specification Engine | P0 | 24 | 24 | 100.0% | `[x]` |
-| 7 | `LIB30` | 30-Component Library & Dual 3D/2D Symbol System | P0 | 30 | 15 | 50.0% | `[~]` |
+| 7 | `LIB30` | 30-Component Library & Dual 3D/2D Symbol System | P0 | 30 | 25 | 83.3% | `[~]` |
 | 8 | `CIRSIM` | Dedicated Circuit Simulation Engine (DC, AC, Transient & Non-Linear) | P0 | 26 | 0 | 0.0% | `[ ]` |
 | 9 | `PHYSIM` | 3D Physics & Multi-Body Mechanical Machine Simulator | P0 | 26 | 0 | 0.0% | `[ ]` |
 | 10 | `COSIM` | Circuit-to-3D Electro-Mechanical Simulation Integration | P0 | 24 | 0 | 0.0% | `[ ]` |
 | 11 | `RIG3D` | Advanced Modifiers, Organic Modeling & Skeletal Rigging | P1 | 20 | 0 | 0.0% | `[ ]` |
 | 12 | `UIUX` | Professional UI Polish & VS Code-Style Menu System | P0 | 18 | 0 | 0.0% | `[ ]` |
 | 13 | `QA` | Verification, Test Automation & CI/CD Pipeline | P0 | 20 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 4 Integrated Engineering Platform** | **--** | **312** | **161** | **51.6%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 4 Integrated Engineering Platform** | **--** | **312** | **171** | **54.8%** | `[~]` |
 
 ---
 
@@ -504,7 +504,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (24/30 — 80.0%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (25/30 — 83.3%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
@@ -636,7 +636,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Materials:* Copper magnetic coil wire, Soft iron core, Silver alloy contacts.  
   *Tests:* Coil pull-in/drop-out voltage hysteresis, galvanic isolation between coil and contacts.
 
-### Submodule PH4-07.05: Power Sources, Protection & Passive Sensors (Components 21 - 27) [~] (4/7)
+### Submodule PH4-07.05: Power Sources, Protection & Passive Sensors (Components 21 - 27) [~] (5/7)
 - [x] `PH4-07.05.001`: **21. Chemical Battery (Secondary Li-ion / Alkaline)**  
   *3D Model:* Cylindrical 18650 cell with positive button top and negative nickel terminal.  
   *2D Symbol:* Alternating long and short parallel lines with + and - markings (2 pins: +, -).  
@@ -661,7 +661,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Electrical:* MNA reference node fixing potential $V_{\text{GND}} = 0.0\text{V}$.  
   *Materials:* Zinc-plated carbon steel stud.  
   *Tests:* Reference node constraint enforcement, multiple ground loop resolution.
-- [ ] `PH4-07.05.005`: **25. Fast-Acting Fuse**  
+- [x] `PH4-07.05.005`: **25. Fast-Acting Fuse**  
   *3D Model:* 5x20mm glass cartridge with nickel-plated brass endcaps and visible internal wire filament.  
   *2D Symbol:* Rectangle intersected by continuous axial wire (2 pins: In, Out).  
   *Electrical:* Low-resistance conductor ($I^2 t$ thermal blowout calculation melting filament when $I > I_{\text{rating}}$).  
