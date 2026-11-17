@@ -2,6 +2,7 @@
 
 #include "shunya/cad3d/parametric_primitives.hpp"
 #include "shunya/cad3d/mesh_selection_engine.hpp"
+#include "shunya/cad3d/mesh_topology_ops.hpp"
 #include "shunya/cad3d/mesh_transform_ops.hpp"
 #include "shunya/cad3d/solid_mesh.hpp"
 #include "shunya/core/base/math.hpp"
@@ -625,4 +626,38 @@ TEST_CASE("PH4-05.02.002: Blender-style mesh transform operations: Grab (G), Rot
     REQUIRE(is_close(bbox_scale_xz.size().x, 12.0)); // 6.0 * 2.0
     REQUIRE(is_close(bbox_scale_xz.size().y, 2.0));  // Unchanged
     REQUIRE(is_close(bbox_scale_xz.size().z, 4.0));  // 2.0 * 2.0
+}
+
+TEST_CASE("PH4-05.02.003: Face Extrude along vertex/face normals with interactive depth handles") {
+    CubeParams cp;
+    cp.width = 2.0; cp.height = 2.0; cp.depth = 2.0; // [-1, 1]^3
+    auto cube = ParametricPrimitiveGenerator::generate_cube(cp);
+    size_t tri_count_before = cube.triangles.size();
+    size_t vert_count_before = cube.vertices.size();
+
+    // Pick top face (+Z)
+    Ray3D ray_top{Point3D{0.0, 0.0, 5.0}, Vec3d{0.0, 0.0, -1.0}};
+    auto pick_res = MeshSelectionEngine::pick(cube, ray_top, MeshSelectionMode::Face);
+    REQUIRE(pick_res.hit);
+    uint32_t top_face = pick_res.element_index;
+
+    // Extrude face along its normal by distance 3.0
+    ExtrudeOptions opt;
+    opt.distance = 3.0;
+    bool ok = MeshTopologyOps::extrude_faces(cube, {top_face}, opt);
+    REQUIRE(ok);
+
+    // Verify vertex count increased by 3 and triangle count increased by 6 (3 side quads)
+    REQUIRE(cube.vertices.size() == vert_count_before + 3);
+    REQUIRE(cube.triangles.size() == tri_count_before + 6);
+
+    // Verify new bbox: Z max is now 1.0 + 3.0 = 4.0
+    auto bbox_extruded = cube.compute_bbox();
+    REQUIRE(is_close(bbox_extruded.max.z, 4.0));
+    REQUIRE(is_close(bbox_extruded.size().z, 5.0)); // From -1.0 to 4.0
+
+    // Verify watertight 2-manifold topology is preserved
+    auto val = ParametricMeshValidator::validate_topology_and_attributes(cube, true);
+    REQUIRE(val.is_watertight);
+    REQUIRE(val.is_2_manifold);
 }
