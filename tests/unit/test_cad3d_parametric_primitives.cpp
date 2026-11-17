@@ -366,3 +366,86 @@ TEST_CASE("PH4-05.01.004: Ensure clean 2-manifold watertight topology with prope
     REQUIRE(circ_val.normals_valid);
     REQUIRE(circ_val.uvs_valid);
 }
+
+TEST_CASE("PH4-05.01.005: Analytical volume, surface area, and bounding box calculation algorithms") {
+    // 1. Cube analytical vs discrete: exact agreement
+    CubeParams cp;
+    cp.width = 3.0; cp.height = 4.0; cp.depth = 5.0;
+    auto cube_analytical = ParametricPrimitiveGenerator::compute_analytical(cp);
+    REQUIRE(is_close(cube_analytical.volume, 60.0));
+    REQUIRE(is_close(cube_analytical.surface_area, 94.0));
+    REQUIRE(is_close(cube_analytical.bbox.size().x, 3.0));
+    REQUIRE(is_close(cube_analytical.bbox.size().y, 4.0));
+    REQUIRE(is_close(cube_analytical.bbox.size().z, 5.0));
+
+    auto cube_mesh = ParametricPrimitiveGenerator::generate_cube(cp);
+    auto cube_comp = ParametricPrimitiveGenerator::compare_analytical_vs_discrete(cube_mesh, cube_analytical);
+    REQUIRE(is_close(cube_comp.discrete_volume, 60.0, 1e-3));
+    REQUIRE(is_close(cube_comp.discrete_surface_area, 94.0, 1e-3));
+    REQUIRE(cube_comp.volume_error_percent < 0.01);
+    REQUIRE(cube_comp.surface_area_error_percent < 0.01);
+
+    // 2. Sphere analytical calculations
+    SphereParams sp;
+    sp.radius = 2.0;
+    auto sphere_analytical = ParametricPrimitiveGenerator::compute_analytical(sp);
+    double expected_sphere_vol = (4.0 / 3.0) * std::numbers::pi * 8.0;
+    double expected_sphere_area = 4.0 * std::numbers::pi * 4.0;
+    REQUIRE(is_close(sphere_analytical.volume, expected_sphere_vol));
+    REQUIRE(is_close(sphere_analytical.surface_area, expected_sphere_area));
+    REQUIRE(is_close(sphere_analytical.bbox.size().x, 4.0));
+
+    // Verify discrete mesh convergence
+    UvSphereParams uv_p;
+    uv_p.radius = 2.0; uv_p.segments = 64; uv_p.rings = 32;
+    auto sphere_mesh = ParametricPrimitiveGenerator::generate_uv_sphere(uv_p);
+    auto sphere_comp = ParametricPrimitiveGenerator::compare_analytical_vs_discrete(sphere_mesh, sphere_analytical);
+    REQUIRE(sphere_comp.volume_error_percent < 1.5); // < 1.5% discretization error
+
+    // 3. Cylinder analytical calculations
+    CylinderParams cyl_p;
+    cyl_p.radius = 1.0; cyl_p.height = 4.0; cyl_p.radial_segments = 48;
+    auto cyl_analytical = ParametricPrimitiveGenerator::compute_analytical(cyl_p);
+    double expected_cyl_vol = std::numbers::pi * 1.0 * 4.0;
+    double expected_cyl_area = 2.0 * std::numbers::pi * 1.0 * 4.0 + 2.0 * std::numbers::pi * 1.0;
+    REQUIRE(is_close(cyl_analytical.volume, expected_cyl_vol));
+    REQUIRE(is_close(cyl_analytical.surface_area, expected_cyl_area));
+
+    auto cyl_mesh = ParametricPrimitiveGenerator::generate_cylinder(cyl_p);
+    auto cyl_comp = ParametricPrimitiveGenerator::compare_analytical_vs_discrete(cyl_mesh, cyl_analytical);
+    REQUIRE(cyl_comp.volume_error_percent < 1.0);
+
+    // 4. Cone analytical calculations
+    ConeParams cone_p;
+    cone_p.radius = 3.0; cone_p.height = 4.0;
+    auto cone_analytical = ParametricPrimitiveGenerator::compute_analytical(cone_p);
+    double expected_cone_vol = (1.0 / 3.0) * std::numbers::pi * 9.0 * 4.0; // 12 * pi
+    double expected_cone_area = std::numbers::pi * 3.0 * (3.0 + 5.0);      // 24 * pi
+    REQUIRE(is_close(cone_analytical.volume, expected_cone_vol));
+    REQUIRE(is_close(cone_analytical.surface_area, expected_cone_area));
+
+    // 5. Torus analytical calculations
+    TorusParams tp;
+    tp.major_radius = 4.0; tp.minor_radius = 1.0;
+    auto torus_analytical = ParametricPrimitiveGenerator::compute_analytical(tp);
+    double expected_torus_vol = 2.0 * std::pow(std::numbers::pi, 2) * 4.0 * 1.0; // 8 * pi^2
+    double expected_torus_area = 4.0 * std::pow(std::numbers::pi, 2) * 4.0 * 1.0; // 16 * pi^2
+    REQUIRE(is_close(torus_analytical.volume, expected_torus_vol));
+    REQUIRE(is_close(torus_analytical.surface_area, expected_torus_area));
+    REQUIRE(is_close(torus_analytical.bbox.size().x, 10.0));
+    REQUIRE(is_close(torus_analytical.bbox.size().z, 2.0));
+
+    // 6. Fastener analytical calculations (Washer & Nut)
+    WasherParams wp;
+    wp.inner_diameter = 6.0; wp.outer_diameter = 12.0; wp.thickness = 2.0;
+    auto washer_analytical = ParametricPrimitiveGenerator::compute_analytical(wp);
+    double expected_washer_vol = std::numbers::pi * (36.0 - 9.0) * 2.0; // 54 * pi
+    REQUIRE(is_close(washer_analytical.volume, expected_washer_vol));
+    REQUIRE(washer_analytical.surface_area > 0.0);
+
+    // 7. ParametricPrimitive analytical_properties() query
+    ParametricPrimitive prim_torus(PrimitiveType::Torus, tp);
+    auto prim_props = prim_torus.analytical_properties();
+    REQUIRE(is_close(prim_props.volume, expected_torus_vol));
+    REQUIRE(is_close(prim_props.surface_area, expected_torus_area));
+}

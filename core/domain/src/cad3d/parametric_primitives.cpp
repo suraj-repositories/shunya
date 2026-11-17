@@ -1112,6 +1112,26 @@ AnalyticalProperties ParametricPrimitiveGenerator::compute_analytical(const PinP
     return compute_analytical(cp);
 }
 
+AnalyticalComparison ParametricPrimitiveGenerator::compare_analytical_vs_discrete(
+    const SolidMesh3D& mesh,
+    const AnalyticalProperties& analytical
+) {
+    AnalyticalComparison comp;
+    comp.analytical_volume = analytical.volume;
+    comp.discrete_volume = mesh.compute_volume();
+    if (analytical.volume > 1e-9) {
+        comp.volume_error_percent = (std::abs(comp.analytical_volume - comp.discrete_volume) / comp.analytical_volume) * 100.0;
+    }
+
+    comp.analytical_surface_area = analytical.surface_area;
+    comp.discrete_surface_area = mesh.compute_surface_area();
+    if (analytical.surface_area > 1e-9) {
+        comp.surface_area_error_percent = (std::abs(comp.analytical_surface_area - comp.discrete_surface_area) / comp.analytical_surface_area) * 100.0;
+    }
+
+    return comp;
+}
+
 // ============================================================================
 // Standard Fastener Presets
 // ============================================================================

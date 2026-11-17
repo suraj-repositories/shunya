@@ -185,6 +185,15 @@ struct AnalyticalProperties {
     BBox3D bbox;
 };
 
+struct AnalyticalComparison {
+    double analytical_volume{0.0};
+    double discrete_volume{0.0};
+    double volume_error_percent{0.0};
+    double analytical_surface_area{0.0};
+    double discrete_surface_area{0.0};
+    double surface_area_error_percent{0.0};
+};
+
 // ============================================================================
 // Topology & Mesh Quality Validation (Task 9: PH4-05.01.004)
 // ============================================================================
@@ -247,6 +256,11 @@ public:
     [[nodiscard]] static AnalyticalProperties compute_analytical(const WasherParams& p);
     [[nodiscard]] static AnalyticalProperties compute_analytical(const NutParams& p);
     [[nodiscard]] static AnalyticalProperties compute_analytical(const PinParams& p);
+
+    [[nodiscard]] static AnalyticalComparison compare_analytical_vs_discrete(
+        const SolidMesh3D& mesh,
+        const AnalyticalProperties& analytical
+    );
 
     // Standard Fastener Presets
     [[nodiscard]] static HexBoltParams iso4014_hex_bolt(const std::string& size_label, double length = 30.0);
