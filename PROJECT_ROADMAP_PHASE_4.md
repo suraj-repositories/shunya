@@ -504,11 +504,11 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (2/30 — 6.7%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (3/30 — 10.0%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
-### Submodule PH4-07.01: Passive Components (Components 1 - 6) [~] (2/6)
+### Submodule PH4-07.01: Passive Components (Components 1 - 6) [~] (3/6)
 - [x] `PH4-07.01.001`: **1. Resistor**  
   *3D Model:* Cylindrical ceramic body with copper leads and 4-band color rings.  
   *2D Symbol:* IEEE zig-zag / IEC rectangle (2 pins).  
@@ -521,7 +521,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Electrical:* Dynamic resistance $R(\theta) = R_{\min} + \theta (R_{\max} - R_{\min})$.  
   *Materials:* Nichrome wire, Brass wiper, Ceramic base.  
   *Tests:* Wiper position sweep, power rating verification.
-- [ ] `PH4-07.01.003`: **3. Potentiometer**  
+- [x] `PH4-07.01.003`: **3. Potentiometer**  
   *3D Model:* Rotary metal shaft with 3-pin solder terminals and carbon track enclosure.  
   *2D Symbol:* Resistor with center wiper arrow (3 pins: Terminal 1, Wiper, Terminal 2).  
   *Electrical:* Dual-voltage divider $R_{1-W} + R_{W-2} = R_{\text{total}}$.  
