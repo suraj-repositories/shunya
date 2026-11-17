@@ -331,3 +331,62 @@ TEST_CASE("PH4-04.02.002: Polar Tracking Guides with Customizable Increments (15
     auto ray = PolarTrackingEngine::generate_visual_guide_ray(m_rel, 500.0);
     CHECK(is_approx(ray.total_length(), 500.0, 1e-4));
 }
+
+// =============================================================================
+// Task PH4-04.02.003: Cartesian and Isometric Dynamic Visual Grids
+// =============================================================================
+
+TEST_CASE("PH4-04.02.003: Cartesian and Isometric Dynamic Visual Grids with Adaptive Zoom") {
+    SketchViewport2D vp;
+    vp.viewport_width = 1200.0;
+    vp.viewport_height = 800.0;
+    vp.pixels_per_unit = 50.0; // 50 px = 1 unit
+
+    // 1. Cartesian Grid
+    vp.grid_mode = GridMode::Cartesian;
+    auto cart_grid = vp.compute_dynamic_grid(14.0);
+    CHECK(cart_grid.mode == GridMode::Cartesian);
+    CHECK(cart_grid.minor_step > 0.0);
+    CHECK(is_approx(cart_grid.major_step, cart_grid.minor_step * 5.0));
+    CHECK(!cart_grid.vertical_lines.empty());
+    CHECK(!cart_grid.horizontal_lines.empty());
+    CHECK(cart_grid.fade_alpha >= 0.2 && cart_grid.fade_alpha <= 1.0);
+
+    // Zooming in subdivides the grid adaptively
+    vp.zoom_at_screen({600.0, 400.0}, 10.0); // 500 px/unit
+    auto cart_zoom = vp.compute_dynamic_grid(14.0);
+    CHECK(cart_zoom.minor_step < cart_grid.minor_step);
+
+    // Cartesian snap
+    Point2D c_snap = vp.snap_to_active_grid({1.03, 2.04}, 1.0);
+    CHECK(is_approx(c_snap.x, 1.0));
+    CHECK(is_approx(c_snap.y, 2.0));
+
+    // 2. Isometric Grid
+    vp.grid_mode = GridMode::Isometric;
+    vp.isometric_angle_deg = 30.0;
+    auto iso_grid = vp.compute_dynamic_grid(14.0);
+    CHECK(iso_grid.mode == GridMode::Isometric);
+    CHECK(!iso_grid.isometric_lines.empty());
+
+    // Isometric snapping
+    // At 30 deg, basis is (cos 30, sin 30) = (sqrt(3)/2, 0.5)
+    // An exact isometric grid point with c1=2.0, c2=1.0 has:
+    // x = (2.0 - 1.0) * cos(30) = 0.866025
+    // y = (2.0 + 1.0) * sin(30) = 1.500000
+    double cos30 = std::cos(30.0 * PI / 180.0);
+    double sin30 = std::sin(30.0 * PI / 180.0);
+    Point2D exact_iso_pt{1.0 * cos30, 3.0 * sin30};
+
+    // Perturb point slightly
+    Point2D query_pt = exact_iso_pt + Point2D{0.02, -0.01};
+    Point2D iso_snapped = vp.snap_to_active_grid(query_pt, 1.0);
+
+    CHECK(is_approx(iso_snapped.x, exact_iso_pt.x, 1e-4));
+    CHECK(is_approx(iso_snapped.y, exact_iso_pt.y, 1e-4));
+
+    // Static helper
+    Point2D iso_s2 = SketchViewport2D::snap_to_isometric_grid(query_pt, 1.0, 30.0);
+    CHECK(is_approx(iso_s2.x, exact_iso_pt.x, 1e-4));
+    CHECK(is_approx(iso_s2.y, exact_iso_pt.y, 1e-4));
+}
