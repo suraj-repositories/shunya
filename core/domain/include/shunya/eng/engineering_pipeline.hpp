@@ -91,6 +91,13 @@ struct ProjectLoadProgress {
 
 using LoadProgressCallback = std::function<void(const ProjectLoadProgress& progress)>;
 
+struct ProjectSaveProgress {
+    double fraction{0.0};
+    std::string stage;
+};
+
+using SaveProgressCallback = std::function<void(const ProjectSaveProgress& progress)>;
+
 struct GarbageCollectionReport {
     size_t pruned_materials{0};
     size_t repaired_regions{0};
@@ -209,6 +216,16 @@ public:
     [[nodiscard]] core::base::Result<void> save_to_file(
         const std::filesystem::path& path,
         const Shunya4SaveOptions& options = {});
+    [[nodiscard]] core::base::Result<void> save_to_file_with_progress(
+        const std::filesystem::path& path,
+        const Shunya4SaveOptions& options = {},
+        SaveProgressCallback progress_cb = nullptr,
+        core::base::CancellationToken cancel_token = {});
+    [[nodiscard]] std::future<core::base::Result<void>> save_to_file_async(
+        const std::filesystem::path& path,
+        const Shunya4SaveOptions& options = {},
+        SaveProgressCallback progress_cb = nullptr,
+        core::base::CancellationToken cancel_token = {});
     [[nodiscard]] core::base::Result<void> load_from_file(const std::filesystem::path& path);
     [[nodiscard]] core::base::Result<void> load_from_file_with_progress(
         const std::filesystem::path& path,

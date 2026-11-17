@@ -1440,3 +1440,81 @@ TEST_CASE("PH4-02.02.004: EventBus Read-Write Locks & Wait-Free Lockless Telemet
     bus.clear();
     CHECK(bus.telemetry_queued_count() == 0);
 }
+
+TEST_CASE("PH4-02.02.005: Background File Serialization, Parsing & Cancellation") {
+    EngineeringWorkspaceState ws_source;
+    REQUIRE(ws_source.seed_lithium_battery_workflow().is_ok());
+
+    const auto temp_dir = std::filesystem::temp_directory_path() / "shunya_test_bg_io";
+    std::filesystem::create_directories(temp_dir);
+    const auto save_path = temp_dir / "async_test.shunya4";
+
+    // 1. Asynchronous Save with Progress Monitoring
+    std::vector<double> save_progresses;
+    std::vector<std::string> save_stages;
+    auto save_fut = ws_source.save_to_file_async(
+        save_path,
+        {},
+        [&](const ProjectSaveProgress& p) {
+            save_progresses.push_back(p.fraction);
+            save_stages.push_back(p.stage);
+        }
+    );
+
+    REQUIRE(save_fut.valid());
+    auto save_res = save_fut.get();
+    REQUIRE(save_res.is_ok());
+    CHECK(std::filesystem::exists(save_path));
+    CHECK_FALSE(save_progresses.empty());
+    CHECK(save_progresses.back() == 1.0);
+
+    // 2. Asynchronous Load into Clean Workspace with Progress Monitoring
+    EngineeringWorkspaceState ws_dest;
+    std::vector<double> load_progresses;
+    std::vector<std::string> load_stages;
+    auto load_fut = ws_dest.load_from_file_async(
+        save_path,
+        [&](const ProjectLoadProgress& p) {
+            load_progresses.push_back(p.fraction);
+            load_stages.push_back(p.stage);
+        }
+    );
+
+    REQUIRE(load_fut.valid());
+    auto load_res = load_fut.get();
+    REQUIRE(load_res.is_ok());
+    CHECK_FALSE(load_progresses.empty());
+    CHECK(load_progresses.back() == 1.0);
+
+    // Verify entity fidelity between source and dest
+    CHECK(ws_dest.mixture_experiments().size() == ws_source.mixture_experiments().size());
+    CHECK(ws_dest.object_manager().objects().size() == ws_source.object_manager().objects().size());
+    CHECK(ws_dest.circuits().size() == ws_source.circuits().size());
+
+    // 3. Cooperative Cancellation during Save
+    CancellationToken cancel_tok;
+    cancel_tok.cancel(); // Pre-cancel
+    const auto cancelled_path = temp_dir / "cancelled.shunya4";
+    auto cancelled_save_fut = ws_source.save_to_file_async(
+        cancelled_path,
+        {},
+        nullptr,
+        cancel_tok
+    );
+    auto cancelled_save_res = cancelled_save_fut.get();
+    CHECK(cancelled_save_res.is_err());
+    CHECK_FALSE(std::filesystem::exists(cancelled_path));
+
+    // 4. Cooperative Cancellation during Load
+    auto cancelled_load_fut = ws_dest.load_from_file_async(
+        save_path,
+        nullptr,
+        cancel_tok
+    );
+    auto cancelled_load_res = cancelled_load_fut.get();
+    CHECK(cancelled_load_res.is_err());
+
+    // Cleanup
+    std::error_code ec;
+    std::filesystem::remove_all(temp_dir, ec);
+}

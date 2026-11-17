@@ -637,26 +637,91 @@ core::base::Result<void> EngineeringWorkspaceState::from_bundle_json(std::string
 core::base::Result<void> EngineeringWorkspaceState::save_to_file(
     const std::filesystem::path& path,
     const Shunya4SaveOptions& options) {
+    return save_to_file_with_progress(path, options, nullptr, {});
+}
+
+core::base::Result<void> EngineeringWorkspaceState::save_to_file_with_progress(
+    const std::filesystem::path& path,
+    const Shunya4SaveOptions& options,
+    SaveProgressCallback progress_cb,
+    core::base::CancellationToken cancel_token) {
+
+    auto report = [&](double frac, std::string stage) {
+        if (progress_cb) {
+            progress_cb(ProjectSaveProgress{.fraction = frac, .stage = std::move(stage)});
+        }
+    };
+
+    if (cancel_token.is_cancelled()) {
+        return core::base::Result<void>::err(core::base::Error{
+            .code = 4921,
+            .domain = core::base::ErrorDomain::System,
+            .severity = core::base::Severity::Warning,
+            .message = "Project save cancelled",
+            .details = "Operation aborted before preparation"
+        });
+    }
+
+    report(0.10, "Preparing serialized snapshot buffer");
+
     std::error_code ec;
     if (path.has_parent_path()) {
         std::filesystem::create_directories(path.parent_path(), ec);
     }
     const std::filesystem::path tmp_path = path.string() + ".tmp";
+
+    report(0.35, "Generating project payload");
+
+    std::vector<uint8_t> bin_data;
+    std::string json_data;
+    const bool is_binary = (options.binary_format || path.extension() == ".shunya4bin");
+
+    if (is_binary) {
+        bin_data = to_shunya4_binary(options);
+    } else {
+        json_data = to_bundle_json(options);
+    }
+
+    if (cancel_token.is_cancelled()) {
+        std::filesystem::remove(tmp_path, ec);
+        return core::base::Result<void>::err(core::base::Error{
+            .code = 4921,
+            .domain = core::base::ErrorDomain::System,
+            .severity = core::base::Severity::Warning,
+            .message = "Project save cancelled",
+            .details = "Operation aborted after serialization"
+        });
+    }
+
+    report(0.70, "Writing payload to temporary storage");
     {
         std::ofstream os(tmp_path, std::ios::binary | std::ios::trunc);
         if (!os.is_open()) {
             return make_eng_error(4902, "Failed to open project file for writing: " + path.string());
         }
-        if (options.binary_format || path.extension() == ".shunya4bin") {
-            auto bin = to_shunya4_binary(options);
-            os.write(reinterpret_cast<const char*>(bin.data()), static_cast<std::streamsize>(bin.size()));
+        if (is_binary) {
+            os.write(reinterpret_cast<const char*>(bin_data.data()), static_cast<std::streamsize>(bin_data.size()));
         } else {
-            os << to_bundle_json(options);
+            os << json_data;
         }
         if (!os.good()) {
+            std::filesystem::remove(tmp_path, ec);
             return make_eng_error(4903, "Failed while writing project bundle to: " + path.string());
         }
     }
+
+    if (cancel_token.is_cancelled()) {
+        std::filesystem::remove(tmp_path, ec);
+        return core::base::Result<void>::err(core::base::Error{
+            .code = 4921,
+            .domain = core::base::ErrorDomain::System,
+            .severity = core::base::Severity::Warning,
+            .message = "Project save cancelled",
+            .details = "Operation aborted before atomic commit"
+        });
+    }
+
+    report(0.90, "Finalizing atomic filesystem commit");
     std::filesystem::rename(tmp_path, path, ec);
     if (ec) {
         std::filesystem::copy_file(tmp_path, path, std::filesystem::copy_options::overwrite_existing, ec);
@@ -669,7 +734,19 @@ core::base::Result<void> EngineeringWorkspaceState::save_to_file(
         project_->set_file_path(path.string());
         project_->clear_dirty();
     }
+
+    report(1.00, "Project saved successfully");
     return core::base::Result<void>::ok();
+}
+
+std::future<core::base::Result<void>> EngineeringWorkspaceState::save_to_file_async(
+    const std::filesystem::path& path,
+    const Shunya4SaveOptions& options,
+    SaveProgressCallback progress_cb,
+    core::base::CancellationToken cancel_token) {
+    return std::async(std::launch::async, [this, path, options, progress_cb = std::move(progress_cb), cancel_token]() mutable {
+        return save_to_file_with_progress(path, options, std::move(progress_cb), cancel_token);
+    });
 }
 
 core::base::Result<void> EngineeringWorkspaceState::load_from_file(const std::filesystem::path& path) {
