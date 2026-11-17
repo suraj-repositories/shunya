@@ -504,7 +504,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (20/30 — 66.7%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (21/30 — 70.0%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
@@ -636,8 +636,8 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Materials:* Copper magnetic coil wire, Soft iron core, Silver alloy contacts.  
   *Tests:* Coil pull-in/drop-out voltage hysteresis, galvanic isolation between coil and contacts.
 
-### Submodule PH4-07.05: Power Sources, Protection & Passive Sensors (Components 21 - 27)
-- [ ] `PH4-07.05.001`: **21. Chemical Battery (Secondary Li-ion / Alkaline)**  
+### Submodule PH4-07.05: Power Sources, Protection & Passive Sensors (Components 21 - 27) [~] (1/7)
+- [x] `PH4-07.05.001`: **21. Chemical Battery (Secondary Li-ion / Alkaline)**  
   *3D Model:* Cylindrical 18650 cell with positive button top and negative nickel terminal.  
   *2D Symbol:* Alternating long and short parallel lines with + and - markings (2 pins: +, -).  
   *Electrical:* Dual-RC Thevenin equivalent circuit model with state-of-charge (SOC) dependent open circuit voltage $V_{\text{ocv}}(\text{SOC})$ and internal resistance $R_0$.  
