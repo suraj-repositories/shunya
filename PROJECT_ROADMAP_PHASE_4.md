@@ -504,12 +504,12 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[ ] Not Started` (0/30)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (1/30 — 3.3%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
-### Submodule PH4-07.01: Passive Components (Components 1 - 6)
-- [ ] `PH4-07.01.001`: **1. Resistor**  
+### Submodule PH4-07.01: Passive Components (Components 1 - 6) [~] (1/6)
+- [x] `PH4-07.01.001`: **1. Resistor**  
   *3D Model:* Cylindrical ceramic body with copper leads and 4-band color rings.  
   *2D Symbol:* IEEE zig-zag / IEC rectangle (2 pins).  
   *Electrical:* $V = I \cdot R$ with temperature coefficient $\Delta R(T) = R_0(1 + \alpha \Delta T)$.  
