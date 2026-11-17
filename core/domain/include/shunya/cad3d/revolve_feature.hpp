@@ -30,6 +30,17 @@ public:
         const cad2d::Paths2D& holes = {},
         const RevolveParams& params = {}
     );
+
+    /**
+     * @brief Revolves a closed 2D profile around a defined 3D axis by arbitrary degrees (up to 360°).
+     */
+    [[nodiscard]] static SolidMesh3D revolve_degrees(
+        const cad2d::Path2D& outer,
+        const Axis3D& axis,
+        double degrees = 360.0,
+        const cad2d::Paths2D& holes = {},
+        size_t angular_segments = 64
+    );
 };
 
 } // namespace shunya::cad3d

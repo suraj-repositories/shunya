@@ -145,4 +145,18 @@ SolidMesh3D RevolveEngine::revolve(
     return mesh;
 }
 
+SolidMesh3D RevolveEngine::revolve_degrees(
+    const cad2d::Path2D& outer,
+    const Axis3D& axis,
+    double degrees,
+    const cad2d::Paths2D& holes,
+    size_t angular_segments
+) {
+    RevolveParams params;
+    params.axis = axis;
+    params.angle_rad = degrees * (core::base::math::PI / 180.0);
+    params.angular_segments = angular_segments;
+    return revolve(outer, holes, params);
+}
+
 } // namespace shunya::cad3d

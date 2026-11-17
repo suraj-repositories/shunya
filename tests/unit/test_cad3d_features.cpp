@@ -221,3 +221,42 @@ TEST_CASE("PH4-05.04.001: Extrude Sketch feature creating 3D solid from closed 2
     REQUIRE(vec_manifold.is_2_manifold);
     REQUIRE(rel_close(vector_prism.compute_volume(), expected_hex_area * 15.0, 1e-4));
 }
+
+TEST_CASE("PH4-05.04.002: Revolve Sketch feature rotating 2D profile around defined axis by arbitrary degrees") {
+    // Trapezoidal profile offset from Y axis: x in [2, 5], y in [0, 4]
+    // Revolving 180 degrees around Y axis (axis at origin pointing (0, 1, 0))
+    Path2D trap{{2.0, 0.0}, {5.0, 0.0}, {4.0, 4.0}, {2.0, 4.0}};
+    Axis3D y_axis{{0.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+    // 1. Full 360 degree revolution (annular ring -> genus 1, Euler = 0)
+    SolidMesh3D rev_360 = RevolveEngine::revolve_degrees(trap, y_axis, 360.0);
+    auto rep_360 = rev_360.analyze_manifold();
+    REQUIRE(rep_360.is_watertight);
+    REQUIRE(rep_360.is_2_manifold);
+    REQUIRE(rep_360.euler_characteristic == 0);
+    REQUIRE(rev_360.compute_volume() > 50.0);
+
+    // Also verify profile touching axis produces genus 0 solid (Euler = 2)
+    Path2D solid_rect{{0.0, 0.0}, {3.0, 0.0}, {3.0, 5.0}, {0.0, 5.0}};
+    SolidMesh3D cylinder = RevolveEngine::revolve_degrees(solid_rect, y_axis, 360.0);
+    auto cyl_rep = cylinder.analyze_manifold();
+    REQUIRE(cyl_rep.is_watertight);
+    REQUIRE(cyl_rep.is_2_manifold);
+    REQUIRE(cyl_rep.euler_characteristic == 2);
+
+    // 2. Partial 180 degree revolution (capped planar ends)
+    SolidMesh3D rev_180 = RevolveEngine::revolve_degrees(trap, y_axis, 180.0);
+    auto rep_180 = rev_180.analyze_manifold();
+    REQUIRE(rep_180.is_watertight);
+    REQUIRE(rep_180.is_2_manifold);
+    REQUIRE(rep_180.euler_characteristic == 2);
+    // 180 degree revolve should have exactly half volume of 360 degree revolve
+    REQUIRE(rel_close(rev_180.compute_volume(), rev_360.compute_volume() * 0.5, 0.005));
+
+    // 3. Partial 90 degree revolution
+    SolidMesh3D rev_90 = RevolveEngine::revolve_degrees(trap, y_axis, 90.0);
+    auto rep_90 = rev_90.analyze_manifold();
+    REQUIRE(rep_90.is_watertight);
+    REQUIRE(rep_90.is_2_manifold);
+    REQUIRE(rel_close(rev_90.compute_volume(), rev_360.compute_volume() * 0.25, 0.005));
+}
