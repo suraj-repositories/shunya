@@ -504,11 +504,11 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (3/30 — 10.0%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (4/30 — 13.3%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
-### Submodule PH4-07.01: Passive Components (Components 1 - 6) [~] (3/6)
+### Submodule PH4-07.01: Passive Components (Components 1 - 6) [~] (4/6)
 - [x] `PH4-07.01.001`: **1. Resistor**  
   *3D Model:* Cylindrical ceramic body with copper leads and 4-band color rings.  
   *2D Symbol:* IEEE zig-zag / IEC rectangle (2 pins).  
@@ -527,7 +527,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Electrical:* Dual-voltage divider $R_{1-W} + R_{W-2} = R_{\text{total}}$.  
   *Materials:* Carbon track, Phenolic resin case, Copper alloy terminals.  
   *Tests:* Voltage divider ratio linearity, contact noise verification.
-- [ ] `PH4-07.01.004`: **4. Ceramic Capacitor**  
+- [x] `PH4-07.01.004`: **4. Ceramic Capacitor**  
   *3D Model:* Non-polarized yellow ceramic disc with radial copper leads.  
   *2D Symbol:* Parallel dual straight plates (2 non-polarized pins).  
   *Electrical:* $i(t) = C \frac{dv}{dt}$, capacitive reactance $X_C = \frac{1}{2\pi f C}$.  
