@@ -4,6 +4,7 @@
 #include "shunya/cad2d/construction_layer.hpp"
 #include "shunya/cad2d/snap_manager.hpp"
 #include "shunya/cad2d/polar_guide.hpp"
+#include "shunya/cad2d/alignment_tools.hpp"
 
 #include <chrono>
 #include <cmath>
@@ -389,4 +390,65 @@ TEST_CASE("PH4-04.02.003: Cartesian and Isometric Dynamic Visual Grids with Adap
     Point2D iso_s2 = SketchViewport2D::snap_to_isometric_grid(query_pt, 1.0, 30.0);
     CHECK(is_approx(iso_s2.x, exact_iso_pt.x, 1e-4));
     CHECK(is_approx(iso_s2.y, exact_iso_pt.y, 1e-4));
+}
+
+// =============================================================================
+// Task PH4-04.02.004: Multi-Object Alignment & Distribution Tools
+// =============================================================================
+
+TEST_CASE("PH4-04.02.004: Multi-Object Alignment & Distribution Tools") {
+    SketchDocument2D doc;
+    // 3 boxes with width 2.0, height 4.0 at different positions
+    auto b1 = std::make_shared<Polyline2D>(std::vector<Point2D>{{0, 0}, {2, 0}, {2, 4}, {0, 4}}, true);
+    auto b2 = std::make_shared<Polyline2D>(std::vector<Point2D>{{10, 5}, {12, 5}, {12, 9}, {10, 9}}, true);
+    auto b3 = std::make_shared<Polyline2D>(std::vector<Point2D>{{20, 2}, {22, 2}, {22, 6}, {20, 6}}, true);
+
+    std::string id1 = doc.add_entity(b1);
+    std::string id2 = doc.add_entity(b2);
+    std::string id3 = doc.add_entity(b3);
+
+    std::vector<std::string> ids = {id1, id2, id3};
+
+    // 1. Align Left (anchor to id1 whose min.x is 0)
+    auto res_al = AlignmentEngine::align_entities(doc, ids, AlignmentMode::AlignLeft, id1);
+    REQUIRE(res_al.is_ok());
+    CHECK(is_approx(b1->bounding_box().min.x, 0.0));
+    CHECK(is_approx(b2->bounding_box().min.x, 0.0));
+    CHECK(is_approx(b3->bounding_box().min.x, 0.0));
+
+    // 2. Align Top (collective max.y was originally 9.0)
+    auto res_top = AlignmentEngine::align_entities(doc, ids, AlignmentMode::AlignTop);
+    REQUIRE(res_top.is_ok());
+    double top_y = b1->bounding_box().max.y;
+    CHECK(is_approx(b2->bounding_box().max.y, top_y));
+    CHECK(is_approx(b3->bounding_box().max.y, top_y));
+
+    // 3. Align Middle Vertical
+    auto res_mid = AlignmentEngine::align_entities(doc, ids, AlignmentMode::AlignMiddleVertical);
+    REQUIRE(res_mid.is_ok());
+    double mid_y = b1->bounding_box().center().y;
+    CHECK(is_approx(b2->bounding_box().center().y, mid_y));
+    CHECK(is_approx(b3->bounding_box().center().y, mid_y));
+
+    // 4. Distribute Horizontally
+    // Place them at uneven X: 0, 5, 20
+    b1->points = {{0, 0}, {2, 0}, {2, 2}, {0, 2}};
+    b2->points = {{5, 0}, {7, 0}, {7, 2}, {5, 2}};
+    b3->points = {{20, 0}, {22, 0}, {22, 2}, {20, 2}};
+
+    auto res_dist = AlignmentEngine::distribute_entities(doc, ids, DistributionMode::DistributeHorizontally);
+    REQUIRE(res_dist.is_ok());
+    // Span = 22 - 0 = 22. Total width = 2*3 = 6. Remaining = 16. Gap = 16 / 2 = 8.
+    // b1: [0, 2], b2: [10, 12], b3: [20, 22]. Gaps are 8 and 8.
+    CHECK(is_approx(b1->bounding_box().min.x, 0.0));
+    CHECK(is_approx(b2->bounding_box().min.x, 10.0));
+    CHECK(is_approx(b3->bounding_box().min.x, 20.0));
+
+    // 5. Distribute Centers Horizontally
+    auto res_dist_c = AlignmentEngine::distribute_entities(doc, ids, DistributionMode::DistributeCentersHorizontally);
+    REQUIRE(res_dist_c.is_ok());
+    double c1 = b1->bounding_box().center().x;
+    double c2 = b2->bounding_box().center().x;
+    double c3 = b3->bounding_box().center().x;
+    CHECK(is_approx(c2 - c1, c3 - c2, 1e-6));
 }
