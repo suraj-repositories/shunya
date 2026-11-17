@@ -5,6 +5,7 @@
 #include "shunya/cad2d/group_manager.hpp"
 #include "shunya/cad2d/layer_manager.hpp"
 #include "shunya/cad2d/selection_gizmo.hpp"
+#include "shunya/cad2d/sketch_commands.hpp"
 #include "shunya/core/base/math.hpp"
 
 #include <cmath>
@@ -471,6 +472,101 @@ TEST_CASE("PH4-04.03.004: Full clipboard operations Copy, Cut, Paste, PasteAt, D
     REQUIRE(doc.find_entity(duplicated[0]) == nullptr); // removed from doc
     REQUIRE(clip.item_count() == 1);                    // present in clipboard
 }
+
+TEST_CASE("PH4-04.03.005: Transactional Undo/Redo command stack connecting 2D editing actions") {
+    SketchDocument2D doc;
+    GroupManager gmgr;
+    SketchCommandHistory2D history;
+
+    REQUIRE(!history.can_undo());
+    REQUIRE(!history.can_redo());
+
+    // 1. Add Entity Command
+    const std::string id1 = history.execute_add_entity(
+        doc,
+        std::make_shared<LineSegment2D>(Point2D{0.0, 0.0}, Point2D{50.0, 0.0}),
+        false,
+        "Mechanical"
+    );
+    REQUIRE(!id1.empty());
+    REQUIRE(doc.entities().size() == 1);
+    REQUIRE(history.can_undo());
+    REQUIRE(history.undo_name() == "Add 2D Entity");
+
+    // Undo Add
+    REQUIRE(history.undo().is_ok());
+    REQUIRE(doc.entities().empty());
+    REQUIRE(history.can_redo());
+    REQUIRE(history.redo_name() == "Add 2D Entity");
+
+    // Redo Add
+    REQUIRE(history.redo().is_ok());
+    REQUIRE(doc.entities().size() == 1);
+    REQUIRE(doc.find_entity(id1) != nullptr);
+
+    // 2. Transform Command (+20, +30)
+    const Transform2D move_xf = Transform2D::translation(20.0, 30.0);
+    REQUIRE(history.execute_transform(doc, {id1}, move_xf));
+    const auto* e1 = doc.find_entity(id1);
+    const auto& seg1 = static_cast<const LineSegment2D&>(*e1->curve);
+    REQUIRE(is_approx(seg1.p0.x, 20.0));
+    REQUIRE(is_approx(seg1.p0.y, 30.0));
+
+    // Undo Transform
+    REQUIRE(history.undo().is_ok());
+    const auto* e1_undone = doc.find_entity(id1);
+    const auto& seg1_undone = static_cast<const LineSegment2D&>(*e1_undone->curve);
+    REQUIRE(is_approx(seg1_undone.p0.x, 0.0));
+    REQUIRE(is_approx(seg1_undone.p0.y, 0.0));
+
+    // Redo Transform
+    REQUIRE(history.redo().is_ok());
+    const auto* e1_redone = doc.find_entity(id1);
+    const auto& seg1_redone = static_cast<const LineSegment2D&>(*e1_redone->curve);
+    REQUIRE(is_approx(seg1_redone.p0.x, 20.0));
+    REQUIRE(is_approx(seg1_redone.p0.y, 30.0));
+
+    // 3. Layer and Construction Property Modification
+    REQUIRE(history.execute_reassign_layer(doc, {id1}, "Electrical"));
+    REQUIRE(doc.find_entity(id1)->layer == "Electrical");
+    REQUIRE(history.execute_set_construction(doc, {id1}, true));
+    REQUIRE(doc.find_entity(id1)->is_construction);
+
+    REQUIRE(history.undo().is_ok()); // undo construction
+    REQUIRE(!doc.find_entity(id1)->is_construction);
+    REQUIRE(history.undo().is_ok()); // undo layer
+    REQUIRE(doc.find_entity(id1)->layer == "Mechanical");
+
+    // 4. Group Command
+    const std::string id2 = history.execute_add_entity(
+        doc,
+        std::make_shared<Circle2D>(Point2D{10.0, 10.0}, 4.0),
+        false,
+        "Mechanical"
+    );
+    const std::string grp_id = history.execute_group(doc, gmgr, {id1, id2}, "TestGroup");
+    REQUIRE(!grp_id.empty());
+    REQUIRE(gmgr.group_count() == 1);
+
+    REQUIRE(history.undo().is_ok()); // undo group
+    REQUIRE(gmgr.group_count() == 0);
+    REQUIRE(history.redo().is_ok()); // redo group
+    REQUIRE(gmgr.group_count() == 1);
+
+    // 5. Transaction Grouping (Atomic multi-action batch)
+    REQUIRE(history.begin_transaction("Batch Add & Delete").is_ok());
+    REQUIRE(history.is_in_transaction());
+    const std::string id3 = history.execute_add_entity(doc, std::make_shared<LineSegment2D>(Point2D{1, 1}, Point2D{2, 2}));
+    REQUIRE(history.execute_delete_entities(doc, {id3}));
+    REQUIRE(history.commit_transaction().is_ok());
+    REQUIRE(!history.is_in_transaction());
+
+    // Single undo reverts the entire transaction batch
+    REQUIRE(history.undo().is_ok());
+    // And redo restores it
+    REQUIRE(history.redo().is_ok());
+}
+
 
 
 
