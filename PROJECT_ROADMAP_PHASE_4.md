@@ -494,7 +494,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ### Submodule PH4-06.04: Component Serialization & Packaging
 - [x] `PH4-06.04.001`: Define the unified component manifest schema (`.shunyacomp.json`) encapsulating 3D mesh, 2D symbol, material dependencies, terminals, and SPICE models.
 - [x] `PH4-06.04.002`: Implement standalone component bundle import/export, packaging geometry, symbols, and custom materials into a single distributable zip archive.
-- [ ] `PH4-06.04.003`: Add component versioning, GUID tracking, and dependency resolution to prevent component ID collisions across projects.
+- [x] `PH4-06.04.003`: Add component versioning, GUID tracking, and dependency resolution to prevent component ID collisions across projects.
 - [ ] `PH4-06.04.004`: Implement automated validation tests executing synthetic DC/AC pulses through new components to verify SPICE model stability prior to library entry.
 - [ ] `PH4-06.04.005`: Build a project Component Library Palette panel with search, category filtering, thumbnail previews, and drag-and-drop placement into 2D and 3D scenes.
 - [ ] `PH4-06.04.006`: Provide a component clone-and-modify feature allowing users to derive custom variants from standard catalog components.
