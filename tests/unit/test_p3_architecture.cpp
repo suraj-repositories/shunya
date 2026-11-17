@@ -28,6 +28,7 @@
 #include "shunya/perf/memory_budget.hpp"
 #include "shunya/mat/formation_scenarios.hpp"
 #include "shunya/mat/compound_validator.hpp"
+#include "shunya/mat/gibbs_free_energy.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2576,4 +2577,47 @@ TEST_CASE("PH4-03.01.002: Chemical Compound Stoichiometric Balance & Pauling Ele
     auto fake_res = CompoundValidator::validate_compound(fake_he_constituents, fake_recs);
     CHECK_FALSE(fake_res.is_stoichiometrically_balanced);
     CHECK_FALSE(fake_res.is_valence_saturated);
+}
+
+TEST_CASE("PH4-03.01.003: Thermodynamic Gibbs Free Energy & Spontaneity") {
+    using namespace shunya::mat;
+
+    // 1. Ideal Molar Entropy of Mixing: Delta S_mix = -R * sum(x_i * ln(x_i))
+    // For equimolar binary mixture (x1 = 0.5, x2 = 0.5):
+    // Delta S = R * ln(2) = 8.3144626 * 0.69314718 = 5.7631 J/(mol*K)
+    const std::vector<double> binary_equimolar = {0.5, 0.5};
+    const double delta_s = GibbsFreeEnergyEngine::compute_entropy_of_mixing(binary_equimolar);
+    CHECK(std::abs(delta_s - 5.7631) < 0.01);
+
+    // 2. Regular Solution Enthalpy of Mixing: Delta H_mix = Omega * x1 * x2
+    const double omega_positive = 10000.0; // J/mol (endothermic unmixing tendency)
+    const double delta_h = GibbsFreeEnergyEngine::compute_enthalpy_of_mixing(binary_equimolar, omega_positive);
+    CHECK(std::abs(delta_h - 2500.0) < 0.01);
+
+    // 3. Gibbs Free Energy Minimization at low temperature T = 300 K:
+    // Delta G = Delta H - T * Delta S = 2500 - 300 * 5.7631 = 2500 - 1728.93 = +771.07 J/mol (> 0)
+    // Non-spontaneous (Endergonic), miscibility gap expected because T < Tc (Tc = 10000 / (2*R) = 601.36 K)
+    auto thermo_low_t = GibbsFreeEnergyEngine::evaluate_mixing_thermodynamics(binary_equimolar, 300.0, omega_positive);
+    CHECK_FALSE(thermo_low_t.is_spontaneous);
+    CHECK(thermo_low_t.delta_g_j_mol > 0.0);
+    CHECK(thermo_low_t.has_miscibility_gap);
+    CHECK(thermo_low_t.critical_temperature_k > 600.0);
+    CHECK(thermo_low_t.thermodynamic_regime == "Non-Spontaneous (Endergonic)");
+
+    // 4. Elevated temperature T = 1000 K (entropy dominates -T * Delta S = -5763.1 J/mol):
+    // Delta G = 2500 - 5763.1 = -3263.1 J/mol (< 0) -> Spontaneous single-phase solution
+    auto thermo_high_t = GibbsFreeEnergyEngine::evaluate_mixing_thermodynamics(binary_equimolar, 1000.0, omega_positive);
+    CHECK(thermo_high_t.is_spontaneous);
+    CHECK(thermo_high_t.delta_g_j_mol < 0.0);
+    CHECK_FALSE(thermo_high_t.has_miscibility_gap);
+    CHECK(thermo_high_t.thermodynamic_regime == "Spontaneous (Exergonic)");
+
+    // 5. Exothermic Chemical Compound Formation (Omega < 0, e.g. -40000 J/mol):
+    // Strongly negative Delta H, spontaneous at all practical temperatures
+    const double omega_exothermic = -40000.0;
+    auto thermo_compound = GibbsFreeEnergyEngine::evaluate_mixing_thermodynamics(binary_equimolar, 298.15, omega_exothermic);
+    CHECK(thermo_compound.is_spontaneous);
+    CHECK(thermo_compound.delta_h_j_mol == -10000.0);
+    CHECK(thermo_compound.delta_g_j_mol < -11000.0);
+    CHECK_FALSE(thermo_compound.has_miscibility_gap);
 }
