@@ -31,15 +31,15 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 3 | `MATENG` | Scientific Material Engineering & Property Engine | P0 | 24 | 24 | 100.0% | `[x]` |
 | 4 | `CAD2D` | Professional 2D Vector & Schematic Drafting Engine | P0 | 24 | 24 | 100.0% | `[x]` |
 | 5 | `CAD3D` | Professional 3D Modeling & Mesh Geometry Engine | P0 | 26 | 26 | 100.0% | `[x]` |
-| 6 | `ECAD3D` | 3D Electronic Component Designer & Specification Engine | P0 | 24 | 19 | 79.2% | `[~]` |
-| 7 | `LIB30` | 30-Component Library & Dual 3D/2D Symbol System | P0 | 30 | 0 | 0.0% | `[ ]` |
+| 6 | `ECAD3D` | 3D Electronic Component Designer & Specification Engine | P0 | 24 | 24 | 100.0% | `[x]` |
+| 7 | `LIB30` | 30-Component Library & Dual 3D/2D Symbol System | P0 | 30 | 5 | 16.7% | `[~]` |
 | 8 | `CIRSIM` | Dedicated Circuit Simulation Engine (DC, AC, Transient & Non-Linear) | P0 | 26 | 0 | 0.0% | `[ ]` |
 | 9 | `PHYSIM` | 3D Physics & Multi-Body Mechanical Machine Simulator | P0 | 26 | 0 | 0.0% | `[ ]` |
 | 10 | `COSIM` | Circuit-to-3D Electro-Mechanical Simulation Integration | P0 | 24 | 0 | 0.0% | `[ ]` |
 | 11 | `RIG3D` | Advanced Modifiers, Organic Modeling & Skeletal Rigging | P1 | 20 | 0 | 0.0% | `[ ]` |
 | 12 | `UIUX` | Professional UI Polish & VS Code-Style Menu System | P0 | 18 | 0 | 0.0% | `[ ]` |
 | 13 | `QA` | Verification, Test Automation & CI/CD Pipeline | P0 | 20 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 4 Integrated Engineering Platform** | **--** | **312** | **141** | **45.2%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 4 Integrated Engineering Platform** | **--** | **312** | **151** | **48.4%** | `[~]` |
 
 ---
 
@@ -504,11 +504,11 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (4/30 — 13.3%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (5/30 — 16.7%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
-### Submodule PH4-07.01: Passive Components (Components 1 - 6) [~] (4/6)
+### Submodule PH4-07.01: Passive Components (Components 1 - 6) [~] (5/6)
 - [x] `PH4-07.01.001`: **1. Resistor**  
   *3D Model:* Cylindrical ceramic body with copper leads and 4-band color rings.  
   *2D Symbol:* IEEE zig-zag / IEC rectangle (2 pins).  
@@ -533,7 +533,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Electrical:* $i(t) = C \frac{dv}{dt}$, capacitive reactance $X_C = \frac{1}{2\pi f C}$.  
   *Materials:* Barium titanate dielectric, Silver electrode plates, Copper leads.  
   *Tests:* RC time constant charging, AC impedance sweep.
-- [ ] `PH4-07.01.005`: **5. Polarized Electrolytic Capacitor**  
+- [x] `PH4-07.01.005`: **5. Polarized Electrolytic Capacitor**  
   *3D Model:* Aluminum can cylinder with negative stripe marking and longer positive lead.  
   *2D Symbol:* One straight plate, one curved negative plate (2 polarized pins: +, -).  
   *Electrical:* Capacitance with polarity enforcement; reverse breakdown/leakage alert.  
