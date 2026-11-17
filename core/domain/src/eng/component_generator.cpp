@@ -72,6 +72,16 @@ core::base::Result<ComponentKind> component_kind_from_string(std::string_view s)
     if (s == "Connector") return ComponentKind::Connector;
     if (s == "HeatingElement") return ComponentKind::HeatingElement;
     if (s == "Motor") return ComponentKind::Motor;
+    if (s == "Diode") return ComponentKind::Diode;
+    if (s == "LED") return ComponentKind::LED;
+    if (s == "ZenerDiode") return ComponentKind::ZenerDiode;
+    if (s == "SchottkyDiode") return ComponentKind::SchottkyDiode;
+    if (s == "BJT_NPN") return ComponentKind::BJT_NPN;
+    if (s == "BJT_PNP") return ComponentKind::BJT_PNP;
+    if (s == "MOSFET_N") return ComponentKind::MOSFET_N;
+    if (s == "MOSFET_P") return ComponentKind::MOSFET_P;
+    if (s == "JFET_N") return ComponentKind::JFET_N;
+    if (s == "JFET_P") return ComponentKind::JFET_P;
     return make_cmp_error(4401, "Unknown ComponentKind: " + std::string(s));
 }
 
@@ -224,6 +234,30 @@ DerivedComponentSpecs ComponentGenerator::qualify_and_derive(
             out.max_current_a = std::sqrt(out.max_power_w / std::max(1e-6, out.series_resistance_ohm));
             out.warnings.push_back("Motor modeled at L1/L2 simplified winding + inertia level.");
         }
+        break;
+    }
+    case ComponentKind::Diode:
+    case ComponentKind::LED:
+    case ComponentKind::ZenerDiode:
+    case ComponentKind::SchottkyDiode: {
+        out.primary_value = (kind == ComponentKind::SchottkyDiode) ? 0.28 :
+                            (kind == ComponentKind::LED) ? 2.0 :
+                            (kind == ComponentKind::ZenerDiode) ? 5.1 : 0.7;
+        out.series_resistance_ohm = 0.05;
+        out.max_current_a = (kind == ComponentKind::LED) ? 0.03 : 1.0;
+        out.max_voltage_v = (kind == ComponentKind::ZenerDiode) ? 5.1 : 50.0;
+        break;
+    }
+    case ComponentKind::BJT_NPN:
+    case ComponentKind::BJT_PNP:
+    case ComponentKind::MOSFET_N:
+    case ComponentKind::MOSFET_P:
+    case ComponentKind::JFET_N:
+    case ComponentKind::JFET_P: {
+        out.primary_value = (kind == ComponentKind::BJT_NPN || kind == ComponentKind::BJT_PNP) ? 200.0 : 2.5; // Gain or Vth
+        out.series_resistance_ohm = 0.03;
+        out.max_current_a = 5.0;
+        out.max_voltage_v = 50.0;
         break;
     }
     }

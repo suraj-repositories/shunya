@@ -87,6 +87,60 @@ SchematicSymbol2D SchematicSymbolSynthesizer::synthesize_symbol(
             };
             break;
         }
+        case eng::ComponentKind::Diode:
+        case eng::ComponentKind::LED:
+        case eng::ComponentKind::ZenerDiode:
+        case eng::ComponentKind::SchottkyDiode: {
+            std::string prefix = (kind == eng::ComponentKind::LED) ? "SYM_LED_" :
+                                 (kind == eng::ComponentKind::ZenerDiode) ? "SYM_ZENER_" :
+                                 (kind == eng::ComponentKind::SchottkyDiode) ? "SYM_SCHOTTKY_" : "SYM_DIODE_";
+            sym.symbol_id = prefix + sym.standard;
+            sym.primitive_shape = (kind == eng::ComponentKind::LED) ? "led_diode_arrows" :
+                                  (kind == eng::ComponentKind::ZenerDiode) ? "zener_diode_z" :
+                                  (kind == eng::ComponentKind::SchottkyDiode) ? "schottky_diode_s" : "diode_triangle";
+            sym.bounding_box_size = {25.0, 15.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "A", core::domain::ElectricalPinPolarity::Positive, {-12.5, 0.0}, {-1.0, 0.0}},
+                SchematicSymbolPin{"2", 2, "K", core::domain::ElectricalPinPolarity::Negative, {12.5, 0.0}, {1.0, 0.0}}
+            };
+            break;
+        }
+        case eng::ComponentKind::BJT_NPN:
+        case eng::ComponentKind::BJT_PNP: {
+            sym.symbol_id = (kind == eng::ComponentKind::BJT_NPN) ? "SYM_BJT_NPN" : "SYM_BJT_PNP";
+            sym.primitive_shape = (kind == eng::ComponentKind::BJT_NPN) ? "bjt_npn_circle" : "bjt_pnp_circle";
+            sym.bounding_box_size = {30.0, 30.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "B", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {-15.0, 0.0}, {-1.0, 0.0}},
+                SchematicSymbolPin{"2", 2, "C", core::domain::ElectricalPinPolarity::Positive, {10.0, 15.0}, {0.0, 1.0}},
+                SchematicSymbolPin{"3", 3, "E", core::domain::ElectricalPinPolarity::Negative, {10.0, -15.0}, {0.0, -1.0}}
+            };
+            break;
+        }
+        case eng::ComponentKind::MOSFET_N:
+        case eng::ComponentKind::MOSFET_P: {
+            sym.symbol_id = (kind == eng::ComponentKind::MOSFET_N) ? "SYM_MOSFET_N" : "SYM_MOSFET_P";
+            sym.primitive_shape = (kind == eng::ComponentKind::MOSFET_N) ? "mosfet_n_channel" : "mosfet_p_channel";
+            sym.bounding_box_size = {30.0, 30.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "G", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {-15.0, -5.0}, {-1.0, 0.0}},
+                SchematicSymbolPin{"2", 2, "D", core::domain::ElectricalPinPolarity::Positive, {10.0, 15.0}, {0.0, 1.0}},
+                SchematicSymbolPin{"3", 3, "S", core::domain::ElectricalPinPolarity::Negative, {10.0, -15.0}, {0.0, -1.0}}
+            };
+            break;
+        }
+        case eng::ComponentKind::JFET_N:
+        case eng::ComponentKind::JFET_P: {
+            sym.symbol_id = (kind == eng::ComponentKind::JFET_N) ? "SYM_JFET_N" : "SYM_JFET_P";
+            sym.primitive_shape = (kind == eng::ComponentKind::JFET_N) ? "jfet_n_channel" : "jfet_p_channel";
+            sym.bounding_box_size = {30.0, 30.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "G", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {-15.0, -5.0}, {-1.0, 0.0}},
+                SchematicSymbolPin{"2", 2, "D", core::domain::ElectricalPinPolarity::Positive, {10.0, 15.0}, {0.0, 1.0}},
+                SchematicSymbolPin{"3", 3, "S", core::domain::ElectricalPinPolarity::Negative, {10.0, -15.0}, {0.0, -1.0}}
+            };
+            break;
+        }
         default: {
             sym.symbol_id = "SYM_GENERIC_" + std::to_string(pin_count);
             sym.primitive_shape = "ic_box";

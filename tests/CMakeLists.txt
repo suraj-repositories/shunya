@@ -49,6 +49,7 @@ add_executable(shunya_unit_tests
     unit/test_cad3d_pbr_volume.cpp
     unit/test_ecad3d_component_designer.cpp
     unit/test_ecad3d_package_and_lib30.cpp
+    unit/test_lib30_diodes_and_transistors.cpp
     unit/test_matdb_registry.cpp
     unit/test_matdb_electronic_spectral.cpp
     unit/test_matdb_crystallography.cpp

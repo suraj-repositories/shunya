@@ -335,6 +335,8 @@ add_library(shunya_domain_eng OBJECT
     src/ecad3d/component_manifest.cpp
     src/ecad3d/component_package.cpp
     src/lib30/passive_components.cpp
+    src/lib30/diode_components.cpp
+    src/lib30/transistor_components.cpp
 )
 shunya_configure_domain_target(shunya_domain_eng)
 target_link_libraries(shunya_domain_eng

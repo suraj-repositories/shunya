@@ -23,7 +23,17 @@ enum class ComponentKind : uint8_t {
     Battery,
     Connector,
     HeatingElement,
-    Motor
+    Motor,
+    Diode,
+    LED,
+    ZenerDiode,
+    SchottkyDiode,
+    BJT_NPN,
+    BJT_PNP,
+    MOSFET_N,
+    MOSFET_P,
+    JFET_N,
+    JFET_P
 };
 
 [[nodiscard]] constexpr std::string_view component_kind_to_string(ComponentKind k) noexcept {
@@ -37,6 +47,16 @@ enum class ComponentKind : uint8_t {
     case ComponentKind::Connector:      return "Connector";
     case ComponentKind::HeatingElement: return "HeatingElement";
     case ComponentKind::Motor:          return "Motor";
+    case ComponentKind::Diode:          return "Diode";
+    case ComponentKind::LED:            return "LED";
+    case ComponentKind::ZenerDiode:     return "ZenerDiode";
+    case ComponentKind::SchottkyDiode:  return "SchottkyDiode";
+    case ComponentKind::BJT_NPN:        return "BJT_NPN";
+    case ComponentKind::BJT_PNP:        return "BJT_PNP";
+    case ComponentKind::MOSFET_N:       return "MOSFET_N";
+    case ComponentKind::MOSFET_P:       return "MOSFET_P";
+    case ComponentKind::JFET_N:         return "JFET_N";
+    case ComponentKind::JFET_P:         return "JFET_P";
     }
     return "Resistor";
 }

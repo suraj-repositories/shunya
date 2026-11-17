@@ -504,7 +504,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (6/30 — 20.0%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (7/30 — 23.3%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
@@ -546,8 +546,8 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Materials:* Enameled copper wire, Manganese-zinc ferrite core.  
   *Tests:* RL transient delay, inductive kickback voltage spike absorption.
 
-### Submodule PH4-07.02: Diodes & Optoelectronics (Components 7 - 10)
-- [ ] `PH4-07.02.001`: **7. PN Junction Diode**  
+### Submodule PH4-07.02: Diodes & Optoelectronics (Components 7 - 10) [~] (1/4)
+- [x] `PH4-07.02.001`: **7. PN Junction Diode**  
   *3D Model:* Glass/plastic cylinder (DO-35/DO-41 package) with cathode band ring.  
   *2D Symbol:* Triangle pointing to cathode bar (2 pins: Anode, Cathode).  
   *Electrical:* Shockley equation $I = I_s \left( e^{\frac{V}{\eta V_t}} - 1 \right)$.  
