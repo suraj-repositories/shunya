@@ -163,6 +163,7 @@ add_library(shunya_domain_cad OBJECT
     src/cad2d/trim_extend_tool.cpp
     src/cad2d/alignment_tools.cpp
     src/cad2d/snap_glyph.cpp
+    src/cad2d/coordinate_hud.cpp
     src/cad3d/solid_mesh.cpp
     src/cad3d/polygon_tessellator.cpp
     src/cad3d/extrusion_feature.cpp

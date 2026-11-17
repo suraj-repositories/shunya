@@ -6,6 +6,7 @@
 #include "shunya/cad2d/polar_guide.hpp"
 #include "shunya/cad2d/alignment_tools.hpp"
 #include "shunya/cad2d/snap_glyph.hpp"
+#include "shunya/cad2d/coordinate_hud.hpp"
 
 #include <chrono>
 #include <cmath>
@@ -512,4 +513,69 @@ TEST_CASE("PH4-04.02.005: Visual Snap Glyph Indicators & Tooltip Generation") {
     auto t1 = std::chrono::high_resolution_clock::now();
     double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
     CHECK(ms < 100.0); // Ultra fast ~100k glyphs / 100ms
+}
+
+// =============================================================================
+// Task PH4-04.02.006: Precision Numeric Coordinate HUD Input Bar
+// =============================================================================
+
+TEST_CASE("PH4-04.02.006: Precision Numeric Coordinate HUD Input Bar") {
+    PrecisionCoordinateHud hud(HudInputMode::PolarDistanceAngle);
+    hud.set_anchor({0.0, 0.0});
+    hud.update_free_cursor({3.0, 4.0}); // free dist 5.0, free angle ~53.13 deg
+
+    // 1. Polar Entry with Length Lock and Angle Lock
+    // Type "10" for Length
+    hud.input_char('1');
+    hud.input_char('0');
+    auto st = hud.display_state();
+    CHECK(st.field1.is_locked);
+    CHECK(is_approx(st.field1.current_value, 10.0));
+
+    // Tab to Angle field
+    hud.handle_tab();
+    st = hud.display_state();
+    CHECK(st.field2.is_active);
+
+    // Type "60" for Angle
+    hud.input_char('6');
+    hud.input_char('0');
+    st = hud.display_state();
+    CHECK(st.field2.is_locked);
+    CHECK(is_approx(st.field2.current_value, 60.0));
+
+    // Commit returns exact point (10 * cos 60, 10 * sin 60) = (5.0, 8.660254)
+    auto pt_opt = hud.commit();
+    REQUIRE(pt_opt.has_value());
+    CHECK(is_approx(pt_opt->x, 5.0, 1e-6));
+    CHECK(is_approx(pt_opt->y, 5.0 * std::sqrt(3.0), 1e-6));
+
+    // 2. Relative Cartesian Mode
+    hud.set_mode(HudInputMode::RelativeCartesian);
+    hud.set_anchor({100.0, 200.0});
+    hud.lock_field1(15.0);
+    hud.lock_field2(-25.0);
+    auto rel_opt = hud.commit();
+    REQUIRE(rel_opt.has_value());
+    CHECK(is_approx(rel_opt->x, 115.0));
+    CHECK(is_approx(rel_opt->y, 175.0));
+
+    // 3. String Parser
+    // Polar: "20<45"
+    auto p1 = PrecisionCoordinateHud::parse_coordinate_string("20<45", {0.0, 0.0});
+    REQUIRE(p1.is_ok());
+    CHECK(is_approx(p1.value().x, 20.0 * std::cos(45.0 * PI / 180.0), 1e-6));
+    CHECK(is_approx(p1.value().y, 20.0 * std::sin(45.0 * PI / 180.0), 1e-6));
+
+    // Relative: "@-10, 30" from anchor (50, 50)
+    auto p2 = PrecisionCoordinateHud::parse_coordinate_string("@-10, 30", {50.0, 50.0});
+    REQUIRE(p2.is_ok());
+    CHECK(is_approx(p2.value().x, 40.0));
+    CHECK(is_approx(p2.value().y, 80.0));
+
+    // Absolute: "123.45, 67.89"
+    auto p3 = PrecisionCoordinateHud::parse_coordinate_string("123.45, 67.89");
+    REQUIRE(p3.is_ok());
+    CHECK(is_approx(p3.value().x, 123.45));
+    CHECK(is_approx(p3.value().y, 67.89));
 }
