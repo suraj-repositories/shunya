@@ -1,6 +1,7 @@
 #include "tests/test_framework.hpp"
 
 #include "shunya/cad3d/extrusion_feature.hpp"
+#include "shunya/cad3d/feature_dependency_graph.hpp"
 #include "shunya/cad3d/loft_feature.hpp"
 #include "shunya/cad3d/polygon_tessellator.hpp"
 #include "shunya/cad3d/revolve_feature.hpp"
@@ -320,4 +321,70 @@ TEST_CASE("PH4-05.04.004: Loft Sketch feature interpolating smoothly between dis
     // Area of base = ~78.54, Area of top = 100, average area ~89 * 15 ≈ 1335
     REQUIRE(vol > 1000.0);
     REQUIRE(vol < 1600.0);
+}
+
+TEST_CASE("PH4-05.04.006: Connect 2D-to-3D features to dependency graph with automated regeneration") {
+    FeatureDependencyGraph graph;
+
+    // 1. Create base 2D sketch: 10x10 square
+    auto sketch = std::make_shared<Sketch2DNode>("sketch_base", "Base Profile");
+    Path2D sq10{{-5.0, -5.0}, {5.0, -5.0}, {5.0, 5.0}, {-5.0, 5.0}};
+    sketch->set_outer(sq10);
+    graph.add_node(sketch);
+
+    // 2. Create Extrude 3D feature depending on base sketch
+    ExtrusionParams ep;
+    ep.depth = 10.0;
+    auto extrude_node = std::make_shared<ExtrudeFeatureNode>("extrude_1", "sketch_base", ep, "Main Extrusion");
+    graph.add_node(extrude_node);
+
+    // 3. Create Revolve 3D feature depending on base sketch (offset trapezoid)
+    RevolveParams rp;
+    rp.axis = {{0.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+    rp.angle_rad = 2.0 * PI;
+    auto revolve_node = std::make_shared<RevolveFeatureNode>("revolve_1", "sketch_base", rp, "Main Revolve");
+    graph.add_node(revolve_node);
+
+    REQUIRE(graph.node_count() == 3);
+    REQUIRE(graph.dirty_count() == 3);
+    REQUIRE_FALSE(graph.has_cycle());
+
+    // Track regeneration notifications
+    std::vector<std::string> regenerated_nodes;
+    graph.set_on_regenerated([&](const std::string& id, const SolidMesh3D& /*mesh*/) {
+        regenerated_nodes.push_back(id);
+    });
+
+    // 4. Initial evaluation
+    graph.evaluate();
+    REQUIRE(graph.dirty_count() == 0);
+    REQUIRE(regenerated_nodes.size() == 2); // extrude_1 and revolve_1 evaluated
+
+    const SolidMesh3D* mesh1 = extrude_node->mesh();
+    REQUIRE(mesh1 != nullptr);
+    REQUIRE(rel_close(mesh1->compute_volume(), 1000.0, 1e-4));
+
+    // 5. Reactive test: Modify base 2D sketch to 20x20 square (area 400)
+    Path2D sq20{{-10.0, -10.0}, {10.0, -10.0}, {10.0, 10.0}, {-10.0, 10.0}};
+    regenerated_nodes.clear();
+    sketch->set_outer(sq20, &graph);
+
+    // Both sketch and downstream extrude/revolve nodes must be marked dirty
+    REQUIRE(graph.dirty_count() == 3);
+    REQUIRE(sketch->is_dirty());
+    REQUIRE(extrude_node->is_dirty());
+    REQUIRE(revolve_node->is_dirty());
+
+    // 6. Re-evaluate graph: automatic regeneration of 3D solids
+    graph.evaluate();
+    REQUIRE(graph.dirty_count() == 0);
+    REQUIRE(regenerated_nodes.size() == 2);
+
+    const SolidMesh3D* mesh2 = extrude_node->mesh();
+    REQUIRE(mesh2 != nullptr);
+    // Extruded volume must now automatically be 20 * 20 * 10 = 4000.0
+    REQUIRE(rel_close(mesh2->compute_volume(), 4000.0, 1e-4));
+    auto rep2 = mesh2->analyze_manifold();
+    REQUIRE(rep2.is_watertight);
+    REQUIRE(rep2.is_2_manifold);
 }

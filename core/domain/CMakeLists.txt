@@ -188,6 +188,7 @@ add_library(shunya_domain_cad OBJECT
     src/cad3d/loft_feature.cpp
     src/cad3d/bsp_tree.cpp
     src/cad3d/csg_boolean.cpp
+    src/cad3d/feature_dependency_graph.cpp
     src/cad3d/polyhedral_brep.cpp
     src/cad3d/solid_chamfer.cpp
     src/cad3d/solid_fillet.cpp
