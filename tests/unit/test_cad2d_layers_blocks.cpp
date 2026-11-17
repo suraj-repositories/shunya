@@ -6,6 +6,7 @@
 #include "shunya/cad2d/group_manager.hpp"
 #include "shunya/cad2d/layer_manager.hpp"
 #include "shunya/cad2d/schematic_symbol_engine.hpp"
+#include "shunya/cad2d/schematic_wire_router.hpp"
 #include "shunya/cad2d/selection_gizmo.hpp"
 #include "shunya/cad2d/sketch_commands.hpp"
 #include "shunya/core/base/math.hpp"
@@ -724,6 +725,64 @@ TEST_CASE("PH4-04.04.001: Integrated electronic schematic symbol drafting with s
     auto final_profiles = sch_engine.extract_pure_mechanical_profiles(doc);
     REQUIRE(final_profiles.size() == 1);
 }
+
+TEST_CASE("PH4-04.04.002: Orthogonal and 45-degree wire routing with automated junction dot synthesis") {
+    // 1. Orthogonal route calculation tests
+    // HV route from (0, 0) to (10, 20) -> knee at (10, 0)
+    auto route_hv = SchematicWireRouter::calculate_route(Point2D{0.0, 0.0}, Point2D{10.0, 20.0}, WireRouteStyle::Orthogonal_HV);
+    REQUIRE(route_hv.size() == 3);
+    REQUIRE(is_approx(route_hv[0].x, 0.0) && is_approx(route_hv[0].y, 0.0));
+    REQUIRE(is_approx(route_hv[1].x, 10.0) && is_approx(route_hv[1].y, 0.0));
+    REQUIRE(is_approx(route_hv[2].x, 10.0) && is_approx(route_hv[2].y, 20.0));
+
+    // VH route from (0, 0) to (10, 20) -> knee at (0, 20)
+    auto route_vh = SchematicWireRouter::calculate_route(Point2D{0.0, 0.0}, Point2D{10.0, 20.0}, WireRouteStyle::Orthogonal_VH);
+    REQUIRE(route_vh.size() == 3);
+    REQUIRE(is_approx(route_vh[1].x, 0.0) && is_approx(route_vh[1].y, 20.0));
+
+    // 45-degree octilinear route from (0, 0) to (10, 30):
+    // min(dx=10, dy=30) = 10 -> diagonal to (10, 10), then straight to (10, 30)
+    auto route_45 = SchematicWireRouter::calculate_route(Point2D{0.0, 0.0}, Point2D{10.0, 30.0}, WireRouteStyle::Octilinear_45);
+    REQUIRE(route_45.size() == 3);
+    REQUIRE(is_approx(route_45[1].x, 10.0));
+    REQUIRE(is_approx(route_45[1].y, 10.0));
+    REQUIRE(is_approx(route_45[2].x, 10.0));
+    REQUIRE(is_approx(route_45[2].y, 30.0));
+
+    // 2. Wire network and automated 3-way T-junction synthesis
+    SketchDocument2D doc;
+    SchematicWireRouter router;
+
+    // Horizontal Wire W1: (0, 10) to (50, 10) on Net "VCC"
+    std::string w1_id = router.add_wire(doc, {Point2D{0.0, 10.0}, Point2D{50.0, 10.0}}, "VCC");
+    REQUIRE(!w1_id.empty());
+    REQUIRE(router.wire_count() == 1);
+    REQUIRE(router.junction_count() == 0); // No junction yet (single straight line)
+
+    // Vertical Wire W2: (25, 0) to (25, 10) -> touches W1 in its interior!
+    std::string w2_id = router.add_wire(doc, {Point2D{25.0, 0.0}, Point2D{25.0, 10.0}});
+    REQUIRE(!w2_id.empty());
+    REQUIRE(router.wire_count() == 2);
+
+    // Automatic junction dot created at (25, 10)
+    REQUIRE(router.junction_count() == 1);
+    const auto& junc = router.junction_dots().front();
+    REQUIRE(is_approx(junc.position.x, 25.0, 1e-4));
+    REQUIRE(is_approx(junc.position.y, 10.0, 1e-4));
+    REQUIRE(junc.connected_wire_ids.size() == 2);
+    REQUIRE(is_approx(junc.radius_mm, 0.8));
+
+    // Net name propagation: W2 adopted "VCC" from W1
+    const auto* w2_wire = router.find_wire(w2_id);
+    REQUIRE(w2_wire != nullptr);
+    REQUIRE(w2_wire->net_name == "VCC");
+
+    // 3. Removing W2 removes junction dot
+    REQUIRE(router.remove_wire(doc, w2_id));
+    REQUIRE(router.wire_count() == 1);
+    REQUIRE(router.junction_count() == 0); // orphan dot removed
+}
+
 
 
 
