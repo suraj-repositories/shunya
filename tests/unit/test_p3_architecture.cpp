@@ -17,6 +17,7 @@
 #include "shunya/cad3d/rhi_renderer_engine.hpp"
 #include "shunya/cad3d/hierarchical_culler.hpp"
 #include "shunya/cad3d/gpu_vertex_buffer.hpp"
+#include "shunya/cad3d/gpu_compute_pipeline.hpp"
 #include "shunya/perf/simd_math.hpp"
 #include "shunya/perf/thread_scaling_benchmark.hpp"
 #include "shunya/core/base/event_bus.hpp"
@@ -1891,4 +1892,114 @@ TEST_CASE("PH4-02.03.004: Optimized 32-Byte Aligned GPU Vertex Buffer Layouts") 
     CHECK(buf_full64.vertex_buffer_bytes() == 8 * 64);
     CHECK(buf_full64.is_32byte_aligned());
     CHECK(GpuVertexBufferBuilder::verify_buffer_alignment(buf_full64.vertices.data(), sizeof(GpuVertexFull64), buf_full64.vertex_buffer_bytes()));
+}
+
+TEST_CASE("PH4-02.03.005: Compute Shaders for Parallel Particles & Thermal Field Diffusion") {
+    using namespace shunya::cad3d;
+
+    // 1. Data layout & alignment guarantees
+    CHECK(sizeof(ComputeParticle) == 32);
+    CHECK(alignof(ComputeParticle) == 16);
+
+    // 2. Compute Shader Compilation & Storage Buffer Reflection
+    ParticleComputeSimulator particle_sim;
+    REQUIRE(particle_sim.initialize(ShaderTargetApi::SpirV_Vulkan));
+    CHECK(particle_sim.pipeline().is_ready());
+    CHECK(particle_sim.pipeline().shader_module().valid);
+    CHECK(particle_sim.pipeline().shader_module().stage == ShaderStage::Compute);
+
+    ThermalDiffusionComputeSimulator thermal_sim;
+    REQUIRE(thermal_sim.initialize(ShaderTargetApi::SpirV_Vulkan));
+    CHECK(thermal_sim.pipeline().is_ready());
+    CHECK(thermal_sim.pipeline().shader_module().valid);
+
+    // 3. Parallel Particle Dynamics Simulation (1024 particles, 100 timesteps)
+    const size_t particle_count = 1024;
+    std::vector<ComputeParticle> particles_gpu(particle_count);
+    std::vector<ComputeParticle> particles_cpu(particle_count);
+
+    for (size_t i = 0; i < particle_count; ++i) {
+        ComputeParticle p;
+        p.pos[0] = static_cast<float>(i % 32) * 0.1f - 1.6f;
+        p.pos[1] = 5.0f + static_cast<float>(i / 32) * 0.1f; // Dropping from height 5.0m
+        p.pos[2] = 0.0f;
+        p.vel[0] = 0.5f;
+        p.vel[1] = 0.0f;
+        p.vel[2] = 0.0f;
+        p.mass = 1.0f;
+        p.lifetime = 10.0f;
+
+        particles_gpu[i] = p;
+        particles_cpu[i] = p;
+    }
+
+    ParticleSimConfig p_cfg;
+    p_cfg.dt = 0.016667f;
+    p_cfg.gravity[1] = -9.81f;
+    p_cfg.floor_y = 0.0f;
+    p_cfg.restitution = 0.75f;
+    p_cfg.drag_coefficient = 0.02f;
+
+    // Simulate 60 frames (1 second of physics)
+    for (int frame = 0; frame < 60; ++frame) {
+        particle_sim.step_compute(particles_gpu, p_cfg);
+        ParticleComputeSimulator::step_cpu_reference(particles_cpu, p_cfg);
+    }
+
+    // Verify particle physics metrics
+    CHECK(particle_sim.pipeline().metrics().dispatch_count == 60);
+    CHECK(particle_sim.pipeline().metrics().workgroups_dispatched == 60 * (particle_count / 256));
+    CHECK(particle_sim.pipeline().metrics().threads_invoked == 60 * particle_count);
+
+    // Parity verification: GPU compute matches CPU reference
+    for (size_t i = 0; i < particle_count; ++i) {
+        CHECK(std::abs(particles_gpu[i].pos[0] - particles_cpu[i].pos[0]) < 1e-4f);
+        CHECK(std::abs(particles_gpu[i].pos[1] - particles_cpu[i].pos[1]) < 1e-4f);
+        CHECK(std::abs(particles_gpu[i].pos[2] - particles_cpu[i].pos[2]) < 1e-4f);
+        CHECK(std::abs(particles_gpu[i].vel[1] - particles_cpu[i].vel[1]) < 1e-4f);
+        CHECK(particles_gpu[i].pos[1] >= p_cfg.floor_y); // Preserved floor collision
+    }
+
+    // 4. Large-Scale Thermal Field Diffusion (32x32 = 1024 cells)
+    ThermalGridConfig2D t_cfg;
+    t_cfg.width = 32;
+    t_cfg.height = 32;
+    t_cfg.dx = 0.005f; // 5 mm grid spacing
+    t_cfg.dy = 0.005f;
+    t_cfg.thermal_diffusivity = 1.11e-4f; // Copper
+    t_cfg.dt = 0.01f;
+    t_cfg.ambient_temp = 293.15f; // 20 C
+
+    const size_t grid_cells = t_cfg.width * t_cfg.height;
+    std::vector<float> grid_gpu(grid_cells, t_cfg.ambient_temp);
+    std::vector<float> next_gpu(grid_cells, t_cfg.ambient_temp);
+    std::vector<float> grid_cpu(grid_cells, t_cfg.ambient_temp);
+    std::vector<float> next_cpu(grid_cells, t_cfg.ambient_temp);
+
+    // Place 500 W heat source at center cell (16, 16)
+    std::vector<float> heat_sources(grid_cells, 0.0f);
+    const size_t center_idx = 16 * t_cfg.width + 16;
+    heat_sources[center_idx] = 500.0f;
+
+    // Simulate 30 diffusion steps
+    for (int step = 0; step < 30; ++step) {
+        thermal_sim.step_compute(grid_gpu, next_gpu, t_cfg, heat_sources);
+        ThermalDiffusionComputeSimulator::step_cpu_reference(grid_cpu, next_cpu, t_cfg, heat_sources);
+        grid_gpu = next_gpu;
+        grid_cpu = next_cpu;
+    }
+
+    // Verify thermal diffusion metrics
+    CHECK(thermal_sim.pipeline().metrics().dispatch_count == 30);
+    CHECK(thermal_sim.pipeline().metrics().workgroups_dispatched == 30 * 4); // (32/16)*(32/16) = 4 groups per step
+
+    // Parity verification & physical temperature propagation
+    CHECK(grid_gpu[center_idx] > 300.0f); // Center heated up above ambient
+    CHECK(grid_gpu[center_idx + 1] > t_cfg.ambient_temp); // Neighbor received diffused heat
+    CHECK(grid_gpu[center_idx - 1] > t_cfg.ambient_temp);
+
+    // Assert exact parity across all 1024 thermal cells
+    for (size_t i = 0; i < grid_cells; ++i) {
+        CHECK(std::abs(grid_gpu[i] - grid_cpu[i]) < 1e-4f);
+    }
 }
