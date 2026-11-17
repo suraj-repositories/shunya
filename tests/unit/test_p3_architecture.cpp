@@ -16,6 +16,7 @@
 #include "shunya/cad3d/bvh_tree.hpp"
 #include "shunya/cad3d/rhi_renderer_engine.hpp"
 #include "shunya/cad3d/hierarchical_culler.hpp"
+#include "shunya/cad3d/gpu_vertex_buffer.hpp"
 #include "shunya/perf/simd_math.hpp"
 #include "shunya/perf/thread_scaling_benchmark.hpp"
 #include "shunya/core/base/event_bus.hpp"
@@ -1816,4 +1817,78 @@ TEST_CASE("PH4-02.03.003: Hierarchical View-Frustum Culling & Dynamic LOD Switch
     CHECK(engine.frame_metrics().draw_calls == 3);
     CHECK(engine.frame_metrics().triangles_submitted == 12 + 4 + 2);
     CHECK(engine.frame_metrics().pixels_shaded > 0);
+}
+
+TEST_CASE("PH4-02.03.004: Optimized 32-Byte Aligned GPU Vertex Buffer Layouts") {
+    using namespace shunya::cad3d;
+
+    // 1. Static compile-time alignment and size guarantees
+    CHECK(sizeof(GpuVertex32) == 32);
+    CHECK(alignof(GpuVertex32) == 32);
+
+    CHECK(sizeof(GpuVertexTangent32) == 32);
+    CHECK(alignof(GpuVertexTangent32) == 32);
+
+    CHECK(sizeof(GpuVertexFull64) == 64);
+    CHECK(alignof(GpuVertexFull64) == 32);
+
+    // 2. High-precision Octahedral normal vector quantization test
+    const std::vector<std::array<float, 3>> test_vectors = {
+        {0.0f, 0.0f, 1.0f},
+        {1.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {-1.0f, 0.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f},
+        {0.0f, 0.0f, -1.0f},
+        {0.57735f, 0.57735f, 0.57735f},
+        {-0.57735f, 0.57735f, -0.57735f}
+    };
+
+    for (const auto& v : test_vectors) {
+        const auto oct = GpuVertexBufferBuilder::encode_octahedral(v[0], v[1], v[2]);
+        const auto decoded = GpuVertexBufferBuilder::decode_octahedral(oct[0], oct[1]);
+        const float dot_prod = v[0] * decoded[0] + v[1] * decoded[1] + v[2] * decoded[2];
+        CHECK(dot_prod > 0.999f); // Under 0.05 degrees angular error
+    }
+
+    // 3. Create test mesh (box)
+    SolidMesh3D box_mesh;
+    box_mesh.vertices = {
+        {-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1},
+        {-1, -1,  1}, {1, -1,  1}, {1, 1,  1}, {-1, 1,  1}
+    };
+    box_mesh.triangles = {
+        {0, 2, 1}, {0, 3, 2}, {4, 5, 6}, {4, 6, 7},
+        {0, 1, 5}, {0, 5, 4}, {2, 3, 7}, {2, 7, 6},
+        {0, 4, 7}, {0, 7, 3}, {1, 2, 6}, {1, 6, 5}
+    };
+
+    // 4. Test 32-byte standard interleaved vertex buffer build
+    auto buf32 = GpuVertexBufferBuilder::build_interleaved_32(box_mesh);
+    CHECK(buf32.vertex_count() == 8);
+    CHECK(buf32.index_count() == 36);
+    CHECK(buf32.vertex_buffer_bytes() == 8 * 32);
+    CHECK(buf32.is_32byte_aligned());
+    CHECK(GpuVertexBufferBuilder::verify_buffer_alignment(buf32.vertices.data(), sizeof(GpuVertex32), buf32.vertex_buffer_bytes()));
+
+    // Verify stride alignment across elements
+    for (size_t i = 0; i < buf32.vertices.size(); ++i) {
+        CHECK(reinterpret_cast<uintptr_t>(&buf32.vertices[i]) % 32 == 0);
+    }
+
+    // 5. Test 32-byte packed normal+tangent interleaved vertex buffer build
+    auto buf_tan32 = GpuVertexBufferBuilder::build_packed_tangents_32(box_mesh);
+    CHECK(buf_tan32.vertex_count() == 8);
+    CHECK(buf_tan32.index_count() == 36);
+    CHECK(buf_tan32.vertex_buffer_bytes() == 8 * 32);
+    CHECK(buf_tan32.is_32byte_aligned());
+    CHECK(GpuVertexBufferBuilder::verify_buffer_alignment(buf_tan32.vertices.data(), sizeof(GpuVertexTangent32), buf_tan32.vertex_buffer_bytes()));
+
+    // 6. Test 64-byte full uncompressed interleaved vertex buffer build
+    auto buf_full64 = GpuVertexBufferBuilder::build_full_64(box_mesh);
+    CHECK(buf_full64.vertex_count() == 8);
+    CHECK(buf_full64.index_count() == 36);
+    CHECK(buf_full64.vertex_buffer_bytes() == 8 * 64);
+    CHECK(buf_full64.is_32byte_aligned());
+    CHECK(GpuVertexBufferBuilder::verify_buffer_alignment(buf_full64.vertices.data(), sizeof(GpuVertexFull64), buf_full64.vertex_buffer_bytes()));
 }
