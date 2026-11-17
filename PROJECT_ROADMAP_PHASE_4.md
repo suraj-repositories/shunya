@@ -385,14 +385,14 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-04: Professional 2D Vector & Schematic Drafting Engine (`CAD2D`)
 
 **Objective:** Upgrade the 2D CAD editor into a professional-grade parametric vector sketching environment and seamless electronic schematic capture canvas.  
-**Priority:** P0 | **Complexity:** High | **Dependencies:** `AUDIT`, `OPT` | **Status:** `[~] In Progress` (4/24 — 16.7%)
+**Priority:** P0 | **Complexity:** High | **Dependencies:** `AUDIT`, `OPT` | **Status:** `[~] In Progress` (5/24 — 20.8%)
 
-### Submodule PH4-04.01: Professional Drawing & Geometric Primitives [~] (66.7% — 4/6)
+### Submodule PH4-04.01: Professional Drawing & Geometric Primitives [~] (83.3% — 5/6)
 - [x] `PH4-04.01.001`: Implement interactive 2D primitive creation tools: Line, Rectangle, Circle, Ellipse, Regular Polygon, Arbitrary Polygon, Arc (3-point and center-radius), Cubic Bezier, and Freehand polyline.
 - [x] `PH4-04.01.002`: Develop a high-precision dimensioning and measurement tool with associative distance, angle, and radius callouts.
 - [x] `PH4-04.01.003`: Implement an interactive Text tool with vector font outlines, size, alignment, and rotation parameters.
 - [x] `PH4-04.01.004`: Add advanced 2D drafting curves: Catmull-Rom splines, B-splines, and parabolic arcs.
-- [ ] `PH4-04.01.005`: Create an associative 2D fillet and chamfer tool for polyline vertices and intersecting segments.
+- [x] `PH4-04.01.005`: Create an associative 2D fillet and chamfer tool for polyline vertices and intersecting segments.
 - [ ] `PH4-04.01.006`: Implement an Eraser and Trim/Extend tool for interactive curve segmentation and cleanup.
 
 ### Submodule PH4-04.02: Snapping, Alignment & Grid Systems

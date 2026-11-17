@@ -9,6 +9,7 @@
 #include "shunya/cad2d/dimensioning_tool.hpp"
 #include "shunya/cad2d/vector_text_tool.hpp"
 #include "shunya/cad2d/advanced_curves.hpp"
+#include "shunya/cad2d/associative_fillet_chamfer.hpp"
 
 #include <cmath>
 #include <vector>
@@ -595,4 +596,55 @@ TEST_CASE("PH4-04.01.004: Advanced 2D Drafting Curves") {
     auto p3 = ParabolicArc2D::from_three_points({-3.0, 4.5}, {0.0, 0.0}, {3.0, 4.5});
     REQUIRE(p3 != nullptr);
     CHECK(is_approx(p3->curvature(0.5), 1.0, 0.05));
+}
+
+// =============================================================================
+// Task PH4-04.01.005: Associative 2D Fillet & Chamfer Tool
+// =============================================================================
+
+TEST_CASE("PH4-04.01.005: Associative 2D Fillet and Chamfer Tool") {
+    // 1. Polyline vertex filleting
+    Polyline2D rect({ {0.0, 0.0}, {10.0, 0.0}, {10.0, 10.0}, {0.0, 10.0} }, true);
+    BlendParameters f_params;
+    f_params.op = BlendOperation::Fillet;
+    f_params.radius = 2.0;
+
+    auto res_poly = AssociativeFilletChamferTool::blend_polyline_vertex(rect, 1, f_params, 8);
+    REQUIRE(res_poly.is_ok());
+    const auto& filleted_poly = res_poly.value();
+    // Vertex 1 ({10, 0}) replaced with arc sample points
+    CHECK(filleted_poly.points.size() > 4);
+    CHECK(filleted_poly.total_length() < rect.total_length());
+
+    // 2. Polyline vertex chamfering
+    BlendParameters c_params;
+    c_params.op = BlendOperation::Chamfer;
+    c_params.chamfer_dist1 = 3.0;
+    c_params.chamfer_dist2 = 3.0;
+
+    auto res_cham = AssociativeFilletChamferTool::blend_polyline_vertex(rect, 2, c_params);
+    REQUIRE(res_cham.is_ok());
+    const auto& chamfered_poly = res_cham.value();
+    CHECK(chamfered_poly.points.size() == 5); // 4 - 1 + 2 = 5 vertices
+
+    // 3. Associative intersection filleting between lines in SketchDocument2D
+    SketchDocument2D doc;
+    auto l1 = std::make_shared<LineSegment2D>(Point2D{0.0, 10.0}, Point2D{0.0, 0.0});
+    auto l2 = std::make_shared<LineSegment2D>(Point2D{0.0, 0.0}, Point2D{10.0, 0.0});
+    std::string id1 = doc.add_entity(l1);
+    std::string id2 = doc.add_entity(l2);
+
+    AssociativeFilletChamferTool tool;
+    auto feat_res = tool.apply_between_lines(doc, id1, id2, f_params);
+    REQUIRE(feat_res.is_ok());
+    CHECK(doc.entities().size() == 3); // line1 (trimmed), line2 (trimmed), fillet arc
+    CHECK(is_approx(l1->total_length(), 8.0, 1e-6));
+    CHECK(is_approx(l2->total_length(), 8.0, 1e-6));
+
+    // 4. Associative update propagation
+    // Move outer end of l2
+    l2->p1 = Point2D{20.0, 0.0};
+    size_t updated = tool.update_all_features(doc);
+    CHECK(updated >= 1);
+    CHECK(is_approx(l2->total_length(), 18.0, 1e-6));
 }
