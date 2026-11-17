@@ -113,12 +113,14 @@ std::vector<Point2D> intersect_circle_circle_gen(
 
 int snap_priority(SnapType t) noexcept {
     switch (t) {
-        case SnapType::Endpoint:     return 0;
-        case SnapType::Intersection: return 1;
-        case SnapType::Center:       return 2;
-        case SnapType::Midpoint:     return 3;
-        case SnapType::Quadrant:     return 4;
-        case SnapType::Tangent:      return 5;
+        case SnapType::Endpoint:      return 0;
+        case SnapType::Intersection:  return 1;
+        case SnapType::Center:        return 2;
+        case SnapType::Midpoint:      return 3;
+        case SnapType::Quadrant:      return 4;
+        case SnapType::Tangent:       return 5;
+        case SnapType::Perpendicular: return 6;
+        case SnapType::Grid:          return 7;
         default: return 10;
     }
 }
@@ -138,6 +140,20 @@ void collect_simple_segments(const Curve2D& curve, std::vector<LineSegment2D>& o
 }
 
 } // namespace
+
+Point2D SnapTargetManager::snap_to_grid(
+    const Point2D& cursor_world,
+    double grid_x,
+    double grid_y,
+    const Point2D& origin
+) noexcept {
+    if (grid_x <= 1e-12 || grid_y <= 1e-12) return cursor_world;
+    double rel_x = cursor_world.x - origin.x;
+    double rel_y = cursor_world.y - origin.y;
+    double snapped_x = origin.x + std::round(rel_x / grid_x) * grid_x;
+    double snapped_y = origin.y + std::round(rel_y / grid_y) * grid_y;
+    return {snapped_x, snapped_y};
+}
 
 SnapTargetManager::SnapTargetManager(double hash_cell_size)
     : cell_size_(std::max(1e-4, hash_cell_size))
@@ -340,6 +356,16 @@ std::optional<SnapCandidate> SnapTargetManager::query_snap(
             consider_point(seg.p0, SnapType::Endpoint, e.id);
             consider_point(seg.p1, SnapType::Endpoint, e.id);
             consider_point((seg.p0 + seg.p1) * 0.5, SnapType::Midpoint, e.id);
+            if (active_anchor) {
+                Vec2d v = seg.p1 - seg.p0;
+                double len_sq = v.dot(v);
+                if (len_sq > 1e-12) {
+                    double u = (*active_anchor - seg.p0).dot(v) / len_sq;
+                    if (u >= 0.0 && u <= 1.0) {
+                        consider_point(seg.p0 + v * u, SnapType::Perpendicular, e.id);
+                    }
+                }
+            }
         } else if (t == CurveType2D::Polyline) {
             const auto& pl = static_cast<const Polyline2D&>(*e.curve);
             for (size_t k = 0; k < pl.points.size(); ++k) {
@@ -414,6 +440,11 @@ std::optional<SnapCandidate> SnapTargetManager::query_snap(
                 }
             }
         }
+    }
+
+    if ((enabled_mask & static_cast<uint32_t>(SnapType::Grid)) != 0) {
+        Point2D grid_pt = snap_to_grid(cursor_world, grid_spacing_, grid_spacing_);
+        consider_point(grid_pt, SnapType::Grid, "GRID");
     }
 
     return best;

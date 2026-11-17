@@ -199,3 +199,80 @@ TEST_CASE("CAD2D Sketch: PolarTrackingEngine & Construction Geometry Profile Exc
     CHECK(loops[0].size() == 3);
     CHECK(is_approx(PolygonBooleanEngine::area(loops[0]), 6.0, 1e-6));
 }
+
+// =============================================================================
+// Task PH4-04.02.001: Intelligent Magnetic Snap Engine (7 Object Snaps)
+// =============================================================================
+
+TEST_CASE("PH4-04.02.001: Intelligent Magnetic Snap Engine (7 Snaps)") {
+    SketchViewport2D vp;
+    vp.viewport_width = 1000.0;
+    vp.viewport_height = 1000.0;
+    vp.pixels_per_unit = 100.0; // 100 px = 1.0 unit (10 px tolerance = 0.10 units)
+
+    SketchDocument2D doc;
+    // Line 1: (0, 0) to (10, 0)
+    std::string l1_id = doc.add_entity(std::make_shared<LineSegment2D>(Point2D{0.0, 0.0}, Point2D{10.0, 0.0}));
+    // Line 2: (5, -5) to (5, 5) -> intersects Line 1 at (5, 0)
+    doc.add_entity(std::make_shared<LineSegment2D>(Point2D{5.0, -5.0}, Point2D{5.0, 5.0}));
+    // Circle at (20, 20) with radius 5
+    doc.add_entity(std::make_shared<Circle2D>(Point2D{20.0, 20.0}, 5.0));
+
+    SnapTargetManager snap_mgr(1.0);
+    snap_mgr.set_grid_snap_spacing(1.0);
+    snap_mgr.rebuild_index(doc);
+
+    // 1. Grid Snap (Snapping to (2.0, 3.0) from cursor (2.02, 3.01))
+    auto s_grid = snap_mgr.query_snap(doc, vp, {2.02, 3.01}, 10.0, static_cast<uint32_t>(SnapType::Grid));
+    REQUIRE(s_grid.has_value());
+    CHECK(s_grid->type == SnapType::Grid);
+    CHECK(is_approx(s_grid->world_pos.x, 2.0));
+    CHECK(is_approx(s_grid->world_pos.y, 3.0));
+
+    // 2. Endpoint Snap (Line 1 end at (10, 0))
+    auto s_end = snap_mgr.query_snap(doc, vp, {10.03, 0.02}, 10.0, static_cast<uint32_t>(SnapType::Endpoint));
+    REQUIRE(s_end.has_value());
+    CHECK(s_end->type == SnapType::Endpoint);
+    CHECK(is_approx(s_end->world_pos.x, 10.0));
+    CHECK(is_approx(s_end->world_pos.y, 0.0));
+
+    // 3. Midpoint Snap (Line 1 midpoint at (5, 0) with Midpoint mask only)
+    auto s_mid = snap_mgr.query_snap(doc, vp, {5.02, 0.03}, 10.0, static_cast<uint32_t>(SnapType::Midpoint));
+    REQUIRE(s_mid.has_value());
+    CHECK(s_mid->type == SnapType::Midpoint);
+    CHECK(is_approx(s_mid->world_pos.x, 5.0));
+    CHECK(is_approx(s_mid->world_pos.y, 0.0));
+
+    // 4. Center Snap (Circle center at (20, 20))
+    auto s_ctr = snap_mgr.query_snap(doc, vp, {20.03, 19.98}, 10.0, static_cast<uint32_t>(SnapType::Center));
+    REQUIRE(s_ctr.has_value());
+    CHECK(s_ctr->type == SnapType::Center);
+    CHECK(is_approx(s_ctr->world_pos.x, 20.0));
+    CHECK(is_approx(s_ctr->world_pos.y, 20.0));
+
+    // 5. Intersection Snap (Lines intersect at (5, 0))
+    auto s_inter = snap_mgr.query_snap(doc, vp, {5.01, 0.01}, 10.0, static_cast<uint32_t>(SnapType::Intersection));
+    REQUIRE(s_inter.has_value());
+    CHECK(s_inter->type == SnapType::Intersection);
+    CHECK(is_approx(s_inter->world_pos.x, 5.0));
+    CHECK(is_approx(s_inter->world_pos.y, 0.0));
+
+    // 6. Perpendicular Snap: Anchor at (8, 6), line is horizontal along y=0 -> perpendicular foot at (8, 0)
+    Point2D anchor_perp{8.0, 6.0};
+    auto s_perp = snap_mgr.query_snap(doc, vp, {8.02, 0.04}, 10.0, static_cast<uint32_t>(SnapType::Perpendicular), anchor_perp);
+    REQUIRE(s_perp.has_value());
+    CHECK(s_perp->type == SnapType::Perpendicular);
+    CHECK(is_approx(s_perp->world_pos.x, 8.0));
+    CHECK(is_approx(s_perp->world_pos.y, 0.0));
+
+    // 7. Tangent Snap: Anchor at (20, 30), circle center at (20, 20), radius 5
+    // Tangent points are at angles 90 +/- 60 deg -> (15.67, 22.5) and (24.33, 22.5)
+    Point2D anchor_tan{20.0, 30.0};
+    auto s_tan = snap_mgr.query_snap(doc, vp, {15.65, 22.48}, 15.0, static_cast<uint32_t>(SnapType::Tangent), anchor_tan);
+    REQUIRE(s_tan.has_value());
+    CHECK(s_tan->type == SnapType::Tangent);
+    // Tangency check: dot product of (snap_pos - center) and (anchor - snap_pos) == 0
+    Vec2d radius_vec = s_tan->world_pos - Point2D{20.0, 20.0};
+    Vec2d tangent_line = anchor_tan - s_tan->world_pos;
+    CHECK(is_approx(radius_vec.dot(tangent_line), 0.0, 1e-4));
+}

@@ -13,14 +13,16 @@
 namespace shunya::cad2d {
 
 enum class SnapType : uint32_t {
-    None         = 0,
-    Endpoint     = 1u << 0,
-    Midpoint     = 1u << 1,
-    Center       = 1u << 2,
-    Quadrant     = 1u << 3,
-    Intersection = 1u << 4,
-    Tangent      = 1u << 5,
-    All          = Endpoint | Midpoint | Center | Quadrant | Intersection | Tangent
+    None          = 0,
+    Endpoint      = 1u << 0,
+    Midpoint      = 1u << 1,
+    Center        = 1u << 2,
+    Quadrant      = 1u << 3,
+    Intersection  = 1u << 4,
+    Tangent       = 1u << 5,
+    Perpendicular = 1u << 6,
+    Grid          = 1u << 7,
+    All           = Endpoint | Midpoint | Center | Quadrant | Intersection | Tangent | Perpendicular | Grid
 };
 
 [[nodiscard]] constexpr uint32_t operator|(SnapType a, SnapType b) noexcept {
@@ -29,12 +31,14 @@ enum class SnapType : uint32_t {
 
 [[nodiscard]] constexpr std::string_view snap_type_to_string(SnapType t) noexcept {
     switch (t) {
-        case SnapType::Endpoint:     return "Endpoint";
-        case SnapType::Midpoint:     return "Midpoint";
-        case SnapType::Center:       return "Center";
-        case SnapType::Quadrant:     return "Quadrant";
-        case SnapType::Intersection: return "Intersection";
-        case SnapType::Tangent:      return "Tangent";
+        case SnapType::Endpoint:      return "Endpoint";
+        case SnapType::Midpoint:      return "Midpoint";
+        case SnapType::Center:        return "Center";
+        case SnapType::Quadrant:      return "Quadrant";
+        case SnapType::Intersection:  return "Intersection";
+        case SnapType::Tangent:       return "Tangent";
+        case SnapType::Perpendicular: return "Perpendicular";
+        case SnapType::Grid:          return "Grid";
         default: return "None";
     }
 }
@@ -86,6 +90,19 @@ public:
         const Curve2D& curve
     );
 
+    /**
+     * @brief Analytical grid snap projection to nearest grid point.
+     */
+    [[nodiscard]] static Point2D snap_to_grid(
+        const Point2D& cursor_world,
+        double grid_x,
+        double grid_y,
+        const Point2D& origin = {0.0, 0.0}
+    ) noexcept;
+
+    void set_grid_snap_spacing(double spacing) noexcept { grid_spacing_ = spacing > 0.0 ? spacing : 1.0; }
+    [[nodiscard]] double grid_snap_spacing() const noexcept { return grid_spacing_; }
+
 private:
     struct CellKey {
         int64_t ix{0};
@@ -102,6 +119,7 @@ private:
     };
 
     double cell_size_{1.0};
+    double grid_spacing_{1.0};
     std::unordered_map<CellKey, std::vector<size_t>, CellHash> grid_;
     std::vector<size_t> large_entities_; // Entities spanning many cells cleanly indexed separately
 };
