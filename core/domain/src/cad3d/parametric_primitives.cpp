@@ -877,6 +877,64 @@ SolidMesh3D ParametricPrimitiveGenerator::generate_pin(const PinParams& p) {
 }
 
 // ============================================================================
+// Topology & Mesh Quality Validation (Task 9: PH4-05.01.004)
+// ============================================================================
+
+MeshQualityReport ParametricMeshValidator::validate_topology_and_attributes(
+    const SolidMesh3D& mesh,
+    bool closed_expected
+) {
+    MeshQualityReport rep;
+
+    // 1. Validate normals
+    if (mesh.normals.size() != mesh.vertices.size()) {
+        rep.normals_valid = false;
+        rep.zero_normals_count = mesh.vertices.size();
+    } else {
+        for (const auto& n : mesh.normals) {
+            double len = n.length();
+            if (!std::isfinite(len) || len < 0.5 || len > 1.5) {
+                rep.normals_valid = false;
+                ++rep.zero_normals_count;
+            }
+        }
+    }
+
+    // 2. Validate UV coordinates
+    if (mesh.uvs.size() != mesh.vertices.size()) {
+        rep.uvs_valid = false;
+        rep.invalid_uvs_count = mesh.vertices.size();
+    } else {
+        for (const auto& uv : mesh.uvs) {
+            if (!std::isfinite(uv.x) || !std::isfinite(uv.y) ||
+                uv.x < -0.05 || uv.x > 1.05 || uv.y < -0.05 || uv.y > 1.05) {
+                rep.uvs_valid = false;
+                ++rep.invalid_uvs_count;
+            }
+        }
+    }
+
+    // 3. Topology & Manifold Analysis
+    // Create a copy and weld vertices within tolerance to analyze connectivity
+    SolidMesh3D topo_mesh = mesh;
+    topo_mesh.weld_vertices(1e-4);
+
+    auto m_rep = topo_mesh.analyze_manifold();
+    rep.euler_characteristic = m_rep.euler_characteristic;
+
+    if (closed_expected) {
+        rep.is_watertight = m_rep.is_watertight;
+        rep.is_2_manifold = m_rep.is_2_manifold;
+    } else {
+        // Open surfaces (Plane, Circle, Grid) have boundary edges but no non-manifold edges
+        rep.is_watertight = false;
+        rep.is_2_manifold = (m_rep.non_manifold_edge_count == 0);
+    }
+
+    return rep;
+}
+
+// ============================================================================
 // Analytical Calculations (Task 10: PH4-05.01.005)
 // ============================================================================
 

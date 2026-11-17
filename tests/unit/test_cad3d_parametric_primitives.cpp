@@ -292,3 +292,77 @@ TEST_CASE("PH4-05.01.003: Custom primitive generators for engineering fasteners:
     const auto& updated_bolt_mesh = prim_bolt.mesh();
     REQUIRE(is_close(updated_bolt_mesh.compute_bbox().size().z, 64.0));
 }
+
+TEST_CASE("PH4-05.01.004: Ensure clean 2-manifold watertight topology with proper normals and UV coordinates") {
+    // 1. Icosphere: inherently closed, watertight 2-manifold with V - E + F = 2
+    IcosphereParams ip;
+    ip.radius = 1.0;
+    ip.subdivisions = 1;
+    auto ico = ParametricPrimitiveGenerator::generate_icosphere(ip);
+
+    auto ico_raw_rep = ico.analyze_manifold();
+    REQUIRE(ico_raw_rep.is_watertight);
+    REQUIRE(ico_raw_rep.is_2_manifold);
+    REQUIRE(ico_raw_rep.boundary_edge_count == 0);
+    REQUIRE(ico_raw_rep.non_manifold_edge_count == 0);
+    REQUIRE(ico_raw_rep.euler_characteristic == 2);
+
+    auto ico_val = ParametricMeshValidator::validate_topology_and_attributes(ico, true);
+    REQUIRE(ico_val.is_watertight);
+    REQUIRE(ico_val.is_2_manifold);
+    REQUIRE(ico_val.normals_valid);
+    REQUIRE(ico_val.uvs_valid);
+    REQUIRE(ico_val.zero_normals_count == 0);
+    REQUIRE(ico_val.invalid_uvs_count == 0);
+
+    // 2. Cube: verify normal alignment and watertight topology
+    CubeParams cp;
+    cp.width = 2.0; cp.height = 2.0; cp.depth = 2.0;
+    auto cube = ParametricPrimitiveGenerator::generate_cube(cp);
+    auto cube_val = ParametricMeshValidator::validate_topology_and_attributes(cube, true);
+    REQUIRE(cube_val.is_watertight);
+    REQUIRE(cube_val.is_2_manifold);
+    REQUIRE(cube_val.normals_valid);
+    REQUIRE(cube_val.uvs_valid);
+    REQUIRE(cube_val.euler_characteristic == 2);
+
+    // 3. Cylinder with caps: verify watertight topology
+    CylinderParams cyl_p;
+    cyl_p.radius = 1.0; cyl_p.height = 3.0; cyl_p.radial_segments = 24;
+    cyl_p.cap_fill = CapFillType::TriangleFan;
+    auto cyl = ParametricPrimitiveGenerator::generate_cylinder(cyl_p);
+    auto cyl_val = ParametricMeshValidator::validate_topology_and_attributes(cyl, true);
+    REQUIRE(cyl_val.is_watertight);
+    REQUIRE(cyl_val.is_2_manifold);
+    REQUIRE(cyl_val.normals_valid);
+    REQUIRE(cyl_val.uvs_valid);
+
+    // 4. Torus: closed manifold of Genus 1 (Euler characteristic = 0)
+    TorusParams tp;
+    tp.major_radius = 2.0; tp.minor_radius = 0.5;
+    tp.major_segments = 20; tp.minor_segments = 12;
+    auto torus = ParametricPrimitiveGenerator::generate_torus(tp);
+    auto torus_val = ParametricMeshValidator::validate_topology_and_attributes(torus, true);
+    REQUIRE(torus_val.is_watertight);
+    REQUIRE(torus_val.is_2_manifold);
+    REQUIRE(torus_val.euler_characteristic == 0); // V - E + F = 0 for torus
+    REQUIRE(torus_val.normals_valid);
+    REQUIRE(torus_val.uvs_valid);
+
+    // 5. Open Primitives (Plane, Circle, Grid)
+    PlaneParams pl_p;
+    auto plane = ParametricPrimitiveGenerator::generate_plane(pl_p);
+    auto plane_val = ParametricMeshValidator::validate_topology_and_attributes(plane, false);
+    REQUIRE(!plane_val.is_watertight); // Open boundary
+    REQUIRE(plane_val.is_2_manifold);  // No non-manifold edges
+    REQUIRE(plane_val.normals_valid);
+    REQUIRE(plane_val.uvs_valid);
+
+    CircleParams circ_p;
+    auto circle = ParametricPrimitiveGenerator::generate_circle(circ_p);
+    auto circ_val = ParametricMeshValidator::validate_topology_and_attributes(circle, false);
+    REQUIRE(!circ_val.is_watertight);
+    REQUIRE(circ_val.is_2_manifold);
+    REQUIRE(circ_val.normals_valid);
+    REQUIRE(circ_val.uvs_valid);
+}

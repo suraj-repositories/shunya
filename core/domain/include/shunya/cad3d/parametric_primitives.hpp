@@ -186,6 +186,28 @@ struct AnalyticalProperties {
 };
 
 // ============================================================================
+// Topology & Mesh Quality Validation (Task 9: PH4-05.01.004)
+// ============================================================================
+
+struct MeshQualityReport {
+    bool is_watertight{false};
+    bool is_2_manifold{false};
+    bool normals_valid{true};
+    bool uvs_valid{true};
+    int64_t euler_characteristic{0};
+    size_t zero_normals_count{0};
+    size_t invalid_uvs_count{0};
+};
+
+class ParametricMeshValidator {
+public:
+    [[nodiscard]] static MeshQualityReport validate_topology_and_attributes(
+        const SolidMesh3D& mesh,
+        bool closed_expected = true
+    );
+};
+
+// ============================================================================
 // Parametric Primitive Generator
 // ============================================================================
 
