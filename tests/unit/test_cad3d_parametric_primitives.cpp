@@ -1,6 +1,7 @@
 #include "tests/test_framework.hpp"
 
 #include "shunya/cad3d/parametric_primitives.hpp"
+#include "shunya/cad3d/mesh_selection_engine.hpp"
 #include "shunya/cad3d/solid_mesh.hpp"
 #include "shunya/core/base/math.hpp"
 
@@ -487,4 +488,81 @@ TEST_CASE("PH4-05.01.006: Primitive alignment options: Align to World, Align to 
     auto aligned_norm_neg_z = PrimitiveAligner::align_to_surface_normal(cyl, Point3D{0.0, 0.0, 0.0}, Vec3d{0.0, 0.0, -1.0});
     auto bbox_neg_z = aligned_norm_neg_z.compute_bbox();
     REQUIRE(is_close(bbox_neg_z.size().z, 4.0));
+}
+
+TEST_CASE("PH4-05.02.001: Discrete mesh selection modes (Vertex, Edge, Face, Object) with raycast picking") {
+    CubeParams cp;
+    cp.width = 2.0; cp.height = 2.0; cp.depth = 2.0; // [-1, 1]^3
+    auto cube = ParametricPrimitiveGenerator::generate_cube(cp);
+
+    // 1. Object selection picking
+    Ray3D ray_center{Point3D{0.0, 0.0, 5.0}, Vec3d{0.0, 0.0, -1.0}};
+    auto pick_obj = MeshSelectionEngine::pick(cube, ray_center, MeshSelectionMode::Object);
+    REQUIRE(pick_obj.hit);
+    REQUIRE(pick_obj.mode == MeshSelectionMode::Object);
+    REQUIRE(is_close(pick_obj.distance, 4.0)); // From z=5 to z=1
+
+    MeshSelection sel;
+    sel.set_mode(MeshSelectionMode::Object);
+    bool selected = MeshSelectionEngine::pick_and_select(cube, ray_center, sel);
+    REQUIRE(selected);
+    REQUIRE(sel.object_selected);
+
+    // 2. Face selection picking
+    sel.set_mode(MeshSelectionMode::Face);
+    auto pick_face = MeshSelectionEngine::pick(cube, ray_center, MeshSelectionMode::Face);
+    REQUIRE(pick_face.hit);
+    REQUIRE(pick_face.mode == MeshSelectionMode::Face);
+    REQUIRE(pick_face.element_index < cube.triangles.size());
+
+    MeshSelectionEngine::pick_and_select(cube, ray_center, sel);
+    REQUIRE(sel.selected_faces.size() == 1);
+    REQUIRE(sel.is_face_selected(pick_face.element_index));
+
+    // 3. Vertex selection picking near corner (0.9, 0.9, 1.0)
+    Ray3D ray_corner{Point3D{0.9, 0.9, 5.0}, Vec3d{0.0, 0.0, -1.0}};
+    sel.set_mode(MeshSelectionMode::Vertex);
+    auto pick_vert = MeshSelectionEngine::pick(cube, ray_corner, MeshSelectionMode::Vertex);
+    REQUIRE(pick_vert.hit);
+    REQUIRE(pick_vert.mode == MeshSelectionMode::Vertex);
+    // Closest vertex should be corner (1, 1, 1)
+    const auto& picked_pos = cube.vertices[pick_vert.element_index];
+    REQUIRE(is_close(picked_pos.x, 1.0));
+    REQUIRE(is_close(picked_pos.y, 1.0));
+    REQUIRE(is_close(picked_pos.z, 1.0));
+
+    MeshSelectionEngine::pick_and_select(cube, ray_corner, sel);
+    REQUIRE(sel.selected_vertices.size() == 1);
+    REQUIRE(sel.is_vertex_selected(pick_vert.element_index));
+
+    // 4. Edge selection picking near top-middle (0.0, 0.95, 1.0)
+    Ray3D ray_edge{Point3D{0.0, 0.95, 5.0}, Vec3d{0.0, 0.0, -1.0}};
+    sel.set_mode(MeshSelectionMode::Edge);
+    auto pick_edge = MeshSelectionEngine::pick(cube, ray_edge, MeshSelectionMode::Edge);
+    REQUIRE(pick_edge.hit);
+    REQUIRE(pick_edge.mode == MeshSelectionMode::Edge);
+
+    MeshSelectionEngine::pick_and_select(cube, ray_edge, sel);
+    REQUIRE(sel.selected_edges.size() == 1);
+    REQUIRE(sel.is_edge_selected(pick_edge.edge.first, pick_edge.edge.second));
+
+    // 5. Box / Frustum selection in positive octant [0, 2]^3
+    BBox3D pos_box;
+    pos_box.min = Point3D{0.0, 0.0, 0.0};
+    pos_box.max = Point3D{2.0, 2.0, 2.0};
+
+    sel.set_mode(MeshSelectionMode::Vertex);
+    MeshSelectionEngine::select_in_box(cube, pos_box, sel);
+    REQUIRE(!sel.selected_vertices.empty());
+    for (uint32_t v_idx : sel.selected_vertices) {
+        REQUIRE(cube.vertices[v_idx].x >= 0.0);
+        REQUIRE(cube.vertices[v_idx].y >= 0.0);
+        REQUIRE(cube.vertices[v_idx].z >= 0.0);
+    }
+
+    // 6. Select All / Deselect All
+    sel.select_all(cube);
+    REQUIRE(sel.selected_vertices.size() == cube.vertices.size());
+    sel.deselect_all();
+    REQUIRE(sel.empty());
 }

@@ -177,6 +177,7 @@ add_library(shunya_domain_cad OBJECT
     src/cad2d/schematic_sim_overlay.cpp
     src/cad3d/solid_mesh.cpp
     src/cad3d/parametric_primitives.cpp
+    src/cad3d/mesh_selection_engine.cpp
     src/cad3d/polygon_tessellator.cpp
     src/cad3d/extrusion_feature.cpp
     src/cad3d/revolve_feature.cpp
