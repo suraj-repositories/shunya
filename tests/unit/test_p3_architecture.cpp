@@ -39,6 +39,7 @@
 #include "shunya/mat/property_models/environmental_property_model.hpp"
 #include "shunya/mat/property_models/material_property_bundle.hpp"
 #include "shunya/mat/calculation_classification.hpp"
+#include "shunya/mat/epistemic_value.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -3120,5 +3121,46 @@ TEST_CASE("PH4-03.03.001: 5-Tier Calculation Classification System") {
     CHECK_FALSE(rom_meta.is_high_fidelity());
     CHECK(rom_meta.epistemic_status() == EpistemicStatus::ApproximateSimulation);
 }
+
+TEST_CASE("PH4-03.03.002: EpistemicStatus and numerical confidence bounds") {
+    using namespace shunya::mat;
+
+    // 1. Measured tabular lookup with +/- 0.5% confidence bound
+    EpistemicScalar measured_density(8960.0, CalculationTier::ReferenceDatasetLookup, 0.5);
+    CHECK(measured_density.value == 8960.0);
+    CHECK(measured_density.classification.tier == CalculationTier::ReferenceDatasetLookup);
+    CHECK(measured_density.epistemic_status() == EpistemicStatus::ConfirmedScientific);
+    CHECK(measured_density.is_scientifically_certified());
+    CHECK(std::abs(measured_density.lower_bound() - 8915.2) < 1e-4);
+    CHECK(std::abs(measured_density.upper_bound() - 9004.8) < 1e-4);
+    CHECK(measured_density.contains(8960.0));
+    CHECK(measured_density.contains(8950.0));
+    CHECK_FALSE(measured_density.contains(8900.0));
+
+    // 2. Formatting verification
+    const std::string repr = measured_density.to_string(1, "kg/m^3");
+    CHECK(repr.find("8960.0 kg/m^3") != std::string::npos);
+    CHECK(repr.find("+/- 0.5%") != std::string::npos);
+    CHECK(repr.find("Reference Dataset Lookup") != std::string::npos);
+
+    // 3. Error propagation - Addition of resistance elements: R_total = R1 + R2
+    EpistemicScalar r1(100.0, CalculationTier::EmpiricalFit, 2.0); // 100 +/- 2 Ohm (da = 2.0)
+    EpistemicScalar r2(200.0, CalculationTier::EmpiricalFit, 1.0); // 200 +/- 2 Ohm (db = 2.0)
+    EpistemicScalar r_tot = EpistemicScalar::add_propagated(r1, r2, CalculationTier::AnalyticalFormulation, "Series Resistance Sum");
+
+    CHECK(r_tot.value == 300.0);
+    // dz = sqrt(2^2 + 2^2) = sqrt(8) ~ 2.8284 Ohm -> rel_pct = 2.8284 / 300 * 100 ~ 0.943%
+    CHECK(std::abs(r_tot.absolute_uncertainty() - std::sqrt(8.0)) < 1e-3);
+    CHECK(r_tot.classification.tier == CalculationTier::AnalyticalFormulation);
+    CHECK(r_tot.epistemic_status() == EpistemicStatus::ConfirmedScientific);
+
+    // 4. Error propagation - Multiplication: V = I * R
+    EpistemicScalar current(2.0, CalculationTier::ReferenceDatasetLookup, 1.0); // 2 A +/- 1%
+    EpistemicScalar voltage = EpistemicScalar::multiply_propagated(current, r1, CalculationTier::AnalyticalFormulation, "Ohm's Law V = I*R");
+    CHECK(voltage.value == 200.0); // 2 * 100 = 200 V
+    // rel_z = sqrt(1.0^2 + 2.0^2) = sqrt(5) ~ 2.236%
+    CHECK(std::abs(voltage.classification.relative_uncertainty_pct - std::sqrt(5.0)) < 1e-3);
+}
+
 
 

@@ -359,14 +359,14 @@ PH4: Integrated Cyber-Physical Engineering Platform
 - [x] `PH4-03.02.005`: Implement structured **Environmental Property Model**: moisture absorption, UV degradation rate, atmospheric oxidation kinetics, and galvanic potential compatibility index.
 - [x] `PH4-03.02.006`: Design a unified C++ data structure `MaterialPropertyBundle` encapsulating all five domains with rigorous SI unit constraints.
 
-### Submodule PH4-03.03: Scientific Accuracy, Epistemic Tagging & Uncertainty [~] (16.7% — 1/6)
+### Submodule PH4-03.03: Scientific Accuracy, Epistemic Tagging & Uncertainty [~] (33.3% — 2/6)
 - [x] `PH4-03.03.001`: Establish an explicit 5-tier calculation classification system:
   1. *Analytical Formulation* (first-principles closed-form equations).
   2. *Empirical Fit* (NIST/JANAF calibrated polynomial curves).
   3. *Reference Dataset Lookup* (exact measured tabular values from `elements.csv`).
   4. *Rule-of-Mixtures Approximation* (Voigt-Reuss bounds, Halpin-Tsai models).
   5. *Numerical Simulation Estimate* (iterative solver approximation).
-- [ ] `PH4-03.03.002`: Attach `EpistemicStatus` and numerical confidence bounds ($\pm \delta\%$) to every calculated property value.
+- [x] `PH4-03.03.002`: Attach `EpistemicStatus` and numerical confidence bounds ($\pm \delta\%$) to every calculated property value.
 - [ ] `PH4-03.03.003`: Implement temperature ($T$) and pressure ($P$) state-dependent evaluation functions: $P_{\text{calc}} = f(T, P, \text{composition})$.
 - [ ] `PH4-03.03.004`: Create a validation boundary checker that generates explicit engineering warnings when operating temperature or stress exceeds physical material limits.
 - [ ] `PH4-03.03.005`: Implement Shomate equation polynomials for high-temperature specific heat, enthalpy, and entropy calculations.
