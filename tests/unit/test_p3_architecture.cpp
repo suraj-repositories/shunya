@@ -15,6 +15,7 @@
 #include "shunya/perf/work_stealing_pool.hpp"
 #include "shunya/cad3d/bvh_tree.hpp"
 #include "shunya/cad3d/rhi_renderer_engine.hpp"
+#include "shunya/cad3d/hierarchical_culler.hpp"
 #include "shunya/perf/simd_math.hpp"
 #include "shunya/perf/thread_scaling_benchmark.hpp"
 #include "shunya/core/base/event_bus.hpp"
@@ -1682,4 +1683,137 @@ TEST_CASE("PH4-02.03.002: GPU Instanced Rendering for Repetitive Pins and Fasten
     CHECK(d3d12_engine.frame_metrics().instances_rendered == 68);
     CHECK(d3d12_engine.frame_metrics().pixels_shaded == vk_engine.frame_metrics().pixels_shaded);
     CHECK(d3d12_engine.framebuffer().quantized_checksum() == vk_engine.framebuffer().quantized_checksum());
+}
+
+TEST_CASE("PH4-02.03.003: Hierarchical View-Frustum Culling & Dynamic LOD Switching") {
+    using namespace shunya::cad3d;
+    using shunya::core::base::math::Matrix4x4;
+
+    // 1. Create 3 distinct LOD meshes representing a mechanical bracket
+    SolidMesh3D lod0_mesh; // 12 triangles (full detail)
+    lod0_mesh.vertices = {
+        {-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1},
+        {-1, -1,  1}, {1, -1,  1}, {1, 1,  1}, {-1, 1,  1}
+    };
+    lod0_mesh.triangles = {
+        {0, 2, 1}, {0, 3, 2}, {4, 5, 6}, {4, 6, 7},
+        {0, 1, 5}, {0, 5, 4}, {2, 3, 7}, {2, 7, 6},
+        {0, 4, 7}, {0, 7, 3}, {1, 2, 6}, {1, 6, 5}
+    };
+
+    SolidMesh3D lod1_mesh; // 4 triangles (pyramid proxy)
+    lod1_mesh.vertices = {
+        {-1, -1, -1}, {1, -1, -1}, {1, -1, 1}, {-1, -1, 1}, {0, 1, 0}
+    };
+    lod1_mesh.triangles = {
+        {0, 1, 4}, {1, 2, 4}, {2, 3, 4}, {3, 0, 4}
+    };
+
+    SolidMesh3D lod2_mesh; // 2 triangles (billboard quad proxy)
+    lod2_mesh.vertices = {
+        {-1, -1, 0}, {1, -1, 0}, {1, 1, 0}, {-1, 1, 0}
+    };
+    lod2_mesh.triangles = {
+        {0, 1, 2}, {0, 2, 3}
+    };
+
+    // 2. Setup camera at (0, 0, 10) looking at (0, 0, 0)
+    ViewportCamera cam;
+    cam.position = {0.0, 0.0, 10.0};
+    cam.target = {0.0, 0.0, 0.0};
+    cam.aspect_ratio = 1.0;
+    cam.fov_degrees = 60.0;
+    cam.near_plane = 0.5;
+    cam.far_plane = 100.0;
+
+    const auto frustum = cam.extract_frustum();
+
+    // 3. Test FrustumContainment primitive queries
+    CHECK(HierarchicalCuller::test_containment(frustum, {-0.5, -0.5, -0.5}, {0.5, 0.5, 0.5}) != FrustumContainment::Outside);
+    CHECK(HierarchicalCuller::test_containment(frustum, {50.0, 50.0, 50.0}, {60.0, 60.0, 60.0}) == FrustumContainment::Outside);
+    CHECK(HierarchicalCuller::test_containment(frustum, {-10.0, -10.0, 20.0}, {-5.0, -5.0, 25.0}) == FrustumContainment::Outside);
+
+    // 4. Build a hierarchical assembly tree
+    // Root Assembly
+    //   |- Subassembly Visible (at origin, z = 0, distance ~ 10 from camera)
+    //   |     |- Part A (at z = 7, dist ~ 3 -> LOD 0)
+    //   |     |- Part B (at z = 0, dist ~ 10 -> LOD 1)
+    //   |     |- Part C (at z = -12, dist ~ 22 -> LOD 2)
+    //   |     |- Part D (at z = -50, dist ~ 60 -> Culled beyond max LOD distance 30)
+    //   |- Subassembly Culled (at x = 200, z = 0 -> Far outside view frustum)
+    //         |- Part E
+    //         |- Part F
+    AssemblyCullNode root;
+    root.name = "RootAssembly";
+
+    auto visible_subassembly = std::make_unique<AssemblyCullNode>();
+    visible_subassembly->name = "VisibleSubassembly";
+
+    auto make_lod_part = [&](std::string name, double z_pos) {
+        LodPart part;
+        part.name = std::move(name);
+        part.transform = Matrix4x4<double>::translation({0.0, 0.0, z_pos});
+        part.local_bbox_min = {-1, -1, -1};
+        part.local_bbox_max = {1, 1, 1};
+        part.lods = {
+            {&lod0_mesh, 5.0, "LOD0"},   // dist <= 5: LOD0
+            {&lod1_mesh, 15.0, "LOD1"},  // 5 < dist <= 15: LOD1
+            {&lod2_mesh, 30.0, "LOD2"}   // 15 < dist <= 30: LOD2 (dist > 30 is culled)
+        };
+        return part;
+    };
+
+    visible_subassembly->parts.push_back(make_lod_part("Part_LOD0", 7.0));  // dist = 3.0
+    visible_subassembly->parts.push_back(make_lod_part("Part_LOD1", 0.0));  // dist = 10.0
+    visible_subassembly->parts.push_back(make_lod_part("Part_LOD2", -12.0)); // dist = 22.0
+    visible_subassembly->parts.push_back(make_lod_part("Part_Culled_Dist", -50.0)); // dist = 60.0
+
+    auto culled_subassembly = std::make_unique<AssemblyCullNode>();
+    culled_subassembly->name = "CulledSubassembly";
+    culled_subassembly->local_transform = Matrix4x4<double>::translation({200.0, 0.0, 0.0});
+    culled_subassembly->parts.push_back(make_lod_part("Part_Offscreen1", 0.0));
+    culled_subassembly->parts.push_back(make_lod_part("Part_Offscreen2", 5.0));
+
+    root.children.push_back(std::move(visible_subassembly));
+    root.children.push_back(std::move(culled_subassembly));
+
+    // Update hierarchical world bounding boxes
+    root.update_bounds();
+
+    // 5. Execute Hierarchical Frustum Culling and LOD selection
+    HierarchicalCuller culler;
+    CullingMetrics metrics{};
+    std::vector<RhiDrawItem> items = culler.cull_and_select_lod(root, cam, &metrics);
+
+    // Verify hierarchical node culling:
+    // Root tested (1), VisibleSubassembly tested (1), CulledSubassembly tested and culled (1)
+    CHECK(metrics.nodes_tested == 3);
+    CHECK(metrics.nodes_culled == 1);
+
+    // Verify part level LOD metrics:
+    // Exactly 3 parts rendered (dist 3 -> LOD0, dist 10 -> LOD1, dist 22 -> LOD2)
+    CHECK(metrics.parts_rendered == 3);
+    CHECK(metrics.lod_counts[0] == 1); // LOD 0 (12 tris)
+    CHECK(metrics.lod_counts[1] == 1); // LOD 1 (4 tris)
+    CHECK(metrics.lod_counts[2] == 1); // LOD 2 (2 tris)
+
+    // Culled part at dist 60 was culled due to distance
+    CHECK(metrics.parts_culled == 1);
+
+    // Verify resulting draw items list
+    REQUIRE(items.size() == 3);
+    CHECK(items[0].mesh == &lod0_mesh);
+    CHECK(items[1].mesh == &lod1_mesh);
+    CHECK(items[2].mesh == &lod2_mesh);
+
+    // 6. Feed culled and LOD-swapped draw items to RhiRendererEngine
+    RhiRendererEngine engine;
+    REQUIRE(engine.initialize({RhiBackendApi::Vulkan, 320, 240, true}));
+    engine.begin_frame();
+    engine.render_scene(cam, items);
+    engine.end_frame();
+
+    CHECK(engine.frame_metrics().draw_calls == 3);
+    CHECK(engine.frame_metrics().triangles_submitted == 12 + 4 + 2);
+    CHECK(engine.frame_metrics().pixels_shaded > 0);
 }

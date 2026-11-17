@@ -157,6 +157,7 @@ add_library(shunya_domain_cad OBJECT
     src/cad3d/pbr_material.cpp
     src/cad3d/ibl_processor.cpp
     src/cad3d/volume_renderer.cpp
+    src/cad3d/hierarchical_culler.cpp
 )
 shunya_configure_domain_target(shunya_domain_cad)
 target_link_libraries(shunya_domain_cad PUBLIC shunya_domain_core)
