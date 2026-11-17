@@ -5,6 +5,7 @@
 #include "shunya/cad2d/context_menu_model.hpp"
 #include "shunya/cad2d/group_manager.hpp"
 #include "shunya/cad2d/layer_manager.hpp"
+#include "shunya/cad2d/schematic_pin_tool.hpp"
 #include "shunya/cad2d/schematic_symbol_engine.hpp"
 #include "shunya/cad2d/schematic_wire_router.hpp"
 #include "shunya/cad2d/selection_gizmo.hpp"
@@ -782,6 +783,83 @@ TEST_CASE("PH4-04.04.002: Orthogonal and 45-degree wire routing with automated j
     REQUIRE(router.wire_count() == 1);
     REQUIRE(router.junction_count() == 0); // orphan dot removed
 }
+
+TEST_CASE("PH4-04.04.003: Schematic pin placement tool defining electrical terminals, names, numbers, and types") {
+    SketchDocument2D doc;
+    SchematicPinPlacementTool pin_tool;
+    REQUIRE(pin_tool.pin_count() == 0);
+
+    // 1. Place Input Pin (Pin 1, "DATA_IN", Input, Right orientation) at (0, 10)
+    std::string p1_id = pin_tool.place_pin(
+        doc,
+        Point2D{0.0, 10.0},
+        "1",
+        "DATA_IN",
+        shunya::pcb::PinElectricalType::Input,
+        PinOrientation::Right
+    );
+    REQUIRE(!p1_id.empty());
+    REQUIRE(pin_tool.pin_count() == 1);
+
+    const auto* p1 = pin_tool.find_pin(p1_id);
+    REQUIRE(p1 != nullptr);
+    REQUIRE(p1->pin_number == "1");
+    REQUIRE(p1->pin_name == "DATA_IN");
+    REQUIRE(p1->electrical_type == shunya::pcb::PinElectricalType::Input);
+    REQUIRE(p1->orientation == PinOrientation::Right);
+
+    // Terminal anchor is offset +5.08 along X for Right orientation
+    Point2D a1 = pin_tool.terminal_anchor(*p1);
+    REQUIRE(is_approx(a1.x, 5.08));
+    REQUIRE(is_approx(a1.y, 10.0));
+
+    // 2. Place Output Pin (Pin 2, "DATA_OUT", Output, Left orientation) at (50, 10)
+    std::string p2_id = pin_tool.place_pin(
+        doc,
+        Point2D{50.0, 10.0},
+        "2",
+        "DATA_OUT",
+        shunya::pcb::PinElectricalType::Output,
+        PinOrientation::Left
+    );
+    REQUIRE(!p2_id.empty());
+    const auto* p2 = pin_tool.find_pin(p2_id);
+    Point2D a2 = pin_tool.terminal_anchor(*p2);
+    REQUIRE(is_approx(a2.x, 50.0 - 5.08));
+    REQUIRE(is_approx(a2.y, 10.0));
+
+    // 3. Auto-incrementing Pin Numbers (Pin 3 and 4 Power pins)
+    pin_tool.set_next_pin_number(3);
+    pin_tool.set_default_electrical_type(shunya::pcb::PinElectricalType::PowerInput);
+    pin_tool.set_default_orientation(PinOrientation::Up);
+
+    std::string p3_id = pin_tool.place_pin(doc, Point2D{25.0, 0.0});
+    std::string p4_id = pin_tool.place_pin(doc, Point2D{25.0, 50.0});
+    REQUIRE(pin_tool.find_pin(p3_id)->pin_number == "3");
+    REQUIRE(pin_tool.find_pin(p4_id)->pin_number == "4");
+    REQUIRE(pin_tool.pin_count() == 4);
+
+    // 4. Hit testing
+    REQUIRE(pin_tool.hit_test_pin(Point2D{0.0, 10.0}) == p1_id);
+    REQUIRE(pin_tool.hit_test_pin(a1) == p1_id);
+    REQUIRE(pin_tool.hit_test_pin(Point2D{999.0, 999.0}).empty());
+
+    // 5. Export to standard symbol pin definitions
+    auto exported = pin_tool.export_symbol_pin_defs();
+    REQUIRE(exported.size() == 4);
+    REQUIRE(exported[0].number == "1");
+    REQUIRE(exported[0].name == "DATA_IN");
+    REQUIRE(exported[0].electrical_type == shunya::pcb::PinElectricalType::Input);
+
+    // 6. Mechanical isolation check: pins in doc are construction/schematic
+    REQUIRE(doc.solid_entities().empty());
+
+    // 7. Removal cleanup
+    REQUIRE(pin_tool.remove_pin(doc, p1_id));
+    REQUIRE(pin_tool.pin_count() == 3);
+    REQUIRE(pin_tool.find_pin(p1_id) == nullptr);
+}
+
 
 
 
