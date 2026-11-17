@@ -41,6 +41,7 @@
 #include "shunya/mat/calculation_classification.hpp"
 #include "shunya/mat/epistemic_value.hpp"
 #include "shunya/mat/state_dependent_evaluator.hpp"
+#include "shunya/mat/material_boundary_checker.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -3226,6 +3227,78 @@ TEST_CASE("PH4-03.03.003: State-dependent evaluation functions P_calc = f(T, P)"
     CHECK(hot_bundle.mechanical.young_modulus_pa < cu.mechanical.young_modulus_pa);
     CHECK(hot_bundle.electrical.base_conductivity_s_m < cu.electrical.base_conductivity_s_m);
 }
+
+TEST_CASE("PH4-03.03.004: Validation boundary checker for temperature and stress limits") {
+    using namespace shunya::mat;
+
+    MaterialPropertyBundle steel;
+    steel.material_name = "Structural Steel (AISI 1018)";
+    steel.mechanical.yield_strength_pa = 250.0e6;            // 250 MPa yield
+    steel.mechanical.ultimate_tensile_strength_pa = 400.0e6; // 400 MPa UTS
+    steel.thermal.melting_point_k = 1811.0;                 // 1811 K melting
+    steel.electrical.breakdown_field_v_m = 0.0;             // Conductor
+
+    // 1. Safe baseline operating conditions (room temp, moderate load)
+    OperatingConditions safe_op;
+    safe_op.operating_temperature_k = 300.0;
+    safe_op.von_mises_stress_pa = 100.0e6; // 100 MPa < 250 MPa (SF = 2.5)
+
+    BoundaryCheckReport safe_rep = MaterialBoundaryChecker::check_boundaries(steel, safe_op);
+    CHECK(safe_rep.is_operating_safe);
+    CHECK_FALSE(safe_rep.has_failures());
+    CHECK(safe_rep.warnings.empty());
+
+    // 2. Plastic yield warning (stress exceeds yield but below UTS)
+    OperatingConditions yield_op = safe_op;
+    yield_op.von_mises_stress_pa = 300.0e6; // 300 MPa > 250 MPa
+    BoundaryCheckReport yield_rep = MaterialBoundaryChecker::check_boundaries(steel, yield_op);
+    CHECK(yield_rep.is_operating_safe); // Yield is warning, not rupture
+    CHECK(yield_rep.max_severity == BoundaryHazardLevel::Warning);
+    CHECK(yield_rep.warnings.size() == 1);
+    CHECK(yield_rep.warnings[0].code == "STRESS-PLASTIC-YIELD");
+
+    // 3. Catastrophic rupture failure (stress exceeds UTS)
+    OperatingConditions rupture_op = safe_op;
+    rupture_op.von_mises_stress_pa = 450.0e6; // 450 MPa > 400 MPa UTS
+    BoundaryCheckReport rupture_rep = MaterialBoundaryChecker::check_boundaries(steel, rupture_op);
+    CHECK_FALSE(rupture_rep.is_operating_safe);
+    CHECK(rupture_rep.has_failures());
+    CHECK(rupture_rep.max_severity == BoundaryHazardLevel::CriticalFailure);
+    CHECK(rupture_rep.warnings[0].code == "STRESS-RUPTURE");
+
+    // 4. Thermal creep warning (T > 0.4 Tm ~ 724.4 K)
+    OperatingConditions creep_op = safe_op;
+    creep_op.operating_temperature_k = 800.0; // 800 K > 0.4 * 1811 = 724.4 K
+    BoundaryCheckReport creep_rep = MaterialBoundaryChecker::check_boundaries(steel, creep_op);
+    CHECK(creep_rep.max_severity == BoundaryHazardLevel::Warning);
+    bool found_creep = false;
+    for (const auto& w : creep_rep.warnings) {
+        if (w.code == "THERMAL-CREEP") found_creep = true;
+    }
+    CHECK(found_creep);
+
+    // 5. Thermal melting failure (T > Tm)
+    OperatingConditions melt_op = safe_op;
+    melt_op.operating_temperature_k = 1900.0; // Exceeds 1811 K
+    BoundaryCheckReport melt_rep = MaterialBoundaryChecker::check_boundaries(steel, melt_op);
+    CHECK_FALSE(melt_rep.is_operating_safe);
+    CHECK(melt_rep.has_failures());
+    CHECK(melt_rep.warnings[0].code == "THERMAL-MELTING");
+
+    // 6. Dielectric breakdown evaluation on insulator
+    MaterialPropertyBundle polymer;
+    polymer.material_name = "Kapton Polyimide Film";
+    polymer.electrical.breakdown_field_v_m = 200.0e6; // 200 MV/m dielectric strength
+
+    OperatingConditions dielectric_op;
+    dielectric_op.applied_electric_field_v_m = 250.0e6; // 250 MV/m > 200 MV/m
+    BoundaryCheckReport elec_rep = MaterialBoundaryChecker::check_boundaries(polymer, dielectric_op);
+    CHECK_FALSE(elec_rep.is_operating_safe);
+    CHECK(elec_rep.has_failures());
+    CHECK(elec_rep.warnings[0].code == "DIELECTRIC-BREAKDOWN");
+    CHECK(!elec_rep.format_report().empty());
+}
+
 
 
 
