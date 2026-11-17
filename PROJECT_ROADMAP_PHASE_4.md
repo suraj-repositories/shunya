@@ -504,7 +504,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (8/30 — 26.7%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (9/30 — 30.0%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
@@ -546,7 +546,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Materials:* Enameled copper wire, Manganese-zinc ferrite core.  
   *Tests:* RL transient delay, inductive kickback voltage spike absorption.
 
-### Submodule PH4-07.02: Diodes & Optoelectronics (Components 7 - 10) [~] (2/4)
+### Submodule PH4-07.02: Diodes & Optoelectronics (Components 7 - 10) [~] (3/4)
 - [x] `PH4-07.02.001`: **7. PN Junction Diode**  
   *3D Model:* Glass/plastic cylinder (DO-35/DO-41 package) with cathode band ring.  
   *2D Symbol:* Triangle pointing to cathode bar (2 pins: Anode, Cathode).  
@@ -559,7 +559,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Electrical:* Forward drop $V_f$ (1.8V - 3.2V) coupled to optical photonic radiant flux emission.  
   *Materials:* Gallium Arsenide / Indium Gallium Nitride die, Optical clear epoxy.  
   *Tests:* Color emission wavelength spectrum, current vs luminous intensity, burnout check.
-- [ ] `PH4-07.02.003`: **9. Zener Diode**  
+- [x] `PH4-07.02.003`: **9. Zener Diode**  
   *3D Model:* Glass DO-35 axial package with distinct cathode marker.  
   *2D Symbol:* Diode with bent Z-shaped cathode bar (2 pins: Anode, Cathode).  
   *Electrical:* Standard forward diode; sharp reverse Zener breakdown clamp at $V_z$ (e.g., 5.1V).  
