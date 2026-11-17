@@ -2,6 +2,7 @@
 
 #include "shunya/cad2d/block_manager.hpp"
 #include "shunya/cad2d/clipboard_manager.hpp"
+#include "shunya/cad2d/context_menu_model.hpp"
 #include "shunya/cad2d/group_manager.hpp"
 #include "shunya/cad2d/layer_manager.hpp"
 #include "shunya/cad2d/selection_gizmo.hpp"
@@ -566,6 +567,84 @@ TEST_CASE("PH4-04.03.005: Transactional Undo/Redo command stack connecting 2D ed
     // And redo restores it
     REQUIRE(history.redo().is_ok());
 }
+
+TEST_CASE("PH4-04.03.006: Right-click contextual menus with properties, transformations, layer assignment, and conversions") {
+    SketchDocument2D doc;
+    LayerManager lmgr;
+    REQUIRE(lmgr.add_layer("Mechanical"));
+    REQUIRE(lmgr.add_layer("Electrical"));
+
+    GroupManager gmgr;
+    SelectionGizmo2D gizmo;
+    ContextMenuModel2D menu_model;
+
+    // 1. Right click on Empty Canvas
+    auto empty_menu = menu_model.build_menu(doc, lmgr, gmgr, gizmo, Point2D{500.0, 500.0}, false);
+    REQUIRE(!empty_menu.empty());
+    REQUIRE(empty_menu[0].id == "action_paste");
+    REQUIRE(!empty_menu[0].enabled); // no clipboard data
+    REQUIRE(empty_menu[1].id == "action_select_all");
+
+    // Check Add Primitive submenu
+    auto it_prim = std::find_if(empty_menu.begin(), empty_menu.end(), [](const MenuItem2D& m) {
+        return m.id == "action_add_primitive";
+    });
+    REQUIRE(it_prim != empty_menu.end());
+    REQUIRE(it_prim->subitems.size() >= 3);
+
+    // 2. Right click on Single Entity
+    const auto id1 = doc.add_entity(std::make_shared<LineSegment2D>(Point2D{10.0, 10.0}, Point2D{50.0, 10.0}), false, "Mechanical");
+    gizmo.set_selection({id1});
+
+    auto single_menu = menu_model.build_menu(doc, lmgr, gmgr, gizmo, Point2D{30.0, 10.0});
+    REQUIRE(!single_menu.empty());
+    REQUIRE(single_menu[0].id == "action_properties");
+
+    // Check Layer Assignment submenu contains "Mechanical" and "Electrical"
+    auto it_layers = std::find_if(single_menu.begin(), single_menu.end(), [](const MenuItem2D& m) {
+        return m.id == "action_assign_layer";
+    });
+    REQUIRE(it_layers != single_menu.end());
+    REQUIRE(it_layers->subitems.size() >= 3); // "0", "Mechanical", "Electrical"
+
+    // Execute layer assignment via action ID
+    REQUIRE(menu_model.execute_action("action_assign_layer:Electrical", doc, lmgr, gmgr, gizmo));
+    REQUIRE(doc.find_entity(id1)->layer == "Electrical");
+
+    // Execute conversion to construction geometry
+    REQUIRE(menu_model.execute_action("action_toggle_construction", doc, lmgr, gmgr, gizmo));
+    REQUIRE(doc.find_entity(id1)->is_construction);
+
+    // 3. Right click on Multi-Entity selection
+    const auto id2 = doc.add_entity(std::make_shared<Circle2D>(Point2D{30.0, 30.0}, 10.0), false, "Electrical");
+    gizmo.set_selection({id1, id2});
+
+    auto multi_menu = menu_model.build_menu(doc, lmgr, gmgr, gizmo, Point2D{30.0, 20.0});
+    REQUIRE(!multi_menu.empty());
+    REQUIRE(multi_menu[0].id == "action_group");
+
+    // Check Align submenu exists
+    auto it_align = std::find_if(multi_menu.begin(), multi_menu.end(), [](const MenuItem2D& m) {
+        return m.id == "action_align";
+    });
+    REQUIRE(it_align != multi_menu.end());
+    REQUIRE(it_align->subitems.size() == 6); // left, center, right, top, middle, bottom
+
+    // Execute Group action
+    REQUIRE(menu_model.execute_action("action_group", doc, lmgr, gmgr, gizmo));
+    REQUIRE(gmgr.group_count() == 1);
+
+    // 4. Right click on Grouped Entity
+    gizmo.set_selection({id1});
+    auto group_menu = menu_model.build_menu(doc, lmgr, gmgr, gizmo, Point2D{30.0, 10.0});
+    REQUIRE(!group_menu.empty());
+    REQUIRE(group_menu[0].id == "action_ungroup");
+
+    // Execute Ungroup action
+    REQUIRE(menu_model.execute_action("action_ungroup", doc, lmgr, gmgr, gizmo));
+    REQUIRE(gmgr.group_count() == 0);
+}
+
 
 
 

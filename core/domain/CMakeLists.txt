@@ -168,6 +168,7 @@ add_library(shunya_domain_cad OBJECT
     src/cad2d/group_manager.cpp
     src/cad2d/clipboard_manager.cpp
     src/cad2d/sketch_commands.cpp
+    src/cad2d/context_menu_model.cpp
     src/cad3d/solid_mesh.cpp
     src/cad3d/polygon_tessellator.cpp
     src/cad3d/extrusion_feature.cpp
