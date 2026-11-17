@@ -14,6 +14,7 @@
 #include "shunya/perf/task_graph_engine.hpp"
 #include "shunya/perf/work_stealing_pool.hpp"
 #include "shunya/cad3d/bvh_tree.hpp"
+#include "shunya/perf/simd_math.hpp"
 
 using namespace shunya::eng;
 using namespace shunya::core::base;
@@ -1263,4 +1264,114 @@ TEST_CASE("PH4-02.02.002: Parallelized BVH Reconstruction via Work-Stealing Pool
     CHECK(serial_aabb.size() > 0);
     CHECK(parallel_aabb.size() > 0);
     CHECK(serial_aabb.size() == parallel_aabb.size());
+}
+
+TEST_CASE("PH4-02.02.003: Vectorized Constitutive Material Loops & Geometric AABB Queries") {
+    using namespace shunya::perf;
+
+    // 1. Vectorized Constitutive TCR Resistivity Loop
+    constexpr size_t N = 64;
+    std::vector<float> temps(N);
+    std::vector<float> out_rho(N);
+    for (size_t i = 0; i < N; ++i) {
+        temps[i] = 273.15f + static_cast<float>(i) * 10.0f; // 0 C to 630 C
+    }
+    const float rho0 = 1.68e-8f; // Copper resistivity
+    const float alpha = 0.00386f;
+    const float t0 = 293.15f;
+    SimdMath::constitutive_resistivity_tcr_f32(rho0, alpha, t0, temps, out_rho);
+
+    for (size_t i = 0; i < N; ++i) {
+        float expected_rho = rho0 * (1.0f + alpha * (temps[i] - t0));
+        CHECK(std::abs(out_rho[i] - expected_rho) < 1e-12f);
+    }
+
+    // 2. Vectorized Joule Heating: P = J^2 * rho
+    std::vector<float> j_sq(N);
+    std::vector<float> out_power(N);
+    for (size_t i = 0; i < N; ++i) {
+        j_sq[i] = 1e10f + static_cast<float>(i) * 1e8f;
+    }
+    SimdMath::constitutive_joule_heating_f32(j_sq, out_rho, out_power);
+    for (size_t i = 0; i < N; ++i) {
+        float expected_power = j_sq[i] * out_rho[i];
+        CHECK(std::abs(out_power[i] - expected_power) < 1e-3f);
+    }
+
+    // 3. Vectorized Thermal Expansion: dL = L0 * alpha * dT
+    std::vector<float> dt(N);
+    std::vector<float> l0(N);
+    std::vector<float> out_dl(N);
+    for (size_t i = 0; i < N; ++i) {
+        dt[i] = static_cast<float>(i) * 2.0f;
+        l0[i] = 0.1f + static_cast<float>(i) * 0.01f;
+    }
+    const float linear_alpha = 16.5e-6f; // Copper alpha
+    SimdMath::constitutive_thermal_expansion_f32(linear_alpha, dt, l0, out_dl);
+    for (size_t i = 0; i < N; ++i) {
+        float expected_dl = l0[i] * linear_alpha * dt[i];
+        CHECK(std::abs(out_dl[i] - expected_dl) < 1e-9f);
+    }
+
+    // 4. Vectorized Elastic Hookean Stress: sigma = E * epsilon
+    std::vector<float> strains(N);
+    std::vector<float> out_stresses(N);
+    for (size_t i = 0; i < N; ++i) {
+        strains[i] = 0.0001f * static_cast<float>(i);
+    }
+    const float E = 117e9f; // Copper Young's modulus
+    SimdMath::constitutive_elastic_stress_f32(E, strains, out_stresses);
+    for (size_t i = 0; i < N; ++i) {
+        float expected_sigma = E * strains[i];
+        CHECK(std::abs(out_stresses[i] - expected_sigma) < 1e-1f);
+    }
+
+    // 5. Vectorized Geometric Bounding Box Queries (SoA layout)
+    constexpr size_t NUM_BOXES = 128;
+    std::vector<float> b_min_x(NUM_BOXES), b_min_y(NUM_BOXES), b_min_z(NUM_BOXES);
+    std::vector<float> b_max_x(NUM_BOXES), b_max_y(NUM_BOXES), b_max_z(NUM_BOXES);
+
+    for (size_t i = 0; i < NUM_BOXES; ++i) {
+        float cx = static_cast<float>(i % 16) * 2.0f;
+        float cy = static_cast<float>((i / 16) % 8) * 2.0f;
+        float cz = 0.0f;
+        b_min_x[i] = cx - 0.5f;
+        b_max_x[i] = cx + 0.5f;
+        b_min_y[i] = cy - 0.5f;
+        b_max_y[i] = cy + 0.5f;
+        b_min_z[i] = cz - 0.5f;
+        b_max_z[i] = cz + 0.5f;
+    }
+
+    BBox3DSoA soa_boxes{b_min_x, b_min_y, b_min_z, b_max_x, b_max_y, b_max_z};
+
+    // AABB Overlap Query: box covering [1.0, 1.0, -1.0] to [5.0, 5.0, 1.0]
+    std::vector<uint32_t> matched_indices(NUM_BOXES);
+    size_t matches = SimdMath::batch_aabb_overlap_query(
+        soa_boxes, 1.0f, 1.0f, -1.0f, 5.0f, 5.0f, 1.0f, matched_indices);
+
+    CHECK(matches > 0);
+    for (size_t m = 0; m < matches; ++m) {
+        uint32_t idx = matched_indices[m];
+        CHECK(b_max_x[idx] >= 1.0f);
+        CHECK(b_min_x[idx] <= 5.0f);
+        CHECK(b_max_y[idx] >= 1.0f);
+        CHECK(b_min_y[idx] <= 5.0f);
+        CHECK(b_max_z[idx] >= -1.0f);
+        CHECK(b_min_z[idx] <= 1.0f);
+    }
+
+    // Raycast query: ray originating at (2.0, 2.0, 10.0) aimed along -Z with small angle
+    // direction = (0.01, 0.01, -1.0) -> inv = (100.0, 100.0, -1.0)
+    std::vector<uint32_t> ray_hits(NUM_BOXES);
+    size_t num_ray_hits = SimdMath::batch_aabb_ray_intersect_f32(
+        soa_boxes, 2.0f, 2.0f, 10.0f, 100.0f, 100.0f, -1.0f, 20.0f, ray_hits);
+    CHECK(num_ray_hits >= 1);
+    for (size_t h = 0; h < num_ray_hits; ++h) {
+        uint32_t idx = ray_hits[h];
+        CHECK(b_min_x[idx] <= 2.0f);
+        CHECK(b_max_x[idx] >= 2.0f);
+        CHECK(b_min_y[idx] <= 2.0f);
+        CHECK(b_max_y[idx] >= 2.0f);
+    }
 }
