@@ -1,6 +1,7 @@
 #include "tests/test_framework.hpp"
 
 #include "shunya/cad2d/block_manager.hpp"
+#include "shunya/cad2d/group_manager.hpp"
 #include "shunya/cad2d/layer_manager.hpp"
 #include "shunya/cad2d/selection_gizmo.hpp"
 #include "shunya/core/base/math.hpp"
@@ -318,5 +319,83 @@ TEST_CASE("PH4-04.03.002: Multi-selection marquee, lasso, shift-click, and trans
     REQUIRE(is_approx(scaled_b.width(), 60.0, 1e-4));
     REQUIRE(is_approx(scaled_b.height(), 20.0, 1e-4));
 }
+
+TEST_CASE("PH4-04.03.003: Group and Ungroup operations preserving relative child transforms and layer assignments") {
+    SketchDocument2D doc;
+    // Entity 1 on layer "Mechanical"
+    const auto id1 = doc.add_entity(std::make_shared<LineSegment2D>(Point2D{0.0, 0.0}, Point2D{10.0, 0.0}), false, "Mechanical");
+    // Entity 2 on layer "Electrical"
+    const auto id2 = doc.add_entity(std::make_shared<Circle2D>(Point2D{10.0, 10.0}, 5.0), false, "Electrical");
+    // Entity 3 on layer "Annotation"
+    const auto id3 = doc.add_entity(std::make_shared<LineSegment2D>(Point2D{20.0, 20.0}, Point2D{30.0, 20.0}), false, "Annotation");
+
+    GroupManager gmgr;
+
+    // 1. Create Subgroup G1 with id1 and id2
+    const std::string g1_id = gmgr.create_group(doc, {id1, id2}, {}, "Subgroup_G1", "SubLayer");
+    REQUIRE(!g1_id.empty());
+    REQUIRE(gmgr.group_count() == 1);
+    REQUIRE(gmgr.find_parent_group_of_entity(id1) == g1_id);
+    REQUIRE(gmgr.find_parent_group_of_entity(id2) == g1_id);
+
+    // 2. Create Parent Group G2 containing Subgroup G1 and id3
+    const std::string g2_id = gmgr.create_group(doc, {id3}, {g1_id}, "Parent_G2");
+    REQUIRE(!g2_id.empty());
+    REQUIRE(gmgr.group_count() == 2);
+    REQUIRE(gmgr.find_parent_group_of_group(g1_id) == g2_id);
+    REQUIRE(gmgr.find_parent_group_of_entity(id3) == g2_id);
+
+    // Bounding box of G2 includes all three entities: [0, 0] to [30, 20] (and circle radius extends to [15, 15])
+    const BBox2D g2_bbox = gmgr.compute_group_bbox(doc, g2_id);
+    REQUIRE(is_approx(g2_bbox.min.x, 0.0));
+    REQUIRE(is_approx(g2_bbox.max.x, 30.0));
+
+    // 3. Transform Group G2 by (+15, +25)
+    const Transform2D move_xf = Transform2D::translation(15.0, 25.0);
+    REQUIRE(gmgr.transform_group(doc, g2_id, move_xf));
+
+    // Verify all child positions moved coherently
+    const auto* e1 = doc.find_entity(id1);
+    const auto* e2 = doc.find_entity(id2);
+    const auto* e3 = doc.find_entity(id3);
+    REQUIRE(e1 != nullptr && e2 != nullptr && e3 != nullptr);
+
+    // e1 originally (0,0)->(10,0) now (15,25)->(25,25)
+    const auto& seg1 = static_cast<const LineSegment2D&>(*e1->curve);
+    REQUIRE(is_approx(seg1.p0.x, 15.0));
+    REQUIRE(is_approx(seg1.p0.y, 25.0));
+    REQUIRE(is_approx(seg1.p1.x, 25.0));
+    REQUIRE(is_approx(seg1.p1.y, 25.0));
+    // Verify layers preserved during transform!
+    REQUIRE(e1->layer == "Mechanical");
+    REQUIRE(e2->layer == "Electrical");
+    REQUIRE(e3->layer == "Annotation");
+
+    // e2 center originally (10, 10) now (25, 35)
+    const auto& circ2 = static_cast<const Circle2D&>(*e2->curve);
+    REQUIRE(is_approx(circ2.center.x, 25.0));
+    REQUIRE(is_approx(circ2.center.y, 35.0));
+
+    // 4. Ungroup top level G2
+    REQUIRE(gmgr.ungroup(doc, g2_id));
+    REQUIRE(gmgr.group_count() == 1); // G1 remains
+    REQUIRE(gmgr.find_group(g1_id) != nullptr);
+    REQUIRE(gmgr.find_parent_group_of_group(g1_id).empty()); // G1 has no parent now
+    REQUIRE(gmgr.find_parent_group_of_entity(id3).empty());  // id3 is a free entity now
+
+    // 5. Ungroup recursive on G1
+    REQUIRE(gmgr.ungroup_recursive(doc, g1_id));
+    REQUIRE(gmgr.group_count() == 0);
+    REQUIRE(gmgr.find_parent_group_of_entity(id1).empty());
+    REQUIRE(gmgr.find_parent_group_of_entity(id2).empty());
+
+    // Final check: all entities in doc maintain their layers and transformed positions
+    REQUIRE(e1->layer == "Mechanical");
+    REQUIRE(e2->layer == "Electrical");
+    REQUIRE(e3->layer == "Annotation");
+    REQUIRE(is_approx(seg1.p0.x, 15.0));
+    REQUIRE(is_approx(circ2.center.x, 25.0));
+}
+
 
 
