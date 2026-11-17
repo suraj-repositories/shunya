@@ -34,6 +34,7 @@
 #include "shunya/mat/directional_layup_engine.hpp"
 #include "shunya/mat/property_models/chemical_property_model.hpp"
 #include "shunya/mat/property_models/electrical_property_model.hpp"
+#include "shunya/mat/property_models/thermal_property_model.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2875,4 +2876,40 @@ TEST_CASE("PH4-03.02.002: Structured Electrical Property Model") {
     const double v_break = kapton.dielectric_breakdown_voltage(1e-4);
     CHECK(std::abs(v_break - 2000.0) < 1e-6);
     CHECK(!cu.to_summary_string().empty());
+}
+
+TEST_CASE("PH4-03.02.003: Structured Thermal Property Model") {
+    using namespace shunya::mat;
+
+    ThermalPropertyModel cu_thermal;
+    cu_thermal.base_thermal_conductivity_w_mk = 401.0;
+    cu_thermal.base_specific_heat_j_kgk = 385.0;
+    cu_thermal.linear_thermal_expansion_1_k = 16.5e-6;
+    cu_thermal.melting_point_k = 1357.77;
+    cu_thermal.boiling_point_k = 2835.0;
+    cu_thermal.heat_of_fusion_j_kg = 205000.0;
+    cu_thermal.heat_of_vaporization_j_kg = 4730000.0;
+
+    // 1. Thermal strain: Delta L / L = alpha * Delta T
+    // 100 K temperature elevation -> ~0.165% thermal expansion strain
+    const double strain = cu_thermal.compute_thermal_strain(293.15, 393.15);
+    CHECK(strain > 0.0016);
+    CHECK(strain < 0.0018);
+
+    // 2. Thermal Diffusivity alpha = k / (rho * Cp)
+    const double rho_cu = 8920.0; // kg/m^3
+    const double alpha_diff = cu_thermal.compute_thermal_diffusivity(rho_cu, 293.15);
+    CHECK(alpha_diff > 1.1e-4);
+    CHECK(alpha_diff < 1.25e-4);
+
+    // 3. Wiedemann-Franz electronic thermal conductivity: k_e = L * sigma * T
+    const double sigma_cu = 5.96e7;
+    const double ke = ThermalPropertyModel::estimate_electronic_thermal_conductivity(sigma_cu, 293.15);
+    CHECK(ke > 420.0);
+    CHECK(ke < 435.0);
+
+    // 4. Phase change enthalpy validation
+    CHECK(cu_thermal.heat_of_fusion_j_kg == 205000.0);
+    CHECK(cu_thermal.heat_of_vaporization_j_kg == 4730000.0);
+    CHECK(!cu_thermal.to_summary_string().empty());
 }
