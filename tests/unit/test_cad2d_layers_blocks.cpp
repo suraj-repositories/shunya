@@ -1,6 +1,7 @@
 #include "tests/test_framework.hpp"
 
 #include "shunya/cad2d/block_manager.hpp"
+#include "shunya/cad2d/clipboard_manager.hpp"
 #include "shunya/cad2d/group_manager.hpp"
 #include "shunya/cad2d/layer_manager.hpp"
 #include "shunya/cad2d/selection_gizmo.hpp"
@@ -396,6 +397,81 @@ TEST_CASE("PH4-04.03.003: Group and Ungroup operations preserving relative child
     REQUIRE(is_approx(seg1.p0.x, 15.0));
     REQUIRE(is_approx(circ2.center.x, 25.0));
 }
+
+TEST_CASE("PH4-04.03.004: Full clipboard operations Copy, Cut, Paste, PasteAt, Duplicate with deep object cloning") {
+    SketchDocument2D doc;
+    const auto id1 = doc.add_entity(std::make_shared<LineSegment2D>(Point2D{0.0, 0.0}, Point2D{20.0, 0.0}), false, "Mechanical");
+    const auto id2 = doc.add_entity(std::make_shared<Circle2D>(Point2D{10.0, 10.0}, 5.0), true, "Electrical");
+
+    ClipboardManager2D clip;
+    REQUIRE(!clip.has_data());
+    REQUIRE(clip.item_count() == 0);
+
+    // 1. Copy
+    REQUIRE(clip.copy(doc, {id1, id2}) == 2);
+    REQUIRE(clip.has_data());
+    REQUIRE(clip.item_count() == 2);
+    REQUIRE(is_approx(clip.clipboard_bbox().center().x, 10.0));
+
+    // Deep clone check: modifying original in doc does NOT mutate clipboard
+    doc.mutable_entities()[0].curve = std::make_shared<LineSegment2D>(Point2D{100.0, 100.0}, Point2D{200.0, 100.0});
+    const auto& clip_seg = static_cast<const LineSegment2D&>(*clip.items()[0].curve);
+    REQUIRE(is_approx(clip_seg.p0.x, 0.0)); // still 0.0, untouched!
+
+    // 2. Paste with offset (+10, +10)
+    auto pasted1 = clip.paste(doc, Point2D{10.0, 10.0});
+    REQUIRE(pasted1.size() == 2);
+    REQUIRE(clip.paste_streak() == 1);
+
+    const auto* p1_ent0 = doc.find_entity(pasted1[0]);
+    const auto* p1_ent1 = doc.find_entity(pasted1[1]);
+    REQUIRE(p1_ent0 != nullptr && p1_ent1 != nullptr);
+    REQUIRE(p1_ent0->layer == "Mechanical");
+    REQUIRE(p1_ent1->layer == "Electrical");
+    REQUIRE(p1_ent1->is_construction); // construction flag preserved
+
+    const auto& p1_seg = static_cast<const LineSegment2D&>(*p1_ent0->curve);
+    REQUIRE(is_approx(p1_seg.p0.x, 10.0));
+    REQUIRE(is_approx(p1_seg.p0.y, 10.0));
+
+    // 3. Second paste advances streak to (+20, +20)
+    auto pasted2 = clip.paste(doc, Point2D{10.0, 10.0});
+    REQUIRE(pasted2.size() == 2);
+    REQUIRE(clip.paste_streak() == 2);
+    const auto* p2_ent0 = doc.find_entity(pasted2[0]);
+    const auto& p2_seg = static_cast<const LineSegment2D&>(*p2_ent0->curve);
+    REQUIRE(is_approx(p2_seg.p0.x, 20.0));
+    REQUIRE(is_approx(p2_seg.p0.y, 20.0));
+
+    // 4. PasteAt specific center (e.g. at (100, 200))
+    auto pasted_at = clip.paste_at(doc, Point2D{100.0, 200.0});
+    REQUIRE(pasted_at.size() == 2);
+    BBox2D pat_bbox;
+    for (const auto& id : pasted_at) {
+        pat_bbox.expand(doc.find_entity(id)->curve->bounding_box());
+    }
+    REQUIRE(is_approx(pat_bbox.center().x, 100.0, 1e-4));
+    REQUIRE(is_approx(pat_bbox.center().y, 200.0, 1e-4));
+
+    // 5. In-place Duplicate
+    size_t count_before = doc.entities().size();
+    auto duplicated = clip.duplicate(doc, {id2}, Point2D{50.0, 50.0});
+    REQUIRE(duplicated.size() == 1);
+    REQUIRE(doc.entities().size() == count_before + 1);
+    const auto* dup_ent = doc.find_entity(duplicated[0]);
+    REQUIRE(dup_ent != nullptr);
+    REQUIRE(dup_ent->layer == "Electrical");
+    const auto& dup_circ = static_cast<const Circle2D&>(*dup_ent->curve);
+    REQUIRE(is_approx(dup_circ.center.x, 60.0)); // 10 + 50 = 60
+    REQUIRE(is_approx(dup_circ.center.y, 60.0)); // 10 + 50 = 60
+
+    // 6. Cut
+    const auto cut_ids = clip.cut(doc, {duplicated[0]});
+    REQUIRE(cut_ids == 1);
+    REQUIRE(doc.find_entity(duplicated[0]) == nullptr); // removed from doc
+    REQUIRE(clip.item_count() == 1);                    // present in clipboard
+}
+
 
 
 
