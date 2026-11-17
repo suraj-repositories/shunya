@@ -31,6 +31,7 @@
 #include "shunya/mat/gibbs_free_energy.hpp"
 #include "shunya/mat/hume_rothery.hpp"
 #include "shunya/mat/solution_solubility_engine.hpp"
+#include "shunya/mat/directional_layup_engine.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2734,4 +2735,50 @@ TEST_CASE("PH4-03.01.005: Solution Solubility Limits & Electrolytic Dissociation
     CHECK(supersat_res.state == SaturationState::Supersaturated);
     CHECK(std::abs(supersat_res.dissolved_solute_mass_g - 36.0) < 1e-4);
     CHECK(std::abs(supersat_res.precipitated_mass_g - 14.0) < 1e-4);
+}
+
+TEST_CASE("PH4-03.01.006: Multi-Axial Layup CLT & Orientation Tensors") {
+    using namespace shunya::mat;
+
+    // 1. Symmetric & Balanced Cross-Ply Laminate [0 / 90 / 90 / 0]
+    std::vector<LaminatePly> cross_ply = {
+        {"Carbon-Prepreg", 0.0, 0.000125, 140.0, 10.0, 0.30, 5.0},
+        {"Carbon-Prepreg", 90.0, 0.000125, 140.0, 10.0, 0.30, 5.0},
+        {"Carbon-Prepreg", 90.0, 0.000125, 140.0, 10.0, 0.30, 5.0},
+        {"Carbon-Prepreg", 0.0, 0.000125, 140.0, 10.0, 0.30, 5.0}
+    };
+
+    auto res = DirectionalLayupEngine::evaluate_laminate(cross_ply);
+    CHECK(std::abs(res.total_thickness_m - 0.0005) < 1e-7); // 0.5 mm
+    CHECK(res.is_symmetric);
+    CHECK(res.is_balanced);
+
+    // Coupling matrix B must be strictly zero for symmetric layups
+    for (int r = 0; r < 3; ++r) {
+        for (int c = 0; c < 3; ++c) {
+            CHECK(res.b_matrix_gpa_m2[r][c] == 0.0);
+        }
+    }
+
+    // Effective cross-ply moduli must be symmetric in x and y
+    CHECK(std::abs(res.effective_ex_gpa - res.effective_ey_gpa) < 1.0);
+    CHECK(res.effective_ex_gpa > 70.0);
+    CHECK(res.effective_ex_gpa < 80.0);
+
+    // 2. Advani-Tucker Orientation Tensor
+    const auto a = DirectionalLayupEngine::compute_second_order_orientation_tensor(cross_ply);
+    // Tr(a) = a_xx + a_yy = 0.5 + 0.5 = 1.0
+    CHECK(std::abs(a[0][0] - 0.5) < 1e-6);
+    CHECK(std::abs(a[1][1] - 0.5) < 1e-6);
+    CHECK(std::abs(a[0][1]) < 1e-6);
+    CHECK(std::abs(a[0][0] + a[1][1] - 1.0) < 1e-6);
+
+    // 3. Unsymmetric Angle-Ply Laminate [0 / 45]
+    std::vector<LaminatePly> unsymmetric = {
+        {"Carbon-Prepreg", 0.0, 0.000125, 140.0, 10.0, 0.30, 5.0},
+        {"Carbon-Prepreg", 45.0, 0.000125, 140.0, 10.0, 0.30, 5.0}
+    };
+    auto unsym_res = DirectionalLayupEngine::evaluate_laminate(unsymmetric);
+    CHECK_FALSE(unsym_res.is_symmetric);
+    CHECK(unsym_res.orientation_tensor[0][1] > 0.0); // Non-zero off-diagonal shear alignment
 }

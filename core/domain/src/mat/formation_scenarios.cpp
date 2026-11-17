@@ -1,6 +1,7 @@
 #include "shunya/mat/formation_scenarios.hpp"
 #include "shunya/mat/hume_rothery.hpp"
 #include "shunya/mat/solution_solubility_engine.hpp"
+#include "shunya/mat/directional_layup_engine.hpp"
 
 #include <cmath>
 #include <numeric>
@@ -212,6 +213,25 @@ void LayeredMaterialHandler::process_properties(
     (void)elems;
     (void)behaviors;
     result.scientific_notes.push_back("Layered material: Explicit transverse vs in-plane anisotropic tensor calculated.");
+
+    std::vector<LaminatePly> plies;
+    for (const auto& c : result.constituents) {
+        LaminatePly ply;
+        ply.name = c.symbol;
+        ply.thickness_m = c.layer_thickness_m;
+        ply.e1_gpa = c.pure_young_modulus_pa.value_or(100e9) / 1e9;
+        ply.e2_gpa = ply.e1_gpa * 0.7; // Anisotropic ply baseline
+        ply.nu12 = 0.3;
+        ply.g12_gpa = ply.e1_gpa / (2.0 * (1.0 + 0.3));
+        ply.angle_deg = 0.0;
+        plies.push_back(ply);
+    }
+    if (!plies.empty()) {
+        auto abd = DirectionalLayupEngine::evaluate_laminate(plies);
+        for (const auto& note : abd.layup_notes) {
+            result.scientific_notes.push_back(note);
+        }
+    }
 }
 
 // --- CompositeMaterialHandler ---
@@ -243,6 +263,26 @@ void CompositeMaterialHandler::process_properties(
     (void)elems;
     (void)behaviors;
     result.scientific_notes.push_back("Composite material: Voigt-Reuss and Hashin-Shtrikman homogenization bounds evaluated.");
+
+    std::vector<LaminatePly> composite_plies;
+    for (size_t i = 0; i < result.constituents.size(); ++i) {
+        const auto& c = result.constituents[i];
+        LaminatePly ply;
+        ply.name = c.symbol;
+        ply.thickness_m = c.layer_thickness_m;
+        ply.angle_deg = (i % 2 == 0) ? 0.0 : 90.0; // Cross-ply multi-axial laminate
+        ply.e1_gpa = c.pure_young_modulus_pa.value_or(100e9) / 1e9;
+        ply.e2_gpa = ply.e1_gpa * 0.1;
+        ply.nu12 = 0.3;
+        ply.g12_gpa = 5.0;
+        composite_plies.push_back(ply);
+    }
+    if (!composite_plies.empty()) {
+        auto abd = DirectionalLayupEngine::evaluate_laminate(composite_plies);
+        for (const auto& note : abd.layup_notes) {
+            result.scientific_notes.push_back(note);
+        }
+    }
 }
 
 // --- FormationScenarioDispatcher ---
