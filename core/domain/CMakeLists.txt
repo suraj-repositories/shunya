@@ -337,6 +337,8 @@ add_library(shunya_domain_eng OBJECT
     src/lib30/passive_components.cpp
     src/lib30/diode_components.cpp
     src/lib30/transistor_components.cpp
+    src/lib30/electromechanical_components.cpp
+    src/lib30/power_sources_components.cpp
 )
 shunya_configure_domain_target(shunya_domain_eng)
 target_link_libraries(shunya_domain_eng

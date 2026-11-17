@@ -82,6 +82,12 @@ core::base::Result<ComponentKind> component_kind_from_string(std::string_view s)
     if (s == "MOSFET_P") return ComponentKind::MOSFET_P;
     if (s == "JFET_N") return ComponentKind::JFET_N;
     if (s == "JFET_P") return ComponentKind::JFET_P;
+    if (s == "PushButton") return ComponentKind::PushButton;
+    if (s == "Relay") return ComponentKind::Relay;
+    if (s == "DCVoltageSource") return ComponentKind::DCVoltageSource;
+    if (s == "ACVoltageSource") return ComponentKind::ACVoltageSource;
+    if (s == "GroundReference") return ComponentKind::GroundReference;
+    if (s == "Fuse") return ComponentKind::Fuse;
     return make_cmp_error(4401, "Unknown ComponentKind: " + std::string(s));
 }
 
@@ -258,6 +264,42 @@ DerivedComponentSpecs ComponentGenerator::qualify_and_derive(
         out.series_resistance_ohm = 0.03;
         out.max_current_a = 5.0;
         out.max_voltage_v = 50.0;
+        break;
+    }
+    case ComponentKind::PushButton: {
+        out.primary_value = std::max(1e-4, cfg.contact_resistance_ohm);
+        out.series_resistance_ohm = out.primary_value;
+        out.max_current_a = 0.5;
+        out.max_voltage_v = 50.0;
+        break;
+    }
+    case ComponentKind::Relay: {
+        out.primary_value = 400.0; // Coil resistance
+        out.series_resistance_ohm = 0.05;
+        out.max_current_a = 10.0;
+        out.max_voltage_v = 250.0;
+        break;
+    }
+    case ComponentKind::DCVoltageSource:
+    case ComponentKind::ACVoltageSource: {
+        out.primary_value = (cfg.nominal_voltage_v > 0.0) ? cfg.nominal_voltage_v : 12.0;
+        out.series_resistance_ohm = 1e-4;
+        out.max_current_a = 20.0;
+        out.max_voltage_v = out.primary_value;
+        break;
+    }
+    case ComponentKind::GroundReference: {
+        out.primary_value = 0.0;
+        out.series_resistance_ohm = 1e-6;
+        out.max_current_a = 100.0;
+        out.max_voltage_v = 0.0;
+        break;
+    }
+    case ComponentKind::Fuse: {
+        out.primary_value = 0.05;
+        out.series_resistance_ohm = 0.05;
+        out.max_current_a = 2.0;
+        out.max_voltage_v = 250.0;
         break;
     }
     }

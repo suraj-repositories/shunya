@@ -33,7 +33,13 @@ enum class ComponentKind : uint8_t {
     MOSFET_N,
     MOSFET_P,
     JFET_N,
-    JFET_P
+    JFET_P,
+    PushButton,
+    Relay,
+    DCVoltageSource,
+    ACVoltageSource,
+    GroundReference,
+    Fuse
 };
 
 [[nodiscard]] constexpr std::string_view component_kind_to_string(ComponentKind k) noexcept {
@@ -57,6 +63,12 @@ enum class ComponentKind : uint8_t {
     case ComponentKind::MOSFET_P:       return "MOSFET_P";
     case ComponentKind::JFET_N:         return "JFET_N";
     case ComponentKind::JFET_P:         return "JFET_P";
+    case ComponentKind::PushButton:     return "PushButton";
+    case ComponentKind::Relay:          return "Relay";
+    case ComponentKind::DCVoltageSource:return "DCVoltageSource";
+    case ComponentKind::ACVoltageSource:return "ACVoltageSource";
+    case ComponentKind::GroundReference:return "GroundReference";
+    case ComponentKind::Fuse:           return "Fuse";
     }
     return "Resistor";
 }

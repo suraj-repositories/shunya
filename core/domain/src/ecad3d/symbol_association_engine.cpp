@@ -141,6 +141,68 @@ SchematicSymbol2D SchematicSymbolSynthesizer::synthesize_symbol(
             };
             break;
         }
+        case eng::ComponentKind::PushButton: {
+            sym.symbol_id = "SYM_PUSHBUTTON_" + sym.standard;
+            sym.primitive_shape = "push_button_no";
+            sym.bounding_box_size = {25.0, 10.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "COM", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {-12.5, 0.0}, {-1.0, 0.0}},
+                SchematicSymbolPin{"2", 2, "NO", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {12.5, 0.0}, {1.0, 0.0}}
+            };
+            break;
+        }
+        case eng::ComponentKind::Relay: {
+            sym.symbol_id = "SYM_RELAY_SPDT";
+            sym.primitive_shape = "relay_coil_spdt";
+            sym.bounding_box_size = {35.0, 25.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "COIL+", core::domain::ElectricalPinPolarity::Positive, {-15.0, 10.0}, {-1.0, 0.0}},
+                SchematicSymbolPin{"2", 2, "COIL-", core::domain::ElectricalPinPolarity::Negative, {-15.0, -10.0}, {-1.0, 0.0}},
+                SchematicSymbolPin{"3", 3, "COM", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {15.0, 0.0}, {1.0, 0.0}},
+                SchematicSymbolPin{"4", 4, "NO", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {15.0, 10.0}, {1.0, 0.0}},
+                SchematicSymbolPin{"5", 5, "NC", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {15.0, -10.0}, {1.0, 0.0}}
+            };
+            break;
+        }
+        case eng::ComponentKind::DCVoltageSource: {
+            sym.symbol_id = "SYM_DC_SOURCE";
+            sym.primitive_shape = "dc_source_circle";
+            sym.bounding_box_size = {25.0, 25.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "+", core::domain::ElectricalPinPolarity::Positive, {0.0, 12.5}, {0.0, 1.0}},
+                SchematicSymbolPin{"2", 2, "-", core::domain::ElectricalPinPolarity::Negative, {0.0, -12.5}, {0.0, -1.0}}
+            };
+            break;
+        }
+        case eng::ComponentKind::ACVoltageSource: {
+            sym.symbol_id = "SYM_AC_SOURCE";
+            sym.primitive_shape = "ac_source_sine";
+            sym.bounding_box_size = {25.0, 25.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "L", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {0.0, 12.5}, {0.0, 1.0}},
+                SchematicSymbolPin{"2", 2, "N", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {0.0, -12.5}, {0.0, -1.0}}
+            };
+            break;
+        }
+        case eng::ComponentKind::GroundReference: {
+            sym.symbol_id = "SYM_GROUND";
+            sym.primitive_shape = "ground_triangle";
+            sym.bounding_box_size = {20.0, 20.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "GND", core::domain::ElectricalPinPolarity::Negative, {0.0, 10.0}, {0.0, 1.0}}
+            };
+            break;
+        }
+        case eng::ComponentKind::Fuse: {
+            sym.symbol_id = "SYM_FUSE_" + sym.standard;
+            sym.primitive_shape = "fuse_wire";
+            sym.bounding_box_size = {25.0, 10.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "1", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {-12.5, 0.0}, {-1.0, 0.0}},
+                SchematicSymbolPin{"2", 2, "2", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {12.5, 0.0}, {1.0, 0.0}}
+            };
+            break;
+        }
         default: {
             sym.symbol_id = "SYM_GENERIC_" + std::to_string(pin_count);
             sym.primitive_shape = "ic_box";
