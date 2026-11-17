@@ -30,6 +30,7 @@
 #include "shunya/mat/compound_validator.hpp"
 #include "shunya/mat/gibbs_free_energy.hpp"
 #include "shunya/mat/hume_rothery.hpp"
+#include "shunya/mat/solution_solubility_engine.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2678,4 +2679,59 @@ TEST_CASE("PH4-03.01.004: Extended Hume-Rothery Rules for Alloy Formation") {
     CHECK(alloy_evals.size() == 2);
     CHECK(alloy_evals[0].overall_solid_solubility_favored); // Cu-Ni
     CHECK_FALSE(alloy_evals[1].overall_solid_solubility_favored); // Cu-Al
+}
+
+TEST_CASE("PH4-03.01.005: Solution Solubility Limits & Electrolytic Dissociation") {
+    using namespace shunya::mat;
+
+    SolutionThermodynamicModel nacl_model;
+    nacl_model.base_solubility_g_per_100g = 36.0;
+    nacl_model.delta_h_dissolution_j_mol = 3880.0;
+    nacl_model.reference_temp_k = 293.15;
+    nacl_model.electrolyte_type = ElectrolyteType::StrongElectrolyte;
+    nacl_model.ion_count_per_formula = 2;
+    nacl_model.limiting_molar_conductivity_s_m2_mol = 0.0126;
+
+    // 1. Temperature-dependent solubility curve S(T)
+    const double s_ref = SolutionSolubilityEngine::compute_solubility_limit(nacl_model, 293.15);
+    CHECK(std::abs(s_ref - 36.0) < 1e-4);
+
+    const double s_hot = SolutionSolubilityEngine::compute_solubility_limit(nacl_model, 350.0);
+    CHECK(s_hot > s_ref); // Endothermic dissolution increases solubility with temperature
+
+    // 2. Electrolytic Dissociation Comparison
+    // Strong electrolyte: complete dissociation alpha = 1.0, van 't Hoff i = 2.0
+    auto [alpha_strong, i_strong] = SolutionSolubilityEngine::compute_electrolytic_dissociation(
+        ElectrolyteType::StrongElectrolyte, 2, 0.1, 298.15);
+    CHECK(alpha_strong == 1.0);
+    CHECK(i_strong == 2.0);
+
+    // Non-electrolyte: alpha = 0.0, i = 1.0
+    auto [alpha_non, i_non] = SolutionSolubilityEngine::compute_electrolytic_dissociation(
+        ElectrolyteType::NonElectrolyte, 1, 0.1, 298.15);
+    CHECK(alpha_non == 0.0);
+    CHECK(i_non == 1.0);
+
+    // Weak electrolyte: Ostwald dilution alpha << 1.0, 1.0 < i < 1.1
+    auto [alpha_weak, i_weak] = SolutionSolubilityEngine::compute_electrolytic_dissociation(
+        ElectrolyteType::WeakElectrolyte, 2, 0.1, 298.15);
+    CHECK(alpha_weak > 0.0);
+    CHECK(alpha_weak < 0.05);
+    CHECK(i_weak > 1.0);
+    CHECK(i_weak < 1.05);
+
+    // 3. Full Solution Saturation and Precipitation
+    // Unsaturated scenario: 20g NaCl in 100g H2O (below 36.0g limit)
+    auto unsat_res = SolutionSolubilityEngine::evaluate_solution(nacl_model, 20.0, 100.0, 293.15);
+    CHECK(unsat_res.state == SaturationState::Unsaturated);
+    CHECK(unsat_res.dissolved_solute_mass_g == 20.0);
+    CHECK(unsat_res.precipitated_mass_g == 0.0);
+    CHECK(unsat_res.vant_hoff_factor == 2.0);
+    CHECK(unsat_res.ionic_conductivity_s_m > 0.0);
+
+    // Supersaturated scenario: 50g NaCl in 100g H2O (exceeds 36.0g limit by 14g)
+    auto supersat_res = SolutionSolubilityEngine::evaluate_solution(nacl_model, 50.0, 100.0, 293.15);
+    CHECK(supersat_res.state == SaturationState::Supersaturated);
+    CHECK(std::abs(supersat_res.dissolved_solute_mass_g - 36.0) < 1e-4);
+    CHECK(std::abs(supersat_res.precipitated_mass_g - 14.0) < 1e-4);
 }

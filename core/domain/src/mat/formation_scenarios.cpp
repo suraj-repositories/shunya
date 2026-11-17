@@ -1,5 +1,6 @@
 #include "shunya/mat/formation_scenarios.hpp"
 #include "shunya/mat/hume_rothery.hpp"
+#include "shunya/mat/solution_solubility_engine.hpp"
 
 #include <cmath>
 #include <numeric>
@@ -118,9 +119,27 @@ void SolutionHandler::process_properties(
     (void)experiment;
     (void)elems;
     (void)behaviors;
-    if (!result.constituents.empty()) {
+    if (result.constituents.size() >= 2) {
         result.scientific_notes.push_back("Solution: Primary solvent is " + result.constituents[0].symbol +
             " (" + std::to_string(result.constituents[0].mass_fraction * 100.0) + " wt%).");
+
+        // Evaluate liquid-solid saturation and electrolytic dissociation
+        SolutionThermodynamicModel thermo_model;
+        thermo_model.base_solubility_g_per_100g = 36.0;
+        thermo_model.electrolyte_type = ElectrolyteType::StrongElectrolyte;
+
+        const double solvent_g = result.constituents[0].mass_kg * 1000.0;
+        const double solute_g = result.constituents[1].mass_kg * 1000.0;
+        const double temp_k = experiment.temperature_k;
+
+        auto sat_res = SolutionSolubilityEngine::evaluate_solution(
+            thermo_model, solute_g, solvent_g, temp_k);
+
+        result.scientific_notes.push_back(sat_res.summary_description);
+        if (sat_res.state == SaturationState::Supersaturated) {
+            result.warnings.push_back("Solution is supersaturated at " + std::to_string(temp_k) +
+                " K: " + std::to_string(sat_res.precipitated_mass_g) + " g of solute precipitate expected.");
+        }
     }
 }
 
