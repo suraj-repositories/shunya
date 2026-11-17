@@ -129,6 +129,7 @@ add_library(shunya_domain_mat OBJECT
     src/mat/iron_oxidation_engine.cpp
     src/mat/copper_patina_engine.cpp
     src/mat/material_mutation_propagator.cpp
+    src/mat/thermal_deformation_engine.cpp
 )
 shunya_configure_domain_target(shunya_domain_mat)
 target_link_libraries(shunya_domain_mat PUBLIC shunya_domain_core)

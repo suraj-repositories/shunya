@@ -47,6 +47,7 @@
 #include "shunya/mat/iron_oxidation_engine.hpp"
 #include "shunya/mat/copper_patina_engine.hpp"
 #include "shunya/mat/material_mutation_propagator.hpp"
+#include "shunya/mat/thermal_deformation_engine.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -3588,6 +3589,69 @@ TEST_CASE("PH4-03.04.003: Reactive material mutation propagation to dependent 3D
     CHECK_FALSE(ins_state->is_conductive);
     CHECK(ins_state->electrical_resistance_ohm >= 1e12); // Open circuit isolation
 }
+
+TEST_CASE("PH4-03.04.004: Thermal expansion and thermal stress deformation in 3D geometry") {
+    using namespace shunya::mat;
+    using namespace shunya::eng;
+
+    // Aluminum rod: Length = 1.0 m, Width = 0.02 m, Height = 0.02 m
+    PhysicalObject rod;
+    rod.name = "Aluminum Clamped Strut";
+    rod.geometry.kind = ObjectShapeKind::Box;
+    rod.geometry.dim_x_m = 1.0;
+    rod.geometry.dim_y_m = 0.02;
+    rod.geometry.dim_z_m = 0.02;
+
+    MaterialPropertyBundle al_mat;
+    al_mat.mechanical.young_modulus_pa = 70.0e9;             // 70 GPa
+    al_mat.mechanical.yield_strength_pa = 200.0e6;           // 200 MPa yield
+    al_mat.thermal.linear_thermal_expansion_1_k = 23.0e-6;   // 23 ppm/K (Al)
+
+    // 1. Free thermal expansion (Delta T = +100 K: 293.15 -> 393.15 K)
+    // eps_th = 23e-6 * 100 = 0.0023 (0.23% strain)
+    // Delta L = 1.0 * 0.0023 = 2.3 mm
+    ConstraintBoundaryCondition free_bc;
+    auto free_def = ThermalDeformationEngine::compute_thermal_deformation(rod, al_mat, 393.15, free_bc);
+
+    CHECK(std::abs(free_def.thermal_strain.x - 0.0023) < 1e-5);
+    CHECK(std::abs(free_def.deformed_dimensions_m.x - 1.0023) < 1e-4);
+    CHECK(free_def.deformed_dimensions_m.y > 0.02);
+    CHECK(free_def.deformed_volume_m3 > free_def.initial_volume_m3);
+    // Free expansion induces zero thermal stress
+    CHECK(free_def.von_mises_thermal_stress_pa == 0.0);
+    CHECK_FALSE(free_def.exceeds_yield_strength);
+
+    // 2. Fully clamped axial constraint (constraint_x = 1.0, walls prevent length expansion)
+    // sigma_th,x = -1.0 * E * eps_th = -70e9 * 0.0023 = -161 MPa (compressive thermal stress)
+    ConstraintBoundaryCondition clamped_x;
+    clamped_x.constraint_x = 1.0;
+    auto clamped_def = ThermalDeformationEngine::compute_thermal_deformation(rod, al_mat, 393.15, clamped_x);
+
+    CHECK(std::abs(clamped_def.deformed_dimensions_m.x - 1.0) < 1e-6); // Length constrained to 1.0m
+    CHECK(std::abs(clamped_def.thermal_stress_pa.x - (-161.0e6)) < 1.0e6);
+    CHECK(std::abs(clamped_def.von_mises_thermal_stress_pa - 161.0e6) < 1.0e6);
+    // Yield is 200 MPa, stress is 161 MPa (SF ~ 1.24, safe from plastic yield)
+    CHECK_FALSE(clamped_def.exceeds_yield_strength);
+    CHECK(clamped_def.thermal_safety_factor > 1.2);
+    CHECK(clamped_def.thermal_safety_factor < 1.3);
+
+    // 3. Excessive heating causing plastic yield failure under rigid clamping (Delta T = +150 K -> sigma ~ 241 MPa > 200 MPa)
+    auto yielded_def = ThermalDeformationEngine::compute_thermal_deformation(rod, al_mat, 443.15, clamped_x);
+    CHECK(yielded_def.exceeds_yield_strength);
+    CHECK(yielded_def.thermal_safety_factor < 1.0);
+
+    // 4. PhysicalObject geometry mutation
+    PhysicalObject hot_rod = ThermalDeformationEngine::update_geometry_with_thermal_expansion(rod, al_mat, 393.15);
+    CHECK(std::abs(hot_rod.geometry.dim_x_m - 1.0023) < 1e-4);
+    CHECK(hot_rod.operating_temp_k == 393.15);
+
+    // 5. Epistemic stress scalar
+    auto ep_stress = ThermalDeformationEngine::evaluate_thermal_stress(rod, al_mat, 393.15, clamped_x);
+    CHECK(std::abs(ep_stress.value - 161.0e6) < 1.0e6);
+    CHECK(ep_stress.classification.tier == CalculationTier::AnalyticalFormulation);
+    CHECK(ep_stress.epistemic_status() == EpistemicStatus::ConfirmedScientific);
+}
+
 
 
 

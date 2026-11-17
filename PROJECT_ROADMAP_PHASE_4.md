@@ -372,11 +372,11 @@ PH4: Integrated Cyber-Physical Engineering Platform
 - [x] `PH4-03.03.005`: Implement Shomate equation polynomials for high-temperature specific heat, enthalpy, and entropy calculations.
 - [x] `PH4-03.03.006`: Separate scientifically certified results from approximate previews across both C++ data types and UI presentations.
 
-### Submodule PH4-03.04: Reactive Environmental Degradation & Material Propagation [~] (50.0% — 3/6)
+### Submodule PH4-03.04: Reactive Environmental Degradation & Material Propagation [~] (66.7% — 4/6)
 - [x] `PH4-03.04.001`: Implement an environmental exposure simulation engine modeling iron oxidation and rust accumulation as a function of humidity, temperature, and oxygen concentration.
 - [x] `PH4-03.04.002`: Model surface copper patina/oxidation and its resulting degradation of electrical contact resistance over time.
 - [x] `PH4-03.04.003`: Develop a reactive material mutation propagation engine: updating any material property immediately notifies dependent 3D objects, recalculating mass, density, center of gravity, and electrical parameters.
-- [ ] `PH4-03.04.004`: Connect thermal expansion coefficients to 3D geometry, updating physical dimensions and thermal stress states during thermal simulation.
+- [x] `PH4-03.04.004`: Connect thermal expansion coefficients to 3D geometry, updating physical dimensions and thermal stress states during thermal simulation.
 - [ ] `PH4-03.04.005`: Build comprehensive unit tests verifying that insulator materials prevent electrical current flow and conductive materials permit current flow according to Ohm's law.
 - [ ] `PH4-03.04.006`: Implement material export and import into portable, human-readable JSON formats (`.shunyamat`) preserving all scientific provenance.
 
