@@ -1,4 +1,5 @@
 #include "shunya/mat/formation_scenarios.hpp"
+#include "shunya/mat/hume_rothery.hpp"
 
 #include <cmath>
 #include <numeric>
@@ -74,22 +75,21 @@ void AlloyHandler::process_properties(
             result.validation_errors.push_back("Alloy cannot contain noble gas element: " + el->symbol);
         }
     }
-    // Check Hume-Rothery atomic size criterion (|r1 - r2| / r1 < 15%)
+    // Extended Hume-Rothery Rules (size, crystal structure, valence, electrochemical)
     if (elems.size() >= 2) {
-        double r0 = elems[0]->atomic_radius.value_or(140e-12);
-        bool all_within_15 = true;
-        for (size_t i = 1; i < elems.size(); ++i) {
-            double ri = elems[i]->atomic_radius.value_or(140e-12);
-            double mismatch = std::abs(ri - r0) / std::max(1e-15, r0);
-            if (mismatch > 0.15) {
-                all_within_15 = false;
-                result.warnings.push_back("Hume-Rothery size mismatch between " + elems[0]->symbol +
-                    " and " + elems[i]->symbol + " is " + std::to_string(mismatch * 100.0) +
-                    "% (> 15%): limited solid solubility expected.");
+        const auto evaluations = HumeRotheryEngine::evaluate_alloy(elems);
+        for (const auto& eval : evaluations) {
+            if (!eval.size_factor_passed) {
+                result.warnings.push_back("Hume-Rothery size mismatch exceeds 15%: limited solid solubility expected.");
             }
-        }
-        if (all_within_15) {
-            result.scientific_notes.push_back("Hume-Rothery size criterion met: high solid-solution solubility anticipated.");
+            if (eval.intermetallic_tendency) {
+                result.warnings.push_back("Hume-Rothery electrochemical factor indicates tendency towards intermetallic phase formation rather than simple solid solution.");
+            }
+            if (eval.overall_solid_solubility_favored) {
+                result.scientific_notes.push_back("Hume-Rothery rules satisfied (size, crystal structure, valence, electrochemical): extensive substitutional solid solution anticipated.");
+            } else {
+                result.scientific_notes.push_back("Hume-Rothery evaluation: limited complete solid solubility due to factor differences.");
+            }
         }
     }
 }

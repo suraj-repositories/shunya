@@ -29,6 +29,7 @@
 #include "shunya/mat/formation_scenarios.hpp"
 #include "shunya/mat/compound_validator.hpp"
 #include "shunya/mat/gibbs_free_energy.hpp"
+#include "shunya/mat/hume_rothery.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2620,4 +2621,61 @@ TEST_CASE("PH4-03.01.003: Thermodynamic Gibbs Free Energy & Spontaneity") {
     CHECK(thermo_compound.delta_h_j_mol == -10000.0);
     CHECK(thermo_compound.delta_g_j_mol < -11000.0);
     CHECK_FALSE(thermo_compound.has_miscibility_gap);
+}
+
+TEST_CASE("PH4-03.01.004: Extended Hume-Rothery Rules for Alloy Formation") {
+    using namespace shunya::mat;
+    using namespace shunya::matdb;
+
+    const auto& db = ElementDatabase::global();
+    const auto* cu = db.find_by_symbol("Cu");
+    const auto* ni = db.find_by_symbol("Ni");
+    const auto* al = db.find_by_symbol("Al");
+    const auto* na = db.find_by_symbol("Na");
+    const auto* pb = db.find_by_symbol("Pb");
+
+    REQUIRE(cu != nullptr);
+    REQUIRE(ni != nullptr);
+    REQUIRE(al != nullptr);
+    REQUIRE(na != nullptr);
+    REQUIRE(pb != nullptr);
+
+    // 1. Classic Cu-Ni Complete Isomorphous Solid Solution (Cupronickel/Monel)
+    // Both FCC, size difference ~2.7% (< 15%), electronegativities nearly identical (Delta chi = 0.01), valences 1 & 2
+    auto cuni_eval = HumeRotheryEngine::evaluate_pair(*cu, *ni);
+    CHECK(cuni_eval.size_factor_passed);
+    CHECK(cuni_eval.atomic_radius_mismatch_pct < 10.0);
+    CHECK(cuni_eval.crystal_structure_matched);
+    CHECK(cuni_eval.solvent_crystal_structure == "FCC");
+    CHECK(cuni_eval.solute_crystal_structure == "FCC");
+    CHECK(cuni_eval.valence_factor_favorable);
+    CHECK(cuni_eval.electrochemical_factor_passed);
+    CHECK_FALSE(cuni_eval.intermetallic_tendency);
+    CHECK(cuni_eval.overall_solid_solubility_favored);
+    CHECK(cuni_eval.rule_evaluations.size() == 4);
+
+    // 2. Cu-Al (Aluminum Bronze)
+    // Both FCC, but valence difference (Al=3 vs Cu=1 -> Delta V = 2) and radius mismatch ~18.6% (> 15%)
+    auto cual_eval = HumeRotheryEngine::evaluate_pair(*cu, *al);
+    CHECK(cual_eval.crystal_structure_matched); // both FCC
+    CHECK_FALSE(cual_eval.valence_factor_favorable); // Delta V = 2
+    CHECK_FALSE(cual_eval.size_factor_passed); // 18.6% mismatch
+    CHECK_FALSE(cual_eval.overall_solid_solubility_favored);
+
+    // 3. Cu-Na (Immense radius mismatch ~31% > 15%, crystal mismatch BCC vs FCC)
+    auto cuna_eval = HumeRotheryEngine::evaluate_pair(*cu, *na);
+    CHECK_FALSE(cuna_eval.size_factor_passed);
+    CHECK(cuna_eval.atomic_radius_mismatch_pct > 15.0);
+    CHECK_FALSE(cuna_eval.overall_solid_solubility_favored);
+
+    // 4. Cu-Pb (Leaded bronze: Delta Chi = 0.43 > 0.4, valence difference = 2)
+    auto cupb_eval = HumeRotheryEngine::evaluate_pair(*cu, *pb);
+    CHECK(cupb_eval.intermetallic_tendency);
+    CHECK_FALSE(cupb_eval.overall_solid_solubility_favored);
+
+    // 5. Batch alloy evaluation
+    auto alloy_evals = HumeRotheryEngine::evaluate_alloy({cu, ni, al});
+    CHECK(alloy_evals.size() == 2);
+    CHECK(alloy_evals[0].overall_solid_solubility_favored); // Cu-Ni
+    CHECK_FALSE(alloy_evals[1].overall_solid_solubility_favored); // Cu-Al
 }

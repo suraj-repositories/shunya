@@ -111,6 +111,7 @@ add_library(shunya_domain_mat OBJECT
     src/mat/formation_scenarios.cpp
     src/mat/compound_validator.cpp
     src/mat/gibbs_free_energy.cpp
+    src/mat/hume_rothery.cpp
 )
 shunya_configure_domain_target(shunya_domain_mat)
 target_link_libraries(shunya_domain_mat PUBLIC shunya_domain_core)
