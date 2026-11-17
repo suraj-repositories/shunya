@@ -5,6 +5,7 @@
 #include "shunya/cad2d/context_menu_model.hpp"
 #include "shunya/cad2d/group_manager.hpp"
 #include "shunya/cad2d/layer_manager.hpp"
+#include "shunya/cad2d/schematic_erc_engine.hpp"
 #include "shunya/cad2d/schematic_netlabel_bus.hpp"
 #include "shunya/cad2d/schematic_pin_tool.hpp"
 #include "shunya/cad2d/schematic_symbol_engine.hpp"
@@ -917,6 +918,98 @@ TEST_CASE("PH4-04.04.004: Netlabel callouts and hierarchical bus connectors for 
     REQUIRE(mgr.bus_tap_count() == 0); // taps cleaned up
     REQUIRE(mgr.netlabel_count() == 3); // netlabels remain
 }
+
+TEST_CASE("PH4-04.04.005: Real-time Electrical Rules Check (ERC) highlighting floating pins, open circuits, and net conflicts") {
+    SketchDocument2D doc;
+    SchematicDraftingEngine sch_engine(shunya::pcb::SymbolStandard::IEEE_US);
+    SchematicWireRouter wire_router(&sch_engine);
+    SchematicNetlabelBusManager netlabel_mgr;
+    SchematicPinPlacementTool pin_tool;
+    SchematicErcEngine2D erc_engine;
+
+    // 1. Place an Input pin without any connection -> Must flag FloatingPin Error
+    std::string pin_in_id = pin_tool.place_pin(
+        doc,
+        Point2D{0.0, 0.0},
+        "1",
+        "CLK_IN",
+        shunya::pcb::PinElectricalType::Input,
+        PinOrientation::Right
+    );
+    Point2D in_anchor = pin_tool.terminal_anchor(*pin_tool.find_pin(pin_in_id));
+
+    auto res1 = erc_engine.analyze(doc, sch_engine, wire_router, netlabel_mgr, &pin_tool);
+    REQUIRE(!res1.passed());
+    REQUIRE(res1.error_count() == 1);
+    REQUIRE(res1.badges[0].rule == ErcRuleKind::FloatingPin);
+    REQUIRE(res1.badges[0].severity == shunya::pcb::ErcSeverity::Error);
+
+    // 2. Connect wire W1 to the input pin -> Resolves floating pin, but now wire has only 1 pin (Open Circuit warning)
+    std::string w1_id = wire_router.add_wire(doc, {in_anchor, Point2D{50.0, 0.0}}, "CLK");
+    auto res2 = erc_engine.analyze(doc, sch_engine, wire_router, netlabel_mgr, &pin_tool);
+    REQUIRE(res2.error_count() == 0); // No errors now!
+    REQUIRE(res2.warning_count() == 1); // Open circuit warning
+    REQUIRE(res2.badges[0].rule == ErcRuleKind::OpenCircuit);
+
+    // 3. Place Output pin at (50, 0) -> Net now has Driver (Output) and Receiver (Input) -> ERC passes completely!
+    std::string pin_out_id = pin_tool.place_pin(
+        doc,
+        Point2D{50.0 + 5.08, 0.0},
+        "2",
+        "CLK_OUT",
+        shunya::pcb::PinElectricalType::Output,
+        PinOrientation::Left
+    );
+    auto res3 = erc_engine.analyze(doc, sch_engine, wire_router, netlabel_mgr, &pin_tool);
+    REQUIRE(res3.passed());
+    REQUIRE(res3.badges.empty());
+
+    // 4. Test Driver Contention (Output vs Output on same net)
+    std::string pin_out2_id = pin_tool.place_pin(
+        doc,
+        Point2D{50.0 + 5.08, 10.0},
+        "3",
+        "CLK_OUT2",
+        shunya::pcb::PinElectricalType::Output,
+        PinOrientation::Left
+    );
+    Point2D out2_anchor = pin_tool.terminal_anchor(*pin_tool.find_pin(pin_out2_id));
+    wire_router.add_wire(doc, {Point2D{50.0, 0.0}, out2_anchor}, "CLK");
+
+    auto res4 = erc_engine.analyze(doc, sch_engine, wire_router, netlabel_mgr, &pin_tool);
+    REQUIRE(!res4.passed());
+    REQUIRE(res4.error_count() >= 1);
+    bool has_driver_conflict = false;
+    for (const auto& b : res4.badges) {
+        if (b.rule == ErcRuleKind::DriverConflict) has_driver_conflict = true;
+    }
+    REQUIRE(has_driver_conflict);
+
+    // 5. Test Conflicting Net Labels (VCC and GND on same wire)
+    netlabel_mgr.place_netlabel(doc, in_anchor, "VCC");
+    netlabel_mgr.place_netlabel(doc, Point2D{50.0, 0.0}, "GND");
+    auto res5 = erc_engine.analyze(doc, sch_engine, wire_router, netlabel_mgr, &pin_tool);
+    bool has_net_conflict = false;
+    for (const auto& b : res5.badges) {
+        if (b.rule == ErcRuleKind::NetNameConflict) has_net_conflict = true;
+    }
+    REQUIRE(has_net_conflict);
+
+    // 6. Visual Badges update and hit-testing
+    size_t doc_count_before = doc.entities().size();
+    auto updated = erc_engine.update_badges(doc, sch_engine, wire_router, netlabel_mgr, &pin_tool);
+    REQUIRE(doc.entities().size() == doc_count_before + updated.badges.size());
+    REQUIRE(erc_engine.active_badges().size() == updated.badges.size());
+
+    const auto* badge_found = erc_engine.find_badge_at(in_anchor, 2.0);
+    REQUIRE(badge_found != nullptr);
+
+    // Clear badges
+    erc_engine.clear_badges(doc);
+    REQUIRE(erc_engine.active_badges().empty());
+    REQUIRE(doc.entities().size() == doc_count_before);
+}
+
 
 
 
