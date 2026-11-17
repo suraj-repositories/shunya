@@ -131,6 +131,31 @@ SolidMesh3D LoftEngine::loft(
         rings_3d.push_back(std::move(r3));
     }
 
+    if (params.intermediate_slices > 0) {
+        std::vector<std::vector<Point3D>> dense_rings_3d;
+        const size_t raw_n_sec = rings_3d.size();
+        const size_t span_count = params.closed_loft ? raw_n_sec : (raw_n_sec - 1);
+        const size_t sub_slices = params.intermediate_slices;
+
+        for (size_t s = 0; s < span_count; ++s) {
+            dense_rings_3d.push_back(rings_3d[s]);
+            const size_t s_next = (s + 1) % raw_n_sec;
+            for (size_t step = 1; step <= sub_slices; ++step) {
+                double u = static_cast<double>(step) / static_cast<double>(sub_slices + 1);
+                double t = params.smooth_tangents ? (u * u * (3.0 - 2.0 * u)) : u;
+                std::vector<Point3D> inter_ring(n_pts);
+                for (size_t i = 0; i < n_pts; ++i) {
+                    inter_ring[i] = rings_3d[s][i] * (1.0 - t) + rings_3d[s_next][i] * t;
+                }
+                dense_rings_3d.push_back(std::move(inter_ring));
+            }
+        }
+        if (!params.closed_loft) {
+            dense_rings_3d.push_back(rings_3d.back());
+        }
+        rings_3d = std::move(dense_rings_3d);
+    }
+
     // Align winding of ring 0 with progression direction so side quads match start/end caps cleanly
     Point3D c0{0, 0, 0}, c1{0, 0, 0};
     for (const auto& v : rings_3d[0]) c0 += v;
@@ -166,10 +191,10 @@ SolidMesh3D LoftEngine::loft(
     }
 
     if (params.cap_ends && !params.closed_loft) {
-        // Project first and last rings onto their respective local planes so rotated/shifted vertex order matches exact ring indices
-        auto cap_section = [&](size_t sec_idx, bool is_start) {
+        // Project first and last rings onto their respective local planes
+        auto cap_section = [&](size_t sec_idx, size_t ring_idx, bool is_start) {
             const auto& plane = sections[sec_idx].plane;
-            const auto& ring = rings_3d[sec_idx];
+            const auto& ring = rings_3d[ring_idx];
             cad2d::Path2D local_2d;
             local_2d.reserve(ring.size());
             for (const auto& v : ring) {
@@ -178,10 +203,8 @@ SolidMesh3D LoftEngine::loft(
             }
             const bool local_is_ccw = cad2d::PolygonBooleanEngine::signed_area(local_2d) >= 0.0;
             const auto tess = PolygonTessellator::triangulate(local_2d);
-            // Notice PolygonTessellator normalizes tess.vertices to CCW, which might reverse or shift local_2d indices!
-            // Instead map tess vertices directly back to exact ring vertex indices by nearest 2D point (<1e-9).
             std::vector<uint32_t> tess_to_ring(tess.vertices.size(), 0);
-            const uint32_t base = static_cast<uint32_t>(sec_idx * n_pts);
+            const uint32_t base = static_cast<uint32_t>(ring_idx * n_pts);
             for (size_t ti = 0; ti < tess.vertices.size(); ++ti) {
                 size_t best_k = 0;
                 double best_d2 = std::numeric_limits<double>::infinity();
@@ -209,12 +232,26 @@ SolidMesh3D LoftEngine::loft(
             }
         };
 
-        cap_section(0, true);
-        cap_section(n_sec - 1, false);
+        cap_section(0, 0, true);
+        cap_section(sections.size() - 1, rings_3d.size() - 1, false);
     }
 
     mesh.ensure_outward_winding();
     return mesh;
+}
+
+SolidMesh3D LoftEngine::loft_profiles(
+    const std::vector<cad2d::Path2D>& profiles,
+    const std::vector<SketchPlane3D>& planes,
+    const LoftParams& params
+) {
+    if (profiles.size() != planes.size() || profiles.size() < 2) return {};
+    std::vector<LoftSection> sections;
+    sections.reserve(profiles.size());
+    for (size_t i = 0; i < profiles.size(); ++i) {
+        sections.push_back({profiles[i], planes[i]});
+    }
+    return loft(sections, params);
 }
 
 } // namespace shunya::cad3d

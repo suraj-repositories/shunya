@@ -424,7 +424,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-05: Professional 3D Modeling & Mesh Geometry Engine (`CAD3D`)
 
 **Objective:** Build a professional 3D solid and polygonal modeling engine in Shunya, drawing from Blender-caliber usability while maintaining strict engineering tolerances.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT` | **Status:** `[~] In Progress` (22/26 — 84.6%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT` | **Status:** `[~] In Progress` (23/26 — 88.5%)
 
 ### Submodule PH4-05.01: Parametric 3D Primitives [x] (100.0% — 6/6)
 - [x] `PH4-05.01.001`: Implement parametric primitive generation: Cube, Sphere, UV Sphere, Icosphere, Cylinder, Cone, Torus, Plane, Circle, Grid, and Capsule.
@@ -451,11 +451,12 @@ PH4: Integrated Cyber-Physical Engineering Platform
 - [x] `PH4-05.03.006`: Implement normal orientation inspection (display face normal stalks) and automated Normal Recalculation (Make Consistent Outside).
 - [x] `PH4-05.03.007`: Add manifold topology verification tools identifying non-manifold vertices, non-manifold edges, and degenerate zero-area faces.
 
-### Submodule PH4-05.04: 2D Sketch to 3D Geometry Synthesis [~] (42.9% — 3/7)
+### Submodule PH4-05.04: 2D Sketch to 3D Geometry Synthesis [~] (57.1% — 4/7)
 - [x] `PH4-05.04.001`: Implement Extrude Sketch feature: take any closed 2D profile from Module `CAD2D` and extrude along a normal vector to create a 3D solid.
 - [x] `PH4-05.04.002`: Implement Revolve Sketch feature: rotate a 2D profile around a defined axis by arbitrary degrees (up to 360°).
 - [x] `PH4-05.04.003`: Implement Sweep Sketch feature: guide a 2D profile along an arbitrary 3D guide curve or spline.
-- [ ] `PH4-05.04.004`: Implement Loft Sketch feature: interpolate smoothly between two or more distinct 2D cross-section profiles.
+- [x] `PH4-05.04.004`: Implement Loft Sketch feature: interpolate smoothly between two or more distinct 2D cross-section profiles.
+- [ ] `PH4-05.04.005`: Implement Robust CSG Boolean operations (Union, Difference, Intersection) backed by BSP/Carve geometry trees.
 - [ ] `PH4-05.04.004`: Implement Loft Sketch feature: interpolate smoothly between two or more distinct 2D cross-section profiles.
 - [ ] `PH4-05.04.005`: Implement Robust CSG Boolean operations (Union, Difference, Intersection) backed by BSP/Carve geometry trees.
 - [ ] `PH4-05.04.006`: Connect 2D-to-3D features to the dependency graph: modifying the base 2D sketch automatically regenerates the extruded/revolved 3D solid.

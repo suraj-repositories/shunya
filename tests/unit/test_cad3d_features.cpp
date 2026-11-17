@@ -290,3 +290,34 @@ TEST_CASE("PH4-05.04.003: Sweep Sketch feature guiding 2D profile along 3D guide
     REQUIRE(hollow_rep.euler_characteristic == 0);
     REQUIRE(hollow_pipe.compute_volume() > 30.0);
 }
+
+TEST_CASE("PH4-05.04.004: Loft Sketch feature interpolating smoothly between distinct 2D cross-section profiles") {
+    // 1. Lofting Circle (r=5 at z=0) to Square (10x10 at z=15)
+    Path2D circle_base = make_circle_loop(0.0, 0.0, 5.0, 48);
+    Path2D square_top{{-5.0, -5.0}, {5.0, -5.0}, {5.0, 5.0}, {-5.0, 5.0}};
+
+    LoftParams lp;
+    lp.samples_per_section = 48;
+    lp.intermediate_slices = 3; // Smooth intermediate interpolation
+    lp.smooth_tangents = true;
+    lp.cap_ends = true;
+
+    SolidMesh3D lofted_mesh = LoftEngine::loft_profiles(
+        {circle_base, square_top},
+        {SketchPlane3D::xy(0.0), SketchPlane3D::xy(15.0)},
+        lp
+    );
+
+    REQUIRE(!lofted_mesh.vertices.empty());
+    REQUIRE(!lofted_mesh.triangles.empty());
+
+    auto rep = lofted_mesh.analyze_manifold();
+    REQUIRE(rep.is_watertight);
+    REQUIRE(rep.is_2_manifold);
+    REQUIRE(rep.euler_characteristic == 2);
+
+    double vol = lofted_mesh.compute_volume();
+    // Area of base = ~78.54, Area of top = 100, average area ~89 * 15 ≈ 1335
+    REQUIRE(vol > 1000.0);
+    REQUIRE(vol < 1600.0);
+}
