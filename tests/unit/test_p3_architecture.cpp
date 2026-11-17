@@ -26,6 +26,7 @@
 #include "shunya/perf/chrome_tracing_exporter.hpp"
 #include "shunya/perf/hot_loop_profiler.hpp"
 #include "shunya/perf/memory_budget.hpp"
+#include "shunya/mat/formation_scenarios.hpp"
 #include "shunya/bench/perf_regression_gate.hpp"
 #include "shunya/core/base/event_bus.hpp"
 
@@ -2420,4 +2421,81 @@ TEST_CASE("PH4-02.04.006: Memory Footprint Limits (Idle < 250 MB, 100k Scene < 8
     // 4. Boundary checks on oversized / regressed memory allocations
     CHECK_FALSE(enforcer.validate_idle_budget(251.0));
     CHECK_FALSE(enforcer.validate_scene_budget(kVertices, 805.0));
+}
+
+TEST_CASE("PH4-03.01.001: Modular Material Formation Scenario Dispatcher") {
+    using namespace shunya::mat;
+
+    // 1. Verify all 6 formation scenarios are registered and available
+    const auto scenarios = FormationScenarioDispatcher::available_scenarios();
+    CHECK(scenarios.size() == 6);
+
+    for (auto sc : scenarios) {
+        CHECK(FormationScenarioDispatcher::is_scenario_supported(sc));
+        const auto& handler = FormationScenarioDispatcher::get_handler(sc);
+        CHECK(handler.scenario() == sc);
+        CHECK_FALSE(handler.name().empty());
+        CHECK_FALSE(handler.description().empty());
+    }
+
+    // 2. Validate Precondition enforcement: Rejection of noble gas in Alloy and Chemical Compound
+    MixtureExperiment noble_exp;
+    noble_exp.name = "Argon Brass Test";
+    noble_exp.scenario = FormationScenario::Alloy;
+    noble_exp.inputs.push_back({"Cu", QuantityInputBasis::MassFractionPct, 70.0, 1e-3, false});
+    noble_exp.inputs.push_back({"Ar", QuantityInputBasis::MassFractionPct, 30.0, 1e-3, false});
+
+    auto alloy_eval = MaterialMixingLab::evaluate(noble_exp);
+    REQUIRE(alloy_eval.is_ok());
+    CHECK_FALSE(alloy_eval.value().is_chemically_valid);
+    CHECK_FALSE(alloy_eval.value().validation_errors.empty());
+    bool found_alloy_noble = false;
+    for (const auto& err : alloy_eval.value().validation_errors) {
+        if (err.find("noble gas") != std::string::npos) found_alloy_noble = true;
+    }
+    CHECK(found_alloy_noble);
+
+    // 3. Chemical Compound Precondition: Rejection of noble gas
+    noble_exp.scenario = FormationScenario::ChemicalCompound;
+    auto compound_eval = MaterialMixingLab::evaluate(noble_exp);
+    REQUIRE(compound_eval.is_ok());
+    CHECK_FALSE(compound_eval.value().is_chemically_valid);
+    CHECK_FALSE(compound_eval.value().validation_errors.empty());
+    bool found_compound_noble = false;
+    for (const auto& err : compound_eval.value().validation_errors) {
+        if (err.find("noble gas") != std::string::npos || err.find("noble gases") != std::string::npos) {
+            found_compound_noble = true;
+        }
+    }
+    CHECK(found_compound_noble);
+
+    // 4. Valid Alloy evaluation dispatches Hume-Rothery notes
+    MixtureExperiment valid_brass;
+    valid_brass.name = "Valid Cu-Zn Brass";
+    valid_brass.scenario = FormationScenario::Alloy;
+    valid_brass.inputs.push_back({"Cu", QuantityInputBasis::MassFractionPct, 70.0, 1e-3, false});
+    valid_brass.inputs.push_back({"Zn", QuantityInputBasis::MassFractionPct, 30.0, 1e-3, false});
+
+    auto brass_res = MaterialMixingLab::evaluate(valid_brass);
+    REQUIRE(brass_res.is_ok());
+    bool found_hume_rothery = false;
+    for (const auto& note : brass_res.value().scientific_notes) {
+        if (note.find("Hume-Rothery") != std::string::npos) found_hume_rothery = true;
+    }
+    CHECK(found_hume_rothery);
+
+    // 5. Valid Chemical Compound evaluation dispatches electronegativity delta notes
+    MixtureExperiment nacl;
+    nacl.name = "Sodium Chloride";
+    nacl.scenario = FormationScenario::ChemicalCompound;
+    nacl.inputs.push_back({"Na", QuantityInputBasis::MoleCount, 1.0, 1e-3, false});
+    nacl.inputs.push_back({"Cl", QuantityInputBasis::MoleCount, 1.0, 1e-3, false});
+
+    auto nacl_res = MaterialMixingLab::evaluate(nacl);
+    REQUIRE(nacl_res.is_ok());
+    bool found_en_delta = false;
+    for (const auto& note : nacl_res.value().scientific_notes) {
+        if (note.find("Electronegativity delta") != std::string::npos) found_en_delta = true;
+    }
+    CHECK(found_en_delta);
 }

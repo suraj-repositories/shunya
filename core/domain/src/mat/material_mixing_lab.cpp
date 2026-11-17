@@ -1,6 +1,7 @@
 #include "shunya/mat/material_mixing_lab.hpp"
 
 #include "shunya/mat/composite_homogenizer.hpp"
+#include "shunya/mat/formation_scenarios.hpp"
 #include "shunya/matdb/elements_118_catalog.hpp"
 
 #include <algorithm>
@@ -239,6 +240,12 @@ core::base::Result<MixtureEvaluationResult> MaterialMixingLab::evaluate(
 
     if (total_amount <= 0.0) {
         return make_mix_error(4215, "Total constituent quantity/proportion must be positive");
+    }
+
+    const auto& scenario_handler = FormationScenarioDispatcher::get_handler(experiment.scenario);
+    auto pre_res = scenario_handler.validate_preconditions(experiment, elems);
+    if (pre_res.is_err()) {
+        return pre_res.error();
     }
 
     // 1. Resolve mass, moles, and volume for every constituent
@@ -652,6 +659,8 @@ core::base::Result<MixtureEvaluationResult> MaterialMixingLab::evaluate(
     } else if (N == 1 && experiment.user_density_override_kg_m3 <= 0.0) {
         res.overall_epistemic = EpistemicStatus::ConfirmedScientific;
     }
+
+    scenario_handler.process_properties(experiment, elems, behaviors, res);
     return res;
 }
 
