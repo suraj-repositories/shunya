@@ -1012,3 +1012,41 @@ TEST_CASE("PH4-05.03.005: Knife and Bisect tools allowing manual slicing of geom
     auto bbox_knife = cube_knife.compute_bbox();
     REQUIRE(is_close(bbox_knife.size().z, 2.0)); // Intact geometry
 }
+
+TEST_CASE("PH4-05.03.006: Normal orientation inspection (stalks) and automated Recalculate Outside") {
+    CubeParams cp;
+    cp.width = 2.0; cp.height = 2.0; cp.depth = 2.0; // [-1, 1]^3
+    auto cube = ParametricPrimitiveGenerator::generate_cube(cp);
+
+    // 1. Generate normal stalks (length = 0.5)
+    auto stalks = MeshTopologyOps::generate_normal_stalks(cube, 0.5);
+    REQUIRE(stalks.size() == cube.triangles.size());
+    for (const auto& stalk : stalks) {
+        REQUIRE(is_close((stalk.end_point - stalk.origin).length(), 0.5));
+        // Stalk origin dot normal should be positive for convex centered cube
+        REQUIRE(stalk.origin.dot(stalk.normal) > 0.0);
+    }
+
+    // 2. Invert normals intentionally
+    MeshTopologyOps::flip_normals(cube);
+    double inv_signed_vol = cube.compute_signed_volume();
+    REQUIRE(inv_signed_vol < -7.9); // Negative signed volume indicates inside-out winding
+
+    auto inverted_stalks = MeshTopologyOps::generate_normal_stalks(cube, 0.5);
+    for (const auto& stalk : inverted_stalks) {
+        // Face normal now points inward (towards origin)
+        REQUIRE(stalk.origin.dot(stalk.normal) < 0.0);
+    }
+
+    // 3. Automated Recalculate Outside
+    bool flipped = MeshTopologyOps::recalculate_normals_outside(cube);
+    REQUIRE(flipped);
+
+    double fixed_signed_vol = cube.compute_signed_volume();
+    REQUIRE(fixed_signed_vol > 7.9); // Positive signed volume restored
+
+    auto fixed_stalks = MeshTopologyOps::generate_normal_stalks(cube, 0.5);
+    for (const auto& stalk : fixed_stalks) {
+        REQUIRE(stalk.origin.dot(stalk.normal) > 0.0);
+    }
+}

@@ -153,6 +153,27 @@ public:
         const Plane3D& plane,
         const BisectOptions& options = {}
     );
+
+    // ========================================================================
+    // Task 3 (PH4-05.03.006): Normal Inspection & Automated Recalculation
+    // ========================================================================
+    struct NormalStalk {
+        Point3D origin{0.0, 0.0, 0.0};
+        Vec3d normal{0.0, 0.0, 1.0};
+        Point3D end_point{0.0, 0.0, 1.0};
+    };
+
+    [[nodiscard]] static std::vector<NormalStalk> generate_normal_stalks(
+        const SolidMesh3D& mesh,
+        double stalk_length = 0.2
+    );
+
+    static bool recalculate_normals_outside(SolidMesh3D& mesh);
+
+    static void flip_normals(
+        SolidMesh3D& mesh,
+        const std::vector<uint32_t>& face_indices = {}
+    );
 };
 
 } // namespace shunya::cad3d

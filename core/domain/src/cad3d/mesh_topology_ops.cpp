@@ -797,4 +797,91 @@ bool MeshTopologyOps::bisect(
     return true;
 }
 
+// ============================================================================
+// Task 3 (PH4-05.03.006): Normal Inspection & Automated Recalculation
+// ============================================================================
+
+std::vector<MeshTopologyOps::NormalStalk> MeshTopologyOps::generate_normal_stalks(
+    const SolidMesh3D& mesh,
+    double stalk_length
+) {
+    std::vector<NormalStalk> stalks;
+    stalks.reserve(mesh.triangles.size());
+
+    for (size_t i = 0; i < mesh.triangles.size(); ++i) {
+        const auto& tri = mesh.triangles[i];
+        if (tri[0] >= mesh.vertices.size() || tri[1] >= mesh.vertices.size() || tri[2] >= mesh.vertices.size()) {
+            continue;
+        }
+
+        Point3D c = (mesh.vertices[tri[0]] + mesh.vertices[tri[1]] + mesh.vertices[tri[2]]) * (1.0 / 3.0);
+        Vec3d n = mesh.triangle_normal(i);
+
+        NormalStalk stalk;
+        stalk.origin = c;
+        stalk.normal = n;
+        stalk.end_point = c + n * stalk_length;
+        stalks.push_back(stalk);
+    }
+
+    return stalks;
+}
+
+void MeshTopologyOps::flip_normals(
+    SolidMesh3D& mesh,
+    const std::vector<uint32_t>& face_indices
+) {
+    if (face_indices.empty()) {
+        for (auto& tri : mesh.triangles) {
+            std::swap(tri[1], tri[2]);
+        }
+        for (auto& n : mesh.normals) {
+            n = -n;
+        }
+    } else {
+        for (uint32_t f : face_indices) {
+            if (f < mesh.triangles.size()) {
+                std::swap(mesh.triangles[f][1], mesh.triangles[f][2]);
+            }
+        }
+    }
+}
+
+bool MeshTopologyOps::recalculate_normals_outside(SolidMesh3D& mesh) {
+    if (mesh.triangles.empty() || mesh.vertices.empty()) return false;
+
+    // Check signed volume first: if inverted, flip all
+    double signed_vol = mesh.compute_signed_volume();
+    bool flipped = false;
+
+    if (signed_vol < -1e-6) {
+        flip_normals(mesh);
+        flipped = true;
+    }
+
+    // Recompute area-weighted vertex normals
+    mesh.normals.assign(mesh.vertices.size(), Vec3d{0.0, 0.0, 0.0});
+    for (size_t i = 0; i < mesh.triangles.size(); ++i) {
+        const auto& tri = mesh.triangles[i];
+        Vec3d e1 = mesh.vertices[tri[1]] - mesh.vertices[tri[0]];
+        Vec3d e2 = mesh.vertices[tri[2]] - mesh.vertices[tri[0]];
+        Vec3d cross_n = e1.cross(e2);
+
+        mesh.normals[tri[0]] = mesh.normals[tri[0]] + cross_n;
+        mesh.normals[tri[1]] = mesh.normals[tri[1]] + cross_n;
+        mesh.normals[tri[2]] = mesh.normals[tri[2]] + cross_n;
+    }
+
+    for (auto& n : mesh.normals) {
+        double len = n.length();
+        if (len > 1e-9) {
+            n = n * (1.0 / len);
+        } else {
+            n = Vec3d{0.0, 0.0, 1.0};
+        }
+    }
+
+    return flipped;
+}
+
 } // namespace shunya::cad3d
