@@ -504,7 +504,7 @@ PH4: Integrated Cyber-Physical Engineering Platform
 ## Module PH4-07: 30-Component Library & Dual 3D/2D Symbol System (`LIB30`)
 
 **Objective:** Deliver an out-of-the-box library containing exactly the 30 required electronic components, complete with 3D models, 2D symbols, pin configurations, physical properties, material assignments, and validated SPICE simulation behaviors.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (27/30 — 90.0%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `ECAD3D`, `CAD3D`, `CAD2D` | **Status:** `[~] In Progress` (28/30 — 93.3%)
 
 For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Symbol, (c) Pin Configuration, (d) Electrical SPICE Model, (e) Physical Properties & Material Assignments, and (f) Automated Unit/Simulation Validation Tests.
 
@@ -680,8 +680,8 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
   *Materials:* Sintered metal oxides (Manganese, Nickel, Cobalt), Epoxy coating.  
   *Tests:* Temperature sweep verification, bridge circuit temperature measurement.
 
-### Submodule PH4-07.06: Actuators, Transducers & Integrated Circuits (Components 28 - 30)
-- [ ] `PH4-07.06.001`: **28. Piezoelectric Buzzer**  
+### Submodule PH4-07.06: Actuators, Transducers & Integrated Circuits (Components 28 - 30) [~] (1/3)
+- [x] `PH4-07.06.001`: **28. Piezoelectric Buzzer**  
   *3D Model:* Cylindrical black plastic cavity housing with top acoustic hole and bottom pins.  
   *2D Symbol:* Cylinder/horn symbol with two terminals (2 pins: Positive, Ground).  
   *Electrical:* Resonant acoustic sound generator: current generates audible frequency tone when energized.  
