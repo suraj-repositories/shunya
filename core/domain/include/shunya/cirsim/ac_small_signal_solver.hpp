@@ -1,6 +1,7 @@
 #pragma once
 
 #include "shunya/core/base/result.hpp"
+#include "shunya/core/domain/scientific_plot.hpp"
 #include "shunya/cirsim/schematic_topology_parser.hpp"
 
 #include <complex>
@@ -11,6 +12,43 @@
 namespace shunya::cirsim {
 
 using ComplexNumber = std::complex<double>;
+
+struct BodeAnalysisMetrics {
+    double passband_gain_db{0.0};
+    double cutoff_frequency_hz{0.0};       // -3.01 dB point
+    double gain_margin_db{0.0};           // -Gain at phase = -180 deg
+    double phase_margin_deg{0.0};         // 180 + phase at gain = 0 dB
+    double gain_crossover_freq_hz{0.0};   // Frequency where gain = 0 dB
+    double phase_crossover_freq_hz{0.0};  // Frequency where phase = -180 deg
+    bool has_cutoff{false};
+    bool has_gain_crossover{false};
+    bool has_phase_crossover{false};
+};
+
+struct RlcResonanceMetrics {
+    double resonant_frequency_hz{0.0};
+    double impedance_at_resonance_ohms{0.0};
+    double quality_factor_q{0.0};
+    double bandwidth_3db_hz{0.0};
+    bool resonance_detected{false};
+};
+
+struct ImpedanceMatchingReport {
+    double frequency_hz{0.0};
+    ComplexNumber z_in{0.0, 0.0};
+    ComplexNumber z_matched_load{0.0, 0.0}; // Conjugate Z_in*
+    ComplexNumber reflection_coefficient{0.0, 0.0}; // Gamma
+    double return_loss_db{0.0}; // -20*log10(|Gamma|)
+    double vswr{1.0};           // (1+|Gamma|)/(1-|Gamma|)
+};
+
+struct BodePlotSeries {
+    std::string node_name;
+    std::vector<core::domain::PlotPoint2D> magnitude_series;
+    std::vector<core::domain::PlotPoint2D> phase_series;
+    core::domain::PlotRange magnitude_range;
+    core::domain::PlotRange phase_range;
+};
 
 /**
  * @brief Complex Dense Matrix supporting Partial-Pivoting LU Decomposition.
@@ -116,6 +154,43 @@ public:
         const ParsedSchematicTopology& topology,
         const std::vector<core::domain::ElectricalComponent>& components
     ) const;
+
+    /**
+     * @brief Computes Bode plot metrics (gain margin, phase margin, 3dB cutoff frequency).
+     * Fulfills roadmap task PH4-08.03.004.
+     */
+    [[nodiscard]] static BodeAnalysisMetrics compute_bode_metrics(
+        const AcNodeResponse& response
+    );
+
+    /**
+     * @brief Analyzes RLC resonance frequency, Q-factor, and impedance matching metrics.
+     * Fulfills roadmap task PH4-08.03.005.
+     */
+    [[nodiscard]] static RlcResonanceMetrics analyze_rlc_resonance(
+        const std::vector<double>& frequencies,
+        const std::vector<ComplexNumber>& input_impedances
+    );
+
+    /**
+     * @brief Computes impedance matching conjugate load, reflection coefficient Gamma, return loss, and VSWR.
+     * Fulfills roadmap task PH4-08.03.005.
+     */
+    [[nodiscard]] static ImpedanceMatchingReport calculate_impedance_matching(
+        double frequency_hz,
+        ComplexNumber z_in,
+        double z0_ref = 50.0
+    );
+
+    /**
+     * @brief Converts AC simulation results into plot series format for ScientificPlot.qml.
+     * Fulfills roadmap task PH4-08.03.006.
+     */
+    [[nodiscard]] static BodePlotSeries export_for_scientific_plot(
+        const AcNodeResponse& response,
+        std::string_view node_name,
+        bool log_frequency_axis = true
+    );
 
 private:
     AcSweepOptions options_;

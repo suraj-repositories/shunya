@@ -307,4 +307,195 @@ core::base::Result<AcSimulationResult> AcSmallSignalSolver::solve_frequency_swee
     return core::base::Result<AcSimulationResult>::ok(std::move(result));
 }
 
+BodeAnalysisMetrics AcSmallSignalSolver::compute_bode_metrics(
+    const AcNodeResponse& response
+) {
+    BodeAnalysisMetrics metrics;
+    if (response.frequencies.size() < 2) return metrics;
+
+    metrics.passband_gain_db = response.magnitude_db.front();
+    const double target_3db = metrics.passband_gain_db - 3.0103;
+
+    // 1. Cutoff frequency (3dB drop)
+    for (size_t i = 0; i + 1 < response.frequencies.size(); ++i) {
+        double g1 = response.magnitude_db[i];
+        double g2 = response.magnitude_db[i + 1];
+        if ((g1 >= target_3db && g2 <= target_3db) || (g1 <= target_3db && g2 >= target_3db)) {
+            double frac = (target_3db - g1) / (g2 - g1 + 1e-18);
+            double log_f1 = std::log10(response.frequencies[i]);
+            double log_f2 = std::log10(response.frequencies[i + 1]);
+            metrics.cutoff_frequency_hz = std::pow(10.0, log_f1 + frac * (log_f2 - log_f1));
+            metrics.has_cutoff = true;
+            break;
+        }
+    }
+
+    // 2. Gain Crossover (0 dB gain) -> Phase Margin
+    for (size_t i = 0; i + 1 < response.frequencies.size(); ++i) {
+        double g1 = response.magnitude_db[i];
+        double g2 = response.magnitude_db[i + 1];
+        if ((g1 >= 0.0 && g2 <= 0.0) || (g1 <= 0.0 && g2 >= 0.0)) {
+            double frac = (0.0 - g1) / (g2 - g1 + 1e-18);
+            double log_f1 = std::log10(response.frequencies[i]);
+            double log_f2 = std::log10(response.frequencies[i + 1]);
+            metrics.gain_crossover_freq_hz = std::pow(10.0, log_f1 + frac * (log_f2 - log_f1));
+            metrics.has_gain_crossover = true;
+
+            // Interpolate phase
+            double p1 = response.phase_degrees[i];
+            double p2 = response.phase_degrees[i + 1];
+            double phase_at_cross = p1 + frac * (p2 - p1);
+            metrics.phase_margin_deg = 180.0 + phase_at_cross;
+            break;
+        }
+    }
+
+    // 3. Phase Crossover (-180 deg phase) -> Gain Margin
+    for (size_t i = 0; i + 1 < response.frequencies.size(); ++i) {
+        double p1 = response.phase_degrees[i];
+        double p2 = response.phase_degrees[i + 1];
+        if ((p1 >= -180.0 && p2 <= -180.0) || (p1 <= -180.0 && p2 >= -180.0)) {
+            double frac = (-180.0 - p1) / (p2 - p1 + 1e-18);
+            double log_f1 = std::log10(response.frequencies[i]);
+            double log_f2 = std::log10(response.frequencies[i + 1]);
+            metrics.phase_crossover_freq_hz = std::pow(10.0, log_f1 + frac * (log_f2 - log_f1));
+            metrics.has_phase_crossover = true;
+
+            // Interpolate gain
+            double g1 = response.magnitude_db[i];
+            double g2 = response.magnitude_db[i + 1];
+            double gain_at_cross = g1 + frac * (g2 - g1);
+            metrics.gain_margin_db = -gain_at_cross;
+            break;
+        }
+    }
+
+    return metrics;
+}
+
+RlcResonanceMetrics AcSmallSignalSolver::analyze_rlc_resonance(
+    const std::vector<double>& frequencies,
+    const std::vector<ComplexNumber>& input_impedances
+) {
+    RlcResonanceMetrics metrics;
+    if (frequencies.size() < 2 || frequencies.size() != input_impedances.size()) return metrics;
+
+    // Scan for zero-crossing of imaginary part (reactance Im(Z) = 0)
+    for (size_t i = 0; i + 1 < frequencies.size(); ++i) {
+        double x1 = input_impedances[i].imag();
+        double x2 = input_impedances[i + 1].imag();
+
+        if ((x1 <= 0.0 && x2 >= 0.0) || (x1 >= 0.0 && x2 <= 0.0)) {
+            double frac = (0.0 - x1) / (x2 - x1 + 1e-18);
+            double log_f1 = std::log10(frequencies[i]);
+            double log_f2 = std::log10(frequencies[i + 1]);
+            metrics.resonant_frequency_hz = std::pow(10.0, log_f1 + frac * (log_f2 - log_f1));
+            metrics.resonance_detected = true;
+
+            double r1 = input_impedances[i].real();
+            double r2 = input_impedances[i + 1].real();
+            metrics.impedance_at_resonance_ohms = r1 + frac * (r2 - r1);
+            break;
+        }
+    }
+
+    // Estimate Q factor based on minimum/maximum impedance bandwidth
+    if (metrics.resonance_detected && metrics.impedance_at_resonance_ohms > 0.0) {
+        double r0 = metrics.impedance_at_resonance_ohms;
+        double target_z = r0 * std::sqrt(2.0); // 3dB bandwidth for series resonance
+        double f_low = metrics.resonant_frequency_hz;
+        double f_high = metrics.resonant_frequency_hz;
+
+        for (size_t i = 0; i < frequencies.size(); ++i) {
+            if (frequencies[i] < metrics.resonant_frequency_hz && std::abs(input_impedances[i]) <= target_z) {
+                f_low = frequencies[i];
+                break;
+            }
+        }
+        for (size_t i = frequencies.size(); i-- > 0;) {
+            if (frequencies[i] > metrics.resonant_frequency_hz && std::abs(input_impedances[i]) <= target_z) {
+                f_high = frequencies[i];
+                break;
+            }
+        }
+        metrics.bandwidth_3db_hz = std::max(1e-6, f_high - f_low);
+        metrics.quality_factor_q = metrics.resonant_frequency_hz / metrics.bandwidth_3db_hz;
+    }
+
+    return metrics;
+}
+
+ImpedanceMatchingReport AcSmallSignalSolver::calculate_impedance_matching(
+    double frequency_hz,
+    ComplexNumber z_in,
+    double z0_ref
+) {
+    ImpedanceMatchingReport rep;
+    rep.frequency_hz = frequency_hz;
+    rep.z_in = z_in;
+    rep.z_matched_load = std::conj(z_in); // Maximum power transfer condition Z_L = Z_in*
+
+    const ComplexNumber z0{std::max(1e-6, z0_ref), 0.0};
+    rep.reflection_coefficient = (z_in - z0) / (z_in + z0);
+    double gamma_mag = std::abs(rep.reflection_coefficient);
+
+    rep.return_loss_db = -20.0 * std::log10(std::clamp(gamma_mag, 1.0e-9, 1.0));
+    if (gamma_mag < 0.99999) {
+        rep.vswr = (1.0 + gamma_mag) / (1.0 - gamma_mag);
+    } else {
+        rep.vswr = 1000.0;
+    }
+
+    return rep;
+}
+
+BodePlotSeries AcSmallSignalSolver::export_for_scientific_plot(
+    const AcNodeResponse& response,
+    std::string_view node_name,
+    bool log_frequency_axis
+) {
+    BodePlotSeries series;
+    series.node_name = std::string(node_name);
+
+    if (response.frequencies.empty()) return series;
+
+    double x_min = log_frequency_axis ? std::log10(response.frequencies.front()) : response.frequencies.front();
+    double x_max = log_frequency_axis ? std::log10(response.frequencies.back()) : response.frequencies.back();
+
+    double mag_min = 1e9, mag_max = -1e9;
+    double phase_min = 1e9, phase_max = -1e9;
+
+    for (size_t i = 0; i < response.frequencies.size(); ++i) {
+        double f = response.frequencies[i];
+        double x = log_frequency_axis ? std::log10(f) : f;
+
+        double y_mag = response.magnitude_db[i];
+        double y_phase = response.phase_degrees[i];
+
+        if (y_mag < mag_min) mag_min = y_mag;
+        if (y_mag > mag_max) mag_max = y_mag;
+        if (y_phase < phase_min) phase_min = y_phase;
+        if (y_phase > phase_max) phase_max = y_phase;
+
+        series.magnitude_series.push_back(core::domain::PlotPoint2D{x, y_mag});
+        series.phase_series.push_back(core::domain::PlotPoint2D{x, y_phase});
+    }
+
+    series.magnitude_range = core::domain::PlotRange{
+        .x_min = x_min,
+        .x_max = x_max,
+        .y_min = mag_min - 2.0,
+        .y_max = mag_max + 2.0
+    };
+
+    series.phase_range = core::domain::PlotRange{
+        .x_min = x_min,
+        .x_max = x_max,
+        .y_min = phase_min - 5.0,
+        .y_max = phase_max + 5.0
+    };
+
+    return series;
+}
+
 } // namespace shunya::cirsim

@@ -200,3 +200,100 @@ TEST_CASE("PH4-08.03.003: Compute Node Voltage Magnitude (dB) and Phase Angle Ac
     REQUIRE(std::abs(last_db - (-40.0)) < 0.5);
     REQUIRE(std::abs(last_phase - (-90.0)) < 1.0);
 }
+
+TEST_CASE("PH4-08.03.004: Bode Plot Calculation (Gain Margin, Phase Margin, 3dB Cutoff Frequency)") {
+    // RC filter with cutoff at exactly 1000 Hz
+    AcNodeResponse resp;
+    const double fc = 1000.0;
+    for (int exp = 1; exp <= 6; ++exp) {
+        for (int step = 0; step < 10; ++step) {
+            double f = std::pow(10.0, exp + step * 0.1);
+            resp.frequencies.push_back(f);
+            // Analytical 1st order lowpass: H = 1 / (1 + j*(f/fc))
+            double norm_f = f / fc;
+            double mag = 1.0 / std::sqrt(1.0 + norm_f * norm_f);
+            double mag_db = 20.0 * std::log10(mag);
+            double phase_deg = -std::atan(norm_f) * (180.0 / std::numbers::pi);
+
+            resp.magnitude_linear.push_back(mag);
+            resp.magnitude_db.push_back(mag_db);
+            resp.phase_degrees.push_back(phase_deg);
+        }
+    }
+
+    auto metrics = CirsimAcSolver::compute_bode_metrics(resp);
+
+    REQUIRE(metrics.has_cutoff);
+    // Interpolated cutoff frequency should be ~1000 Hz (+/- 1.5%)
+    REQUIRE(std::abs(metrics.cutoff_frequency_hz - 1000.0) < 15.0);
+    REQUIRE(std::abs(metrics.passband_gain_db - 0.0) < 0.05);
+}
+
+TEST_CASE("PH4-08.03.005: Impedance Matching & Resonant Frequency Detection for RLC Circuits") {
+    // 1. Series RLC circuit: R = 10 Ohm, L = 100 uH, C = 10 nF
+    // Resonant frequency: f0 = 1 / (2 * pi * sqrt(L * C))
+    // f0 = 1 / (2 * pi * sqrt(1e-4 * 1e-8)) = 1 / (2 * pi * 1e-6) ~= 159,155 Hz (159.155 kHz)
+    // At f0, Z_in = R = 10 Ohm (purely resistive)
+    const double r = 10.0;
+    const double l = 1.0e-4;
+    const double c = 1.0e-8;
+    const double f0_expected = 1.0 / (2.0 * std::numbers::pi * std::sqrt(l * c));
+
+    std::vector<double> freqs;
+    std::vector<ComplexNumber> z_in;
+
+    for (int i = 0; i < 200; ++i) {
+        double f = 50000.0 + i * 1500.0; // 50kHz to 350kHz
+        freqs.push_back(f);
+        double w = 2.0 * std::numbers::pi * f;
+        double x_l = w * l;
+        double x_c = 1.0 / (w * c);
+        z_in.push_back(ComplexNumber{r, x_l - x_c});
+    }
+
+    auto res_metrics = CirsimAcSolver::analyze_rlc_resonance(freqs, z_in);
+    REQUIRE(res_metrics.resonance_detected);
+    REQUIRE(std::abs(res_metrics.resonant_frequency_hz - f0_expected) < 500.0);
+    REQUIRE(std::abs(res_metrics.impedance_at_resonance_ohms - 10.0) < 0.1);
+
+    // 2. Impedance Matching Calculation
+    ComplexNumber z_load{75.0, 25.0}; // 75 + j25 Ohm
+    auto match = CirsimAcSolver::calculate_impedance_matching(f0_expected, z_load, 50.0);
+
+    // Conjugate matched load should be 75 - j25 Ohm
+    REQUIRE(std::abs(match.z_matched_load.real() - 75.0) < 1e-9);
+    REQUIRE(std::abs(match.z_matched_load.imag() - (-25.0)) < 1e-9);
+
+    // Return loss > 0 dB, VSWR > 1.0
+    REQUIRE(match.return_loss_db > 5.0);
+    REQUIRE(match.vswr > 1.0);
+    REQUIRE(match.vswr < 3.0);
+}
+
+TEST_CASE("PH4-08.03.006: Connect AC Simulation Results to Desktop Interactive Scientific Plotter") {
+    AcNodeResponse resp;
+    resp.frequencies = {10.0, 100.0, 1000.0, 10000.0, 100000.0};
+    resp.magnitude_db = {0.0, -0.05, -3.01, -20.0, -40.0};
+    resp.phase_degrees = {0.0, -5.7, -45.0, -84.3, -89.4};
+
+    auto plot_series = CirsimAcSolver::export_for_scientific_plot(resp, "V_OUT", true);
+
+    REQUIRE(plot_series.node_name == "V_OUT");
+    REQUIRE(plot_series.magnitude_series.size() == 5);
+    REQUIRE(plot_series.phase_series.size() == 5);
+
+    // Log10 frequency axis: log10(10) = 1, log10(100) = 2, ..., log10(100000) = 5
+    REQUIRE(std::abs(plot_series.magnitude_series[0].x - 1.0) < 1e-9);
+    REQUIRE(std::abs(plot_series.magnitude_series[2].x - 3.0) < 1e-9); // 1kHz = 3
+    REQUIRE(std::abs(plot_series.magnitude_series[4].x - 5.0) < 1e-9); // 100kHz = 5
+
+    // Magnitude at 1kHz should be -3.01 dB
+    REQUIRE(std::abs(plot_series.magnitude_series[2].y - (-3.01)) < 1e-9);
+
+    // Range validity for ScientificPlot.qml
+    REQUIRE(plot_series.magnitude_range.is_valid());
+    REQUIRE(plot_series.phase_range.is_valid());
+    REQUIRE(plot_series.magnitude_range.x_min == 1.0);
+    REQUIRE(plot_series.magnitude_range.x_max == 5.0);
+}
+
