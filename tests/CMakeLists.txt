@@ -163,6 +163,7 @@ add_executable(shunya_unit_tests
     unit/test_p5_monochrome_console.cpp
     unit/test_p5_mixing_fe_cu_c.cpp
     unit/test_p5_brand_icons.cpp
+    unit/test_p5_virtual_test_bench.cpp
 )
 
 target_include_directories(shunya_unit_tests

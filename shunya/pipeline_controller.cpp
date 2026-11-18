@@ -2,6 +2,7 @@
 #include "oscilloscope_controller.hpp"
 #include "viewport_3d_item.hpp"
 #include "shunya/matdb/elements_118_catalog.hpp"
+#include "shunya/mat/virtual_test_bench.hpp"
 
 #include <QFileInfo>
 #include <QUrl>
@@ -473,6 +474,68 @@ QVariantMap ShunyaPipelineController::evaluateMixture(
         rows.append(rm);
     }
     out["comparisonRows"] = rows;
+    return out;
+}
+
+QVariantMap ShunyaPipelineController::qualifyMixtureTestBench(
+    const QString& name,
+    const QString& scenario,
+    double tempK,
+    double pressurePa,
+    bool oxidizing,
+    double densityOverride,
+    const QVariantList& inputs,
+    const QString& presetEnvName) const {
+    QVariantMap out;
+    mat::MixtureExperiment exp;
+    exp.name = name.toStdString();
+    auto sc_res = mat::formation_scenario_from_string(scenario.toStdString());
+    exp.scenario = sc_res.is_ok() ? sc_res.value() : mat::FormationScenario::PhysicalMixture;
+    exp.temperature_k = tempK;
+    exp.pressure_pa = pressurePa;
+    exp.oxidizing_atmosphere = oxidizing;
+    exp.user_density_override_kg_m3 = densityOverride;
+    exp.inputs = inputsFromVariantList(inputs);
+
+    auto ev_res = mat::MaterialMixingLab::evaluate(exp, ws_->element_database());
+    if (ev_res.is_err()) {
+        out["ok"] = false;
+        out["error"] = QString::fromStdString(ev_res.error().message);
+        return out;
+    }
+
+    mat::EnvironmentConditions env;
+    if (presetEnvName == "Spacecraft (LEO)") env = mat::VirtualTestBenchEngine::preset_spacecraft_leo();
+    else if (presetEnvName == "Deep Sea Submersible") env = mat::VirtualTestBenchEngine::preset_deep_sea();
+    else if (presetEnvName == "Industrial Furnace") env = mat::VirtualTestBenchEngine::preset_industrial_furnace();
+    else if (presetEnvName == "Underground Power Cable") env = mat::VirtualTestBenchEngine::preset_underground_cable();
+    else if (presetEnvName == "Outdoor Coastal Weathering") env = mat::VirtualTestBenchEngine::preset_outdoor_coastal();
+    else env = mat::VirtualTestBenchEngine::preset_spacecraft_leo();
+
+    auto report = mat::VirtualTestBenchEngine::qualify_material(ev_res.value(), env);
+
+    out["ok"] = true;
+    out["environmentName"] = QString::fromStdString(report.conditions.name);
+    out["overallPassed"] = report.overall_qualification_passed;
+    out["aggregateScore"] = report.aggregate_score;
+
+    QVariantList domains;
+    for (const auto& d : report.domain_results) {
+        QVariantMap dm;
+        dm["name"] = QString::fromStdString(d.domain_name);
+        dm["passed"] = d.passed;
+        dm["score"] = d.score;
+        dm["metricSummary"] = QString::fromStdString(d.metric_summary);
+        dm["physicalModel"] = QString::fromStdString(d.physical_model);
+        dm["provenance"] = QString::fromStdString(d.provenance);
+        dm["isApproximate"] = d.is_approximate;
+        dm["details"] = strVecToList(d.details);
+        dm["failureReasons"] = strVecToList(d.failure_reasons);
+        domains.append(dm);
+    }
+    out["domainResults"] = domains;
+    out["criticalFailures"] = strVecToList(report.critical_failures);
+    out["recommendations"] = strVecToList(report.engineering_recommendations);
     return out;
 }
 

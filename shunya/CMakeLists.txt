@@ -74,6 +74,7 @@ qt_add_qml_module(shunya_gui_lib
         StudioSplitter.qml
         ElementsWorkspace.qml
         MixingLabWorkspace.qml
+        VirtualTestBenchPanel.qml
         ObjectsWorkspace.qml
         ComponentsBatteryWorkspace.qml
         CircuitWorkspace.qml

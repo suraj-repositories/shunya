@@ -21,9 +21,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 280 | 61.9% |
+| `[ ]` | Not Started | 262 | 58.0% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 172 | 38.1% |
+| `[x]` | Completed | 190 | 42.0% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -47,7 +47,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 11 | `MIX-COMP` | Mixing Lab Composition Engine, Normalization & Ingestion Fix | P0 | 14 | 14 | 100.0% | `[x]` |
 | 12 | `MIX-SPLIT` | Mixing Lab Multi-Pane Splitters, Card Layout & Toolbar Overflow | P0 | 12 | 12 | 100.0% | `[x]` |
 | 13 | `MIX-CTRL` | Mixing Lab Form Controls, Autocomplete, Presets & Button Actions | P0 | 16 | 16 | 100.0% | `[x]` |
-| 14 | `MIX-TEST` | Virtual Material Test Bench & Environmental Simulation Engine | P0 | 18 | 0 | 0.0% | `[ ]` |
+| 14 | `MIX-TEST` | Virtual Material Test Bench & Environmental Simulation Engine | P0 | 18 | 18 | 100.0% | `[x]` |
 | 15 | `MIX-BOND` | First-Principles Atomic Bond Checker & Miscibility Engine | P0 | 16 | 0 | 0.0% | `[ ]` |
 | 16 | `MIX-EXPLAIN`| Material Explanation, Metric Comparison & Ranking Engine | P0 | 16 | 0 | 0.0% | `[ ]` |
 | 17 | `MIX-HELP` | Contextual Info Popovers & Mixing Lab Scientific Help Center | P0 | 14 | 0 | 0.0% | `[ ]` |
@@ -651,29 +651,29 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-14: Virtual Material Test Bench & Environmental Simulation Engine (`MIX-TEST`)
 
 **Objective:** Build a comprehensive Virtual Material Test Bench executing multiphysics qualification across 7 physical domains (Thermal, Mechanical/Gravity, Vacuum, Electrical, Heat, Corrosion, Extreme Environments), providing pass/fail metrics, provenance, and gating material promotion.  
-**Priority:** P0 | **Complexity:** High | **Status:** `[ ] Not Started` (0/18 — 0.0%)
+**Priority:** P0 | **Complexity:** High | **Status:** `[x] Completed` (18/18 — 100.0%)
 
-### Submodule PH5-14.01: Core Environmental Physics Simulation Models [ ] (0.0% — 9/9)
-- [ ] `PH5-14.01.001`: Create `core/domain/include/shunya/mat/virtual_test_bench.hpp` and implementation defining the `VirtualTestBenchEngine`.
-- [ ] `PH5-14.01.002`: **Thermal Environment Model:** Compute $T$-dependent thermal expansion $\alpha(T)$, thermal conductivity $k(T)$, softening point, melting onset, and thermal shock tolerance parameter $R = \frac{\sigma_f (1 - \nu)}{E \alpha}$.
-- [ ] `PH5-14.01.003`: **Gravity & Mechanical Model:** Support gravity environment selection ($0\text{ g}$ Microgravity, Moon $1.62\text{ m/s}^2$, Earth $9.81\text{ m/s}^2$, Custom $g$); evaluate density, weight, self-weight deflection, yield strength $\sigma_y$, ultimate tensile strength $\sigma_{uts}$, and fatigue endurance limit.
-- [ ] `PH5-14.01.004`: **Vacuum & Space Model:** Calculate Langmuir vapor pressure $P_v(T)$, sublimation rate, total mass loss (TML) outgassing, and vacuum cold-welding adhesion risk for metallic interfaces.
-- [ ] `PH5-14.01.005`: **Electrical Current Model:** Evaluate resistivity $\rho_e(T)$, electrical conductivity $\sigma(T)$, Joule heating temperature rise $\Delta T = \frac{J^2 \rho_e t}{c_p \rho}$, maximum current-carrying density limit before thermal runaway, and dielectric breakdown voltage for insulators.
-- [ ] `PH5-14.01.006`: **Caloric Heat Model:** Evaluate specific heat capacity $C_p(T)$ using Debye/Shomate formulations, thermal diffusivity $\alpha_{diff} = \frac{k}{\rho C_p}$, latent heat of fusion $\Delta H_f$, and transient heating curves.
-- [ ] `PH5-14.01.007`: **Rust & Oxidation Kinetics Model:** Evaluate environmental corrosion rates across dry air, humid air, salt water spray, acidic environments, and alkaline environments; determine oxide layer passivation behavior (Pilling-Bedworth ratio $PBR$: passivating if $1 < PBR < 2$, flaking/spalling if $PBR < 1$ or $PBR > 2$), and predict time-to-failure.
-- [ ] `PH5-14.01.008`: **Extreme Environments Model:** Evaluate radiation displacement damage (DPA), magnetic susceptibility $\chi_m$ (diamagnetic, paramagnetic, ferromagnetic), deep-sea hydrostatic pressure resistance ($P = \rho g h$ up to $110\text{ MPa}$), and cyclic thermal fatigue life.
-- [ ] `PH5-14.01.009`: Add unit tests in `tests/unit/test_p5_virtual_test_bench.cpp` validating all 7 environmental physics models against reference literature benchmarks.
+### Submodule PH5-14.01: Core Environmental Physics Simulation Models [x] (100.0% — 9/9)
+- [x] `PH5-14.01.001`: Create `core/domain/include/shunya/mat/virtual_test_bench.hpp` and implementation defining the `VirtualTestBenchEngine`.
+- [x] `PH5-14.01.002`: **Thermal Environment Model:** Compute $T$-dependent thermal expansion $\alpha(T)$, thermal conductivity $k(T)$, softening point, melting onset, and thermal shock tolerance parameter $R = \frac{\sigma_f (1 - \nu)}{E \alpha}$.
+- [x] `PH5-14.01.003`: **Gravity & Mechanical Model:** Support gravity environment selection ($0\text{ g}$ Microgravity, Moon $1.62\text{ m/s}^2$, Earth $9.81\text{ m/s}^2$, Custom $g$); evaluate density, weight, self-weight deflection, yield strength $\sigma_y$, ultimate tensile strength $\sigma_{uts}$, and fatigue endurance limit.
+- [x] `PH5-14.01.004`: **Vacuum & Space Model:** Calculate Langmuir vapor pressure $P_v(T)$, sublimation rate, total mass loss (TML) outgassing, and vacuum cold-welding adhesion risk for metallic interfaces.
+- [x] `PH5-14.01.005`: **Electrical Current Model:** Evaluate resistivity $\rho_e(T)$, electrical conductivity $\sigma(T)$, Joule heating temperature rise $\Delta T = \frac{J^2 \rho_e t}{c_p \rho}$, maximum current-carrying density limit before thermal runaway, and dielectric breakdown voltage for insulators.
+- [x] `PH5-14.01.006`: **Caloric Heat Model:** Evaluate specific heat capacity $C_p(T)$ using Debye/Shomate formulations, thermal diffusivity $\alpha_{diff} = \frac{k}{\rho C_p}$, latent heat of fusion $\Delta H_f$, and transient heating curves.
+- [x] `PH5-14.01.007`: **Rust & Oxidation Kinetics Model:** Evaluate environmental corrosion rates across dry air, humid air, salt water spray, acidic environments, and alkaline environments; determine oxide layer passivation behavior (Pilling-Bedworth ratio $PBR$: passivating if $1 < PBR < 2$, flaking/spalling if $PBR < 1$ or $PBR > 2$), and predict time-to-failure.
+- [x] `PH5-14.01.008`: **Extreme Environments Model:** Evaluate radiation displacement damage (DPA), magnetic susceptibility $\chi_m$ (diamagnetic, paramagnetic, ferromagnetic), deep-sea hydrostatic pressure resistance ($P = \rho g h$ up to $110\text{ MPa}$), and cyclic thermal fatigue life.
+- [x] `PH5-14.01.009`: Add unit tests in `tests/unit/test_p5_virtual_test_bench.cpp` validating all 7 environmental physics models against reference literature benchmarks.
 
-### Submodule PH5-14.02: Test Bench UI Panel, Presets & Promotion Gating [ ] (0.0% — 9/9)
-- [ ] `PH5-14.02.001`: Create `shunya/VirtualTestBenchPanel.qml` accessible in the Right card once a mixture is chemically valid.
-- [ ] `PH5-14.02.002`: Implement pre-configured environment presets: `"Spacecraft (LEO)"`, `"Deep Sea Submersible"`, `"Industrial Furnace"`, `"Underground Power Cable"`, and `"Outdoor Coastal Weathering"`.
-- [ ] `PH5-14.02.003`: Provide custom environment configuration dialog allowing user-defined Temperature ($K$), Pressure ($Pa$), Gravity ($m/s^2$), Relative Humidity ($\%$), Atmospheric Composition ($\% \text{ O}_2, \text{CO}_2, \text{NaCl}$), Electric Field ($V/m$), and Magnetic Field ($T$).
-- [ ] `PH5-14.02.004`: Display clear pass/fail scorecards against user-defined or standard threshold limits for each environmental test.
-- [ ] `PH5-14.02.005`: Display explicit scientific provenance tags for every test result, indicating the governing physical model, mathematical assumptions, and data source.
-- [ ] `PH5-14.02.006`: Display clear `"Approximate"` badge indicators on any result utilizing numerical approximations or empirical heuristics rather than exact reference tables.
-- [ ] `PH5-14.02.007`: Gate the `"Promote to Material"` action: block promotion if the mixture is invalid or fails critical stability tests, displaying an informative modal listing exact failure reasons.
-- [ ] `PH5-14.02.008`: When promotion succeeds, convert the tested mixture into an authoritative `Project Material` populated with all qualified thermal, electrical, and mechanical tensors.
-- [ ] `PH5-14.02.009`: Add automated UI test verifying that running the `"Spacecraft"` preset on an alloy produces validated scorecards and enables promotion.
+### Submodule PH5-14.02: Test Bench UI Panel, Presets & Promotion Gating [x] (100.0% — 9/9)
+- [x] `PH5-14.02.001`: Create `shunya/VirtualTestBenchPanel.qml` accessible in the Right card once a mixture is chemically valid.
+- [x] `PH5-14.02.002`: Implement pre-configured environment presets: `"Spacecraft (LEO)"`, `"Deep Sea Submersible"`, `"Industrial Furnace"`, `"Underground Power Cable"`, and `"Outdoor Coastal Weathering"`.
+- [x] `PH5-14.02.003`: Provide custom environment configuration dialog allowing user-defined Temperature ($K$), Pressure ($Pa$), Gravity ($m/s^2$), Relative Humidity ($\%$), Atmospheric Composition ($\% \text{ O}_2, \text{CO}_2, \text{NaCl}$), Electric Field ($V/m$), and Magnetic Field ($T$).
+- [x] `PH5-14.02.004`: Display clear pass/fail scorecards against user-defined or standard threshold limits for each environmental test.
+- [x] `PH5-14.02.005`: Display explicit scientific provenance tags for every test result, indicating the governing physical model, mathematical assumptions, and data source.
+- [x] `PH5-14.02.006`: Display clear `"Approximate"` badge indicators on any result utilizing numerical approximations or empirical heuristics rather than exact reference tables.
+- [x] `PH5-14.02.007`: Gate the `"Promote to Material"` action: block promotion if the mixture is invalid or fails critical stability tests, displaying an informative modal listing exact failure reasons.
+- [x] `PH5-14.02.008`: When promotion succeeds, convert the tested mixture into an authoritative `Project Material` populated with all qualified thermal, electrical, and mechanical tensors.
+- [x] `PH5-14.02.009`: Add automated UI test verifying that running the `"Spacecraft"` preset on an alloy produces validated scorecards and enables promotion.
 
 ---
 

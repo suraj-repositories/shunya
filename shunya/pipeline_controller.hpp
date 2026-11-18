@@ -96,6 +96,16 @@ public:
         double densityOverride,
         const QVariantList& inputs) const;
 
+    Q_INVOKABLE QVariantMap qualifyMixtureTestBench(
+        const QString& name,
+        const QString& scenario,
+        double tempK,
+        double pressurePa,
+        bool oxidizing,
+        double densityOverride,
+        const QVariantList& inputs,
+        const QString& presetEnvName) const;
+
     Q_INVOKABLE QVariantMap saveAndPromoteMixture(
         const QString& expId,
         const QString& name,

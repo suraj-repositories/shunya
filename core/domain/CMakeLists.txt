@@ -131,6 +131,7 @@ add_library(shunya_domain_mat OBJECT
     src/mat/material_mutation_propagator.cpp
     src/mat/thermal_deformation_engine.cpp
     src/mat/shunyamat_serializer.cpp
+    src/mat/virtual_test_bench.cpp
 )
 shunya_configure_domain_target(shunya_domain_mat)
 target_link_libraries(shunya_domain_mat PUBLIC shunya_domain_core)

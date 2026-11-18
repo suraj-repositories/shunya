@@ -597,7 +597,7 @@ Rectangle {
                 }
             }
 
-            // 3. RIGHT CARD: Registered Project Materials Catalog
+            // 3. RIGHT CARD: Registered Project Materials Catalog & Virtual Test Bench
             Rectangle {
                 Layout.preferredWidth: root.rightCardWidth
                 Layout.minimumWidth: 240
@@ -609,80 +609,116 @@ Rectangle {
                 radius: Theme.radiusMd
                 clip: true
 
+                property string rightTab: "materials" // "materials" | "test_bench"
+
                 ColumnLayout {
                     anchors.fill: parent
                     anchors.margins: 12
                     spacing: 8
 
-                    Text {
-                        text: "Project Materials (" + root.savedMaterials.length + ")"
-                        font.family: Theme.fontSans
-                        font.pixelSize: Theme.fontSm
-                        font.weight: Font.DemiBold
-                        color: Theme.textPrimary
-                    }
-                    Text {
-                        text: "Click +10% Density to test reactive Object & Component recalculation"
-                        font.family: Theme.fontSans
-                        font.pixelSize: Theme.fontXs
-                        color: Theme.textMuted
-                        wrapMode: Text.WordWrap
+                    // Header with Switchable Mode Tabs
+                    RowLayout {
                         Layout.fillWidth: true
+                        spacing: 4
+                        MonoButton {
+                            text: "Materials (" + root.savedMaterials.length + ")"
+                            compact: true
+                            active: parent.parent.parent.rightTab === "materials"
+                            onClicked: parent.parent.parent.rightTab = "materials"
+                        }
+                        MonoButton {
+                            text: "Test Bench"
+                            compact: true
+                            iconName: "play"
+                            active: parent.parent.parent.rightTab === "test_bench"
+                            onClicked: parent.parent.parent.rightTab = "test_bench"
+                        }
                     }
 
-                    ListView {
+                    // TAB 1: Registered Materials Catalog
+                    ColumnLayout {
+                        visible: parent.parent.rightTab === "materials"
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        clip: true
                         spacing: 6
-                        model: root.savedMaterials
-                        delegate: Rectangle {
-                            width: ListView.view.width
-                            height: 74
-                            radius: Theme.radiusSm
-                            color: Theme.bgCanvas
-                            border.color: Theme.borderSubtle
-                            border.width: 1
 
-                            ColumnLayout {
-                                anchors.fill: parent
-                                anchors.margins: 8
-                                spacing: 3
-                                Text {
-                                    text: modelData.name
-                                    font.family: Theme.fontSans
-                                    font.pixelSize: Theme.fontSm
-                                    font.weight: Font.DemiBold
-                                    color: Theme.textPrimary
-                                    elide: Text.ElideRight
-                                    Layout.fillWidth: true
-                                }
-                                Text {
-                                    text: "rho=" + Number(modelData.density).toFixed(1) + " kg/m³  k=" + Number(modelData.thermalConductivity).toFixed(1) + " W/mK"
-                                    font.family: Theme.fontMono
-                                    font.pixelSize: Theme.fontXs
-                                    color: Theme.textMuted
-                                }
-                                RowLayout {
-                                    Layout.fillWidth: true
+                        Text {
+                            text: "Click +10% Density to test reactive Object & Component recalculation"
+                            font.family: Theme.fontSans
+                            font.pixelSize: Theme.fontXs
+                            color: Theme.textMuted
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
+                        }
+
+                        ListView {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            clip: true
+                            spacing: 6
+                            model: root.savedMaterials
+                            delegate: Rectangle {
+                                width: ListView.view.width
+                                height: 74
+                                radius: Theme.radiusSm
+                                color: Theme.bgCanvas
+                                border.color: Theme.borderSubtle
+                                border.width: 1
+
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 8
+                                    spacing: 3
                                     Text {
-                                        text: "sigma=" + Number(modelData.electricalConductivity).toExponential(1) + " S/m"
-                                        font.family: Theme.fontMono
-                                        font.pixelSize: Theme.fontXs
-                                        color: Theme.textSecondary
+                                        text: modelData.name
+                                        font.family: Theme.fontSans
+                                        font.pixelSize: Theme.fontSm
+                                        font.weight: Font.DemiBold
+                                        color: Theme.textPrimary
+                                        elide: Text.ElideRight
                                         Layout.fillWidth: true
                                     }
-                                    MonoButton {
-                                        text: "+10% rho"
-                                        compact: true
-                                        onClicked: {
-                                            pipeline.updateMaterialParameters(modelData.id, modelData.density * 1.1, -1, -1, -1);
-                                            root.actionFeedback = "Perturbed " + modelData.name + " density to " + (modelData.density * 1.1).toFixed(1) + " kg/m³";
+                                    Text {
+                                        text: "rho=" + Number(modelData.density).toFixed(1) + " kg/m³  k=" + Number(modelData.thermalConductivity).toFixed(1) + " W/mK"
+                                        font.family: Theme.fontMono
+                                        font.pixelSize: Theme.fontXs
+                                        color: Theme.textMuted
+                                    }
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        Text {
+                                            text: "sigma=" + Number(modelData.electricalConductivity).toExponential(1) + " S/m"
+                                            font.family: Theme.fontMono
+                                            font.pixelSize: Theme.fontXs
+                                            color: Theme.textSecondary
+                                            Layout.fillWidth: true
+                                        }
+                                        MonoButton {
+                                            text: "+10% rho"
+                                            compact: true
+                                            onClicked: {
+                                                pipeline.updateMaterialParameters(modelData.id, modelData.density * 1.1, -1, -1, -1);
+                                                root.actionFeedback = "Perturbed " + modelData.name + " density to " + (modelData.density * 1.1).toFixed(1) + " kg/m³";
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+                    }
+
+                    // TAB 2: Virtual Material Test Bench (7 Multiphysics Qualification Domains)
+                    VirtualTestBenchPanel {
+                        visible: parent.parent.rightTab === "test_bench"
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        expName: root.expName
+                        scenario: root.scenario
+                        tempK: root.tempK
+                        pressurePa: root.pressurePa
+                        oxidizing: root.oxidizing
+                        densityOverride: root.densityOverride
+                        ingredients: root.ingredients
                     }
                 }
             }
