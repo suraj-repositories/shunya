@@ -226,7 +226,7 @@ void ShunyaMultiPropertyController::selectDemoMultiSet(const QString& setType) {
         for (int i = 0; i < 50; ++i) {
             auto inst = std::make_shared<core::domain::ElementInstance>(def, "R" + std::to_string(i + 1));
             if (i % 2 == 1) {
-                inst->set_parameter("resistance", core::domain::ParameterValue(2.2));
+                [[maybe_unused]] auto res = inst->set_parameter("resistance", core::domain::ParameterValue(2.2));
             }
             sheets.push_back(core::domain::PropertySheet::create_for_element_instance(inst));
         }

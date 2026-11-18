@@ -1,0 +1,237 @@
+{
+  "bundle_version": "4.0",
+  "format": "shunya4",
+  "is_differential": false,
+  "base_tick": 0,
+  "ticks": {
+    "global": 1,
+    "materials": 1,
+    "objects": 1,
+    "components": 1,
+    "circuits": 1,
+    "simulation": 1
+  },
+  "project_manifest": {
+    "schema_version": "0.1.0-dev",
+    "id": "e2a1b490-7c38-4f1b-8de9-1123456789ab",
+    "name": "Simple_Crystal_Radio_Receiver",
+    "description": "Demonstrator AM Crystal Radio Receiver with LC Tuned Tank, Diode Envelope Detector, and Audio Stage",
+    "author": "Shunya Engineering Studio",
+    "created_at": "2026-11-18T14:40:00Z",
+    "updated_at": "2026-11-18T14:40:00Z",
+    "target_fidelity": "L2_EngineeringApproximation",
+    "dependencies": [],
+    "metadata": {
+      "application": "AM Broadcast Radio Receiver",
+      "tuning_range": "Audio/RF Tuned Receiver"
+    }
+  },
+  "environment": {
+    "temperature_k": 298.15,
+    "pressure_pa": 101325,
+    "gravity_m_s2": 9.80665,
+    "convection_h_w_m2k": 10.0,
+    "oxidizing_atmosphere": true
+  },
+  "materials_registry": {
+    "materials": [
+      {
+        "id": "7e27373d-f56a-46ee-9c23-a67c8abd0dfb",
+        "name": "High-Purity Copper (OFHC Cu)",
+        "description": "Electrolytic copper for RF coil and antenna windings",
+        "composition": "Cu (99.99%)",
+        "density_kg_m3": 8960.0,
+        "state": "Solid",
+        "provenance": "IACS 100% Standard",
+        "source": "Standard Reference",
+        "version": "1.0.0",
+        "mechanical": { "_valid": true },
+        "thermal": {
+          "thermal_conductivity": 401.0,
+          "specific_heat_capacity": 385.0,
+          "melting_point_k": 1357.77,
+          "_valid": true
+        },
+        "electrical": {
+          "electrical_conductivity": 5.8e7,
+          "electrical_resistivity": 1.724e-8,
+          "relative_permittivity": 1.0,
+          "dielectric_loss_tangent": 0.0,
+          "magnetic_permeability": 1.256629e-6,
+          "seebeck_coefficient": 1.84e-6,
+          "_valid": true
+        }
+      },
+      {
+        "id": "15905ebf-3e17-4d7d-9b0a-37980f94bef5",
+        "name": "Doped Silicon Semiconductor",
+        "description": "PN / Schottky junction semiconductor for RF rectification",
+        "composition": "Si with P/B dopants",
+        "density_kg_m3": 2329.0,
+        "state": "Solid",
+        "provenance": "Semiconductor Grade",
+        "source": "Standard Reference",
+        "version": "1.0.0",
+        "mechanical": { "_valid": true },
+        "thermal": {
+          "thermal_conductivity": 149.0,
+          "specific_heat_capacity": 710.0,
+          "melting_point_k": 1687.0,
+          "_valid": true
+        },
+        "electrical": {
+          "electrical_conductivity": 1000.0,
+          "electrical_resistivity": 0.001,
+          "relative_permittivity": 11.7,
+          "_valid": true
+        }
+      }
+    ]
+  },
+  "objects": [],
+  "batteries": [],
+  "components": [],
+  "circuits": [
+    {
+      "id": "99f8d1e2-3a4b-4c5d-6e7f-890123456789",
+      "name": "AM_Crystal_Radio",
+      "components": [
+        {
+          "id": "V_ANT",
+          "label": "Antenna AC",
+          "kind": "VoltageSourceAC",
+          "gen_id": "",
+          "x_mm": 20,
+          "y_mm": 20,
+          "rotation_deg": 0,
+          "primary_value": 10.0,
+          "secondary_value": 50.0,
+          "tertiary_value": 10.0,
+          "switch_closed": true,
+          "n0": "N1",
+          "n1": "0"
+        },
+        {
+          "id": "L1",
+          "label": "Tuning Coil",
+          "kind": "Inductor",
+          "gen_id": "",
+          "x_mm": 55,
+          "y_mm": 20,
+          "rotation_deg": 0,
+          "primary_value": 0.001,
+          "secondary_value": 0.0,
+          "tertiary_value": 0.0,
+          "switch_closed": true,
+          "n0": "N1",
+          "n1": "0"
+        },
+        {
+          "id": "C_TUNE",
+          "label": "Tuning Cap",
+          "kind": "Capacitor",
+          "gen_id": "",
+          "x_mm": 90,
+          "y_mm": 20,
+          "rotation_deg": 0,
+          "primary_value": 0.00001,
+          "secondary_value": 0.0,
+          "tertiary_value": 0.0,
+          "switch_closed": true,
+          "n0": "N1",
+          "n1": "0"
+        },
+        {
+          "id": "D_DET",
+          "label": "Detector Diode",
+          "kind": "Diode",
+          "gen_id": "",
+          "x_mm": 130,
+          "y_mm": 20,
+          "rotation_deg": 0,
+          "primary_value": 0.7,
+          "secondary_value": 0.0,
+          "tertiary_value": 0.0,
+          "switch_closed": true,
+          "n0": "N1",
+          "n1": "N2"
+        },
+        {
+          "id": "R_SPKR",
+          "label": "Earphone Load",
+          "kind": "Resistor",
+          "gen_id": "",
+          "x_mm": 170,
+          "y_mm": 20,
+          "rotation_deg": 0,
+          "primary_value": 100.0,
+          "secondary_value": 0.0,
+          "tertiary_value": 0.0,
+          "switch_closed": true,
+          "n0": "N2",
+          "n1": "0"
+        },
+        {
+          "id": "GND1",
+          "label": "Ground",
+          "kind": "Ground",
+          "gen_id": "",
+          "x_mm": 95,
+          "y_mm": 50,
+          "rotation_deg": 0,
+          "primary_value": 0.0,
+          "secondary_value": 0.0,
+          "tertiary_value": 0.0,
+          "switch_closed": true,
+          "n0": "0",
+          "n1": ""
+        }
+      ],
+      "wires": [
+        {
+          "id": "W1",
+          "net": "N1",
+          "pts": "20,12;20,5;130,5;130,12"
+        },
+        {
+          "id": "W2",
+          "net": "N1",
+          "pts": "55,12;55,5"
+        },
+        {
+          "id": "W3",
+          "net": "N1",
+          "pts": "90,12;90,5"
+        },
+        {
+          "id": "W4",
+          "net": "N2",
+          "pts": "130,28;170,28"
+        },
+        {
+          "id": "W5",
+          "net": "0",
+          "pts": "20,28;20,50;170,50;170,28"
+        },
+        {
+          "id": "W6",
+          "net": "0",
+          "pts": "55,28;55,50"
+        },
+        {
+          "id": "W7",
+          "net": "0",
+          "pts": "90,28;90,50"
+        },
+        {
+          "id": "W8",
+          "net": "0",
+          "pts": "95,50;95,45"
+        }
+      ],
+      "junctions": []
+    }
+  ],
+  "active_circuit_idx": 0,
+  "checkpoints_count": 0
+}

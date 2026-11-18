@@ -1,5 +1,6 @@
 #include "shunya/perf/chrome_tracing_exporter.hpp"
 
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
@@ -156,6 +157,11 @@ std::string ChromeTracingExporter::export_json() const {
 
 bool ChromeTracingExporter::export_to_file(const std::string& file_path) const {
     const std::string content = export_json();
+    std::filesystem::path p(file_path);
+    if (p.has_parent_path()) {
+        std::error_code ec;
+        std::filesystem::create_directories(p.parent_path(), ec);
+    }
     std::ofstream out(file_path);
     if (!out.is_open()) return false;
     out << content;
