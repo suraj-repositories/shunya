@@ -21,11 +21,12 @@ MenuBar {
     property string pendingImportFmt: "DXF"
     property string pendingExportFmt: "BUNDLE"
 
-    // Alt-Key Mnemonics (Alt+F, Alt+E, Alt+W, Alt+S, Alt+H)
+    // Alt-Key Mnemonics (Alt+F, Alt+E, Alt+W, Alt+S, Alt+V, Alt+H)
     Shortcut { sequence: "Alt+F"; onActivated: fileMenu.open() }
     Shortcut { sequence: "Alt+E"; onActivated: editMenu.open() }
     Shortcut { sequence: "Alt+W"; onActivated: workspacesMenu.open() }
     Shortcut { sequence: "Alt+S"; onActivated: simulationMenu.open() }
+    Shortcut { sequence: "Alt+V"; onActivated: viewMenu.open() }
     Shortcut { sequence: "Alt+H"; onActivated: helpMenu.open() }
 
     FileDialog {
@@ -317,14 +318,6 @@ MenuBar {
         Action { text: qsTr("7. 3D CAD &Viewport"); shortcut: "Alt+7"; onTriggered: pipeline.setActiveWorkspace("editor_3d") }
         Action { text: qsTr("8. Physics &Simulation"); shortcut: "Alt+8"; onTriggered: pipeline.setActiveWorkspace("simulation") }
         Action { text: qsTr("9. Project &Settings"); shortcut: "Alt+9"; onTriggered: pipeline.setActiveWorkspace("settings") }
-        VSCodeMenuSeparator {}
-        VSCodeMenuItem {
-            text: qsTr("Dark Mode")
-            checkable: true
-            checked: Theme.isDarkMode
-            onTriggered: Theme.isDarkMode = !Theme.isDarkMode
-        }
-        Action { text: qsTr("Toggle &Diagnostics Console"); shortcut: "F12"; onTriggered: window.showConsoleDrawer = !window.showConsoleDrawer }
     }
 
     // 4. SIMULATION MENU (Alt+S)
@@ -344,6 +337,78 @@ MenuBar {
         VSCodeMenuSeparator {}
         VSCodeMenuItem { text: qsTr("Load Lithium &Battery Workflow Demo"); onTriggered: if (typeof pipeline !== "undefined") pipeline.seedLithiumBatteryDemo() }
         VSCodeMenuItem { text: qsTr("&Reset Clock"); onTriggered: if (typeof studio !== "undefined") studio.resetSimulation() }
+    }
+
+    // 5. VIEW MENU (Alt+V)
+    Menu {
+        id: viewMenu
+        title: qsTr("&View")
+        y: 30
+        z: 10000
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent | Popup.CloseOnPressOutside
+        background: VSCodeMenuBackground {}
+        delegate: VSCodeMenuItem {}
+
+        VSCodeMenuItem {
+            text: qsTr("Toggle &Left Sidebar")
+            shortcut: "Ctrl+B"
+            checkable: true
+            checked: !window.leftRailCollapsed
+            onTriggered: window.leftRailCollapsed = !window.leftRailCollapsed
+        }
+        VSCodeMenuItem {
+            text: qsTr("Toggle &Details Panel")
+            shortcut: "Ctrl+Alt+B"
+            checkable: true
+            checked: !window.rightPanelCollapsed
+            onTriggered: window.rightPanelCollapsed = !window.rightPanelCollapsed
+        }
+        VSCodeMenuItem {
+            text: qsTr("Toggle &Diagnostics Console")
+            shortcut: "F12"
+            checkable: true
+            checked: window.showConsoleDrawer
+            onTriggered: window.showConsoleDrawer = !window.showConsoleDrawer
+        }
+        VSCodeMenuSeparator {}
+        Menu {
+            title: qsTr("&Theme")
+            y: 0
+            background: VSCodeMenuBackground {}
+            delegate: VSCodeMenuItem {}
+            Action {
+                text: qsTr("Light")
+                checkable: true
+                checked: !Theme.isDarkMode
+                onTriggered: Theme.isDarkMode = false
+            }
+            Action {
+                text: qsTr("Dark")
+                checkable: true
+                checked: Theme.isDarkMode
+                onTriggered: Theme.isDarkMode = true
+            }
+        }
+        VSCodeMenuSeparator {}
+        Action {
+            text: qsTr("&Reset Workspace Layout")
+            onTriggered: {
+                window.leftRailWidth = 184;
+                window.leftRailCollapsed = false;
+                window.consoleDrawerHeight = 150;
+                window.showConsoleDrawer = false;
+                window.rightPanelCollapsed = false;
+                window.rightPanelWidth = 360;
+            }
+        }
+        Action {
+            text: qsTr("Toggle &Fullscreen")
+            shortcut: "F11"
+            onTriggered: {
+                if (window.visibility === Window.FullScreen) window.showNormal();
+                else window.showFullScreen();
+            }
+        }
     }
 
     // 5. HELP MENU (Alt+H)

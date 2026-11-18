@@ -455,73 +455,73 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-06: Multi-Pane Draggable Splitters & Session State Persistence (`SPLITTERS`)
 
 **Objective:** Implement interactive, theme-styled draggable splitters for the left workflow sidebar, the right details inspector, and the bottom diagnostics console, with boundary clamping and session persistence.  
-**Priority:** P0 | **Complexity:** High | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** High | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-06.01: Universal Splitter Component & Visual Styling [ ] (0.0% — 7/7)
-- [ ] `PH5-06.01.001`: Create reusable `shunya/StudioSplitter.qml` supporting both horizontal (`Qt.Horizontal`) and vertical (`Qt.Vertical`) orientations.
-- [ ] `PH5-06.01.002`: Implement theme-aware splitter handle styling: resting state (`Theme.borderDefault`), hover state (`Theme.borderStrong`), and active drag state (`Theme.textPrimary`).
-- [ ] `PH5-06.01.003`: Configure appropriate split mouse cursors: `Qt.SplitHCursor` for vertical separator bars and `Qt.SplitVCursor` for horizontal separator bars.
-- [ ] `PH5-06.01.004`: Implement double-click handle reset restoring the pane to its calibrated default proportion or size.
-- [ ] `PH5-06.01.005`: Add subtle grip indicator dots or center line accent on hover to provide clear affordance of draggability.
-- [ ] `PH5-06.01.006`: Support smooth animated transitions when expanding or resetting split sizes.
-- [ ] `PH5-06.01.007`: Provide keyboard accessibility: arrow keys adjust splitter position when handle is focused.
+### Submodule PH5-06.01: Universal Splitter Component & Visual Styling [x] (100.0% — 7/7)
+- [x] `PH5-06.01.001`: Create reusable `shunya/StudioSplitter.qml` supporting both horizontal (`Qt.Horizontal`) and vertical (`Qt.Vertical`) orientations.
+- [x] `PH5-06.01.002`: Implement theme-aware splitter handle styling: resting state (`Theme.borderDefault`), hover state (`Theme.borderStrong`), and active drag state (`Theme.textPrimary`).
+- [x] `PH5-06.01.003`: Configure appropriate split mouse cursors: `Qt.SplitHCursor` for vertical separator bars and `Qt.SplitVCursor` for horizontal separator bars.
+- [x] `PH5-06.01.004`: Implement double-click handle reset restoring the pane to its calibrated default proportion or size.
+- [x] `PH5-06.01.005`: Add subtle grip indicator dots or center line accent on hover to provide clear affordance of draggability.
+- [x] `PH5-06.01.006`: Support smooth animated transitions when expanding or resetting split sizes.
+- [x] `PH5-06.01.007`: Provide keyboard accessibility: arrow keys adjust splitter position when handle is focused.
 
-### Submodule PH5-06.02: Pane Integration, Clamping & Session Persistence [ ] (0.0% — 7/7)
-- [ ] `PH5-06.02.001`: Integrate vertical splitter between the periodic table and right inspector in `ElementsWorkspace.qml`, enforcing right panel minimum width of 280px.
-- [ ] `PH5-06.02.002`: Integrate horizontal splitter for the bottom diagnostics console in `Main.qml`, clamping height between 80px (min) and 70% of window height (max).
-- [ ] `PH5-06.02.003`: Integrate vertical splitter for the left workflow rail in `Main.qml`, clamping width between 56px (icon-only rail) and 360px (expanded rail).
-- [ ] `PH5-06.02.004`: Implement session persistence via `QSettings` storing `leftRailWidth`, `rightInspectorWidth`, and `consoleDrawerHeight`.
-- [ ] `PH5-06.02.005`: Restore saved splitter dimensions on application launch, validating against current screen resolution and window geometry.
-- [ ] `PH5-06.02.006`: Ensure the console close button (`X`) hides the drawer while retaining the last dragged height for restoration when reopened.
-- [ ] `PH5-06.02.007`: Add automated tests verifying that splitter dragging respects boundary clamping and persists values to disk.
+### Submodule PH5-06.02: Pane Integration, Clamping & Session Persistence [x] (100.0% — 7/7)
+- [x] `PH5-06.02.001`: Integrate vertical splitter between the periodic table and right inspector in `ElementsWorkspace.qml`, enforcing right panel minimum width of 280px.
+- [x] `PH5-06.02.002`: Integrate horizontal splitter for the bottom diagnostics console in `Main.qml`, clamping height between 80px (min) and 70% of window height (max).
+- [x] `PH5-06.02.003`: Integrate vertical splitter for the left workflow rail in `Main.qml`, clamping width between 56px (icon-only rail) and 360px (expanded rail).
+- [x] `PH5-06.02.004`: Implement session persistence via `QSettings` storing `leftRailWidth`, `rightInspectorWidth`, and `consoleDrawerHeight`.
+- [x] `PH5-06.02.005`: Restore saved splitter dimensions on application launch, validating against current screen resolution and window geometry.
+- [x] `PH5-06.02.006`: Ensure the console close button (`X`) hides the drawer while retaining the last dragged height for restoration when reopened.
+- [x] `PH5-06.02.007`: Add automated tests verifying that splitter dragging respects boundary clamping and persists values to disk.
 
 ---
 
 ## Module PH5-07: Collapsible Dual Sidebars, Chevron Toggles & Keyboard Shortcuts (`SIDEBARS`)
 
 **Objective:** Enable collapsing and expanding of both the left workflow navigation sidebar and the right details panel, featuring smooth 150–200ms animations, header toggle buttons, and global hotkeys.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/12 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (12/12 — 100.0%)
 
-### Submodule PH5-07.01: Left Workflow Sidebar Collapsible Rail [ ] (0.0% — 6/6)
-- [ ] `PH5-07.01.001`: Add collapse toggle button with chevron icon (`<` / `>`) to the header of the left workflow rail.
-- [ ] `PH5-07.01.002`: Implement smooth collapse animation (150–200ms, `Easing.InOutQuad`) transitioning width between expanded (184px default) and icon-only rail (56px).
-- [ ] `PH5-07.01.003`: In collapsed icon-only rail mode, hide text labels and shortcut badges while centering icons and displaying full hover tooltips.
-- [ ] `PH5-07.01.004`: Bind global shortcut `Ctrl+B` to toggle the left workflow sidebar between collapsed and expanded states.
-- [ ] `PH5-07.01.005`: Automatically expand the main content area to fill the freed horizontal space during collapse.
-- [ ] `PH5-07.01.006`: Persist `leftSidebarCollapsed` state in `QSettings` across application sessions.
+### Submodule PH5-07.01: Left Workflow Sidebar Collapsible Rail [x] (100.0% — 6/6)
+- [x] `PH5-07.01.001`: Add collapse toggle button with chevron icon (`<` / `>`) to the header of the left workflow rail.
+- [x] `PH5-07.01.002`: Implement smooth collapse animation (150–200ms, `Easing.InOutQuad`) transitioning width between expanded (184px default) and icon-only rail (56px).
+- [x] `PH5-07.01.003`: In collapsed icon-only rail mode, hide text labels and shortcut badges while centering icons and displaying full hover tooltips.
+- [x] `PH5-07.01.004`: Bind global shortcut `Ctrl+B` to toggle the left workflow sidebar between collapsed and expanded states.
+- [x] `PH5-07.01.005`: Automatically expand the main content area to fill the freed horizontal space during collapse.
+- [x] `PH5-07.01.006`: Persist `leftSidebarCollapsed` state in `QSettings` across application sessions.
 
-### Submodule PH5-07.02: Right Details Panel Collapse & Global Hotkeys [ ] (0.0% — 6/6)
-- [ ] `PH5-07.02.001`: Add collapse toggle button with chevron icon (`>` / `<`) to the header of the right-hand details inspector.
-- [ ] `PH5-07.02.002`: Implement smooth collapse animation (150–200ms) collapsing the right panel completely (`width: 0`, `visible: false`) to give 100% space to the main viewport.
-- [ ] `PH5-07.02.003`: Provide an edge tab or floating toggle button on the right window border to quickly restore the collapsed inspector.
-- [ ] `PH5-07.02.004`: Bind global shortcut `Ctrl+Alt+B` to toggle the right details panel open and closed.
-- [ ] `PH5-07.02.005`: Ensure reopening the panel restores the exact width previously set via the splitter.
-- [ ] `PH5-07.02.006`: Persist `rightPanelCollapsed` state in `QSettings` across application sessions.
+### Submodule PH5-07.02: Right Details Panel Collapse & Global Hotkeys [x] (100.0% — 6/6)
+- [x] `PH5-07.02.001`: Add collapse toggle button with chevron icon (`>` / `<`) to the header of the right-hand details inspector.
+- [x] `PH5-07.02.002`: Implement smooth collapse animation (150–200ms) collapsing the right panel completely (`width: 0`, `visible: false`) to give 100% space to the main viewport.
+- [x] `PH5-07.02.003`: Provide an edge tab or floating toggle button on the right window border to quickly restore the collapsed inspector.
+- [x] `PH5-07.02.004`: Bind global shortcut `Ctrl+Alt+B` to toggle the right details panel open and closed.
+- [x] `PH5-07.02.005`: Ensure reopening the panel restores the exact width previously set via the splitter.
+- [x] `PH5-07.02.006`: Persist `rightPanelCollapsed` state in `QSettings` across application sessions.
 
 ---
 
 ## Module PH5-08: Top Navigation Bar Streamlining & Comprehensive View Menu Integration (`MENUNAV`)
 
 **Objective:** Clean the top navbar by removing theme and console toggles, relocating them into a comprehensive desktop `View` menubar item with standard shortcuts and checkmarks.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-08.01: Top Workflow Navbar Simplification [ ] (0.0% — 7/7)
-- [ ] `PH5-08.01.001`: Remove the Dark/Light toggle button (`themeToggleBtn`) from the top workflow navbar in `shunya/Main.qml`.
-- [ ] `PH5-08.01.002`: Remove the Console button from the top workflow navbar in `shunya/Main.qml`.
-- [ ] `PH5-08.01.003`: Reorganize the top navbar to focus on project metadata: Brand Logo (Sunken Eye), Project Name, Unsaved Status Badge, Pipeline Status Counters, and Simulation State Badge.
-- [ ] `PH5-08.01.004`: Streamline pipeline counters layout ensuring clean vertical alignment and dividers (`118 Elements / 14 Materials / 6 Objects / 9 Components`).
-- [ ] `PH5-08.01.005`: Bind simulation state badge with dynamic tones: `"Running"` (`Theme.statusSuccess`), `"Paused"` (`Theme.statusWarning`), `"Stopped"` (`Theme.textMuted`).
-- [ ] `PH5-08.01.006`: Guarantee that the navbar maintains a strict 44px height and does not wrap or distort on narrow windows.
-- [ ] `PH5-08.01.007`: Verify navbar appearance and contrast in both Light and Dark themes.
+### Submodule PH5-08.01: Top Workflow Navbar Simplification [x] (100.0% — 7/7)
+- [x] `PH5-08.01.001`: Remove the Dark/Light toggle button (`themeToggleBtn`) from the top workflow navbar in `shunya/Main.qml`.
+- [x] `PH5-08.01.002`: Remove the Console button from the top workflow navbar in `shunya/Main.qml`.
+- [x] `PH5-08.01.003`: Reorganize the top navbar to focus on project metadata: Brand Logo (Sunken Eye), Project Name, Unsaved Status Badge, Pipeline Status Counters, and Simulation State Badge.
+- [x] `PH5-08.01.004`: Streamline pipeline counters layout ensuring clean vertical alignment and dividers (`118 Elements / 14 Materials / 6 Objects / 9 Components`).
+- [x] `PH5-08.01.005`: Bind simulation state badge with dynamic tones: `"Running"` (`Theme.statusSuccess`), `"Paused"` (`Theme.statusWarning`), `"Stopped"` (`Theme.textMuted`).
+- [x] `PH5-08.01.006`: Guarantee that the navbar maintains a strict 44px height and does not wrap or distort on narrow windows.
+- [x] `PH5-08.01.007`: Verify navbar appearance and contrast in both Light and Dark themes.
 
-### Submodule PH5-08.02: First-Class View Menu Integration in MenuBar [ ] (0.0% — 7/7)
-- [ ] `PH5-08.02.001`: Add top-level `View` menu (`Alt+V`) to `shunya/MainMenuBar.qml` positioned between `Simulation` and `Help`.
-- [ ] `PH5-08.02.002`: Add menu action `Toggle Left Sidebar` (`Ctrl+B`) with checkmark indicator reflecting open/closed state.
-- [ ] `PH5-08.02.003`: Add menu action `Toggle Details Panel` (`Ctrl+Alt+B`) with checkmark indicator reflecting open/closed state.
-- [ ] `PH5-08.02.004`: Add menu action `Toggle Diagnostics Console` (``Ctrl+` `` or `F12`) with checkmark indicator reflecting open/closed state.
-- [ ] `PH5-08.02.005`: Add submenu `Theme >` under `View` menu with radio items: `Light`, `Dark`, and `System (Follow OS)` with persistent selection.
-- [ ] `PH5-08.02.006`: Add menu action `Reset Workspace Layout` under `View` menu restoring all sidebars, splitters, and panels to factory defaults.
-- [ ] `PH5-08.02.007`: Add menu action `Toggle Fullscreen` (`F11`) with window state handling.
+### Submodule PH5-08.02: First-Class View Menu Integration in MenuBar [x] (100.0% — 7/7)
+- [x] `PH5-08.02.001`: Add top-level `View` menu (`Alt+V`) to `shunya/MainMenuBar.qml` positioned between `Simulation` and `Help`.
+- [x] `PH5-08.02.002`: Add menu action `Toggle Left Sidebar` (`Ctrl+B`) with checkmark indicator reflecting open/closed state.
+- [x] `PH5-08.02.003`: Add menu action `Toggle Details Panel` (`Ctrl+Alt+B`) with checkmark indicator reflecting open/closed state.
+- [x] `PH5-08.02.004`: Add menu action `Toggle Diagnostics Console` (``Ctrl+` `` or `F12`) with checkmark indicator reflecting open/closed state.
+- [x] `PH5-08.02.005`: Add submenu `Theme >` under `View` menu with radio items: `Light`, `Dark`, and `System (Follow OS)` with persistent selection.
+- [x] `PH5-08.02.006`: Add menu action `Reset Workspace Layout` under `View` menu restoring all sidebars, splitters, and panels to factory defaults.
+- [x] `PH5-08.02.007`: Add menu action `Toggle Fullscreen` (`F11`) with window state handling.
 
 ---
 

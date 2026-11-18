@@ -14,6 +14,9 @@ Rectangle {
     property string phaseFilter: ""
     property string sortBy: "AtomicNumber"
     property bool viewTableMode: false
+    property bool rightPanelCollapsed: false
+
+    Shortcut { sequence: "Ctrl+Alt+B"; onActivated: root.rightPanelCollapsed = !root.rightPanelCollapsed }
 
     property var elementList: []
     property var elementDetails: ({})
@@ -103,6 +106,18 @@ Rectangle {
             Layout.fillHeight: true
             orientation: Qt.Horizontal
 
+            handle: Rectangle {
+                implicitWidth: 5
+                color: SplitHandle.pressed ? Theme.borderFocus : (SplitHandle.hovered ? Theme.borderStrong : Theme.borderSubtle)
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 2
+                    height: 24
+                    radius: 1
+                    color: SplitHandle.hovered || SplitHandle.pressed ? Theme.textPrimary : Theme.textSubtle
+                }
+            }
+
             // LEFT PANE
             Rectangle {
                 SplitView.fillWidth: true
@@ -111,6 +126,18 @@ Rectangle {
                 border.color: Theme.borderDefault
                 border.width: 1
                 radius: Theme.radiusMd
+
+                // Floating un-collapse toggle when inspector is hidden
+                MonoButton {
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.margins: 8
+                    z: 100
+                    visible: root.rightPanelCollapsed
+                    text: "Inspector <"
+                    compact: true
+                    onClicked: root.rightPanelCollapsed = false
+                }
 
                 // Interactive Periodic Table View
                 Item {
@@ -189,6 +216,7 @@ Rectangle {
 
             // RIGHT INSPECTOR: Live Behavior Engine + 82 CSV Properties
             Rectangle {
+                visible: !root.rightPanelCollapsed
                 SplitView.preferredWidth: 360
                 SplitView.minimumWidth: 280
                 color: Theme.bgSurface
@@ -205,7 +233,7 @@ Rectangle {
                     // Element Header
                     RowLayout {
                         Layout.fillWidth: true
-                        spacing: 10
+                        spacing: 8
                         Rectangle {
                             width: 50; height: 50; radius: Theme.radiusMd
                             color: Theme.bgElevated; border.color: Theme.borderStrong; border.width: 1
@@ -243,6 +271,14 @@ Rectangle {
                                     tone: root.behaviorReport.combustionRisk ? "error" : (root.behaviorReport.isSuperconducting ? "success" : "neutral")
                                 }
                             }
+                        }
+
+                        MonoButton {
+                            text: ">"
+                            compact: true
+                            variant: "ghost"
+                            Layout.preferredWidth: 22
+                            onClicked: root.rightPanelCollapsed = true
                         }
                     }
 

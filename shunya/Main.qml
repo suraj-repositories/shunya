@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Basic
 import QtQuick.Dialogs
+import QtCore
 
 ApplicationWindow {
     id: window
@@ -19,6 +20,24 @@ ApplicationWindow {
     property string simStatus: typeof studio !== "undefined" ? studio.simStatus : "Stopped"
     property string projectName: typeof pipeline !== "undefined" ? pipeline.projectName : "LiFePO4_Battery_Demo"
     property bool showConsoleDrawer: false
+
+    // Layout Sizing & Session Persistence Properties
+    property real leftRailWidth: 184
+    property bool leftRailCollapsed: false
+    property real consoleDrawerHeight: 150
+    property bool rightPanelCollapsed: false
+    property real rightPanelWidth: 360
+
+    Settings {
+        id: layoutSettings
+        category: "WorkspaceLayout"
+        property alias leftRailWidth: window.leftRailWidth
+        property alias leftRailCollapsed: window.leftRailCollapsed
+        property alias consoleDrawerHeight: window.consoleDrawerHeight
+        property alias showConsoleDrawer: window.showConsoleDrawer
+        property alias rightPanelCollapsed: window.rightPanelCollapsed
+        property alias rightPanelWidth: window.rightPanelWidth
+    }
 
     // Compatibility shims for dialogs/menus
     property bool lightMode: !Theme.isDarkMode
@@ -50,6 +69,10 @@ ApplicationWindow {
     }
 
     Shortcut { sequence: "F12"; onActivated: window.showConsoleDrawer = !window.showConsoleDrawer }
+    Shortcut { sequence: "Ctrl+`"; onActivated: window.showConsoleDrawer = !window.showConsoleDrawer }
+    Shortcut { sequence: "Ctrl+B"; onActivated: window.leftRailCollapsed = !window.leftRailCollapsed }
+    Shortcut { sequence: "Ctrl+Alt+B"; onActivated: window.rightPanelCollapsed = !window.rightPanelCollapsed }
+    Shortcut { sequence: "F11"; onActivated: { if (window.visibility === Window.FullScreen) window.showNormal(); else window.showFullScreen(); } }
     Shortcut { sequence: "Ctrl+K"; onActivated: commandPaletteDialog.open() }
     Shortcut { sequence: "Ctrl+P"; onActivated: commandPaletteDialog.open() }
     Shortcut { sequence: "Ctrl+Z"; onActivated: if (typeof pipeline !== "undefined") pipeline.circuitUndo() }
@@ -135,22 +158,6 @@ ApplicationWindow {
                     text: window.simStatus + "  t=" + window.simTime.toFixed(2) + "s"
                     tone: window.simStatus === "Running" ? "success" : "neutral"
                 }
-
-                MonoButton {
-                    text: "Console"
-                    iconName: "info"
-                    compact: true
-                    active: window.showConsoleDrawer
-                    onClicked: window.showConsoleDrawer = !window.showConsoleDrawer
-                }
-
-                MonoButton {
-                    id: themeToggleBtn
-                    text: Theme.isDarkMode ? "Light" : "Dark"
-                    iconName: Theme.isDarkMode ? "sun" : "moon"
-                    compact: true
-                    onClicked: Theme.isDarkMode = !Theme.isDarkMode
-                }
             }
         }
 
@@ -162,30 +169,52 @@ ApplicationWindow {
 
             // Workflow Rail (Single-Project Pipeline Only — No File Explorer!)
             Rectangle {
-                Layout.preferredWidth: 184
+                id: leftRail
+                Layout.preferredWidth: window.leftRailCollapsed ? 56 : window.leftRailWidth
                 Layout.fillHeight: true
+                clip: true
                 color: Theme.bgSurface
                 border.color: Theme.borderSubtle
                 border.width: 1
 
+                Behavior on Layout.preferredWidth {
+                    NumberAnimation { duration: 180; easing.type: Easing.InOutQuad }
+                }
+
                 ColumnLayout {
                     anchors.fill: parent
-                    anchors.margins: 8
+                    anchors.margins: window.leftRailCollapsed ? 4 : 8
                     spacing: 4
 
-                    Text {
-                        text: "WORKFLOW"
-                        font.family: Theme.fontSans
-                        font.pixelSize: 10
-                        font.weight: Font.Bold
-                        color: Theme.textSubtle
-                        Layout.leftMargin: 6
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.leftMargin: window.leftRailCollapsed ? 0 : 6
                         Layout.bottomMargin: 2
+
+                        Text {
+                            visible: !window.leftRailCollapsed
+                            text: "WORKFLOW"
+                            font.family: Theme.fontSans
+                            font.pixelSize: 10
+                            font.weight: Font.Bold
+                            color: Theme.textSubtle
+                            Layout.fillWidth: true
+                        }
+
+                        MonoButton {
+                            text: window.leftRailCollapsed ? ">" : "<"
+                            compact: true
+                            variant: "ghost"
+                            Layout.preferredWidth: 24
+                            Layout.alignment: window.leftRailCollapsed ? Qt.AlignHCenter : Qt.AlignRight
+                            onClicked: window.leftRailCollapsed = !window.leftRailCollapsed
+                        }
                     }
 
                     Repeater {
                         model: window.navItems
                         delegate: Rectangle {
+                            id: navItemRect
                             Layout.fillWidth: true
                             height: 36
                             radius: Theme.radiusSm
@@ -208,16 +237,19 @@ ApplicationWindow {
 
                             RowLayout {
                                 anchors.fill: parent
-                                anchors.leftMargin: 10
-                                anchors.rightMargin: 8
-                                spacing: 10
+                                anchors.leftMargin: window.leftRailCollapsed ? 0 : 10
+                                anchors.rightMargin: window.leftRailCollapsed ? 0 : 8
+                                spacing: window.leftRailCollapsed ? 0 : 10
 
                                 ShunyaIcon {
                                     name: modelData.icon
                                     size: 16
                                     color: isCurrent ? Theme.textPrimary : Theme.textSecondary
+                                    Layout.alignment: window.leftRailCollapsed ? Qt.AlignHCenter : Qt.AlignVCenter
+                                    Layout.preferredWidth: window.leftRailCollapsed ? navItemRect.width : 16
                                 }
                                 Text {
+                                    visible: !window.leftRailCollapsed
                                     text: modelData.label
                                     Layout.fillWidth: true
                                     font.family: Theme.fontSans
@@ -228,14 +260,18 @@ ApplicationWindow {
                                     verticalAlignment: Text.AlignVCenter
                                 }
                                 Text {
+                                    visible: !window.leftRailCollapsed && (isCurrent || navMa.containsMouse)
                                     text: "Alt+" + (index + 1)
                                     font.family: Theme.fontMono
                                     font.pixelSize: 10
                                     color: Theme.textSubtle
-                                    visible: isCurrent || navMa.containsMouse
                                     verticalAlignment: Text.AlignVCenter
                                 }
                             }
+
+                            ToolTip.visible: window.leftRailCollapsed && navMa.containsMouse
+                            ToolTip.text: modelData.label + " (Alt+" + (index + 1) + ")"
+                            ToolTip.delay: 200
 
                             MouseArea {
                                 id: navMa
@@ -255,11 +291,28 @@ ApplicationWindow {
 
                     MonoButton {
                         Layout.fillWidth: true
-                        text: "Search (Ctrl+K)"
+                        text: window.leftRailCollapsed ? "" : "Search (Ctrl+K)"
                         iconName: "search"
                         compact: true
                         onClicked: commandPaletteDialog.open()
                     }
+                }
+            }
+
+            // Draggable Vertical Splitter for Left Rail
+            StudioSplitter {
+                id: leftRailSplitter
+                orientation: Qt.Vertical
+                defaultSize: 184
+                minSize: 56
+                maxSize: 360
+                visible: !window.leftRailCollapsed
+                onDragDelta: (delta) => {
+                    var nw = Math.max(minSize, Math.min(maxSize, window.leftRailWidth + delta));
+                    window.leftRailWidth = nw;
+                }
+                onResetRequested: {
+                    window.leftRailWidth = 184;
                 }
             }
 
@@ -292,11 +345,29 @@ ApplicationWindow {
                     }
                 }
 
-                // Bottom Status & Diagnostics Drawer (Toggled by F12 or Console button)
+                // Draggable Horizontal Splitter for Bottom Console Drawer
+                StudioSplitter {
+                    id: consoleSplitter
+                    orientation: Qt.Horizontal
+                    defaultSize: 150
+                    minSize: 80
+                    maxSize: Math.max(120, window.height * 0.7)
+                    visible: window.showConsoleDrawer
+                    onDragDelta: (delta) => {
+                        var nh = Math.max(minSize, Math.min(maxSize, window.consoleDrawerHeight - delta));
+                        window.consoleDrawerHeight = nh;
+                    }
+                    onResetRequested: {
+                        window.consoleDrawerHeight = 150;
+                    }
+                }
+
+                // Bottom Status & Diagnostics Drawer (Toggled by F12, Ctrl+`, or Console button)
                 Rectangle {
                     visible: window.showConsoleDrawer
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 150
+                    Layout.preferredHeight: window.consoleDrawerHeight
+                    clip: true
                     color: Theme.bgSurface
                     border.color: Theme.borderDefault
                     border.width: 1

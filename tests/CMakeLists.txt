@@ -159,6 +159,7 @@ add_executable(shunya_unit_tests
     unit/test_p5_element_inspector.cpp
     unit/test_p5_phase_filter.cpp
     unit/test_p5_layout_controls.cpp
+    unit/test_p5_splitters_sidebars.cpp
 )
 
 target_include_directories(shunya_unit_tests
