@@ -40,15 +40,17 @@ jobs:
       - name: Execute CTest Suite
         id: ctest
         run: |
-          ctest --test-dir build --output-on-failure --extra-verbose
+          ctest --test-dir build --output-on-failure --extra-verbose --output-junit junit-results.xml
 
       - name: Upload Test Failure Artifacts
         if: failure() && steps.ctest.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: ctest-failure-logs-${{ matrix.os }}
-          path: build/Testing/Temporary/
-          retention-days: 7
+          path: |
+            build/Testing/Temporary/
+            junit-results.xml
+          retention-days: 14
 
       - name: Execute Automated Benchmark Performance Gates
         run: |
