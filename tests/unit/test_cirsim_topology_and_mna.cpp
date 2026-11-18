@@ -4,6 +4,7 @@
 #include "shunya/cirsim/mna_system_builder.hpp"
 #include "shunya/cirsim/sparse_matrix.hpp"
 #include "shunya/cirsim/matrix_conditioner.hpp"
+#include "shunya/cirsim/kcl_kvl_validator.hpp"
 
 #include <cmath>
 
@@ -231,4 +232,93 @@ TEST_CASE("PH4-08.01.005: Automated Matrix Conditioning, Row Scaling & Singulari
     auto rep_sing = MatrixConditioner::condition_system(A_sing, z_sing, {"Node1", "FloatingNode"});
     REQUIRE(rep_sing.is_singular);
     REQUIRE(!rep_sing.diagnostic_messages.empty());
+}
+
+TEST_CASE("PH4-08.01.006: Comprehensive Topological Circuit Validation Tests Verifying KCL & KVL Conservation") {
+    // Construct circuit: V1 = 10V connected to R1 (1k) in series with parallel pair (R2 = 2k, R3 = 2k)
+    // Node 0: GND
+    // Node 1: NET_VCC (between V1(+) and R1)
+    // Node 2: NET_MID (between R1 and R2||R3)
+    ParsedSchematicTopology topology;
+
+    CircuitNodeInfo gnd_node;
+    gnd_node.node_index = 0;
+    gnd_node.node_name = "0";
+    gnd_node.is_ground = true;
+    topology.nodes[0] = gnd_node;
+
+    CircuitNodeInfo node1;
+    node1.node_index = 1;
+    node1.node_name = "NET_VCC";
+    topology.nodes[1] = node1;
+
+    CircuitNodeInfo node2;
+    node2.node_index = 2;
+    node2.node_name = "NET_MID";
+    topology.nodes[2] = node2;
+
+    topology.pin_to_node_map["V1:1"] = 1;
+    topology.pin_to_node_map["V1:2"] = 0;
+    topology.pin_to_node_map["R1:1"] = 1;
+    topology.pin_to_node_map["R1:2"] = 2;
+    topology.pin_to_node_map["R2:1"] = 2;
+    topology.pin_to_node_map["R2:2"] = 0;
+    topology.pin_to_node_map["R3:1"] = 2;
+    topology.pin_to_node_map["R3:2"] = 0;
+
+    std::vector<ElectricalComponent> comps;
+    ElectricalComponent v1;
+    v1.id = "V1";
+    v1.type = ElectricalComponentType::VoltageSourceDC;
+    v1.value_primary = 10.0;
+    v1.pins = {CircuitPin::make("1", "1"), CircuitPin::make("2", "0")};
+
+    ElectricalComponent r1;
+    r1.id = "R1";
+    r1.type = ElectricalComponentType::Resistor;
+    r1.value_primary = 1000.0;
+    r1.pins = {CircuitPin::make("1", "1"), CircuitPin::make("2", "2")};
+
+    ElectricalComponent r2;
+    r2.id = "R2";
+    r2.type = ElectricalComponentType::Resistor;
+    r2.value_primary = 2000.0;
+    r2.pins = {CircuitPin::make("1", "2"), CircuitPin::make("2", "0")};
+
+    ElectricalComponent r3;
+    r3.id = "R3";
+    r3.type = ElectricalComponentType::Resistor;
+    r3.value_primary = 2000.0;
+    r3.pins = {CircuitPin::make("1", "2"), CircuitPin::make("2", "0")};
+
+    comps = {v1, r1, r2, r3};
+
+    // Build MNA system and solve
+    auto mna_res = MnaSystemBuilder::build_dc_system(topology, comps);
+    REQUIRE(mna_res.is_ok());
+    auto sys = mna_res.value();
+
+    auto sol_res = sys.A.solve_lu(sys.z);
+    REQUIRE(sol_res.is_ok());
+    auto x = sol_res.value();
+
+    // Node 1: VCC = 10V
+    // Node 2: MID = 10V * (1000 / (1000 + 1000)) = 5V
+    // Total R_eq = 1k + (2k || 2k) = 2k -> I_total = 10V / 2k = 5 mA
+    REQUIRE(std::abs(x[0] - 10.0) < 1e-6);
+    REQUIRE(std::abs(x[1] - 5.0) < 1e-6);
+    REQUIRE(std::abs(x[2] - (-0.005)) < 1e-6);
+
+    std::vector<double> solved_node_voltages = {x[0], x[1]};
+    std::vector<double> solved_branch_currents = {x[2]};
+
+    auto check = KclKvlValidator::verify_conservation(
+        topology, comps, solved_node_voltages, solved_branch_currents, 1e-6, 1e-6
+    );
+
+    REQUIRE(check.kcl_conserved);
+    REQUIRE(check.kvl_conserved);
+    REQUIRE(check.max_kcl_residual_amperes < 1e-9);
+    REQUIRE(check.max_kvl_residual_volts < 1e-9);
+    REQUIRE(check.violation_reports.empty());
 }
