@@ -54,6 +54,15 @@ ApplicationWindow {
     Shortcut { sequence: "Ctrl+P"; onActivated: commandPaletteDialog.open() }
     Shortcut { sequence: "Ctrl+Z"; onActivated: if (typeof pipeline !== "undefined") pipeline.circuitUndo() }
     Shortcut { sequence: "Ctrl+Y"; onActivated: if (typeof pipeline !== "undefined") pipeline.circuitRedo() }
+    Shortcut { sequence: "Alt+1"; onActivated: if (typeof pipeline !== "undefined") pipeline.setActiveWorkspace("elements") }
+    Shortcut { sequence: "Alt+2"; onActivated: if (typeof pipeline !== "undefined") pipeline.setActiveWorkspace("mixing_lab") }
+    Shortcut { sequence: "Alt+3"; onActivated: if (typeof pipeline !== "undefined") pipeline.setActiveWorkspace("objects") }
+    Shortcut { sequence: "Alt+4"; onActivated: if (typeof pipeline !== "undefined") pipeline.setActiveWorkspace("components") }
+    Shortcut { sequence: "Alt+5"; onActivated: if (typeof pipeline !== "undefined") pipeline.setActiveWorkspace("circuits") }
+    Shortcut { sequence: "Alt+6"; onActivated: if (typeof pipeline !== "undefined") pipeline.setActiveWorkspace("editor_2d") }
+    Shortcut { sequence: "Alt+7"; onActivated: if (typeof pipeline !== "undefined") pipeline.setActiveWorkspace("editor_3d") }
+    Shortcut { sequence: "Alt+8"; onActivated: if (typeof pipeline !== "undefined") pipeline.setActiveWorkspace("simulation") }
+    Shortcut { sequence: "Alt+9"; onActivated: if (typeof pipeline !== "undefined") pipeline.setActiveWorkspace("settings") }
 
     ColumnLayout {
         anchors.fill: parent
@@ -181,21 +190,32 @@ ApplicationWindow {
                             height: 36
                             radius: Theme.radiusSm
                             readonly property bool isCurrent: (typeof pipeline !== "undefined") && pipeline.activeWorkspace === modelData.id
-                            color: isCurrent ? Theme.btnPrimaryBg : (navMa.containsMouse ? Theme.bgHover : "transparent")
+                            color: isCurrent ? Theme.bgActive : (navMa.containsMouse ? Theme.bgHover : "transparent")
                             border.width: isCurrent ? 1 : 0
-                            border.color: Theme.btnPrimaryBg
+                            border.color: isCurrent ? Theme.borderDefault : "transparent"
+
+                            // Active indicator vertical accent strip
+                            Rectangle {
+                                width: 3
+                                height: 18
+                                radius: 1.5
+                                color: Theme.textPrimary
+                                visible: isCurrent
+                                anchors.left: parent.left
+                                anchors.leftMargin: 2
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
 
                             RowLayout {
                                 anchors.fill: parent
                                 anchors.leftMargin: 10
                                 anchors.rightMargin: 8
-                                spacing: 9
+                                spacing: 10
 
                                 ShunyaIcon {
                                     name: modelData.icon
                                     size: 16
-                                    inverse: isCurrent
-                                    color: Theme.textSecondary
+                                    color: isCurrent ? Theme.textPrimary : Theme.textSecondary
                                 }
                                 Text {
                                     text: modelData.label
@@ -203,8 +223,17 @@ ApplicationWindow {
                                     font.family: Theme.fontSans
                                     font.pixelSize: Theme.fontSm
                                     font.weight: isCurrent ? Font.DemiBold : Font.Medium
-                                    color: isCurrent ? Theme.btnPrimaryFg : Theme.textSecondary
+                                    color: isCurrent ? Theme.textPrimary : Theme.textSecondary
                                     elide: Text.ElideRight
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                Text {
+                                    text: "Alt+" + (index + 1)
+                                    font.family: Theme.fontMono
+                                    font.pixelSize: 10
+                                    color: Theme.textSubtle
+                                    visible: isCurrent || navMa.containsMouse
+                                    verticalAlignment: Text.AlignVCenter
                                 }
                             }
 
