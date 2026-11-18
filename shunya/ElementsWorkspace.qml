@@ -202,7 +202,7 @@ Rectangle {
                         Layout.fillWidth: true
                         spacing: 10
                         Rectangle {
-                            width: 48; height: 48; radius: Theme.radiusMd
+                            width: 52; height: 52; radius: Theme.radiusMd
                             color: Theme.bgElevated; border.color: Theme.borderStrong; border.width: 1
                             Column {
                                 anchors.centerIn: parent
@@ -212,20 +212,63 @@ Rectangle {
                         }
                         ColumnLayout {
                             Layout.fillWidth: true
-                            spacing: 2
-                            Text {
-                                text: root.elementDetails.name || ""
-                                font.family: Theme.fontSans; font.pixelSize: Theme.fontLg; font.weight: Font.DemiBold; color: Theme.textPrimary
+                            spacing: 3
+                            RowLayout {
+                                spacing: 8
+                                Text {
+                                    text: root.elementDetails.name || ""
+                                    font.family: Theme.fontSans; font.pixelSize: Theme.fontLg; font.weight: Font.DemiBold; color: Theme.textPrimary
+                                }
+                                Text {
+                                    text: root.elementDetails.atomicMass ? Number(root.elementDetails.atomicMass).toFixed(3) + " u" : ""
+                                    font.family: Theme.fontMono; font.pixelSize: Theme.fontSm; color: Theme.textSecondary
+                                }
                             }
                             RowLayout {
                                 spacing: 6
-                                MonoBadge { text: "Phase: " + (root.behaviorReport.phase || "--"); tone: "neutral" }
+                                MonoBadge { text: "Phase: " + (root.behaviorReport.phase || root.elementDetails.phase || "--"); tone: "neutral" }
                                 MonoBadge { text: "Block " + (root.elementDetails.block || "-"); tone: "neutral" }
+                                MonoBadge { text: root.elementDetails.category || "Element"; tone: "neutral" }
                                 MonoBadge {
+                                    visible: root.behaviorReport.combustionRisk || root.behaviorReport.isSuperconducting
                                     text: root.behaviorReport.combustionRisk ? "Autoignition Risk" : (root.behaviorReport.isSuperconducting ? "Superconducting" : "Nominal")
                                     tone: root.behaviorReport.combustionRisk ? "error" : (root.behaviorReport.isSuperconducting ? "success" : "neutral")
                                 }
                             }
+                        }
+                    }
+
+                    // Key Physical Properties Card
+                    Rectangle {
+                        Layout.fillWidth: true
+                        implicitHeight: keyPropsGrid.implicitHeight + 12
+                        color: Theme.bgCanvas
+                        border.color: Theme.borderSubtle
+                        border.width: 1
+                        radius: Theme.radiusSm
+
+                        GridLayout {
+                            id: keyPropsGrid
+                            anchors.fill: parent
+                            anchors.margins: 8
+                            columns: 2
+                            columnSpacing: 10
+                            rowSpacing: 3
+
+                            Text { text: "Density (STP):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                            Text { text: root.elementDetails.density ? Number(root.elementDetails.density).toFixed(2) + " kg/m³" : "Not Measured"; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
+
+                            Text { text: "Melting Point:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                            Text { text: root.elementDetails.meltingPoint ? Number(root.elementDetails.meltingPoint).toFixed(1) + " K" : "Not Measured"; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
+
+                            Text { text: "Boiling Point:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                            Text { text: root.elementDetails.boilingPoint ? Number(root.elementDetails.boilingPoint).toFixed(1) + " K" : "Not Measured"; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
+
+                            Text { text: "Electronegativity:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                            Text { text: root.elementDetails.electronegativity ? Number(root.elementDetails.electronegativity).toFixed(2) : "Not Measured"; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
+
+                            Text { text: "Electron Config:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                            Text { text: root.elementDetails.electronConfig || "--"; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary; elide: Text.ElideRight; Layout.fillWidth: true }
                         }
                     }
 

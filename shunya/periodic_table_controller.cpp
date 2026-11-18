@@ -131,6 +131,21 @@ QVariantMap ShunyaPeriodicTableController::selectedElementDetails() const {
     m["csvSymbol"] = QString::fromStdString(rec ? rec->symbol : e->symbol);
     m["name"] = QString::fromStdString(rec ? rec->name : e->name);
     m["mass"] = rec && rec->atomic_weight ? *rec->atomic_weight : (e ? e->atomic_weight_amu : 0.0);
+    if (e) {
+        switch (e->family) {
+        case matdb::ElementFamily::AlkaliMetal: m["category"] = "Alkali Metal"; break;
+        case matdb::ElementFamily::AlkalineEarth: m["category"] = "Alkaline Earth"; break;
+        case matdb::ElementFamily::TransitionMetal: m["category"] = "Transition Metal"; break;
+        case matdb::ElementFamily::PostTransitionMetal: m["category"] = "Post-Transition Metal"; break;
+        case matdb::ElementFamily::Metalloid: m["category"] = "Metalloid"; break;
+        case matdb::ElementFamily::ReactiveNonmetal: m["category"] = "Reactive Nonmetal"; break;
+        case matdb::ElementFamily::NobleGas: m["category"] = "Noble Gas"; break;
+        case matdb::ElementFamily::Lanthanide: m["category"] = "Lanthanide"; break;
+        case matdb::ElementFamily::Actinide: m["category"] = "Actinide"; break;
+        }
+    } else {
+        m["category"] = "Unknown";
+    }
     m["electronConfig"] = QString::fromStdString(
         rec && !rec->electron_configuration_iupac.empty() ? rec->electron_configuration_iupac
         : (e ? e->electron_configuration : ""));

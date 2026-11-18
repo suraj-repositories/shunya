@@ -1,6 +1,7 @@
 #include "pipeline_controller.hpp"
 #include "oscilloscope_controller.hpp"
 #include "viewport_3d_item.hpp"
+#include "shunya/matdb/elements_118_catalog.hpp"
 
 #include <QFileInfo>
 #include <QUrl>
@@ -227,24 +228,53 @@ QVariantList ShunyaPipelineController::queryElements(
 QVariantMap ShunyaPipelineController::getElementDetails(int atomicNumber) const {
     QVariantMap res;
     const auto* r = ws_->element_database().find_by_z(atomicNumber);
-    if (!r) return res;
+    const auto* cat = matdb::Elements118Catalog::find_by_z(atomicNumber);
+    if (!r && !cat) return res;
 
-    res["atomicNumber"] = r->atomic_number;
-    res["symbol"] = QString::fromStdString(r->symbol);
-    res["iupacSymbol"] = QString::fromStdString(r->iupac_symbol);
-    res["name"] = QString::fromStdString(r->name);
-    res["phase"] = QString::fromStdString(r->phase);
-    res["block"] = QString::fromStdString(r->block);
-    res["notes"] = strVecToList(r->normalization_notes);
+    int z = r ? r->atomic_number : (cat ? cat->atomic_number : atomicNumber);
+    res["atomicNumber"] = z;
+    res["symbol"] = QString::fromStdString(r ? r->symbol : cat->symbol);
+    res["iupacSymbol"] = QString::fromStdString(r ? (r->iupac_symbol.empty() ? r->symbol : r->iupac_symbol) : cat->symbol);
+    res["name"] = QString::fromStdString(r ? r->name : cat->name);
+    res["phase"] = QString::fromStdString(r ? r->phase : (cat->standard_state == matdb::StandardPhase::Gas ? "Gas" : cat->standard_state == matdb::StandardPhase::Liquid ? "Liquid" : "Solid"));
+    res["block"] = QString::fromStdString(r ? r->block : std::string(1, cat->block));
+    res["notes"] = r ? strVecToList(r->normalization_notes) : QVariantList{};
+
+    // Category and electron configuration
+    if (cat) {
+        res["atomicMass"] = (r && r->atomic_weight) ? *r->atomic_weight : cat->atomic_weight_amu;
+        res["electronConfig"] = QString::fromStdString((r && !r->electron_configuration_iupac.empty()) ? r->electron_configuration_iupac : cat->electron_configuration);
+        switch (cat->family) {
+        case matdb::ElementFamily::AlkaliMetal: res["category"] = "Alkali Metal"; break;
+        case matdb::ElementFamily::AlkalineEarth: res["category"] = "Alkaline Earth"; break;
+        case matdb::ElementFamily::TransitionMetal: res["category"] = "Transition Metal"; break;
+        case matdb::ElementFamily::PostTransitionMetal: res["category"] = "Post-Transition Metal"; break;
+        case matdb::ElementFamily::Metalloid: res["category"] = "Metalloid"; break;
+        case matdb::ElementFamily::ReactiveNonmetal: res["category"] = "Reactive Nonmetal"; break;
+        case matdb::ElementFamily::NobleGas: res["category"] = "Noble Gas"; break;
+        case matdb::ElementFamily::Lanthanide: res["category"] = "Lanthanide"; break;
+        case matdb::ElementFamily::Actinide: res["category"] = "Actinide"; break;
+        }
+    } else if (r) {
+        res["atomicMass"] = r->atomic_weight.value_or(0.0);
+        res["electronConfig"] = QString::fromStdString(r->electron_configuration_iupac);
+        res["category"] = "Unknown";
+    }
+
+    if (r) {
+        if (r->density) res["density"] = *r->density;
+        if (r->melting_point) res["meltingPoint"] = *r->melting_point;
+        if (r->boiling_point) res["boilingPoint"] = *r->boiling_point;
+        if (r->electronegativity) res["electronegativity"] = *r->electronegativity;
+    }
 
     QVariantList cols;
     for (const auto& col : ws_->element_database().csv_columns()) {
         QVariantMap item;
         item["column"] = QString::fromStdString(col);
-        auto it = r->raw_csv_fields.find(col);
-        const std::string raw = (it != r->raw_csv_fields.end()) ? it->second : "";
+        const std::string raw = (r && r->raw_csv_fields.count(col)) ? r->raw_csv_fields.at(col) : "";
         item["rawValue"] = raw.empty() ? QStringLiteral("--") : QString::fromStdString(raw);
-        item["provenance"] = QString::fromStdString(std::string(matdb::provenance_to_string(r->provenance_of(col))));
+        item["provenance"] = QString::fromStdString(std::string(matdb::provenance_to_string(r ? r->provenance_of(col) : matdb::PropertyProvenance::MissingUnsupported)));
         cols.append(item);
     }
     res["allProperties"] = cols;

@@ -15,11 +15,11 @@ Rectangle {
 
     signal cellClicked(int atomicNumber)
 
-    radius: 4
+    radius: Theme.radiusSm
     color: cellColor
     opacity: isHighlighted ? 1.0 : 0.25
-    border.width: isSelected ? 2 : 1
-    border.color: isSelected ? "#ffffff" : "#1e293b"
+    border.width: isSelected ? 2 : (ma.containsMouse ? 2 : 1)
+    border.color: isSelected ? Theme.borderFocus : (ma.containsMouse ? Theme.borderStrong : Theme.borderSubtle)
 
     Column {
         anchors.fill: parent
@@ -28,19 +28,22 @@ Rectangle {
 
         Text {
             text: root.atomicNumber.toString()
-            color: "#e2e8f0"
+            color: Theme.textSecondary
+            font.family: Theme.fontMono
             font.pixelSize: 9
         }
         Text {
             text: root.symbol
-            color: "#ffffff"
+            color: Theme.textPrimary
+            font.family: Theme.fontSans
             font.pixelSize: 15
             font.bold: true
             anchors.horizontalCenter: parent.horizontalCenter
         }
         Text {
             text: root.elementName
-            color: "#cbd5e1"
+            color: Theme.textMuted
+            font.family: Theme.fontSans
             font.pixelSize: 8
             elide: Text.ElideRight
             width: parent.width

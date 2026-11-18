@@ -21,9 +21,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 440 | 97.3% |
+| `[ ]` | Not Started | 426 | 94.2% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 12 | 2.7% |
+| `[x]` | Completed | 26 | 5.8% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -34,7 +34,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 |:---:|---|---|:---:|:---:|:---:|:---:|:---:|
 | **TRACK 1** | **STUDIO & ELEMENTS** | **Desktop Shell, Elements Workspace & Visual Identity** | | | | | |
 | 1 | `ELEMDB` | Periodic Table Database Loader, Path Resolution & Robust Ingestion | P0 | 12 | 12 | 100.0% | `[x]` |
-| 2 | `ELEMINSP` | Element Click Binding, Default Selection & Reactive Inspector | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 2 | `ELEMINSP` | Element Click Binding, Default Selection & Reactive Inspector | P0 | 14 | 14 | 100.0% | `[x]` |
 | 3 | `ELEMVIEW` | Phase Filtering, Table/Grid Views & Real-Time Multi-Field Search | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 4 | `ELEMLAYOUT` | Responsive Right Panel, Slider Alignment & Anti-Clipping Layout | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 5 | `THEMEDLG` | Theme-Compliant Form Controls (Comboboxes, Selects & Checkboxes) | P0 | 12 | 0 | 0.0% | `[ ]` |
@@ -68,7 +68,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
 | 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **12** | **2.7%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **26** | **5.8%** | `[~]` |
 
 ---
 
@@ -359,25 +359,25 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-02: Element Click Binding, Default Selection & Reactive Inspector (`ELEMINSP`)
 
 **Objective:** Wire periodic table cell click events to immediately populate the right-hand details panel with comprehensive physical, thermodynamic, and behavioral properties, defaulting to Hydrogen ($Z=1$) on startup.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-02.01: Default Selection on Cold Start & State Management [ ] (0.0% — 7/7)
-- [ ] `PH5-02.01.001`: Update `shunya/ElementsWorkspace.qml` property `selectedZ` default value from 3 (Lithium) to 1 (Hydrogen) to ensure a standard starting state.
-- [ ] `PH5-02.01.002`: Add reactive state tracking for `selectedElement` ensuring synchronization across periodic grid, sortable table, and inspector.
-- [ ] `PH5-02.01.003`: Ensure `Component.onCompleted` in `ElementsWorkspace.qml` triggers `refreshAll()` after pipeline controllers are fully bound.
-- [ ] `PH5-02.01.004`: Update `ElementCell.qml` to bind `isSelected: root.atomicNumber === parentSelectedZ`.
-- [ ] `PH5-02.01.005`: Render a prominent selection highlight border or focus ring (`border.width: 2`, `border.color: Theme.borderFocus`) around the active element cell.
-- [ ] `PH5-02.01.006`: Guarantee that keyboard navigation (Arrow keys) moves the active selection across the periodic table grid.
-- [ ] `PH5-02.01.007`: Verify that clicking any element cell updates `selectedZ` without resetting user-adjusted temperature or pressure sliders.
+### Submodule PH5-02.01: Default Selection on Cold Start & State Management [x] (100.0% — 7/7)
+- [x] `PH5-02.01.001`: Update `shunya/ElementsWorkspace.qml` property `selectedZ` default value from 3 (Lithium) to 1 (Hydrogen) to ensure a standard starting state.
+- [x] `PH5-02.01.002`: Add reactive state tracking for `selectedElement` ensuring synchronization across periodic grid, sortable table, and inspector.
+- [x] `PH5-02.01.003`: Ensure `Component.onCompleted` in `ElementsWorkspace.qml` triggers `refreshAll()` after pipeline controllers are fully bound.
+- [x] `PH5-02.01.004`: Update `ElementCell.qml` to bind `isSelected: root.atomicNumber === parentSelectedZ`.
+- [x] `PH5-02.01.005`: Render a prominent selection highlight border or focus ring (`border.width: 2`, `border.color: Theme.borderFocus`) around the active element cell.
+- [x] `PH5-02.01.006`: Guarantee that keyboard navigation (Arrow keys) moves the active selection across the periodic table grid.
+- [x] `PH5-02.01.007`: Verify that clicking any element cell updates `selectedZ` without resetting user-adjusted temperature or pressure sliders.
 
-### Submodule PH5-02.02: Comprehensive Right Inspector Data Binding & Fallbacks [ ] (0.0% — 7/7)
-- [ ] `PH5-02.02.001`: Bind the right panel header swatch to show symbol, full name, atomic number ($Z$), and atomic mass (e.g., `1.008 u`).
-- [ ] `PH5-02.02.002`: Populate categorical badges: Phase badge (`Gas`, `Liquid`, `Solid`), Block badge (`s`, `p`, `d`, `f`), and Chemical Category badge (`Nonmetal`, `Alkali Metal`, `Noble Gas`, etc.).
-- [ ] `PH5-02.02.003`: Bind dynamic *"Natural Element Behavior at T & P"* metrics: Density $\rho(T, P)$, Electrical conductivity $\sigma(T)$, Reactivity class, and Magnetic state to the selected element.
-- [ ] `PH5-02.02.004`: Populate the complete 82-property table model from `elements.csv` displaying property name, raw value, unit, and data provenance badge.
-- [ ] `PH5-02.02.005`: Replace placeholder `"--"` and `"-/-"` with scientific fallback indicators (`"Not Measured"`, `"Theoretical Limit"`, or `"Unsupported"`) only when values are genuinely absent in NIST/CRC records.
-- [ ] `PH5-02.02.006`: Implement autoignition and superconductivity warnings that trigger based on dynamic $(T, P)$ thresholds for the selected element.
-- [ ] `PH5-02.02.007`: Create automated UI regression test verifying that clicking Gold ($Z=79$), Oxygen ($Z=8$), and Uranium ($Z=92$) accurately populates their respective property lists.
+### Submodule PH5-02.02: Comprehensive Right Inspector Data Binding & Fallbacks [x] (100.0% — 7/7)
+- [x] `PH5-02.02.001`: Bind the right panel header swatch to show symbol, full name, atomic number ($Z$), and atomic mass (e.g., `1.008 u`).
+- [x] `PH5-02.02.002`: Populate categorical badges: Phase badge (`Gas`, `Liquid`, `Solid`), Block badge (`s`, `p`, `d`, `f`), and Chemical Category badge (`Nonmetal`, `Alkali Metal`, `Noble Gas`, etc.).
+- [x] `PH5-02.02.003`: Bind dynamic *"Natural Element Behavior at T & P"* metrics: Density $\rho(T, P)$, Electrical conductivity $\sigma(T)$, Reactivity class, and Magnetic state to the selected element.
+- [x] `PH5-02.02.004`: Populate the complete 82-property table model from `elements.csv` displaying property name, raw value, unit, and data provenance badge.
+- [x] `PH5-02.02.005`: Replace placeholder `"--"` and `"-/-"` with scientific fallback indicators (`"Not Measured"`, `"Theoretical Limit"`, or `"Unsupported"`) only when values are genuinely absent in NIST/CRC records.
+- [x] `PH5-02.02.006`: Implement autoignition and superconductivity warnings that trigger based on dynamic $(T, P)$ thresholds for the selected element.
+- [x] `PH5-02.02.007`: Create automated UI regression test verifying that clicking Gold ($Z=79$), Oxygen ($Z=8$), and Uranium ($Z=92$) accurately populates their respective property lists.
 
 ---
 
