@@ -203,6 +203,60 @@ SchematicSymbol2D SchematicSymbolSynthesizer::synthesize_symbol(
             };
             break;
         }
+        case eng::ComponentKind::LDR: {
+            sym.symbol_id = "SYM_LDR_" + sym.standard;
+            sym.primitive_shape = "ldr_resistor_arrows";
+            sym.bounding_box_size = {30.0, 15.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "1", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {-15.0, 0.0}, {-1.0, 0.0}},
+                SchematicSymbolPin{"2", 2, "2", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {15.0, 0.0}, {1.0, 0.0}}
+            };
+            break;
+        }
+        case eng::ComponentKind::ThermistorNTC: {
+            sym.symbol_id = "SYM_NTC_" + sym.standard;
+            sym.primitive_shape = "ntc_thermistor_stepline";
+            sym.bounding_box_size = {30.0, 15.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "1", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {-15.0, 0.0}, {-1.0, 0.0}},
+                SchematicSymbolPin{"2", 2, "2", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {15.0, 0.0}, {1.0, 0.0}}
+            };
+            break;
+        }
+        case eng::ComponentKind::PiezoBuzzer: {
+            sym.symbol_id = "SYM_BUZZER";
+            sym.primitive_shape = "piezo_buzzer_cylinder";
+            sym.bounding_box_size = {25.0, 20.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "+", core::domain::ElectricalPinPolarity::Positive, {-12.5, 0.0}, {-1.0, 0.0}},
+                SchematicSymbolPin{"2", 2, "-", core::domain::ElectricalPinPolarity::Negative, {12.5, 0.0}, {1.0, 0.0}}
+            };
+            break;
+        }
+        case eng::ComponentKind::Motor:
+        case eng::ComponentKind::DCMotor: {
+            sym.symbol_id = "SYM_DC_MOTOR";
+            sym.primitive_shape = "motor_circle_m";
+            sym.bounding_box_size = {30.0, 30.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "+", core::domain::ElectricalPinPolarity::Positive, {-15.0, 0.0}, {-1.0, 0.0}},
+                SchematicSymbolPin{"2", 2, "-", core::domain::ElectricalPinPolarity::Negative, {15.0, 0.0}, {1.0, 0.0}}
+            };
+            break;
+        }
+        case eng::ComponentKind::OpAmp: {
+            sym.symbol_id = "SYM_OPAMP_5PIN";
+            sym.primitive_shape = "opamp_triangle";
+            sym.bounding_box_size = {35.0, 30.0};
+            sym.pins = {
+                SchematicSymbolPin{"1", 1, "IN-", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {-17.5, 7.5}, {-1.0, 0.0}},
+                SchematicSymbolPin{"2", 2, "IN+", core::domain::ElectricalPinPolarity::PassiveBiDirectional, {-17.5, -7.5}, {-1.0, 0.0}},
+                SchematicSymbolPin{"3", 3, "OUT", core::domain::ElectricalPinPolarity::Positive, {17.5, 0.0}, {1.0, 0.0}},
+                SchematicSymbolPin{"4", 4, "V+", core::domain::ElectricalPinPolarity::Positive, {0.0, 15.0}, {0.0, 1.0}},
+                SchematicSymbolPin{"5", 5, "V-", core::domain::ElectricalPinPolarity::Negative, {0.0, -15.0}, {0.0, -1.0}}
+            };
+            break;
+        }
         default: {
             sym.symbol_id = "SYM_GENERIC_" + std::to_string(pin_count);
             sym.primitive_shape = "ic_box";

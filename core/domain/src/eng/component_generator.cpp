@@ -88,6 +88,11 @@ core::base::Result<ComponentKind> component_kind_from_string(std::string_view s)
     if (s == "ACVoltageSource") return ComponentKind::ACVoltageSource;
     if (s == "GroundReference") return ComponentKind::GroundReference;
     if (s == "Fuse") return ComponentKind::Fuse;
+    if (s == "LDR") return ComponentKind::LDR;
+    if (s == "ThermistorNTC") return ComponentKind::ThermistorNTC;
+    if (s == "PiezoBuzzer") return ComponentKind::PiezoBuzzer;
+    if (s == "DCMotor") return ComponentKind::DCMotor;
+    if (s == "OpAmp") return ComponentKind::OpAmp;
     return make_cmp_error(4401, "Unknown ComponentKind: " + std::string(s));
 }
 
@@ -300,6 +305,41 @@ DerivedComponentSpecs ComponentGenerator::qualify_and_derive(
         out.series_resistance_ohm = 0.05;
         out.max_current_a = 2.0;
         out.max_voltage_v = 250.0;
+        break;
+    }
+    case ComponentKind::LDR: {
+        out.primary_value = 10000.0;
+        out.series_resistance_ohm = 100.0;
+        out.max_current_a = 0.05;
+        out.max_voltage_v = 100.0;
+        break;
+    }
+    case ComponentKind::ThermistorNTC: {
+        out.primary_value = 10000.0;
+        out.series_resistance_ohm = 100.0;
+        out.max_current_a = 0.05;
+        out.max_voltage_v = 50.0;
+        break;
+    }
+    case ComponentKind::PiezoBuzzer: {
+        out.primary_value = 4000.0;
+        out.series_resistance_ohm = 16.0;
+        out.max_current_a = 0.03;
+        out.max_voltage_v = 30.0;
+        break;
+    }
+    case ComponentKind::DCMotor: {
+        out.primary_value = std::max(0.1, p.effective_electrical_resistivity_ohm_m * (len * std::max(1, cfg.coil_turns) / area));
+        out.series_resistance_ohm = out.primary_value;
+        out.max_current_a = std::sqrt(out.max_power_w / std::max(1e-6, out.series_resistance_ohm));
+        out.max_voltage_v = 24.0;
+        break;
+    }
+    case ComponentKind::OpAmp: {
+        out.primary_value = 1.0e5;
+        out.series_resistance_ohm = 50.0;
+        out.max_current_a = 0.04;
+        out.max_voltage_v = 36.0;
         break;
     }
     }

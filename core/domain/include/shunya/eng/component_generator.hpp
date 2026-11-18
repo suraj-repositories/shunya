@@ -39,7 +39,12 @@ enum class ComponentKind : uint8_t {
     DCVoltageSource,
     ACVoltageSource,
     GroundReference,
-    Fuse
+    Fuse,
+    LDR,
+    ThermistorNTC,
+    PiezoBuzzer,
+    DCMotor,
+    OpAmp
 };
 
 [[nodiscard]] constexpr std::string_view component_kind_to_string(ComponentKind k) noexcept {
@@ -69,6 +74,11 @@ enum class ComponentKind : uint8_t {
     case ComponentKind::ACVoltageSource:return "ACVoltageSource";
     case ComponentKind::GroundReference:return "GroundReference";
     case ComponentKind::Fuse:           return "Fuse";
+    case ComponentKind::LDR:            return "LDR";
+    case ComponentKind::ThermistorNTC:  return "ThermistorNTC";
+    case ComponentKind::PiezoBuzzer:    return "PiezoBuzzer";
+    case ComponentKind::DCMotor:        return "DCMotor";
+    case ComponentKind::OpAmp:          return "OpAmp";
     }
     return "Resistor";
 }

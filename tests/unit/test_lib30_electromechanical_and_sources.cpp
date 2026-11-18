@@ -2,6 +2,7 @@
 
 #include "shunya/lib30/electromechanical_components.hpp"
 #include "shunya/lib30/power_sources_components.hpp"
+#include "shunya/lib30/ic_actuator_components.hpp"
 #include "shunya/eng/component_generator.hpp"
 
 #include <cmath>
@@ -171,4 +172,129 @@ TEST_CASE("PH4-07.05.005: Component 25 - Fast-Acting Fuse (Over-current Joule he
     // Overcurrent (5.0 A): Exceeds rating (blowout trigger)
     double i_over = 5.0;
     REQUIRE(i_over > fuse.specs.max_current_a);
+}
+
+TEST_CASE("PH4-07.05.006: Component 26 - Light Dependent Resistor (Illumination vs Resistance curve)") {
+    auto ldr = PowerSourcesProtectionFactory::create_ldr(1e6, 10000.0, 1.0);
+
+    REQUIRE(ldr.kind == ComponentKind::LDR);
+    REQUIRE(ldr.specs.nominal_primary_value == 10000.0);
+    REQUIRE(ldr.specs.max_voltage_v == 100.0);
+    REQUIRE(ldr.specs.max_power_dissipation_w == 0.10);
+    REQUIRE(ldr.terminals.size() == 2);
+    REQUIRE(ldr.symbol_2d.pins.size() == 2);
+
+    // Dark resistance: 1 MOhm
+    double r_dark = PowerSourcesProtectionFactory::evaluate_ldr_resistance(10000.0, 1.0, 0.0);
+    REQUIRE(std::abs(r_dark - 1.0e6) < 1e-3);
+
+    // 10 lux standard illumination: 10 kOhm
+    double r_10lux = PowerSourcesProtectionFactory::evaluate_ldr_resistance(10000.0, 1.0, 10.0);
+    REQUIRE(std::abs(r_10lux - 10000.0) < 1e-3);
+
+    // 1000 lux bright daylight: 100 Ohm
+    double r_1000lux = PowerSourcesProtectionFactory::evaluate_ldr_resistance(10000.0, 1.0, 1000.0);
+    REQUIRE(std::abs(r_1000lux - 100.0) < 1e-3);
+
+    // Dynamic response check: resistance drops monotonically with increasing illumination
+    REQUIRE(r_dark > r_10lux);
+    REQUIRE(r_10lux > r_1000lux);
+}
+
+TEST_CASE("PH4-07.05.007: Component 27 - NTC Thermistor (Steinhart-Hart / Beta equation temperature response)") {
+    auto ntc = PowerSourcesProtectionFactory::create_ntc_thermistor(10000.0, 3950.0, 298.15);
+
+    REQUIRE(ntc.kind == ComponentKind::ThermistorNTC);
+    REQUIRE(ntc.specs.nominal_primary_value == 10000.0);
+    REQUIRE(ntc.specs.max_voltage_v == 50.0);
+    REQUIRE(ntc.specs.max_power_dissipation_w == 0.25);
+    REQUIRE(ntc.terminals.size() == 2);
+    REQUIRE(ntc.symbol_2d.pins.size() == 2);
+
+    // At 25 deg C (298.15 K): nominal 10 kOhm
+    double r_25c = PowerSourcesProtectionFactory::evaluate_ntc_resistance(10000.0, 3950.0, 298.15, 298.15);
+    REQUIRE(std::abs(r_25c - 10000.0) < 1e-3);
+
+    // At 100 deg C (373.15 K): drops below 1 kOhm (~674.5 Ohm)
+    double r_100c = PowerSourcesProtectionFactory::evaluate_ntc_resistance(10000.0, 3950.0, 298.15, 373.15);
+    REQUIRE(r_100c < 1000.0);
+    REQUIRE(r_100c > 500.0);
+    REQUIRE(r_100c < r_25c); // Negative temperature coefficient
+
+    // Bridge circuit temperature sensing: 5V divider with 10k fixed resistor
+    double v_supply = 5.0;
+    double r_ref = 10000.0;
+    double v_out_25c = v_supply * (r_25c / (r_ref + r_25c));
+    REQUIRE(std::abs(v_out_25c - 2.50) < 1e-3); // Exactly half supply at 25C
+}
+
+TEST_CASE("PH4-07.06.001: Component 28 - Piezoelectric Buzzer (Acoustic resonance and decibel output)") {
+    auto buz = ActuatorsTransducersFactory::create_piezo_buzzer(4000.0, 12.0, 85.0);
+
+    REQUIRE(buz.kind == ComponentKind::PiezoBuzzer);
+    REQUIRE(buz.specs.nominal_primary_value == 4000.0);
+    REQUIRE(buz.specs.max_voltage_v == 18.0);
+    REQUIRE(buz.specs.max_current_a == 0.030);
+    REQUIRE(buz.terminals.size() == 2);
+    REQUIRE(buz.symbol_2d.pins.size() == 2);
+
+    // Rated frequency and voltage generates ~85 dB
+    double spl_res = ActuatorsTransducersFactory::evaluate_spl_output(12.0, 12.0, 4000.0, 4000.0);
+    REQUIRE(std::abs(spl_res - 85.0) < 1e-2);
+
+    // Off-resonance frequency (e.g. 2000 Hz) experiences Q roll-off
+    double spl_off = ActuatorsTransducersFactory::evaluate_spl_output(12.0, 12.0, 4000.0, 2000.0);
+    REQUIRE(spl_off < spl_res);
+
+    // Zero voltage generates 0 dB
+    double spl_zero = ActuatorsTransducersFactory::evaluate_spl_output(0.0, 12.0, 4000.0, 4000.0);
+    REQUIRE(spl_zero == 0.0);
+}
+
+TEST_CASE("PH4-07.06.002: Component 29 - DC Permanent Magnet Motor (Armature torque and speed)") {
+    auto motor = ActuatorsTransducersFactory::create_dc_motor(12.0, 1.5, 1.2e-3, 0.025, 0.025);
+
+    REQUIRE(motor.kind == ComponentKind::DCMotor);
+    REQUIRE(motor.specs.nominal_primary_value == 12.0);
+    REQUIRE(motor.specs.max_voltage_v == 18.0);
+    REQUIRE(motor.terminals.size() == 2);
+    REQUIRE(motor.symbol_2d.pins.size() == 2);
+
+    // Stall torque: tau = Kt * (V / Ra) = 0.025 * (12.0 / 1.5) = 0.025 * 8.0 = 0.20 N*m
+    double tau_stall = ActuatorsTransducersFactory::calculate_motor_stall_torque(12.0, 1.5, 0.025);
+    REQUIRE(std::abs(tau_stall - 0.20) < 1e-6);
+
+    // No-load speed: omega = V / Ke = 12.0 / 0.025 = 480 rad/s (~4583.6 RPM)
+    double omega_no_load = ActuatorsTransducersFactory::calculate_motor_no_load_speed_rad_s(12.0, 0.025);
+    REQUIRE(std::abs(omega_no_load - 480.0) < 1e-6);
+
+    // Voltage reversal reverses rotation direction
+    double tau_rev = ActuatorsTransducersFactory::calculate_motor_stall_torque(-12.0, 1.5, 0.025);
+    REQUIRE(std::abs(tau_rev - (-0.20)) < 1e-6);
+}
+
+TEST_CASE("PH4-07.06.003: Component 30 - Operational Amplifier (LM741 differential gain and rail clamping)") {
+    auto opamp = ActuatorsTransducersFactory::create_opamp(1e5, 2e6, 75.0, 15.0, -15.0);
+
+    REQUIRE(opamp.kind == ComponentKind::OpAmp);
+    REQUIRE(opamp.specs.nominal_primary_value == 1e5);
+    REQUIRE(opamp.specs.max_voltage_v == 30.0);
+    REQUIRE(opamp.terminals.size() == 5);
+    REQUIRE(opamp.symbol_2d.pins.size() == 5);
+
+    // Linear region: Vdiff = 50 uV -> Vout = 1e5 * 50e-6 = 5.0 V
+    double v_out_lin = ActuatorsTransducersFactory::evaluate_opamp_output(50e-6, 0.0, 1e5, 15.0, -15.0);
+    REQUIRE(std::abs(v_out_lin - 5.0) < 1e-3);
+
+    // Positive saturation clamp at +15V
+    double v_out_pos_sat = ActuatorsTransducersFactory::evaluate_opamp_output(1.0, 0.0, 1e5, 15.0, -15.0);
+    REQUIRE(std::abs(v_out_pos_sat - 15.0) < 1e-6);
+
+    // Negative saturation clamp at -15V
+    double v_out_neg_sat = ActuatorsTransducersFactory::evaluate_opamp_output(0.0, 1.0, 1e5, 15.0, -15.0);
+    REQUIRE(std::abs(v_out_neg_sat - (-15.0)) < 1e-6);
+
+    // Common-mode rejection: Vpos = Vneg = 2.5V -> Vout = 0.0V
+    double v_out_cm = ActuatorsTransducersFactory::evaluate_opamp_output(2.5, 2.5, 1e5, 15.0, -15.0);
+    REQUIRE(std::abs(v_out_cm - 0.0) < 1e-6);
 }

@@ -56,6 +56,39 @@ public:
         double max_voltage_volts = 250.0,
         std::string_view standard = "IEEE"
     );
+
+    /**
+     * @brief Component 26: Light Dependent Resistor (LDR / Photoresistor) (Roadmap task PH4-07.05.006)
+     */
+    [[nodiscard]] static ecad3d::ComponentManifest create_ldr(
+        double r_dark_ohms = 1e6,
+        double r10_lux_ohms = 10000.0,
+        double gamma = 1.0,
+        std::string_view standard = "IEEE"
+    );
+
+    [[nodiscard]] static double evaluate_ldr_resistance(
+        double r10_lux_ohms,
+        double gamma,
+        double lux
+    ) noexcept;
+
+    /**
+     * @brief Component 27: NTC Thermistor (Roadmap task PH4-07.05.007)
+     */
+    [[nodiscard]] static ecad3d::ComponentManifest create_ntc_thermistor(
+        double r0_ohms = 10000.0,
+        double beta_k = 3950.0,
+        double t0_k = 298.15,
+        std::string_view standard = "IEEE"
+    );
+
+    [[nodiscard]] static double evaluate_ntc_resistance(
+        double r0_ohms,
+        double beta_k,
+        double t0_k,
+        double t_kelvin
+    ) noexcept;
 };
 
 } // namespace shunya::lib30
