@@ -1,13 +1,24 @@
 #include "shunya/matdb/element_database.hpp"
 
 #include "shunya/matdb/elements_118_catalog.hpp"
+#include "shunya/matdb/embedded_elements_csv.hpp"
 
 #include <algorithm>
 #include <cctype>
 #include <charconv>
 #include <cmath>
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
+
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#elif defined(__linux__)
+#include <unistd.h>
+#endif
 
 namespace shunya::matdb {
 
@@ -208,24 +219,96 @@ core::base::Result<void> ElementDatabase::load_from_csv(const std::filesystem::p
     return res;
 }
 
+namespace {
+
+#if defined(_WIN32)
+std::filesystem::path get_process_dir() {
+    wchar_t buf[MAX_PATH];
+    DWORD len = GetModuleFileNameW(NULL, buf, MAX_PATH);
+    if (len > 0) {
+        return std::filesystem::path(buf).parent_path();
+    }
+    return {};
+}
+#elif defined(__linux__)
+std::filesystem::path get_process_dir() {
+    char buf[1024];
+    ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+    if (len > 0) {
+        buf[len] = '\0';
+        return std::filesystem::path(buf).parent_path();
+    }
+    return {};
+}
+#else
+std::filesystem::path get_process_dir() { return {}; }
+#endif
+
+} // namespace
+
 core::base::Result<void> ElementDatabase::load_default() {
-    std::vector<std::filesystem::path> candidates = {
-        std::filesystem::path(R"(C:\Users\Shubham\Desktop\test\chemistry\elements.csv)"),
-        std::filesystem::current_path() / "data" / "elements.csv",
-        std::filesystem::current_path() / ".." / "data" / "elements.csv",
-        std::filesystem::current_path() / ".." / ".." / "data" / "elements.csv"
-    };
+    std::vector<std::filesystem::path> candidates;
+
+    // Tier 1: Environment variables
+    if (const char* env_dir = std::getenv("SHUNYA_DATA_DIR")) {
+        candidates.push_back(std::filesystem::path(env_dir) / "elements.csv");
+        candidates.push_back(std::filesystem::path(env_dir) / "data" / "elements.csv");
+    }
+    if (const char* env_root = std::getenv("SHUNYA_ROOT_DIR")) {
+        candidates.push_back(std::filesystem::path(env_root) / "data" / "elements.csv");
+    }
+
+    // Tier 2: Executable directory and parent traverses
+    const auto exe_dir = get_process_dir();
+    if (!exe_dir.empty()) {
+        candidates.push_back(exe_dir / "elements.csv");
+        candidates.push_back(exe_dir / "data" / "elements.csv");
+        candidates.push_back(exe_dir / ".." / "data" / "elements.csv");
+        candidates.push_back(exe_dir / ".." / ".." / "data" / "elements.csv");
+        candidates.push_back(exe_dir / ".." / ".." / ".." / "data" / "elements.csv");
+        candidates.push_back(exe_dir / ".." / ".." / ".." / ".." / "data" / "elements.csv");
+    }
+
+    // Tier 3: Working directory and parent traverses
+    std::error_code cwd_ec;
+    const auto cwd = std::filesystem::current_path(cwd_ec);
+    if (!cwd_ec && !cwd.empty()) {
+        candidates.push_back(cwd / "elements.csv");
+        candidates.push_back(cwd / "data" / "elements.csv");
+        candidates.push_back(cwd / ".." / "data" / "elements.csv");
+        candidates.push_back(cwd / ".." / ".." / "data" / "elements.csv");
+        candidates.push_back(cwd / ".." / ".." / ".." / "data" / "elements.csv");
+        candidates.push_back(cwd / ".." / ".." / ".." / ".." / "data" / "elements.csv");
+    }
+
+    // Tier 4: CMake build-time source directory
 #ifdef SHUNYA_SOURCE_DIR
     candidates.push_back(std::filesystem::path(SHUNYA_SOURCE_DIR) / "data" / "elements.csv");
 #endif
+
+    // Tier 5: Canonical absolute workspace fallbacks
+    candidates.push_back(std::filesystem::path(R"(C:\Users\Shubham\Desktop\_Attempts_\shunya\data\elements.csv)"));
+    candidates.push_back(std::filesystem::path(R"(C:\Users\Shubham\Desktop\test\chemistry\elements.csv)"));
+
+    // Attempt loading from filesystem candidates
     for (const auto& p : candidates) {
         std::error_code ec;
         if (std::filesystem::exists(p, ec) && std::filesystem::is_regular_file(p, ec)) {
             auto res = load_from_csv(p);
-            if (res.is_ok()) return res;
+            if (res.is_ok() && count() >= 118) {
+                return res;
+            }
         }
     }
-    return make_csv_error(4102, "No valid elements.csv file found in default search paths");
+
+    // Tier 6: Compile-time embedded resource fallback (guaranteed never empty)
+    auto emb_res = load_from_csv_text(kEmbeddedElementsCsv, "embedded:data/elements.csv");
+    if (emb_res.is_ok()) {
+        source_path_ = "embedded:data/elements.csv";
+        return emb_res;
+    }
+
+    return make_csv_error(4102, "No valid elements.csv found in search paths, and embedded fallback failed");
 }
 
 core::base::Result<void> ElementDatabase::load_from_csv_text(std::string_view csv_text, std::string source_label) {

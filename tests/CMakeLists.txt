@@ -155,6 +155,7 @@ add_executable(shunya_unit_tests
     unit/test_p3_physics_and_persistence.cpp
     unit/test_p3_e2e_battery_workflow.cpp
     unit/test_p3_stress_and_edge_cases.cpp
+    unit/test_p5_elements_indexing.cpp
 )
 
 target_include_directories(shunya_unit_tests

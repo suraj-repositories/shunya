@@ -22,8 +22,8 @@ ShunyaStudioController::ShunyaStudioController(QObject* parent)
     opts.worker_threads = 4;
     (void)ctx.initialize(opts);
 
-    // Initialize Phase 3 Unified Engineering Workspace & Element CSV Database
-    (void)shunya::matdb::ElementDatabase::global().load_default();
+    // Initialize Phase 5 Unified Engineering Workspace & Element CSV Database
+    auto elem_res = shunya::matdb::ElementDatabase::global().load_default();
     workspace_ = std::make_shared<shunya::eng::EngineeringWorkspaceState>();
     (void)workspace_->seed_lithium_battery_workflow();
     current_project_ = workspace_->project();
@@ -55,8 +55,14 @@ ShunyaStudioController::ShunyaStudioController(QObject* parent)
     timer_->setInterval(33); // ~30 Hz real coupled physics & telemetry tick
     connect(timer_, &QTimer::timeout, this, &ShunyaStudioController::onTimerTick);
 
-    appendLog("[INIT] Shunya Phase 3 Engineering Platform Core initialized.");
-    appendLog("[INFO] Loaded " + QString::number(workspace_->element_database().count()) + " elements from elements.csv.");
+    appendLog("[INIT] Shunya Phase 5 Engineering Platform Core initialized.");
+    if (elem_res.is_ok()) {
+        appendLog("[INFO] Loaded " + QString::number(workspace_->element_database().count()) +
+                  " elements from elements.csv (source: " +
+                  QString::fromStdString(shunya::matdb::ElementDatabase::global().source_path().string()) + ").");
+    } else {
+        appendLog("[WARN] Failed to load elements.csv: " + QString::fromStdString(elem_res.error().message));
+    }
     appendLog("[INFO] Seeded workflow: " + project_name_);
 }
 

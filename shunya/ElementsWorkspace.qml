@@ -6,7 +6,7 @@ Rectangle {
     id: root
     color: Theme.bgCanvas
 
-    property int selectedZ: 3 // Default Lithium (Li)
+    property int selectedZ: 1 // Default Hydrogen (H, Z=1) per PH5-01.02 / 1.2
     property double envTempK: 298.15
     property double envPressurePa: 101325.0
     property bool envOxidizing: true

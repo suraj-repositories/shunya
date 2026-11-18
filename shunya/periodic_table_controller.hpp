@@ -64,7 +64,7 @@ private:
     QString search_text_;
     QString phase_filter_;
     bool hide_f_block_{false};
-    int selected_z_{29};
+    int selected_z_{1}; // Default Hydrogen (H, Z=1) so inspector is populated on startup
     matdb::PropertyRangeStats range_stats_;
     QVariantList cells_cache_;
 };

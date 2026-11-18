@@ -21,9 +21,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 452 | 100.0% |
+| `[ ]` | Not Started | 440 | 97.3% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 0 | 0.0% |
+| `[x]` | Completed | 12 | 2.7% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -33,7 +33,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | Module # | Module ID | Module Name | Priority | Total Subtasks | Completed | Progress | Status |
 |:---:|---|---|:---:|:---:|:---:|:---:|:---:|
 | **TRACK 1** | **STUDIO & ELEMENTS** | **Desktop Shell, Elements Workspace & Visual Identity** | | | | | |
-| 1 | `ELEMDB` | Periodic Table Database Loader, Path Resolution & Robust Ingestion | P0 | 12 | 0 | 0.0% | `[ ]` |
+| 1 | `ELEMDB` | Periodic Table Database Loader, Path Resolution & Robust Ingestion | P0 | 12 | 12 | 100.0% | `[x]` |
 | 2 | `ELEMINSP` | Element Click Binding, Default Selection & Reactive Inspector | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 3 | `ELEMVIEW` | Phase Filtering, Table/Grid Views & Real-Time Multi-Field Search | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 4 | `ELEMLAYOUT` | Responsive Right Panel, Slider Alignment & Anti-Clipping Layout | P0 | 12 | 0 | 0.0% | `[ ]` |
@@ -68,7 +68,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
 | 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **0** | **0.0%** | `[ ]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **12** | **2.7%** | `[~]` |
 
 ---
 
@@ -336,23 +336,23 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-01: Periodic Table Database Loader, Path Resolution & Robust Ingestion (`ELEMDB`)
 
 **Objective:** Guarantee deterministic, zero-failure ingestion and indexing of all 118 elements and 82 properties from `elements.csv` regardless of working directory or execution environment, eliminating the `"0 elements indexed"` bug.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/12 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (12/12 — 100.0%)
 
-### Submodule PH5-01.01: Deterministic Path Resolution & Ingestion Pipeline [ ] (0.0% — 6/6)
-- [ ] `PH5-01.01.001`: Diagnose root cause of failed CSV resolution in `core/domain/src/matdb/element_database.cpp` where relative `data/elements.csv` lookups fail from build output directories.
-- [ ] `PH5-01.01.002`: Implement a multi-tier search path resolver querying in order: (1) `SHUNYA_DATA_DIR` environment variable, (2) `QCoreApplication::applicationDirPath() + "/data/elements.csv"`, (3) `QCoreApplication::applicationDirPath() + "/../data/elements.csv"`, (4) CMake compiled `SHUNYA_SOURCE_DIR + "/data/elements.csv"`, and (5) canonical absolute fallback paths.
-- [ ] `PH5-01.01.003`: Add an embedded Qt Resource backup copy (`:/data/elements.csv`) compiled directly into the binary to guarantee that the database can never be empty even if external filesystem assets are missing.
-- [ ] `PH5-01.01.004`: Update `ElementDatabase::load_default()` to return explicit error diagnostic structs rather than silently dropping failures via `(void)`.
-- [ ] `PH5-01.01.005`: Enhance RFC-4180 CSV parsing to gracefully handle Windows CRLF vs Unix LF, Unicode UTF-8 BOM byte-sequences, and multiline space-group quoted strings.
-- [ ] `PH5-01.01.006`: Add automated startup assertions verifying that exactly 118 rows and 82 property columns are indexed on desktop initialization.
+### Submodule PH5-01.01: Deterministic Path Resolution & Ingestion Pipeline [x] (100.0% — 6/6)
+- [x] `PH5-01.01.001`: Diagnose root cause of failed CSV resolution in `core/domain/src/matdb/element_database.cpp` where relative `data/elements.csv` lookups fail from build output directories.
+- [x] `PH5-01.01.002`: Implement a multi-tier search path resolver querying in order: (1) `SHUNYA_DATA_DIR` environment variable, (2) `QCoreApplication::applicationDirPath() + "/data/elements.csv"`, (3) `QCoreApplication::applicationDirPath() + "/../data/elements.csv"`, (4) CMake compiled `SHUNYA_SOURCE_DIR + "/data/elements.csv"`, and (5) canonical absolute fallback paths.
+- [x] `PH5-01.01.003`: Add an embedded Qt Resource backup copy (`:/data/elements.csv`) compiled directly into the binary to guarantee that the database can never be empty even if external filesystem assets are missing.
+- [x] `PH5-01.01.004`: Update `ElementDatabase::load_default()` to return explicit error diagnostic structs rather than silently dropping failures via `(void)`.
+- [x] `PH5-01.01.005`: Enhance RFC-4180 CSV parsing to gracefully handle Windows CRLF vs Unix LF, Unicode UTF-8 BOM byte-sequences, and multiline space-group quoted strings.
+- [x] `PH5-01.01.006`: Add automated startup assertions verifying that exactly 118 rows and 82 property columns are indexed on desktop initialization.
 
-### Submodule PH5-01.02: Pipeline Controller Indexing & Reactive Signal Wiring [ ] (0.0% — 6/6)
-- [ ] `PH5-01.02.001`: Fix `ShunyaPipelineController::elementCount()` in `shunya/pipeline_controller.cpp` ensuring it binds directly to the loaded `ElementDatabase::global().count()`.
-- [ ] `PH5-01.02.002`: Guarantee that `elementDbChanged` signal is emitted immediately upon database ingestion completion during application boot.
-- [ ] `PH5-01.02.003`: Fix the top navbar counter in `shunya/Main.qml` to dynamically display `pipeline.elementCount + " Elements"` (e.g. `"118 Elements"`).
-- [ ] `PH5-01.02.004`: Fix the workspace header label in `shunya/ElementsWorkspace.qml` to display `"118 elements indexed from elements.csv (82 properties with provenance)"`.
-- [ ] `PH5-01.02.005`: Log structured startup diagnostics to the console: `"[ELEM] Ingested 118 chemical elements (82 properties) from: <resolved_path>"`.
-- [ ] `PH5-01.02.006`: Add unit test `test_p5_element_csv_resolution.cpp` verifying successful loading across multiple simulated launch working directories.
+### Submodule PH5-01.02: Pipeline Controller Indexing & Reactive Signal Wiring [x] (100.0% — 6/6)
+- [x] `PH5-01.02.001`: Fix `ShunyaPipelineController::elementCount()` in `shunya/pipeline_controller.cpp` ensuring it binds directly to the loaded `ElementDatabase::global().count()`.
+- [x] `PH5-01.02.002`: Guarantee that `elementDbChanged` signal is emitted immediately upon database ingestion completion during application boot.
+- [x] `PH5-01.02.003`: Fix the top navbar counter in `shunya/Main.qml` to dynamically display `pipeline.elementCount + " Elements"` (e.g. `"118 Elements"`).
+- [x] `PH5-01.02.004`: Fix the workspace header label in `shunya/ElementsWorkspace.qml` to display `"118 elements indexed from elements.csv (82 properties with provenance)"`.
+- [x] `PH5-01.02.005`: Log structured startup diagnostics to the console: `"[ELEM] Ingested 118 chemical elements (82 properties) from: <resolved_path>"`.
+- [x] `PH5-01.02.006`: Add unit test `test_p5_element_csv_resolution.cpp` verifying successful loading across multiple simulated launch working directories.
 
 ---
 
