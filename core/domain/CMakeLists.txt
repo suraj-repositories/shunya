@@ -339,6 +339,11 @@ add_library(shunya_domain_eng OBJECT
     src/lib30/transistor_components.cpp
     src/lib30/electromechanical_components.cpp
     src/lib30/power_sources_components.cpp
+    src/lib30/ic_actuator_components.cpp
+    src/cirsim/schematic_topology_parser.cpp
+    src/cirsim/mna_system_builder.cpp
+    src/cirsim/sparse_matrix.cpp
+    src/cirsim/matrix_conditioner.cpp
 )
 shunya_configure_domain_target(shunya_domain_eng)
 target_link_libraries(shunya_domain_eng
