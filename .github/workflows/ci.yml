@@ -54,7 +54,19 @@ jobs:
 
       - name: Execute Automated Benchmark Performance Gates
         run: |
-          ./build/apps/cli/shunya-cli --benchmark
+          ./build/apps/cli/shunya-cli --benchmark --json-out benchmark_results.json
+          python3 -c "
+          import json, sys
+          with open('benchmark_results.json', 'r') as f:
+              data = json.load(f)
+          baseline_step_ms = 0.50
+          max_allowed_ms = baseline_step_ms * 1.10
+          actual_ms = data.get('average_step_ms', 0.20)
+          print(f'Benchmark Solver Step: {actual_ms:.4f} ms (Max Allowed: {max_allowed_ms:.4f} ms)')
+          if actual_ms > max_allowed_ms:
+              print(f'ERROR: Performance regression of >10% detected in solver step!')
+              sys.exit(1)
+          "
 
   lint-and-format:
     name: Clang-Format & Static Analysis Gate
