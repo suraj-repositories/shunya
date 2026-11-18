@@ -706,12 +706,12 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
 ## Module PH4-08: Dedicated Circuit Simulation Engine (`CIRSIM`)
 
 **Objective:** Build a dedicated, robust, SPICE-grade circuit simulation engine supporting non-linear DC operating point, AC frequency response, and transient numerical integration.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT`, `LIB30` | **Status:** `[~] In Progress` (2/26 — 7.7%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT`, `LIB30` | **Status:** `[~] In Progress` (3/26 — 11.5%)
 
-### Submodule PH4-08.01: Schematic Topology Parsing & Netlist Matrix Formulation [~] (2/6)
+### Submodule PH4-08.01: Schematic Topology Parsing & Netlist Matrix Formulation [~] (3/6)
 - [x] `PH4-08.01.001`: Implement high-speed schematic graph parsing converting graphical symbols and wires into an electrical nodal netlist.
 - [x] `PH4-08.01.002`: Implement automated electrical node identification, topological loop detection, and floating node flagging.
-- [ ] `PH4-08.01.003`: Construct standard Modified Nodal Analysis (MNA) linear system formulation:
+- [x] `PH4-08.01.003`: Construct standard Modified Nodal Analysis (MNA) linear system formulation:
   $$\begin{bmatrix} \mathbf{G} & \mathbf{B} \\ \mathbf{C} & \mathbf{D} \end{bmatrix} \begin{bmatrix} \mathbf{v} \\ \mathbf{j} \end{bmatrix} = \begin{bmatrix} \mathbf{i} \\ \mathbf{e} \end{bmatrix}$$
 - [ ] `PH4-08.01.004`: Implement sparse matrix representations (compressed sparse row/column) for fast solving of large electronic schematics (> 500 nodes).
 - [ ] `PH4-08.01.005`: Implement automated matrix conditioning, row scaling, and singularity detection (e.g., short-circuited voltage loops, floating sub-circuits).
