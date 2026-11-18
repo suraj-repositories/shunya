@@ -345,6 +345,7 @@ add_library(shunya_domain_eng OBJECT
     src/cirsim/sparse_matrix.cpp
     src/cirsim/matrix_conditioner.cpp
     src/cirsim/kcl_kvl_validator.cpp
+    src/cirsim/nonlinear_dc_solver.cpp
 )
 shunya_configure_domain_target(shunya_domain_eng)
 target_link_libraries(shunya_domain_eng
