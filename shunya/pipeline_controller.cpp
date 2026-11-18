@@ -1300,6 +1300,15 @@ QVariantList ShunyaPipelineController::getObjects() const {
         m["axialR"] = o.computed.axial_electrical_resistance_ohm;
         m["youngModulus"] = o.computed.effective_young_modulus_pa;
         m["cte"] = o.computed.effective_thermal_expansion_1_k;
+        m["comX"] = o.computed.center_of_mass_m.x;
+        m["comY"] = o.computed.center_of_mass_m.y;
+        m["comZ"] = o.computed.center_of_mass_m.z;
+        m["ixx"] = o.computed.inertia_ixx;
+        m["iyy"] = o.computed.inertia_iyy;
+        m["izz"] = o.computed.inertia_izz;
+        m["ixy"] = o.computed.inertia_ixy;
+        m["iyz"] = o.computed.inertia_iyz;
+        m["izx"] = o.computed.inertia_izx;
         m["hasConductivePath"] = o.computed.has_conductive_path;
         m["isSolid"] = o.computed.is_solid_at_operating_temp;
         m["warnings"] = strVecToList(o.computed.warnings);
@@ -1330,14 +1339,61 @@ QVariantMap ShunyaPipelineController::createObject(
     const QString& materialId,
     double tempK, double pressurePa) {
     QVariantMap out;
+
+    auto find_or_promote = [&](const char* token, const char* sym, const char* mat_name) -> core::base::Uuid {
+        for (const auto& [id, m] : ws_->material_registry().materials()) {
+            std::string n = m.name();
+            std::transform(n.begin(), n.end(), n.begin(), ::tolower);
+            if (n.find(token) != std::string::npos) return id;
+        }
+        mat::MixtureExperiment exp;
+        exp.name = mat_name;
+        exp.scenario = mat::FormationScenario::PhysicalMixture;
+        exp.inputs = {{sym, mat::QuantityInputBasis::MassFractionPct, 100.0, 0.0, false}};
+        auto mres = mat::MaterialMixingLab::promote_to_material(exp, ws_->element_database());
+        if (mres.is_ok()) {
+            const auto id = mres.value().id();
+            (void)ws_->material_registry().register_material(mres.value());
+            return id;
+        }
+        return {};
+    };
+
     auto mid = core::base::Uuid::from_string(materialId.toStdString());
+    if (!mid) {
+        // Auto-detect matching material from object name
+        std::string lower_nm = name.trimmed().toLower().toStdString();
+        if (lower_nm.find("copper") != std::string::npos || lower_nm.find("cu") != std::string::npos) {
+            auto uid = find_or_promote("copper", "Cu", "Pure Copper");
+            if (!uid.is_nil()) mid = uid;
+        } else if (lower_nm.find("tungsten") != std::string::npos || lower_nm.find("filament") != std::string::npos || lower_nm.find("w") != std::string::npos) {
+            auto uid = find_or_promote("tungsten", "W", "Pure Tungsten");
+            if (!uid.is_nil()) mid = uid;
+        } else if (lower_nm.find("iron") != std::string::npos || lower_nm.find("steel") != std::string::npos || lower_nm.find("fe") != std::string::npos) {
+            auto uid = find_or_promote("iron", "Fe", "Pure Iron");
+            if (!uid.is_nil()) mid = uid;
+        } else if (lower_nm.find("aluminum") != std::string::npos || lower_nm.find("al") != std::string::npos) {
+            auto uid = find_or_promote("aluminum", "Al", "Pure Aluminum");
+            if (!uid.is_nil()) mid = uid;
+        } else if (lower_nm.find("silicon") != std::string::npos || lower_nm.find("si") != std::string::npos) {
+            auto uid = find_or_promote("silicon", "Si", "Pure Silicon");
+            if (!uid.is_nil()) mid = uid;
+        } else if (lower_nm.find("glass") != std::string::npos || lower_nm.find("envelope") != std::string::npos) {
+            auto uid = find_or_promote("glass", "Si", "Borosilicate Glass");
+            if (!uid.is_nil()) mid = uid;
+        } else if (!ws_->material_registry().materials().empty()) {
+            mid = ws_->material_registry().materials().begin()->first;
+        }
+    }
+
     if (!mid) {
         out["ok"] = false;
         out["error"] = "Select a valid Material first.";
         return out;
     }
     eng::PhysicalObject obj;
-    obj.name = name.trimmed().isEmpty() ? "Custom_Object" : name.trimmed().toStdString();
+    std::string base_req_name = name.trimmed().isEmpty() ? "Custom_Object" : name.trimmed().toStdString();
+    obj.name = ws_->object_manager().generate_unique_name(base_req_name);
     obj.category = category.trimmed().isEmpty() ? "Custom" : category.trimmed().toStdString();
     auto sk = eng::object_shape_kind_from_string(shape.toStdString());
     obj.geometry.kind = sk.is_ok() ? sk.value() : eng::ObjectShapeKind::Box;
@@ -1355,14 +1411,15 @@ QVariantMap ShunyaPipelineController::createObject(
         out["error"] = QString::fromStdString(r.error().message);
         return out;
     }
-    ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, r.value(), "Created object '" + name.toStdString() + "'");
+    const std::string created_name = ws_->object_manager().get_object(r.value())->name;
+    ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, r.value(), "Created object '" + created_name + "'");
     out["ok"] = true;
     out["id"] = QString::fromStdString(r.value().to_string());
+    out["name"] = QString::fromStdString(created_name);
     return out;
 }
 
 QVariantMap ShunyaPipelineController::addPresetObject(const QString& presetName) {
-    // Find best matching material in registry or promote elemental material on the fly
     auto find_or_promote = [&](const char* token, const char* sym, const char* mat_name) -> core::base::Uuid {
         for (const auto& [id, m] : ws_->material_registry().materials()) {
             std::string n = m.name();
@@ -1405,6 +1462,21 @@ QVariantMap ShunyaPipelineController::addPresetObject(const QString& presetName)
     if (presetName == "Insulating Spacer") {
         auto id = find_or_promote("separator", "C", "Polymeric Insulator");
         return createObject("Insulating_Spacer", "Insulator", "Box", 0.05, 0.01, 0.05, 0.01,
+                            QString::fromStdString(id.to_string()));
+    }
+    if (presetName == "Tungsten Filament") {
+        auto id = find_or_promote("tungsten", "W", "Pure Tungsten");
+        return createObject("Tungsten_Filament", "Filament", "Cylinder", 0.001, 0.04, 0.001, 0.00025,
+                            QString::fromStdString(id.to_string()));
+    }
+    if (presetName == "Glass Envelope") {
+        auto id = find_or_promote("glass", "Si", "Borosilicate Glass");
+        return createObject("Glass_Envelope", "Envelope", "Cylinder", 0.06, 0.12, 0.06, 0.03,
+                            QString::fromStdString(id.to_string()));
+    }
+    if (presetName == "Resistor Load") {
+        auto id = find_or_promote("nichrome", "Ni", "Nichrome 80/20 Resistor Alloy");
+        return createObject("Resistor_Element", "Resistor", "Box", 0.002, 0.002, 0.10, 0.001,
                             QString::fromStdString(id.to_string()));
     }
     auto id = find_or_promote("nichrome", "Ni", "Nickel-Alloy Rod");
@@ -1480,16 +1552,32 @@ QVariantMap ShunyaPipelineController::updateObjectTransform(
     return out;
 }
 
+QVariantMap ShunyaPipelineController::renameObject(const QString& objectId, const QString& newName) {
+    QVariantMap out;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) {
+        out["ok"] = false;
+        out["error"] = "Invalid UUID";
+        return out;
+    }
+    auto r = ws_->object_manager().rename_object(*uid, newName.trimmed().toStdString(), ws_->material_registry());
+    if (r.is_err()) {
+        out["ok"] = false;
+        out["error"] = QString::fromStdString(r.error().message);
+        return out;
+    }
+    ws_->notify_object_modified(*uid, "Renamed object to '" + newName.trimmed().toStdString() + "'");
+    out["ok"] = true;
+    out["name"] = newName.trimmed();
+    return out;
+}
+
 bool ShunyaPipelineController::duplicateObject(const QString& objectId) {
     auto uid = core::base::Uuid::from_string(objectId.toStdString());
     if (!uid) return false;
     const auto* orig = ws_->object_manager().get_object(*uid);
     if (!orig) return false;
-    eng::PhysicalObject copy = *orig;
-    copy.id = core::base::Uuid::generate_random();
-    copy.name += "_Copy";
-    copy.geometry.position.x += 0.15;
-    auto r = ws_->object_manager().add_object(std::move(copy), ws_->material_registry());
+    auto r = ws_->object_manager().duplicate_object(*uid, ws_->material_registry());
     if (r.is_err()) return false;
     ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, r.value(), "Duplicated object");
     return true;

@@ -84,6 +84,15 @@ struct ObjectComputedProperties {
     double thermal_resistance_k_w{0.0};
     double effective_young_modulus_pa{0.0};
     double effective_thermal_expansion_1_k{0.0};
+    // Center of Mass (relative to object geometric center)
+    core::base::math::Vector3<double> center_of_mass_m{0.0, 0.0, 0.0};
+    // Mass Moment of Inertia Tensor around Center of Mass [kg * m^2]
+    double inertia_ixx{0.0};
+    double inertia_iyy{0.0};
+    double inertia_izz{0.0};
+    double inertia_ixy{0.0};
+    double inertia_iyz{0.0};
+    double inertia_izx{0.0};
     bool has_conductive_path{false};
     bool is_solid_at_operating_temp{true};
     bool valid{false};
@@ -122,6 +131,17 @@ public:
 
     [[nodiscard]] core::base::Result<void> update_object(
         PhysicalObject obj,
+        const core::domain::MaterialRegistry& reg);
+
+    [[nodiscard]] std::string generate_unique_name(std::string_view base_name) const;
+
+    [[nodiscard]] core::base::Result<void> rename_object(
+        const core::base::Uuid& id,
+        std::string_view new_name,
+        const core::domain::MaterialRegistry& reg);
+
+    [[nodiscard]] core::base::Result<core::base::Uuid> duplicate_object(
+        const core::base::Uuid& id,
         const core::domain::MaterialRegistry& reg);
 
     bool remove_object(const core::base::Uuid& id);

@@ -230,6 +230,7 @@ public:
         double px, double py, double pz,
         double rx, double ry, double rz,
         double sx, double sy, double sz);
+    Q_INVOKABLE QVariantMap renameObject(const QString& objectId, const QString& newName);
     Q_INVOKABLE bool duplicateObject(const QString& objectId);
     Q_INVOKABLE bool deleteObject(const QString& objectId);
 

@@ -21,9 +21,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 262 | 58.0% |
+| `[ ]` | Not Started | 176 | 38.9% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 190 | 42.0% |
+| `[x]` | Completed | 276 | 61.1% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -54,7 +54,21 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 18 | `MIX-SAVE` | Versioned Experiment Persistence, Lifecycle & Atomic Serialization | P0 | 14 | 14 | 100.0% | `[x]` |
 | 19 | `MIX-IMPORT`| Safe External File Exchange, Schema Validation & Share Pipeline | P0 | 12 | 12 | 100.0% | `[x]` |
 | **TRACK 3** | **OBJECTS AUTHORING**| **Physical Objects Workflow Rebuild & 3D Assembly CAD/CAE Engine** | | | | | |
-| 20 | `OBJ-AUDIT` | Single Source of Truth, Data Consistency & Initial Bug Fixes | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 20 | `OBJ-AUDIT` | Single Source of Truth, Data Consistency & Initial Bug Fixes | P0 | 14 | 14 | 100.0% | `[x]` |
+| 21 | `OBJ-LAYOUT` | Workspace Layout, Multi-Pane Splitters & Viewport Maximization | P0 | 12 | 0 | 0.0% | `[ ]` |
+| 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 0 | 0.0% | `[ ]` |
+| 25 | `OBJ-VIEW3D` | Blender-Style 3D Viewport, Gizmos, Edit Modes & Modeling Tools | P0 | 16 | 0 | 0.0% | `[ ]` |
+| 26 | `OBJ-TEST` | Object Multi-Domain Physics Test Bench (Thermal, Electrical, Mechanical, Vacuum) | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 27 | `OBJ-SIM` | End-to-End Simulator Bridge, Pre-Flight Checks & Round-Trip Re-Sync | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 28 | `OBJ-ASSY` | 3D Editor Assembly Integration, Multi-Object Joints & Wire Routing | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 29 | `OBJ-PERSIST`| Versioned Object Persistence, Library & Safe File Exchange | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 30 | `OBJ-HELP` | Object Contextual Info Popovers & 3D Modeling Help Center Guide | P0 | 12 | 0 | 0.0% | `[ ]` |
+| **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
+| 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
+| 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **276** | **61.1%** | `[~]` |
 | 21 | `OBJ-LAYOUT` | Workspace Layout, Multi-Pane Splitters & Viewport Maximization | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 0 | 0.0% | `[ ]` |
@@ -837,25 +851,25 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-20: Single Source of Truth, Data Consistency & Initial Bug Fixes (`OBJ-AUDIT`)
 
 **Objective:** Fix all baseline data discrepancies, eliminate mismatched names and materials, enforce unique naming with auto-suffixing, and establish a single mathematical source of truth where all computed values derive reactively from stored geometry and materials.  
-**Priority:** P0 | **Complexity:** High | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** High | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-20.01: Single Source of Truth for Computed Tensors [ ] (0.0% — 7/7)
-- [ ] `PH5-20.01.001`: Diagnose and eliminate contradicting values in `ObjectsWorkspace.qml`: resolve density 8844 kg/m³ vs 8040 kg/m³, cone mass 0.037 kg with sphere volume 4.1888e-6 m³, and mismatched form fields.
-- [ ] `PH5-20.01.002`: Refactor `PhysicalObjectManager::evaluate_properties()` in `core/domain/src/eng/physical_object.cpp` to serve as the exclusive, authoritative source of truth for volume, surface area, mass, center of mass, inertia tensor, effective density, axial resistance, and thermal mass.
-- [ ] `PH5-20.01.003`: Ensure that modifying any dimension (X, Y, Z, radius) or material assignment immediately recalculates all derived physical values and updates the UI reactively without caching stale mock values.
-- [ ] `PH5-20.01.004`: Eliminate the disconnect between object name and material: guarantee that creating a `"Copper_Test_Bar"` automatically pairs with pure Copper (`Cu`) from `elements.csv` rather than Doped Silicon.
-- [ ] `PH5-20.01.005`: Wire reactive change notifications from `MaterialRegistry` and `MaterialMixingLab` into `PhysicalObjectManager`: when a material's density is perturbed (+10% rho), recalculate all dependent object masses immediately.
-- [ ] `PH5-20.01.006`: Add validation assertions ensuring that $V_{\text{computed}} \equiv \iiint dV$, $M_{\text{computed}} \equiv \sum (\rho_i V_i)$, and $\rho_{\text{eff}} \equiv \frac{M}{V}$ with zero numerical discrepancy.
-- [ ] `PH5-20.01.007`: Add unit test `test_p5_object_single_source_truth.cpp` asserting that changing dimensions from cylinder to sphere updates volume, area, and mass with 100% mathematical precision.
+### Submodule PH5-20.01: Single Source of Truth for Computed Tensors [x] (100.0% — 7/7)
+- [x] `PH5-20.01.001`: Diagnose and eliminate contradicting values in `ObjectsWorkspace.qml`: resolve density 8844 kg/m³ vs 8040 kg/m³, cone mass 0.037 kg with sphere volume 4.1888e-6 m³, and mismatched form fields.
+- [x] `PH5-20.01.002`: Refactor `PhysicalObjectManager::evaluate_properties()` in `core/domain/src/eng/physical_object.cpp` to serve as the exclusive, authoritative source of truth for volume, surface area, mass, center of mass, inertia tensor, effective density, axial resistance, and thermal mass.
+- [x] `PH5-20.01.003`: Ensure that modifying any dimension (X, Y, Z, radius) or material assignment immediately recalculates all derived physical values and updates the UI reactively without caching stale mock values.
+- [x] `PH5-20.01.004`: Eliminate the disconnect between object name and material: guarantee that creating a `"Copper_Test_Bar"` automatically pairs with pure Copper (`Cu`) from `elements.csv` rather than Doped Silicon.
+- [x] `PH5-20.01.005`: Wire reactive change notifications from `MaterialRegistry` and `MaterialMixingLab` into `PhysicalObjectManager`: when a material's density is perturbed (+10% rho), recalculate all dependent object masses immediately.
+- [x] `PH5-20.01.006`: Add validation assertions ensuring that $V_{\text{computed}} \equiv \iiint dV$, $M_{\text{computed}} \equiv \sum (\rho_i V_i)$, and $\rho_{\text{eff}} \equiv \frac{M}{V}$ with zero numerical discrepancy.
+- [x] `PH5-20.01.007`: Add unit test `test_p5_object_single_source_truth.cpp` asserting that changing dimensions from cylinder to sphere updates volume, area, and mass with 100% mathematical precision.
 
-### Submodule PH5-20.02: Name Uniqueness, Object List Scrolling & Initial UI Fixes [ ] (0.0% — 7/7)
-- [ ] `PH5-20.02.001`: Enforce workspace-wide unique naming for physical objects: when adding or duplicating objects, automatically append numeric suffixes (e.g. `"Copper_Test_Bar"`, `"Copper_Test_Bar_1"`, `"Copper_Test_Bar_2"`).
-- [ ] `PH5-20.02.002`: Provide an inline rename action (double-click on title or edit icon) in `ObjectsWorkspace.qml` with validation against name collisions.
-- [ ] `PH5-20.02.003`: Fix the clipped *"Project Objects"* list at the bottom of the card: wrap in a dynamic `ScrollView` with flex layout, ensuring all objects remain accessible at any window height.
-- [ ] `PH5-20.02.004`: Replace hardcoded quick-add preset buttons (`+ Copper Wire`, `+ Iron Plate`, etc.) with a dynamic template library browser.
-- [ ] `PH5-20.02.005`: Fix object selection synchronization: clicking an object in the list must update the 3D viewport highlight, the property inspector, and the property tree model simultaneously.
-- [ ] `PH5-20.02.006`: Guarantee that deleting an object cleans up all references in the 3D viewport, entity relationship graph, and dependency tracker.
-- [ ] `PH5-20.02.007`: Add automated UI test verifying that creating 5 objects generates 5 unique names and that editing dimensions updates all displayed properties.
+### Submodule PH5-20.02: Name Uniqueness, Object List Scrolling & Initial UI Fixes [x] (100.0% — 7/7)
+- [x] `PH5-20.02.001`: Enforce workspace-wide unique naming for physical objects: when adding or duplicating objects, automatically append numeric suffixes (e.g. `"Copper_Test_Bar"`, `"Copper_Test_Bar_1"`, `"Copper_Test_Bar_2"`).
+- [x] `PH5-20.02.002`: Provide an inline rename action (double-click on title or edit icon) in `ObjectsWorkspace.qml` with validation against name collisions.
+- [x] `PH5-20.02.003`: Fix the clipped *"Project Objects"* list at the bottom of the card: wrap in a dynamic `ScrollView` with flex layout, ensuring all objects remain accessible at any window height.
+- [x] `PH5-20.02.004`: Replace hardcoded quick-add preset buttons (`+ Copper Wire`, `+ Iron Plate`, etc.) with a dynamic template library browser.
+- [x] `PH5-20.02.005`: Fix object selection synchronization: clicking an object in the list must update the 3D viewport highlight, the property inspector, and the property tree model simultaneously.
+- [x] `PH5-20.02.006`: Guarantee that deleting an object cleans up all references in the 3D viewport, entity relationship graph, and dependency tracker.
+- [x] `PH5-20.02.007`: Add automated UI test verifying that creating 5 objects generates 5 unique names and that editing dimensions updates all displayed properties.
 
 ---
 

@@ -461,8 +461,8 @@ core::base::Result<ObjectComputedProperties> PhysicalObjectManager::evaluate_pro
         }
     }
 
-    p.effective_density_kg_m3 = rho_eff;
     p.mass_kg = p.volume_m3 * rho_eff;
+    p.effective_density_kg_m3 = (p.volume_m3 > 1e-18) ? (p.mass_kg / p.volume_m3) : rho_eff;
     p.thermal_mass_j_k = mass_cp_sum;
     p.effective_specific_heat_j_kgk = (p.mass_kg > 1e-18) ? (mass_cp_sum / p.mass_kg) : 0.0;
     p.effective_thermal_conductivity_w_mk = k_eff;
@@ -475,8 +475,136 @@ core::base::Result<ObjectComputedProperties> PhysicalObjectManager::evaluate_pro
     const double area = std::max(1e-12, obj.geometry.compute_cross_section_area_m2());
     p.axial_electrical_resistance_ohm = (sigma_eff > 1e-18) ? (len / (sigma_eff * area)) : 1e12;
     p.thermal_resistance_k_w = (k_eff > 1e-9) ? (len / (k_eff * area)) : 1e9;
+
+    // Center of Mass and Mass Moment of Inertia Tensor around Center of Mass
+    const double M = p.mass_kg;
+    p.center_of_mass_m = {0.0, 0.0, 0.0};
+    p.inertia_ixx = 0.0;
+    p.inertia_iyy = 0.0;
+    p.inertia_izz = 0.0;
+    p.inertia_ixy = 0.0;
+    p.inertia_iyz = 0.0;
+    p.inertia_izx = 0.0;
+
+    switch (obj.geometry.kind) {
+    case ObjectShapeKind::Box: {
+        const double w = obj.geometry.dim_x_m * obj.geometry.scale.x;
+        const double h = obj.geometry.dim_y_m * obj.geometry.scale.y;
+        const double d = obj.geometry.dim_z_m * obj.geometry.scale.z;
+        p.inertia_ixx = (1.0 / 12.0) * M * (h * h + d * d);
+        p.inertia_iyy = (1.0 / 12.0) * M * (w * w + d * d);
+        p.inertia_izz = (1.0 / 12.0) * M * (w * w + h * h);
+        break;
+    }
+    case ObjectShapeKind::Sphere: {
+        const double r = obj.geometry.radius_m * ((obj.geometry.scale.x + obj.geometry.scale.y + obj.geometry.scale.z) / 3.0);
+        const double I = (2.0 / 5.0) * M * r * r;
+        p.inertia_ixx = I;
+        p.inertia_iyy = I;
+        p.inertia_izz = I;
+        break;
+    }
+    case ObjectShapeKind::Cylinder: {
+        const double r = obj.geometry.radius_m * 0.5 * (obj.geometry.scale.x + obj.geometry.scale.z);
+        const double h = obj.geometry.dim_y_m * obj.geometry.scale.y;
+        p.inertia_iyy = 0.5 * M * r * r;
+        p.inertia_ixx = (1.0 / 12.0) * M * (3.0 * r * r + h * h);
+        p.inertia_izz = p.inertia_ixx;
+        break;
+    }
+    case ObjectShapeKind::Cone: {
+        const double r = obj.geometry.radius_m * 0.5 * (obj.geometry.scale.x + obj.geometry.scale.z);
+        const double h = obj.geometry.dim_y_m * obj.geometry.scale.y;
+        p.center_of_mass_m = {0.0, -0.25 * h, 0.0};
+        p.inertia_iyy = (3.0 / 10.0) * M * r * r;
+        p.inertia_ixx = (3.0 / 20.0) * M * r * r + (3.0 / 80.0) * M * h * h;
+        p.inertia_izz = p.inertia_ixx;
+        break;
+    }
+    case ObjectShapeKind::ExtrudedProfile2D:
+    case ObjectShapeKind::Mesh3D: {
+        const double char_l = std::max(1e-6, obj.geometry.compute_characteristic_length_m());
+        const double I = (1.0 / 6.0) * M * char_l * char_l;
+        p.inertia_ixx = I;
+        p.inertia_iyy = I;
+        p.inertia_izz = I;
+        break;
+    }
+    }
+
     p.valid = true;
     return p;
+}
+
+std::string PhysicalObjectManager::generate_unique_name(std::string_view base_name) const {
+    std::string candidate = base_name.empty() ? "Object" : std::string(base_name);
+    if (!find_by_name(candidate)) {
+        return candidate;
+    }
+    // Extract base prefix without existing numeric suffix if any
+    std::string prefix = candidate;
+    size_t last_underscore = candidate.rfind('_');
+    int start_num = 1;
+    if (last_underscore != std::string::npos && last_underscore + 1 < candidate.size()) {
+        bool all_digits = true;
+        for (size_t i = last_underscore + 1; i < candidate.size(); ++i) {
+            if (!std::isdigit(static_cast<unsigned char>(candidate[i]))) {
+                all_digits = false;
+                break;
+            }
+        }
+        if (all_digits) {
+            prefix = candidate.substr(0, last_underscore);
+            try {
+                start_num = std::stoi(candidate.substr(last_underscore + 1)) + 1;
+            } catch (...) {
+                start_num = 1;
+            }
+        }
+    }
+    for (int num = start_num; ; ++num) {
+        std::string test_name = prefix + "_" + std::to_string(num);
+        if (!find_by_name(test_name)) {
+            return test_name;
+        }
+    }
+}
+
+core::base::Result<void> PhysicalObjectManager::rename_object(
+    const core::base::Uuid& id,
+    std::string_view new_name,
+    const core::domain::MaterialRegistry& /*reg*/) {
+    if (new_name.empty()) {
+        return make_obj_error(4316, "Object name cannot be empty");
+    }
+    auto* existing = get_object_mut(id);
+    if (!existing) {
+        return make_obj_error(4317, "Object not found for rename");
+    }
+    if (existing->name == new_name) {
+        return core::base::Result<void>::ok();
+    }
+    const auto* collision = find_by_name(new_name);
+    if (collision != nullptr && collision->id != id) {
+        return make_obj_error(4318, "An object named '" + std::string(new_name) + "' already exists");
+    }
+    existing->name = std::string(new_name);
+    return core::base::Result<void>::ok();
+}
+
+core::base::Result<core::base::Uuid> PhysicalObjectManager::duplicate_object(
+    const core::base::Uuid& id,
+    const core::domain::MaterialRegistry& reg) {
+    const auto* orig = get_object(id);
+    if (!orig) {
+        return make_obj_error(4319, "Source object not found for duplication");
+    }
+    PhysicalObject copy = *orig;
+    copy.id = core::base::Uuid::generate_random();
+    copy.name = generate_unique_name(orig->name);
+    copy.geometry.position.x += 0.02;
+    copy.geometry.position.z += 0.02;
+    return add_object(std::move(copy), reg);
 }
 
 core::base::Result<core::base::Uuid> PhysicalObjectManager::add_object(
@@ -484,6 +612,12 @@ core::base::Result<core::base::Uuid> PhysicalObjectManager::add_object(
     const core::domain::MaterialRegistry& reg) {
     if (get_object(obj.id) != nullptr) {
         return make_obj_error(4315, "Duplicate PhysicalObject UUID in workspace");
+    }
+    if (obj.name.empty()) {
+        obj.name = "Object";
+    }
+    if (find_by_name(obj.name) != nullptr) {
+        obj.name = generate_unique_name(obj.name);
     }
     auto eval = evaluate_properties(obj, reg);
     if (eval.is_err()) return eval.error();
