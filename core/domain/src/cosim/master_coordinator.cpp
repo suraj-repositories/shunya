@@ -1,4 +1,5 @@
 #include "shunya/cosim/master_coordinator.hpp"
+#include "shunya/physim/rigid_body.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -133,6 +134,80 @@ CoSimStepResult MasterCoSimulationCoordinator::step(double duration_s) {
         false,
         "Step completed successfully."
     };
+}
+
+// Multi-Circuit Support (PH4-10.01.005)
+void MasterCoSimulationCoordinator::add_circuit(
+    const std::string& circuit_id,
+    const std::string& target_subassembly_id) {
+    named_circuits_.try_emplace(circuit_id, cirsim::TransientSimulationEngine{});
+    if (!target_subassembly_id.empty()) {
+        circuit_assembly_map_[circuit_id] = target_subassembly_id;
+    }
+}
+
+bool MasterCoSimulationCoordinator::has_circuit(const std::string& circuit_id) const noexcept {
+    return named_circuits_.find(circuit_id) != named_circuits_.end();
+}
+
+size_t MasterCoSimulationCoordinator::circuit_count() const noexcept {
+    return named_circuits_.size();
+}
+
+std::vector<std::string> MasterCoSimulationCoordinator::circuit_ids() const {
+    std::vector<std::string> ids;
+    ids.reserve(named_circuits_.size());
+    for (const auto& [id, _] : named_circuits_) {
+        ids.push_back(id);
+    }
+    return ids;
+}
+
+cirsim::TransientSimulationEngine* MasterCoSimulationCoordinator::find_circuit(
+    const std::string& circuit_id) noexcept {
+    const auto it = named_circuits_.find(circuit_id);
+    return (it != named_circuits_.end()) ? &it->second : nullptr;
+}
+
+// =============================================================================
+// StateInterpolator Implementation (PH4-10.01.006)
+// =============================================================================
+
+InterpolatedRigidBodyState StateInterpolator::interpolate(
+    const physim::RigidBodyState& state_t0,
+    const physim::RigidBodyState& state_t1,
+    double alpha) noexcept {
+    const double a = std::clamp(alpha, 0.0, 1.0);
+    InterpolatedRigidBodyState res;
+    
+    // Linear interpolation of position and velocities
+    res.position = state_t0.position * (1.0 - a) + state_t1.position * a;
+    res.linear_velocity = state_t0.linear_velocity() * (1.0 - a) + state_t1.linear_velocity() * a;
+    res.angular_velocity = state_t0.angular_velocity() * (1.0 - a) + state_t1.angular_velocity() * a;
+    
+    // Spherical linear interpolation (SLERP) for rotation quaternion
+    res.orientation = physim::Quaterniond::slerp(state_t0.orientation, state_t1.orientation, a);
+    return res;
+}
+
+physim::RigidBodyState StateInterpolator::compensate_latency(
+    const physim::RigidBodyState& current_state,
+    double latency_s) noexcept {
+    using namespace shunya::physim;
+    physim::RigidBodyState compensated = current_state;
+    if (latency_s <= 0.0) {
+        return compensated;
+    }
+    
+    // 1st order Taylor expansion prediction
+    compensated.position += current_state.linear_velocity() * latency_s;
+    
+    const Vector3d omega = current_state.angular_velocity();
+    const Quaterniond w_quat{0.0, omega.x, omega.y, omega.z};
+    const Quaterniond dq = (w_quat * current_state.orientation) * (0.5 * latency_s);
+    compensated.orientation = (current_state.orientation + dq).normalized();
+    
+    return compensated;
 }
 
 } // namespace shunya::cosim

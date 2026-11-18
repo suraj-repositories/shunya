@@ -150,6 +150,13 @@ public:
     void set_config(const CoSimConfig& cfg) noexcept { config_ = cfg; }
     [[nodiscard]] const CoSimConfig& config() const noexcept { return config_; }
 
+    // Multi-Circuit Support (PH4-10.01.005)
+    void add_circuit(const std::string& circuit_id, const std::string& target_subassembly_id = "");
+    [[nodiscard]] bool has_circuit(const std::string& circuit_id) const noexcept;
+    [[nodiscard]] size_t circuit_count() const noexcept;
+    [[nodiscard]] std::vector<std::string> circuit_ids() const;
+    [[nodiscard]] cirsim::TransientSimulationEngine* find_circuit(const std::string& circuit_id) noexcept;
+
 private:
     CoSimConfig config_;
     double current_time_s_{0.0};
@@ -157,10 +164,41 @@ private:
     size_t rollback_count_{0};
 
     cirsim::TransientSimulationEngine circuit_engine_;
+    std::unordered_map<std::string, cirsim::TransientSimulationEngine> named_circuits_;
+    std::unordered_map<std::string, std::string> circuit_assembly_map_;
+
     physim::SimulationController physics_controller_;
     LockFreeTelemetryBuffer<CoSimTelemetryPacket> telemetry_pipe_;
     CoSimCheckpoint last_checkpoint_;
     bool has_checkpoint_{false};
+};
+
+// =============================================================================
+// Latency Compensation & Linear State Interpolator (PH4-10.01.006)
+// =============================================================================
+struct InterpolatedRigidBodyState {
+    physim::Vector3d position{0.0, 0.0, 0.0};
+    physim::Quaterniond orientation{1.0, 0.0, 0.0, 0.0};
+    physim::Vector3d linear_velocity{0.0, 0.0, 0.0};
+    physim::Vector3d angular_velocity{0.0, 0.0, 0.0};
+};
+
+class StateInterpolator {
+public:
+    /**
+     * @brief Interpolates physical state at intermediate sub-cycle timestamp alpha in [0, 1].
+     */
+    [[nodiscard]] static InterpolatedRigidBodyState interpolate(
+        const physim::RigidBodyState& state_t0,
+        const physim::RigidBodyState& state_t1,
+        double alpha) noexcept;
+
+    /**
+     * @brief Predicts state advance to compensate for discrete zero-order hold solver latency.
+     */
+    [[nodiscard]] static physim::RigidBodyState compensate_latency(
+        const physim::RigidBodyState& current_state,
+        double latency_s) noexcept;
 };
 
 } // namespace shunya::cosim
