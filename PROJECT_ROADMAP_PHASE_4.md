@@ -15,9 +15,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 61 | 19.6% |
+| `[ ]` | Not Started | 31 | 9.9% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 251 | 80.4% |
+| `[x]` | Completed | 281 | 90.1% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -36,10 +36,10 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 8 | `CIRSIM` | Dedicated Circuit Simulation Engine (DC, AC, Transient & Non-Linear) | P0 | 26 | 26 | 100.0% | `[x]` |
 | 9 | `PHYSIM` | 3D Physics & Multi-Body Mechanical Machine Simulator | P0 | 26 | 26 | 100.0% | `[x]` |
 | 10 | `COSIM` | Circuit-to-3D Electro-Mechanical Simulation Integration | P0 | 24 | 24 | 100.0% | `[x]` |
-| 11 | `RIG3D` | Advanced Modifiers, Organic Modeling & Skeletal Rigging | P1 | 20 | 0 | 0.0% | `[ ]` |
-| 12 | `UIUX` | Professional UI Polish & VS Code-Style Menu System | P0 | 18 | 0 | 0.0% | `[ ]` |
+| 11 | `RIG3D` | Advanced Modifiers, Organic Modeling & Skeletal Rigging | P1 | 20 | 20 | 100.0% | `[x]` |
+| 12 | `UIUX` | Professional UI Polish & VS Code-Style Menu System | P0 | 18 | 10 | 55.6% | `[~]` |
 | 13 | `QA` | Verification, Test Automation & CI/CD Pipeline | P0 | 20 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 4 Integrated Engineering Platform** | **--** | **312** | **251** | **80.4%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 4 Integrated Engineering Platform** | **--** | **312** | **281** | **90.1%** | `[~]` |
 
 ---
 
@@ -874,21 +874,21 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
 ## Module PH4-12: Professional UI Polish & VS Code-Style Menu System (`UIUX`)
 
 **Objective:** Redesign the application menu bar and navigation infrastructure to deliver a pixel-perfect, native-feeling desktop engineering interface modeled after Visual Studio Code, along with comprehensive UI polish.  
-**Priority:** P0 | **Complexity:** Medium | **Dependencies:** `AUDIT` | **Status:** `[ ] Not Started` (0/18)
+**Priority:** P0 | **Complexity:** Medium | **Dependencies:** `AUDIT` | **Status:** `[~] In Progress` (10/18)
 
 ### Submodule PH4-12.01: VS Code-Style Application Menu Bar
-- [ ] `PH4-12.01.001`: Rebuild `MainMenuBar.qml` with custom desktop menu styling matching Visual Studio Code's dark and light aesthetic.
-- [ ] `PH4-12.01.002`: Ensure exact menu bar item layout: 30px height, consistent typography, 8px horizontal padding, and subtle hover highlights.
-- [ ] `PH4-12.01.003`: Implement proper floating dropdown positioning: dropdowns open directly below menu titles without jitter, offset, or parent clipping.
-- [ ] `PH4-12.01.004`: Implement nested submenus with smooth hover expansion, chevron indicators, and intelligent screen-boundary flip (prevent opening offscreen).
-- [ ] `PH4-12.01.005`: Implement keyboard navigation: Alt-key mnemonics (Alt+F, Alt+E, Alt+W, Alt+S, Alt+H), Arrow key navigation (Up, Down, Left, Right), Enter to trigger, and Esc to dismiss.
-- [ ] `PH4-12.01.006`: Right-align keyboard shortcut badges (e.g., `Ctrl+N`, `Ctrl+Shift+S`, `F5`) in muted monospace typography.
-- [ ] `PH4-12.01.007`: Implement consistent visual menu separators, disabled item opacity (40%), and checkable menu item ticks.
-- [ ] `PH4-12.01.008`: Implement robust click-outside-to-close behavior and correct modal z-index layering over 3D and 2D viewports.
+- [x] `PH4-12.01.001`: Rebuild `MainMenuBar.qml` with custom desktop menu styling matching Visual Studio Code's dark and light aesthetic.
+- [x] `PH4-12.01.002`: Ensure exact menu bar item layout: 30px height, consistent typography, 8px horizontal padding, and subtle hover highlights.
+- [x] `PH4-12.01.003`: Implement proper floating dropdown positioning: dropdowns open directly below menu titles without jitter, offset, or parent clipping.
+- [x] `PH4-12.01.004`: Implement nested submenus with smooth hover expansion, chevron indicators, and intelligent screen-boundary flip (prevent opening offscreen).
+- [x] `PH4-12.01.005`: Implement keyboard navigation: Alt-key mnemonics (Alt+F, Alt+E, Alt+W, Alt+S, Alt+H), Arrow key navigation (Up, Down, Left, Right), Enter to trigger, and Esc to dismiss.
+- [x] `PH4-12.01.006`: Right-align keyboard shortcut badges (e.g., `Ctrl+N`, `Ctrl+Shift+S`, `F5`) in muted monospace typography.
+- [x] `PH4-12.01.007`: Implement consistent visual menu separators, disabled item opacity (40%), and checkable menu item ticks.
+- [x] `PH4-12.01.008`: Implement robust click-outside-to-close behavior and correct modal z-index layering over 3D and 2D viewports.
 
 ### Submodule PH4-12.02: Workspace Navigation & Window Polish
-- [ ] `PH4-12.02.001`: Refine the primary Workspace Switcher bar with clear active indicator highlights and icon/text alignment.
-- [ ] `PH4-12.02.002`: Ensure all 9 primary workspaces are accessible, reactive, and preserve their view states when switched:
+- [x] `PH4-12.02.001`: Refine the primary Workspace Switcher bar with clear active indicator highlights and icon/text alignment.
+- [x] `PH4-12.02.002`: Ensure all 9 primary workspaces are accessible, reactive, and preserve their view states when switched:
   1. Chemical Elements
   2. Materials & Mixing Lab
   3. Physical Objects

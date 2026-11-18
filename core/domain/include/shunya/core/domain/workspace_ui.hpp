@@ -773,6 +773,7 @@ enum class MenuCategory {
     Edit,
     View,
     Insert,
+    Workspaces,
     Simulation,
     Tools,
     Window,
@@ -785,6 +786,7 @@ enum class MenuCategory {
         case MenuCategory::Edit: return "Edit";
         case MenuCategory::View: return "View";
         case MenuCategory::Insert: return "Insert";
+        case MenuCategory::Workspaces: return "Workspaces";
         case MenuCategory::Simulation: return "Simulation";
         case MenuCategory::Tools: return "Tools";
         case MenuCategory::Window: return "Window";
@@ -915,6 +917,130 @@ private:
 
     MenuItemDescriptor* recursive_find(std::vector<MenuItemDescriptor>& items, std::string_view id);
     const MenuItemDescriptor* recursive_find(const std::vector<MenuItemDescriptor>& items, std::string_view id) const;
+};
+
+// =============================================================================
+// PH4-12: VS Code Menu System & Workspace Management Models
+// =============================================================================
+
+struct VSCodeMenuStyleConfig {
+    double bar_height{30.0};
+    double bar_padding_horizontal{8.0};
+    double item_height{28.0};
+    double item_padding_horizontal{8.0};
+    double item_icon_width{20.0};
+    double item_shortcut_spacing{16.0};
+    double disabled_opacity{0.40};
+    double separator_height{9.0};
+    double separator_line_height{1.0};
+    int popup_z_index{10000};
+    double dropdown_min_width{220.0};
+    double dropdown_offset_y{30.0};
+    std::string dark_bg_color{"#1E1E1E"};
+    std::string dark_border_color{"#333333"};
+    std::string dark_hover_color{"#2A2D2E"};
+    std::string dark_active_color{"#37373D"};
+    std::string light_bg_color{"#F3F3F3"};
+    std::string light_border_color{"#D4D4D4"};
+    std::string light_hover_color{"#E8E8E8"};
+    std::string light_active_color{"#DADADA"};
+};
+
+struct DropdownPosition {
+    double x{0.0};
+    double y{30.0};
+    double width{220.0};
+    bool flipped_horizontal{false};
+    bool clamped{false};
+};
+
+struct SubmenuPosition {
+    double x{0.0};
+    double y{0.0};
+    double width{220.0};
+    bool flipped_left{false};
+    bool clamped_vertical{false};
+};
+
+[[nodiscard]] DropdownPosition compute_dropdown_position(
+    double item_x, double item_width, double dropdown_width, double window_width, double bar_height = 30.0);
+
+[[nodiscard]] SubmenuPosition compute_submenu_position(
+    double parent_abs_x, double parent_abs_y, double parent_width, double parent_item_y,
+    double submenu_width, double submenu_height, double window_width, double window_height);
+
+enum class NavigationKey {
+    Up,
+    Down,
+    Left,
+    Right,
+    Enter,
+    Escape
+};
+
+[[nodiscard]] std::optional<MenuCategory> resolve_alt_mnemonic(std::string_view key_combination);
+
+class MenuNavigationController {
+public:
+    MenuNavigationController() = default;
+
+    void set_categories(std::vector<MenuCategory> categories);
+    void set_items_for_category(MenuCategory cat, std::vector<MenuItemDescriptor> items);
+
+    bool open_menu(MenuCategory cat);
+    void close_menu();
+    [[nodiscard]] bool is_menu_open() const noexcept { return is_open_; }
+    [[nodiscard]] std::optional<MenuCategory> active_category() const noexcept { return active_cat_; }
+    [[nodiscard]] int active_category_index() const noexcept { return active_cat_index_; }
+    [[nodiscard]] int focused_item_index() const noexcept { return focused_item_index_; }
+
+    void handle_key(NavigationKey key);
+    [[nodiscard]] const MenuItemDescriptor* focused_item() const;
+    [[nodiscard]] bool execute_focused_item();
+
+    [[nodiscard]] bool is_submenu_open() const noexcept { return submenu_open_; }
+    [[nodiscard]] int focused_submenu_item_index() const noexcept { return focused_submenu_item_index_; }
+
+private:
+    std::vector<MenuCategory> categories_;
+    std::unordered_map<MenuCategory, std::vector<MenuItemDescriptor>> items_;
+    bool is_open_{false};
+    std::optional<MenuCategory> active_cat_;
+    int active_cat_index_{-1};
+    int focused_item_index_{-1};
+    bool submenu_open_{false};
+    int focused_submenu_item_index_{-1};
+};
+
+struct PrimaryWorkspaceInfo {
+    int index{1};
+    std::string id;
+    std::string label;
+    std::string icon;
+    std::string shortcut;
+    std::string description;
+};
+
+class WorkspaceNavigationModel {
+public:
+    WorkspaceNavigationModel();
+
+    [[nodiscard]] const std::vector<PrimaryWorkspaceInfo>& workspaces() const noexcept { return workspaces_; }
+    [[nodiscard]] const PrimaryWorkspaceInfo* find_workspace(std::string_view id) const;
+    [[nodiscard]] const PrimaryWorkspaceInfo* find_workspace_by_index(int index) const;
+
+    bool set_active_workspace(std::string_view id);
+    [[nodiscard]] std::string active_workspace_id() const { return active_workspace_id_; }
+    [[nodiscard]] int active_workspace_index() const;
+
+    void save_view_state(std::string_view workspace_id, std::string key, std::string value);
+    [[nodiscard]] std::string get_view_state(std::string_view workspace_id, std::string_view key, std::string default_val = "") const;
+    [[nodiscard]] bool has_view_state(std::string_view workspace_id) const;
+
+private:
+    std::vector<PrimaryWorkspaceInfo> workspaces_;
+    std::string active_workspace_id_{"elements"};
+    std::unordered_map<std::string, std::unordered_map<std::string, std::string>> view_states_;
 };
 
 } // namespace shunya::core::domain

@@ -1459,6 +1459,7 @@ std::optional<MenuCategory> menu_category_from_string(std::string_view str) noex
     if (str == "Edit") return MenuCategory::Edit;
     if (str == "View") return MenuCategory::View;
     if (str == "Insert") return MenuCategory::Insert;
+    if (str == "Workspaces") return MenuCategory::Workspaces;
     if (str == "Simulation") return MenuCategory::Simulation;
     if (str == "Tools") return MenuCategory::Tools;
     if (str == "Window") return MenuCategory::Window;
@@ -1777,6 +1778,282 @@ bool ApplicationMenuBarModel::execute_item(std::string_view id) {
         return true;
     }
     return false;
+}
+
+// =============================================================================
+// PH4-12: VS Code Menu System & Workspace Management Implementations
+// =============================================================================
+
+DropdownPosition compute_dropdown_position(
+    double item_x, double item_width, double dropdown_width, double window_width, double bar_height) {
+    (void)item_width;
+    DropdownPosition pos;
+    pos.y = bar_height;
+    pos.width = std::max(220.0, dropdown_width);
+    pos.x = item_x;
+
+    if (pos.x + pos.width > window_width) {
+        pos.x = std::max(0.0, window_width - pos.width);
+        pos.clamped = true;
+        pos.flipped_horizontal = true;
+    }
+    return pos;
+}
+
+SubmenuPosition compute_submenu_position(
+    double parent_abs_x, double parent_abs_y, double parent_width, double parent_item_y,
+    double submenu_width, double submenu_height, double window_width, double window_height) {
+    SubmenuPosition pos;
+    pos.width = std::max(220.0, submenu_width);
+    pos.x = parent_abs_x + parent_width;
+    pos.y = parent_abs_y + parent_item_y;
+
+    if (pos.x + pos.width > window_width) {
+        pos.x = std::max(0.0, parent_abs_x - pos.width);
+        pos.flipped_left = true;
+    }
+
+    if (pos.y + submenu_height > window_height) {
+        pos.y = std::max(0.0, window_height - submenu_height);
+        pos.clamped_vertical = true;
+    }
+
+    return pos;
+}
+
+std::optional<MenuCategory> resolve_alt_mnemonic(std::string_view key_combination) {
+    std::string norm;
+    norm.reserve(key_combination.size());
+    for (char c : key_combination) {
+        norm.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(c))));
+    }
+
+    if (norm == "alt+f") return MenuCategory::File;
+    if (norm == "alt+e") return MenuCategory::Edit;
+    if (norm == "alt+v") return MenuCategory::View;
+    if (norm == "alt+w") return MenuCategory::Workspaces;
+    if (norm == "alt+s") return MenuCategory::Simulation;
+    if (norm == "alt+t") return MenuCategory::Tools;
+    if (norm == "alt+h") return MenuCategory::Help;
+    return std::nullopt;
+}
+
+void MenuNavigationController::set_categories(std::vector<MenuCategory> categories) {
+    categories_ = std::move(categories);
+}
+
+void MenuNavigationController::set_items_for_category(MenuCategory cat, std::vector<MenuItemDescriptor> items) {
+    items_[cat] = std::move(items);
+}
+
+bool MenuNavigationController::open_menu(MenuCategory cat) {
+    for (size_t i = 0; i < categories_.size(); ++i) {
+        if (categories_[i] == cat) {
+            is_open_ = true;
+            active_cat_ = cat;
+            active_cat_index_ = static_cast<int>(i);
+            focused_item_index_ = 0;
+            submenu_open_ = false;
+            focused_submenu_item_index_ = -1;
+            return true;
+        }
+    }
+    return false;
+}
+
+void MenuNavigationController::close_menu() {
+    is_open_ = false;
+    active_cat_ = std::nullopt;
+    active_cat_index_ = -1;
+    focused_item_index_ = -1;
+    submenu_open_ = false;
+    focused_submenu_item_index_ = -1;
+}
+
+void MenuNavigationController::handle_key(NavigationKey key) {
+    if (!is_open_ || !active_cat_.has_value()) {
+        return;
+    }
+
+    auto it = items_.find(*active_cat_);
+    const auto& current_items = (it != items_.end()) ? it->second : std::vector<MenuItemDescriptor>{};
+    const int count = static_cast<int>(current_items.size());
+
+    switch (key) {
+        case NavigationKey::Down: {
+            if (submenu_open_ && focused_item_index_ >= 0 && focused_item_index_ < count) {
+                const auto& subs = current_items[static_cast<size_t>(focused_item_index_)].sub_items;
+                if (!subs.empty()) {
+                    focused_submenu_item_index_ = (focused_submenu_item_index_ + 1) % static_cast<int>(subs.size());
+                }
+            } else if (count > 0) {
+                focused_item_index_ = (focused_item_index_ + 1) % count;
+                // Skip separators
+                if (current_items[static_cast<size_t>(focused_item_index_)].is_separator) {
+                    focused_item_index_ = (focused_item_index_ + 1) % count;
+                }
+            }
+            break;
+        }
+        case NavigationKey::Up: {
+            if (submenu_open_ && focused_item_index_ >= 0 && focused_item_index_ < count) {
+                const auto& subs = current_items[static_cast<size_t>(focused_item_index_)].sub_items;
+                if (!subs.empty()) {
+                    focused_submenu_item_index_ = (focused_submenu_item_index_ - 1 + static_cast<int>(subs.size())) % static_cast<int>(subs.size());
+                }
+            } else if (count > 0) {
+                focused_item_index_ = (focused_item_index_ - 1 + count) % count;
+                if (current_items[static_cast<size_t>(focused_item_index_)].is_separator) {
+                    focused_item_index_ = (focused_item_index_ - 1 + count) % count;
+                }
+            }
+            break;
+        }
+        case NavigationKey::Right: {
+            if (!submenu_open_ && focused_item_index_ >= 0 && focused_item_index_ < count) {
+                const auto& cur = current_items[static_cast<size_t>(focused_item_index_)];
+                if (!cur.sub_items.empty()) {
+                    submenu_open_ = true;
+                    focused_submenu_item_index_ = 0;
+                    return;
+                }
+            }
+            if (!categories_.empty()) {
+                active_cat_index_ = (active_cat_index_ + 1) % static_cast<int>(categories_.size());
+                active_cat_ = categories_[static_cast<size_t>(active_cat_index_)];
+                focused_item_index_ = 0;
+                submenu_open_ = false;
+                focused_submenu_item_index_ = -1;
+            }
+            break;
+        }
+        case NavigationKey::Left: {
+            if (submenu_open_) {
+                submenu_open_ = false;
+                focused_submenu_item_index_ = -1;
+                return;
+            }
+            if (!categories_.empty()) {
+                active_cat_index_ = (active_cat_index_ - 1 + static_cast<int>(categories_.size())) % static_cast<int>(categories_.size());
+                active_cat_ = categories_[static_cast<size_t>(active_cat_index_)];
+                focused_item_index_ = 0;
+                submenu_open_ = false;
+                focused_submenu_item_index_ = -1;
+            }
+            break;
+        }
+        case NavigationKey::Enter: {
+            (void)execute_focused_item();
+            break;
+        }
+        case NavigationKey::Escape: {
+            if (submenu_open_) {
+                submenu_open_ = false;
+                focused_submenu_item_index_ = -1;
+            } else {
+                close_menu();
+            }
+            break;
+        }
+    }
+}
+
+const MenuItemDescriptor* MenuNavigationController::focused_item() const {
+    if (!active_cat_.has_value()) return nullptr;
+    auto it = items_.find(*active_cat_);
+    if (it == items_.end()) return nullptr;
+    const auto& current_items = it->second;
+
+    if (focused_item_index_ < 0 || focused_item_index_ >= static_cast<int>(current_items.size())) {
+        return nullptr;
+    }
+
+    if (submenu_open_) {
+        const auto& parent = current_items[static_cast<size_t>(focused_item_index_)];
+        if (focused_submenu_item_index_ >= 0 && focused_submenu_item_index_ < static_cast<int>(parent.sub_items.size())) {
+            return &parent.sub_items[static_cast<size_t>(focused_submenu_item_index_)];
+        }
+    }
+
+    return &current_items[static_cast<size_t>(focused_item_index_)];
+}
+
+bool MenuNavigationController::execute_focused_item() {
+    const auto* item = focused_item();
+    if (!item || !item->is_enabled) return false;
+    if (!item->sub_items.empty() && !submenu_open_) {
+        submenu_open_ = true;
+        focused_submenu_item_index_ = 0;
+        return true;
+    }
+    if (item->callback) {
+        item->callback();
+        close_menu();
+        return true;
+    }
+    close_menu();
+    return true;
+}
+
+WorkspaceNavigationModel::WorkspaceNavigationModel() {
+    workspaces_ = {
+        PrimaryWorkspaceInfo{1, "elements", "Elements", "elements", "Alt+1", "Chemical Elements & Electronic Configurations"},
+        PrimaryWorkspaceInfo{2, "mixing_lab", "Mixing Lab", "mixing", "Alt+2", "Materials & Mixing Lab"},
+        PrimaryWorkspaceInfo{3, "objects", "Objects", "objects", "Alt+3", "Physical Objects"},
+        PrimaryWorkspaceInfo{4, "components", "Components", "components", "Alt+4", "Functional Components & Battery"},
+        PrimaryWorkspaceInfo{5, "circuits", "Circuits", "circuits", "Alt+5", "Circuit Designer & Simulator"},
+        PrimaryWorkspaceInfo{6, "editor_2d", "2D CAD", "editor2d", "Alt+6", "2D CAD Editor"},
+        PrimaryWorkspaceInfo{7, "editor_3d", "3D CAD", "editor3d", "Alt+7", "3D CAD Viewport"},
+        PrimaryWorkspaceInfo{8, "simulation", "Simulation", "simulation", "Alt+8", "Physics Simulation"},
+        PrimaryWorkspaceInfo{9, "settings", "Settings", "settings", "Alt+9", "Project Settings"}
+    };
+    active_workspace_id_ = "elements";
+}
+
+const PrimaryWorkspaceInfo* WorkspaceNavigationModel::find_workspace(std::string_view id) const {
+    for (const auto& ws : workspaces_) {
+        if (ws.id == id) return &ws;
+    }
+    return nullptr;
+}
+
+const PrimaryWorkspaceInfo* WorkspaceNavigationModel::find_workspace_by_index(int index) const {
+    for (const auto& ws : workspaces_) {
+        if (ws.index == index) return &ws;
+    }
+    return nullptr;
+}
+
+bool WorkspaceNavigationModel::set_active_workspace(std::string_view id) {
+    const auto* ws = find_workspace(id);
+    if (!ws) return false;
+    active_workspace_id_ = std::string(id);
+    return true;
+}
+
+int WorkspaceNavigationModel::active_workspace_index() const {
+    const auto* ws = find_workspace(active_workspace_id_);
+    return ws ? ws->index : 1;
+}
+
+void WorkspaceNavigationModel::save_view_state(std::string_view workspace_id, std::string key, std::string value) {
+    view_states_[std::string(workspace_id)][std::move(key)] = std::move(value);
+}
+
+std::string WorkspaceNavigationModel::get_view_state(std::string_view workspace_id, std::string_view key, std::string default_val) const {
+    auto it_ws = view_states_.find(std::string(workspace_id));
+    if (it_ws != view_states_.end()) {
+        auto it_kv = it_ws->second.find(std::string(key));
+        if (it_kv != it_ws->second.end()) {
+            return it_kv->second;
+        }
+    }
+    return default_val;
+}
+
+bool WorkspaceNavigationModel::has_view_state(std::string_view workspace_id) const {
+    auto it_ws = view_states_.find(std::string(workspace_id));
+    return it_ws != view_states_.end() && !it_ws->second.empty();
 }
 
 } // namespace shunya::core::domain

@@ -29,6 +29,7 @@ add_executable(shunya_unit_tests
     unit/test_data_exchange.cpp
     unit/test_workspace_ui.cpp
     unit/test_ui_menu_bar.cpp
+    unit/test_ui_vscode_menu_and_workspaces.cpp
     unit/test_ui_docking.cpp
     unit/test_ui_ribbon_command.cpp
     unit/test_ui_property_inspector.cpp
