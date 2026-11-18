@@ -158,6 +158,36 @@ public:
         const QVariantList& inputs,
         bool alsoPromoteToMaterial);
 
+    Q_INVOKABLE QVariantMap saveExperimentFile(
+        const QString& name,
+        const QString& scenario,
+        double tempK,
+        double pressurePa,
+        bool oxidizing,
+        double densityOverride,
+        const QVariantList& inputs,
+        const QString& author = "Shunya Scientist",
+        const QString& notes = "",
+        const QStringList& tags = {});
+
+    Q_INVOKABLE QVariantMap updateExperimentFile(
+        const QString& expId,
+        const QString& name,
+        const QString& scenario,
+        double tempK,
+        double pressurePa,
+        bool oxidizing,
+        double densityOverride,
+        const QVariantList& inputs,
+        const QString& notes = "");
+
+    Q_INVOKABLE QVariantMap deleteExperimentFile(const QString& expId);
+    Q_INVOKABLE QVariantMap duplicateExperimentFile(const QString& expId);
+    Q_INVOKABLE QVariantMap renameExperimentFile(const QString& expId, const QString& newName);
+    Q_INVOKABLE QVariantList listSavedExperimentFiles() const;
+    Q_INVOKABLE QVariantMap importExperimentFile(const QString& filePath);
+    Q_INVOKABLE QVariantMap exportExperimentFile(const QString& expId, const QString& destinationPath) const;
+
     Q_INVOKABLE QVariantMap updateMaterialParameters(
         const QString& materialId,
         double densityKgM3,

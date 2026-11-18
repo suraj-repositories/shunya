@@ -263,6 +263,7 @@ MenuBar {
             VSCodeMenuItem { text: qsTr("AutoCAD &DXF (*.dxf)..."); onTriggered: { root.pendingImportFmt = "DXF"; importFileDlg.open(); } }
             VSCodeMenuItem { text: qsTr("Scalable Vector Graphics (*.&svg)..."); onTriggered: { root.pendingImportFmt = "SVG"; importFileDlg.open(); } }
             VSCodeMenuItem { text: qsTr("&Material JSON (*.json)..."); onTriggered: { root.pendingImportFmt = "MATERIAL_JSON"; importFileDlg.open(); } }
+            VSCodeMenuItem { text: qsTr("&Material Experiment (*.shunya-mix.json)..."); onTriggered: { root.pendingImportFmt = "MIX_JSON"; importFileDlg.open(); } }
         }
         Menu {
             id: exportMenu
@@ -274,6 +275,7 @@ MenuBar {
             delegate: VSCodeMenuItem {}
 
             VSCodeMenuItem { text: qsTr("Shunya v3 &Bundle (*.shunya3.json)..."); onTriggered: { root.pendingExportFmt = "BUNDLE"; exportFileDlg.open(); } }
+            VSCodeMenuItem { text: qsTr("&Material Experiment (*.shunya-mix.json)..."); onTriggered: { root.pendingExportFmt = "MIX_JSON"; exportFileDlg.open(); } }
             VSCodeMenuItem { text: qsTr("AutoCAD &DXF Sketch (*.dxf)..."); onTriggered: { root.pendingExportFmt = "DXF"; exportFileDlg.open(); } }
             VSCodeMenuItem { text: qsTr("&SVG Vector Sketch (*.svg)..."); onTriggered: { root.pendingExportFmt = "SVG"; exportFileDlg.open(); } }
         }

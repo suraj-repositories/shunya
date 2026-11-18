@@ -5,6 +5,7 @@
 #include "shunya/mat/virtual_test_bench.hpp"
 #include "shunya/mat/atomic_bond_checker.hpp"
 #include "shunya/mat/material_comparison_engine.hpp"
+#include "shunya/mat/experiment_persistence.hpp"
 
 #include <QFileInfo>
 #include <QUrl>
@@ -844,6 +845,350 @@ QVariantMap ShunyaPipelineController::saveAndPromoteMixture(
     out["experimentId"] = QString::fromStdString(exp.id.to_string());
     ws_->notify_change(eng::DependencyChangeKind::MixtureUpdated, exp.id,
                        "Saved mixture experiment '" + exp.name + "'");
+    return out;
+}
+
+QVariantMap ShunyaPipelineController::saveExperimentFile(
+    const QString& name,
+    const QString& scenario,
+    double tempK,
+    double pressurePa,
+    bool oxidizing,
+    double densityOverride,
+    const QVariantList& inputs,
+    const QString& author,
+    const QString& notes,
+    const QStringList& tags) {
+    QVariantMap out;
+    mat::VersionedExperimentBundle bundle;
+    bundle.metadata.schema_version = "5.0.0";
+    bundle.metadata.application_version = "5.0.0";
+    bundle.metadata.author = author.toStdString();
+    bundle.metadata.notes = notes.toStdString();
+    bundle.metadata.created_at = mat::ExperimentPersistence::current_iso8601_timestamp();
+    bundle.metadata.modified_at = bundle.metadata.created_at;
+    for (const auto& t : tags) bundle.metadata.tags.push_back(t.toStdString());
+
+    bundle.experiment.id = core::base::Uuid::generate_random();
+    bundle.experiment.name = name.toStdString();
+    auto sc_res = mat::formation_scenario_from_string(scenario.toStdString());
+    bundle.experiment.scenario = sc_res.is_ok() ? sc_res.value() : mat::FormationScenario::PhysicalMixture;
+    bundle.experiment.temperature_k = tempK;
+    bundle.experiment.pressure_pa = pressurePa;
+    bundle.experiment.oxidizing_atmosphere = oxidizing;
+    bundle.experiment.user_density_override_kg_m3 = densityOverride;
+    bundle.experiment.inputs = inputsFromVariantList(inputs);
+
+    std::filesystem::path exp_dir = "experiments";
+    std::filesystem::path file_path = exp_dir / (bundle.experiment.id.to_string() + ".shunya-mix.json");
+
+    auto save_res = mat::ExperimentPersistence::save_atomic(file_path, bundle);
+    if (save_res.is_err()) {
+        out["ok"] = false;
+        out["error"] = QString::fromStdString(save_res.error().message);
+        return out;
+    }
+
+    ws_->mixture_experiments().push_back(bundle.experiment);
+    ws_->notify_change(eng::DependencyChangeKind::MixtureUpdated, bundle.experiment.id,
+                       "Saved mixture experiment file '" + bundle.experiment.name + "'");
+
+    out["ok"] = true;
+    out["experimentId"] = QString::fromStdString(bundle.experiment.id.to_string());
+    out["filePath"] = QString::fromStdString(file_path.string());
+    return out;
+}
+
+QVariantMap ShunyaPipelineController::updateExperimentFile(
+    const QString& expId,
+    const QString& name,
+    const QString& scenario,
+    double tempK,
+    double pressurePa,
+    bool oxidizing,
+    double densityOverride,
+    const QVariantList& inputs,
+    const QString& notes) {
+    QVariantMap out;
+    auto uid = core::base::Uuid::from_string(expId.toStdString());
+    if (!uid) {
+        out["ok"] = false;
+        out["error"] = "Invalid experiment UUID";
+        return out;
+    }
+
+    std::filesystem::path exp_dir = "experiments";
+    std::filesystem::path file_path = exp_dir / (expId.toStdString() + ".shunya-mix.json");
+
+    mat::VersionedExperimentBundle bundle;
+    if (std::filesystem::exists(file_path)) {
+        auto load_res = mat::ExperimentPersistence::load_file(file_path, ws_->element_database());
+        if (load_res.is_ok()) bundle = load_res.value();
+    }
+
+    bundle.metadata.modified_at = mat::ExperimentPersistence::current_iso8601_timestamp();
+    if (!notes.isEmpty()) bundle.metadata.notes = notes.toStdString();
+
+    bundle.experiment.id = *uid;
+    bundle.experiment.name = name.toStdString();
+    auto sc_res = mat::formation_scenario_from_string(scenario.toStdString());
+    bundle.experiment.scenario = sc_res.is_ok() ? sc_res.value() : mat::FormationScenario::PhysicalMixture;
+    bundle.experiment.temperature_k = tempK;
+    bundle.experiment.pressure_pa = pressurePa;
+    bundle.experiment.oxidizing_atmosphere = oxidizing;
+    bundle.experiment.user_density_override_kg_m3 = densityOverride;
+    bundle.experiment.inputs = inputsFromVariantList(inputs);
+
+    auto save_res = mat::ExperimentPersistence::save_atomic(file_path, bundle);
+    if (save_res.is_err()) {
+        out["ok"] = false;
+        out["error"] = QString::fromStdString(save_res.error().message);
+        return out;
+    }
+
+    auto& list = ws_->mixture_experiments();
+    for (auto& e : list) {
+        if (e.id == *uid) {
+            e = bundle.experiment;
+            break;
+        }
+    }
+
+    ws_->notify_change(eng::DependencyChangeKind::MixtureUpdated, *uid,
+                       "Updated mixture experiment '" + bundle.experiment.name + "'");
+    out["ok"] = true;
+    out["experimentId"] = expId;
+    return out;
+}
+
+QVariantMap ShunyaPipelineController::deleteExperimentFile(const QString& expId) {
+    QVariantMap out;
+    auto uid = core::base::Uuid::from_string(expId.toStdString());
+    if (!uid) {
+        out["ok"] = false;
+        out["error"] = "Invalid experiment UUID";
+        return out;
+    }
+
+    std::filesystem::path exp_dir = "experiments";
+    std::filesystem::path file_path = exp_dir / (expId.toStdString() + ".shunya-mix.json");
+    std::filesystem::path trash_dir = exp_dir / ".trash";
+
+    if (std::filesystem::exists(file_path)) {
+        auto del_res = mat::ExperimentPersistence::delete_to_trash(file_path, trash_dir);
+        if (del_res.is_err()) {
+            out["ok"] = false;
+            out["error"] = QString::fromStdString(del_res.error().message);
+            return out;
+        }
+        out["trashedPath"] = QString::fromStdString(del_res.value().string());
+    }
+
+    auto& list = ws_->mixture_experiments();
+    list.erase(std::remove_if(list.begin(), list.end(), [&](const auto& e) { return e.id == *uid; }), list.end());
+
+    ws_->notify_change(eng::DependencyChangeKind::MixtureUpdated, *uid, "Deleted mixture experiment");
+    out["ok"] = true;
+    return out;
+}
+
+QVariantMap ShunyaPipelineController::duplicateExperimentFile(const QString& expId) {
+    QVariantMap out;
+    auto uid = core::base::Uuid::from_string(expId.toStdString());
+    if (!uid) {
+        out["ok"] = false;
+        out["error"] = "Invalid experiment UUID";
+        return out;
+    }
+
+    std::filesystem::path exp_dir = "experiments";
+    std::filesystem::path file_path = exp_dir / (expId.toStdString() + ".shunya-mix.json");
+
+    auto load_res = mat::ExperimentPersistence::load_file(file_path, ws_->element_database());
+    if (load_res.is_err()) {
+        out["ok"] = false;
+        out["error"] = QString::fromStdString(load_res.error().message);
+        return out;
+    }
+
+    auto bundle = load_res.value();
+    bundle.experiment.id = core::base::Uuid::generate_random();
+    bundle.experiment.name += " (Copy)";
+    bundle.metadata.created_at = mat::ExperimentPersistence::current_iso8601_timestamp();
+    bundle.metadata.modified_at = bundle.metadata.created_at;
+
+    std::filesystem::path new_file_path = exp_dir / (bundle.experiment.id.to_string() + ".shunya-mix.json");
+    auto save_res = mat::ExperimentPersistence::save_atomic(new_file_path, bundle);
+    if (save_res.is_err()) {
+        out["ok"] = false;
+        out["error"] = QString::fromStdString(save_res.error().message);
+        return out;
+    }
+
+    ws_->mixture_experiments().push_back(bundle.experiment);
+    ws_->notify_change(eng::DependencyChangeKind::MixtureUpdated, bundle.experiment.id,
+                       "Duplicated experiment to '" + bundle.experiment.name + "'");
+
+    out["ok"] = true;
+    out["experimentId"] = QString::fromStdString(bundle.experiment.id.to_string());
+    out["name"] = QString::fromStdString(bundle.experiment.name);
+    return out;
+}
+
+QVariantMap ShunyaPipelineController::renameExperimentFile(const QString& expId, const QString& newName) {
+    QVariantMap out;
+    auto uid = core::base::Uuid::from_string(expId.toStdString());
+    if (!uid) {
+        out["ok"] = false;
+        out["error"] = "Invalid experiment UUID";
+        return out;
+    }
+
+    std::filesystem::path exp_dir = "experiments";
+    std::filesystem::path file_path = exp_dir / (expId.toStdString() + ".shunya-mix.json");
+
+    if (!std::filesystem::exists(file_path)) {
+        out["ok"] = false;
+        out["error"] = "Experiment file does not exist";
+        return out;
+    }
+
+    auto load_res = mat::ExperimentPersistence::load_file(file_path, ws_->element_database());
+    if (load_res.is_err()) {
+        out["ok"] = false;
+        out["error"] = QString::fromStdString(load_res.error().message);
+        return out;
+    }
+
+    auto bundle = load_res.value();
+    bundle.experiment.name = newName.toStdString();
+    bundle.metadata.modified_at = mat::ExperimentPersistence::current_iso8601_timestamp();
+
+    auto save_res = mat::ExperimentPersistence::save_atomic(file_path, bundle);
+    if (save_res.is_err()) {
+        out["ok"] = false;
+        out["error"] = QString::fromStdString(save_res.error().message);
+        return out;
+    }
+
+    for (auto& e : ws_->mixture_experiments()) {
+        if (e.id == *uid) {
+            e.name = newName.toStdString();
+            break;
+        }
+    }
+
+    ws_->notify_change(eng::DependencyChangeKind::MixtureUpdated, *uid,
+                       "Renamed mixture experiment to '" + newName.toStdString() + "'");
+    out["ok"] = true;
+    out["name"] = newName;
+    return out;
+}
+
+QVariantList ShunyaPipelineController::listSavedExperimentFiles() const {
+    QVariantList out;
+    std::filesystem::path exp_dir = "experiments";
+    auto list = mat::ExperimentPersistence::list_experiments(exp_dir, ws_->element_database());
+
+    for (const auto& b : list) {
+        QVariantMap m;
+        m["id"] = QString::fromStdString(b.experiment.id.to_string());
+        m["name"] = QString::fromStdString(b.experiment.name);
+        m["scenario"] = QString::fromStdString(std::string(mat::formation_scenario_to_string(b.experiment.scenario)));
+        m["temperatureK"] = b.experiment.temperature_k;
+        m["pressurePa"] = b.experiment.pressure_pa;
+        m["oxidizing"] = b.experiment.oxidizing_atmosphere;
+        m["densityOverride"] = b.experiment.user_density_override_kg_m3;
+        m["author"] = QString::fromStdString(b.metadata.author);
+        m["createdAt"] = QString::fromStdString(b.metadata.created_at);
+        m["modifiedAt"] = QString::fromStdString(b.metadata.modified_at);
+        m["notes"] = QString::fromStdString(b.metadata.notes);
+
+        QStringList tag_list;
+        for (const auto& t : b.metadata.tags) tag_list.append(QString::fromStdString(t));
+        m["tags"] = tag_list;
+
+        QVariantList in_list;
+        for (const auto& in : b.experiment.inputs) {
+            QVariantMap inm;
+            inm["symbol_or_id"] = QString::fromStdString(in.symbol_or_id);
+            inm["amount"] = in.amount;
+            inm["basis"] = QString::fromStdString(std::string(mat::basis_to_string(in.basis)));
+            in_list.append(inm);
+        }
+        m["inputs"] = in_list;
+        out.append(m);
+    }
+    return out;
+}
+
+QVariantMap ShunyaPipelineController::importExperimentFile(const QString& filePath) {
+    QVariantMap out;
+    QString clean_path = normalizeLocalPath(filePath);
+    std::filesystem::path p(clean_path.toStdString());
+
+    auto load_res = mat::ExperimentPersistence::load_file(p, ws_->element_database());
+    if (load_res.is_err()) {
+        out["ok"] = false;
+        out["error"] = QString::fromStdString(load_res.error().message);
+        return out;
+    }
+
+    auto bundle = load_res.value();
+    out["ok"] = true;
+    out["id"] = QString::fromStdString(bundle.experiment.id.to_string());
+    out["name"] = QString::fromStdString(bundle.experiment.name);
+    out["scenario"] = QString::fromStdString(std::string(mat::formation_scenario_to_string(bundle.experiment.scenario)));
+    out["temperatureK"] = bundle.experiment.temperature_k;
+    out["pressurePa"] = bundle.experiment.pressure_pa;
+    out["oxidizing"] = bundle.experiment.oxidizing_atmosphere;
+    out["densityOverride"] = bundle.experiment.user_density_override_kg_m3;
+    out["author"] = QString::fromStdString(bundle.metadata.author);
+    out["schemaVersion"] = QString::fromStdString(bundle.metadata.schema_version);
+
+    QVariantList in_list;
+    for (const auto& in : bundle.experiment.inputs) {
+        QVariantMap inm;
+        inm["symbol_or_id"] = QString::fromStdString(in.symbol_or_id);
+        inm["amount"] = in.amount;
+        inm["basis"] = QString::fromStdString(std::string(mat::basis_to_string(in.basis)));
+        in_list.append(inm);
+    }
+    out["inputs"] = in_list;
+    out["warnings"] = strVecToList(bundle.validation_warnings);
+    return out;
+}
+
+QVariantMap ShunyaPipelineController::exportExperimentFile(const QString& expId, const QString& destinationPath) const {
+    QVariantMap out;
+    QString clean_dest = normalizeLocalPath(destinationPath);
+    std::filesystem::path dest_path(clean_dest.toStdString());
+
+    std::filesystem::path exp_dir = "experiments";
+    std::filesystem::path src_file = exp_dir / (expId.toStdString() + ".shunya-mix.json");
+
+    if (!std::filesystem::exists(src_file)) {
+        out["ok"] = false;
+        out["error"] = "Source experiment file does not exist";
+        return out;
+    }
+
+    auto load_res = mat::ExperimentPersistence::load_file(src_file, ws_->element_database());
+    if (load_res.is_err()) {
+        out["ok"] = false;
+        out["error"] = QString::fromStdString(load_res.error().message);
+        return out;
+    }
+
+    auto save_res = mat::ExperimentPersistence::save_atomic(dest_path, load_res.value());
+    if (save_res.is_err()) {
+        out["ok"] = false;
+        out["error"] = QString::fromStdString(save_res.error().message);
+        return out;
+    }
+
+    out["ok"] = true;
+    out["destinationPath"] = clean_dest;
     return out;
 }
 

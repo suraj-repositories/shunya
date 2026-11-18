@@ -45,6 +45,26 @@ enum class QuantityInputBasis : uint8_t {
     VolumeFractionPct
 };
 
+[[nodiscard]] constexpr std::string_view basis_to_string(QuantityInputBasis b) noexcept {
+    switch (b) {
+    case QuantityInputBasis::MassGrams:         return "MassGrams";
+    case QuantityInputBasis::MassFractionPct:   return "MassFractionPct";
+    case QuantityInputBasis::MoleCount:         return "MoleCount";
+    case QuantityInputBasis::MoleFractionPct:   return "MoleFractionPct";
+    case QuantityInputBasis::VolumeFractionPct: return "VolumeFractionPct";
+    }
+    return "MassFractionPct";
+}
+
+[[nodiscard]] inline QuantityInputBasis basis_from_string(std::string_view s) noexcept {
+    if (s == "MassGrams")         return QuantityInputBasis::MassGrams;
+    if (s == "MassFractionPct")   return QuantityInputBasis::MassFractionPct;
+    if (s == "MoleCount")         return QuantityInputBasis::MoleCount;
+    if (s == "MoleFractionPct")   return QuantityInputBasis::MoleFractionPct;
+    if (s == "VolumeFractionPct") return QuantityInputBasis::VolumeFractionPct;
+    return QuantityInputBasis::MassFractionPct;
+}
+
 struct MixtureConstituentInput {
     std::string symbol_or_id; // Element symbol (e.g. "Cu", "Li") or Material UUID
     QuantityInputBasis basis{QuantityInputBasis::MassFractionPct};

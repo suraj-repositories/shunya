@@ -167,6 +167,8 @@ add_executable(shunya_unit_tests
     unit/test_p5_hume_rothery.cpp
     unit/test_p5_material_comparison.cpp
     unit/test_p5_help_center.cpp
+    unit/test_p5_experiment_persistence.cpp
+    unit/test_p5_safe_import_sanitization.cpp
 )
 
 target_include_directories(shunya_unit_tests

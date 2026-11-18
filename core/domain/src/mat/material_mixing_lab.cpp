@@ -69,25 +69,6 @@ bool json_bool_val(std::string_view json, std::string_view key, bool fallback) {
     return fallback;
 }
 
-std::string basis_to_string(QuantityInputBasis b) {
-    switch (b) {
-    case QuantityInputBasis::MassGrams:         return "MassGrams";
-    case QuantityInputBasis::MassFractionPct:   return "MassFractionPct";
-    case QuantityInputBasis::MoleCount:         return "MoleCount";
-    case QuantityInputBasis::MoleFractionPct:   return "MoleFractionPct";
-    case QuantityInputBasis::VolumeFractionPct: return "VolumeFractionPct";
-    }
-    return "MassFractionPct";
-}
-
-QuantityInputBasis basis_from_string(std::string_view s) {
-    if (s == "MassGrams") return QuantityInputBasis::MassGrams;
-    if (s == "MoleCount") return QuantityInputBasis::MoleCount;
-    if (s == "MoleFractionPct") return QuantityInputBasis::MoleFractionPct;
-    if (s == "VolumeFractionPct") return QuantityInputBasis::VolumeFractionPct;
-    return QuantityInputBasis::MassFractionPct;
-}
-
 bool is_metallic_element(const matdb::ElementRecord& e) {
     if (e.electrical_type == "Conductor" && e.atomic_number != 6) return true;
     const int g = e.group.value_or(0);

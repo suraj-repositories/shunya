@@ -80,6 +80,8 @@ qt_add_qml_module(shunya_gui_lib
         MaterialExplanationView.qml
         MonoInfoButton.qml
         HelpCenterWindow.qml
+        ExperimentManagerDialog.qml
+        ImportPreviewDialog.qml
         ObjectsWorkspace.qml
         ComponentsBatteryWorkspace.qml
         CircuitWorkspace.qml

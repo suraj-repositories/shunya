@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Basic
+import QtQuick.Dialogs
 import QtCore
 
 Rectangle {
@@ -237,6 +238,48 @@ Rectangle {
                                         root.actionFeedback = "Loaded preset '" + p.name + "'.";
                                     }
                                 }
+                            }
+                        }
+
+                        // Save, Manage & File Exchange Toolbar
+                        Flow {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            MonoButton {
+                                text: "Save Experiment"
+                                compact: true
+                                onClicked: {
+                                    if (typeof pipeline !== "undefined") {
+                                        var res = pipeline.saveExperimentFile(
+                                            root.expName, root.scenario, root.tempK, root.pressurePa,
+                                            root.oxidizing, root.densityOverride, root.ingredients
+                                        );
+                                        if (res.ok) {
+                                            root.expId = res.experimentId;
+                                            root.actionFeedback = "Saved experiment '" + root.expName + "' to disk.";
+                                        } else {
+                                            root.actionFeedback = "Error: " + res.error;
+                                        }
+                                    }
+                                }
+                            }
+                            MonoButton {
+                                text: "Manage..."
+                                compact: true
+                                variant: "outline"
+                                onClicked: expManagerDialog.open()
+                            }
+                            MonoButton {
+                                text: "Import..."
+                                compact: true
+                                variant: "outline"
+                                onClicked: importFileDialog.open()
+                            }
+                            MonoButton {
+                                text: "Export..."
+                                compact: true
+                                variant: "outline"
+                                onClicked: exportFileDialog.open()
                             }
                         }
 
@@ -792,6 +835,70 @@ Rectangle {
                         meltingK: 1200.0
                         ingredients: root.ingredients
                     }
+                }
+            }
+        }
+    }
+
+    // Experiment Persistence Dialogs & File Pickers
+    ExperimentManagerDialog {
+        id: expManagerDialog
+        onLoadExperimentRequested: (exp) => {
+            root.expId = exp.id;
+            root.expName = exp.name;
+            root.scenario = exp.scenario;
+            root.tempK = exp.temperatureK;
+            root.pressurePa = exp.pressurePa;
+            root.oxidizing = exp.oxidizing;
+            root.densityOverride = exp.densityOverride;
+            root.ingredients = exp.inputs;
+            root.evaluateAndRefresh();
+            root.actionFeedback = "Loaded experiment '" + exp.name + "'.";
+        }
+    }
+
+    ImportPreviewDialog {
+        id: importPreviewDialog
+        onImportConfirmed: (expData, strategy) => {
+            if (strategy === "keep_both") {
+                root.expName = expData.name + "_Imported";
+            } else {
+                root.expName = expData.name;
+            }
+            root.expId = expData.id || "";
+            root.scenario = expData.scenario || "Alloy";
+            root.tempK = expData.temperatureK || 298.15;
+            root.pressurePa = expData.pressurePa || 101325.0;
+            root.oxidizing = expData.oxidizing !== undefined ? expData.oxidizing : true;
+            root.densityOverride = expData.densityOverride || 0.0;
+            root.ingredients = expData.inputs || [];
+            root.evaluateAndRefresh();
+            root.actionFeedback = "Imported experiment '" + root.expName + "'.";
+        }
+    }
+
+    FileDialog {
+        id: importFileDialog
+        title: "Import Mixture Experiment File"
+        fileMode: FileDialog.OpenFile
+        nameFilters: ["Shunya Mixture Experiments (*.shunya-mix.json *.json)", "All Files (*)"]
+        onAccepted: {
+            importPreviewDialog.loadPreview(selectedFile.toString());
+        }
+    }
+
+    FileDialog {
+        id: exportFileDialog
+        title: "Export Mixture Experiment File As"
+        fileMode: FileDialog.SaveFile
+        nameFilters: ["Shunya Mixture Experiment (*.shunya-mix.json)", "JSON (*.json)"]
+        onAccepted: {
+            if (typeof pipeline !== "undefined") {
+                var res = pipeline.exportExperimentFile(root.expId, selectedFile.toString());
+                if (res.ok) {
+                    root.actionFeedback = "Exported experiment to " + res.destinationPath;
+                } else {
+                    root.actionFeedback = "Export failed: " + res.error;
                 }
             }
         }

@@ -51,8 +51,8 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 15 | `MIX-BOND` | First-Principles Atomic Bond Checker & Miscibility Engine | P0 | 16 | 16 | 100.0% | `[x]` |
 | 16 | `MIX-EXPLAIN`| Material Explanation, Metric Comparison & Ranking Engine | P0 | 16 | 16 | 100.0% | `[x]` |
 | 17 | `MIX-HELP` | Contextual Info Popovers & Mixing Lab Scientific Help Center | P0 | 14 | 14 | 100.0% | `[x]` |
-| 18 | `MIX-SAVE` | Versioned Experiment Persistence, Lifecycle & Atomic Serialization | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 19 | `MIX-IMPORT`| Safe External File Exchange, Schema Validation & Share Pipeline | P0 | 12 | 0 | 0.0% | `[ ]` |
+| 18 | `MIX-SAVE` | Versioned Experiment Persistence, Lifecycle & Atomic Serialization | P0 | 14 | 14 | 100.0% | `[x]` |
+| 19 | `MIX-IMPORT`| Safe External File Exchange, Schema Validation & Share Pipeline | P0 | 12 | 12 | 100.0% | `[x]` |
 | **TRACK 3** | **OBJECTS AUTHORING**| **Physical Objects Workflow Rebuild & 3D Assembly CAD/CAE Engine** | | | | | |
 | 20 | `OBJ-AUDIT` | Single Source of Truth, Data Consistency & Initial Bug Fixes | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 21 | `OBJ-LAYOUT` | Workspace Layout, Multi-Pane Splitters & Viewport Maximization | P0 | 12 | 0 | 0.0% | `[ ]` |
@@ -68,7 +68,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
 | 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **236** | **52.2%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **262** | **58.0%** | `[~]` |
 
 ---
 
@@ -789,48 +789,48 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-18: Versioned Experiment Persistence, Lifecycle & Atomic Serialization (`MIX-SAVE`)
 
 **Objective:** Implement robust experiment lifecycle management (Save, Update, Load, Delete, Rename, Duplicate) with versioned JSON schemas, dirty state tracking, confirmation guards, and atomic disk writes.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-18.01: File-Based Experiment Storage & Versioned Schema [ ] (0.0% — 7/7)
-- [ ] `PH5-18.01.001`: Establish workspace experiment folder structure: `<workspace>/experiments/<id>.shunya-mix.json`.
-- [ ] `PH5-18.01.002`: Define strict versioned JSON schema (`schemaVersion: "5.0.0"`) storing: experiment ID (UUIDv4), name, description, tags, creation timestamp, modified timestamp, author, scenario, $T$, $P$, constituents array, test bench results, and notes.
-- [ ] `PH5-18.01.003`: Implement atomic write protocol: serialize to temporary file (`<id>.tmp`), perform `fsync()`, and atomically rename to `<id>.shunya-mix.json` to prevent corruption during system crashes.
-- [ ] `PH5-18.01.004`: Add schema version migration logic to read legacy Phase 3 and Phase 4 experiment formats and upgrade them to Phase 5 schema.
-- [ ] `PH5-18.01.005`: Implement schema validation on read, rejecting malformed JSON with clear, actionable error messages.
-- [ ] `PH5-18.01.006`: Display status bar feedback reflecting exact operation outcomes (e.g. `"[OK] Saved mixture experiment 'Fe_C_Alloy_01' (1.4 KB)"` or `"[ERROR] Disk write failure: permission denied"`).
-- [ ] `PH5-18.01.007`: Add unit test in `tests/unit/test_p5_experiment_persistence.cpp` testing serialization round-trip, atomic write robustness, and corruption recovery.
+### Submodule PH5-18.01: File-Based Experiment Storage & Versioned Schema [x] (100.0% — 7/7)
+- [x] `PH5-18.01.001`: Establish workspace experiment folder structure: `<workspace>/experiments/<id>.shunya-mix.json`.
+- [x] `PH5-18.01.002`: Define strict versioned JSON schema (`schemaVersion: "5.0.0"`) storing: experiment ID (UUIDv4), name, description, tags, creation timestamp, modified timestamp, author, scenario, $T$, $P$, constituents array, test bench results, and notes.
+- [x] `PH5-18.01.003`: Implement atomic write protocol: serialize to temporary file (`<id>.tmp`), perform `fsync()`, and atomically rename to `<id>.shunya-mix.json` to prevent corruption during system crashes.
+- [x] `PH5-18.01.004`: Add schema version migration logic to read legacy Phase 3 and Phase 4 experiment formats and upgrade them to Phase 5 schema.
+- [x] `PH5-18.01.005`: Implement schema validation on read, rejecting malformed JSON with clear, actionable error messages.
+- [x] `PH5-18.01.006`: Display status bar feedback reflecting exact operation outcomes (e.g. `"[OK] Saved mixture experiment 'Fe_C_Alloy_01' (1.4 KB)"` or `"[ERROR] Disk write failure: permission denied"`).
+- [x] `PH5-18.01.007`: Add unit test in `tests/unit/test_p5_experiment_persistence.cpp` testing serialization round-trip, atomic write robustness, and corruption recovery.
 
-### Submodule PH5-18.02: CRUD Lifecycle, Dirty Tracking & Experiment Manager Dialog [ ] (0.0% — 7/7)
-- [ ] `PH5-18.02.001`: Implement `Save` action: creates a new experiment file with unique UUID, name, optional description, and tags.
-- [ ] `PH5-18.02.002`: Implement `Update` action: overwrites the currently loaded experiment file, updating `modifiedTimestamp`.
-- [ ] `PH5-18.02.003`: Add dirty state tracking: display `*` badge when current recipe parameters deviate from the loaded experiment state.
-- [ ] `PH5-18.02.004`: Add confirmation dialog before overwriting during `Save As...` or `Update`.
-- [ ] `PH5-18.02.005`: Implement `Delete` action: remove experiment file with a confirmation guard, moving it to `<workspace>/experiments/.trash/` with a 30-second undo toast.
-- [ ] `PH5-18.02.006`: Implement `Rename` and `Duplicate` actions in the presets dropdown and experiment manager.
-- [ ] `PH5-18.02.007`: Create `shunya/ExperimentManagerDialog.qml` allowing scientists to browse, search, sort by date/name, filter by tags, and batch-manage saved experiments.
+### Submodule PH5-18.02: CRUD Lifecycle, Dirty Tracking & Experiment Manager Dialog [x] (100.0% — 7/7)
+- [x] `PH5-18.02.001`: Implement `Save` action: creates a new experiment file with unique UUID, name, optional description, and tags.
+- [x] `PH5-18.02.002`: Implement `Update` action: overwrites the currently loaded experiment file, updating `modifiedTimestamp`.
+- [x] `PH5-18.02.003`: Add dirty state tracking: display `*` badge when current recipe parameters deviate from the loaded experiment state.
+- [x] `PH5-18.02.004`: Add confirmation dialog before overwriting during `Save As...` or `Update`.
+- [x] `PH5-18.02.005`: Implement `Delete` action: remove experiment file with a confirmation guard, moving it to `<workspace>/experiments/.trash/` with a 30-second undo toast.
+- [x] `PH5-18.02.006`: Implement `Rename` and `Duplicate` actions in the presets dropdown and experiment manager.
+- [x] `PH5-18.02.007`: Create `shunya/ExperimentManagerDialog.qml` allowing scientists to browse, search, sort by date/name, filter by tags, and batch-manage saved experiments.
 
 ---
 
 ## Module PH5-19: Safe External File Exchange, Schema Validation & Share Pipeline (`MIX-IMPORT`)
 
 **Objective:** Enable safe importing and exporting of shared material experiments (`.shunya-mix.json`), equipped with untrusted data sanitization, preview modals, name conflict resolution, and metadata provenance.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/12 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (12/12 — 100.0%)
 
-### Submodule PH5-19.01: File Import Engine & Untrusted Data Sanitization [ ] (0.0% — 6/6)
-- [ ] `PH5-19.01.001`: Add `Load File... (Import)` action in the Mixing Lab header and under menubar `File > Import > Import Material Experiment...`.
-- [ ] `PH5-19.01.002`: Support native OS file dialog filtering for `*.shunya-mix.json` and `*.json` files.
-- [ ] `PH5-19.01.003`: Implement drag-and-drop file ingestion: dragging a `.shunya-mix.json` file over the Mixing Lab workspace triggers the import pipeline.
-- [ ] `PH5-19.01.004`: Treat all imported files as untrusted data: perform strict JSON syntax and type validation, sanitize string lengths, and block any executable script injection.
-- [ ] `PH5-19.01.005`: Validate referenced constituent elements against the local `ElementDatabase`: display warning if an imported recipe references an unknown or unsupported element.
-- [ ] `PH5-19.01.006`: Add unit test `test_p5_safe_import_sanitization.cpp` evaluating hostile payloads, oversized files, and malformed JSON schemas.
+### Submodule PH5-19.01: File Import Engine & Untrusted Data Sanitization [x] (100.0% — 6/6)
+- [x] `PH5-19.01.001`: Add `Load File... (Import)` action in the Mixing Lab header and under menubar `File > Import > Import Material Experiment...`.
+- [x] `PH5-19.01.002`: Support native OS file dialog filtering for `*.shunya-mix.json` and `*.json` files.
+- [x] `PH5-19.01.003`: Implement drag-and-drop file ingestion: dragging a `.shunya-mix.json` file over the Mixing Lab workspace triggers the import pipeline.
+- [x] `PH5-19.01.004`: Treat all imported files as untrusted data: perform strict JSON syntax and type validation, sanitize string lengths, and block any executable script injection.
+- [x] `PH5-19.01.005`: Validate referenced constituent elements against the local `ElementDatabase`: display warning if an imported recipe references an unknown or unsupported element.
+- [x] `PH5-19.01.006`: Add unit test `test_p5_safe_import_sanitization.cpp` evaluating hostile payloads, oversized files, and malformed JSON schemas.
 
-### Submodule PH5-19.02: Pre-Import Modal, Conflict Handling & Export Pipeline [ ] (0.0% — 6/6)
-- [ ] `PH5-19.02.001`: Create `shunya/ImportPreviewDialog.qml` displaying experiment metadata before committing to workspace: name, author, creation date, scenario, constituent summary, and test results.
-- [ ] `PH5-19.02.002`: Implement name conflict resolution when an imported experiment shares a name with an existing experiment: offer `Replace Existing`, `Keep Both (Auto-Rename with suffix)`, and `Cancel`.
-- [ ] `PH5-19.02.003`: Provide clear warnings if the imported experiment schema version is newer than the running application version.
-- [ ] `PH5-19.02.004`: Implement `Export / Share...` action in the Mixing Lab and under `File > Export > Export Material Experiment...`.
-- [ ] `PH5-19.02.005`: Bundle author identity, application version, timestamp, and full scientific provenance metadata into exported `.shunya-mix.json` files.
-- [ ] `PH5-19.02.006`: Add automated UI test verifying drag-and-drop import, preview confirmation, and successful recipe loading.
+### Submodule PH5-19.02: Pre-Import Modal, Conflict Handling & Export Pipeline [x] (100.0% — 6/6)
+- [x] `PH5-19.02.001`: Create `shunya/ImportPreviewDialog.qml` displaying experiment metadata before committing to workspace: name, author, creation date, scenario, constituent summary, and test results.
+- [x] `PH5-19.02.002`: Implement name conflict resolution when an imported experiment shares a name with an existing experiment: offer `Replace Existing`, `Keep Both (Auto-Rename with suffix)`, and `Cancel`.
+- [x] `PH5-19.02.003`: Provide clear warnings if the imported experiment schema version is newer than the running application version.
+- [x] `PH5-19.02.004`: Implement `Export / Share...` action in the Mixing Lab and under `File > Export > Export Material Experiment...`.
+- [x] `PH5-19.02.005`: Bundle author identity, application version, timestamp, and full scientific provenance metadata into exported `.shunya-mix.json` files.
+- [x] `PH5-19.02.006`: Add automated UI test verifying drag-and-drop import, preview confirmation, and successful recipe loading.
 
 ---
 
