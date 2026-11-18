@@ -752,7 +752,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
 ## Module PH4-09: 3D Physics & Multi-Body Mechanical Machine Simulator (`PHYSIM`)
 
 **Objective:** Build a 3D multi-body physical simulation environment supporting rigid body dynamics, joints, mechanical linkages, collisions, and motor-driven mechanisms.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT`, `CAD3D` | **Status:** `[ ] In Progress` (10/26)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT`, `CAD3D` | **Status:** `[ ] In Progress` (20/26)
 
 ### Submodule PH4-09.01: Rigid Body Dynamics & Integrator
 - [x] `PH4-09.01.001`: Implement rigid body state representation: Position $\mathbf{x}$, Orientation Quaternion $\mathbf{q}$, Linear Momentum $\mathbf{p}$, and Angular Momentum $\mathbf{L}$.
@@ -767,20 +767,20 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
 - [x] `PH4-09.02.002`: Implement Gilbert-Johnson-Keerthi (GJK) distance and Expanding Polytope Algorithm (EPA) narrow-phase collision for convex polyhedra.
 - [x] `PH4-09.02.003`: Build Continuous Collision Detection (CCD) via swept volume conservative advancement to prevent tunneling of fast-moving parts.
 - [x] `PH4-09.02.004`: Implement contact manifold generation: extract contact points, contact normals, and penetration depths.
-- [ ] `PH4-09.02.005`: Implement Projected Gauss-Seidel (PGS) impulse solver for contact restitution and Coulomb friction (static and dynamic).
-- [ ] `PH4-09.02.006`: Validate restitution coefficient and friction angle against physical experiments (bouncing balls, sliding blocks on inclines).
+- [x] `PH4-09.02.005`: Implement Projected Gauss-Seidel (PGS) impulse solver for contact restitution and Coulomb friction (static and dynamic).
+- [x] `PH4-09.02.006`: Validate restitution coefficient and friction angle against physical experiments (bouncing balls, sliding blocks on inclines).
 
 ### Submodule PH4-09.03: Mechanical Joints, Constraints & Linkages
-- [ ] `PH4-09.03.001`: Implement Revolve / Hinge Joint (1 rotational DOF) with angular limits and joint friction.
-- [ ] `PH4-09.03.002`: Implement Prismatic / Slider Joint (1 translational DOF) with linear limits and damping.
-- [ ] `PH4-09.03.003`: Implement Ball-and-Socket Joint (3 rotational DOFs) with cone limits for suspension tie-rods.
-- [ ] `PH4-09.03.004`: Implement Wheel Axle Joint with suspension spring-damper compliance.
-- [ ] `PH4-09.03.005`: Implement Mechanical Gear Constraint: enforce angular velocity ratios ($\omega_1 / \omega_2 = N_2 / N_1$) between rotating shafts.
-- [ ] `PH4-09.03.006`: Implement Pulley and Belt constraint transmission between parallel and angled axles.
-- [ ] `PH4-09.03.007`: Implement 4-bar and multi-bar mechanical linkage assemblies with closed-loop kinematic consistency.
+- [x] `PH4-09.03.001`: Implement Revolve / Hinge Joint (1 rotational DOF) with angular limits and joint friction.
+- [x] `PH4-09.03.002`: Implement Prismatic / Slider Joint (1 translational DOF) with linear limits and damping.
+- [x] `PH4-09.03.003`: Implement Ball-and-Socket Joint (3 rotational DOFs) with cone limits for suspension tie-rods.
+- [x] `PH4-09.03.004`: Implement Wheel Axle Joint with suspension spring-damper compliance.
+- [x] `PH4-09.03.005`: Implement Mechanical Gear Constraint: enforce angular velocity ratios ($\omega_1 / \omega_2 = N_2 / N_1$) between rotating shafts.
+- [x] `PH4-09.03.006`: Implement Pulley and Belt constraint transmission between parallel and angled axles.
+- [x] `PH4-09.03.007`: Implement 4-bar and multi-bar mechanical linkage assemblies with closed-loop kinematic consistency.
 
 ### Submodule PH4-09.04: Machine Simulation Control & Interactive Viewport
-- [ ] `PH4-09.04.001`: Implement interactive simulation controls: Play, Pause, Stop, Step Forward, and Reset to Initial State.
+- [x] `PH4-09.04.001`: Implement interactive simulation controls: Play, Pause, Stop, Step Forward, and Reset to Initial State.
 - [ ] `PH4-09.04.002`: Support simulation speed scaling (0.1x slow motion to 10.0x fast forward) and fixed vs adaptive time-stepping.
 - [ ] `PH4-09.04.003`: Implement visual debug rendering: draw center-of-mass glyphs, contact normal arrows, joint axes, and velocity vectors in the 3D viewport.
 - [ ] `PH4-09.04.004`: Provide an interactive mouse-drag tool allowing users to grab and apply physical forces to objects during live simulation.

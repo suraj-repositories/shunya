@@ -57,6 +57,9 @@ add_executable(shunya_unit_tests
     unit/test_cirsim_transient.cpp
     unit/test_physim_rigid_body.cpp
     unit/test_physim_collision.cpp
+    unit/test_physim_pgs_and_contacts.cpp
+    unit/test_physim_joints_and_linkages.cpp
+    unit/test_physim_simulation_controller.cpp
     unit/test_matdb_registry.cpp
     unit/test_matdb_electronic_spectral.cpp
     unit/test_matdb_crystallography.cpp
