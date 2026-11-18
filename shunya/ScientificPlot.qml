@@ -104,6 +104,50 @@ Rectangle {
                 }
             }
 
+            // Zoom In button
+            Rectangle {
+                height: 20
+                width: 24
+                radius: 3
+                color: Theme.bgElevated
+                border.color: Theme.borderDefault
+                Text {
+                    anchors.centerIn: parent
+                    text: "+"
+                    color: Theme.textSecondary
+                    font.family: Theme.fontMono
+                    font.pixelSize: 12
+                    font.bold: true
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: if (plotNode.zoomIn) plotNode.zoomIn(); else plotNode.resetView()
+                }
+            }
+
+            // Zoom Out button
+            Rectangle {
+                height: 20
+                width: 24
+                radius: 3
+                color: Theme.bgElevated
+                border.color: Theme.borderDefault
+                Text {
+                    anchors.centerIn: parent
+                    text: "-"
+                    color: Theme.textSecondary
+                    font.family: Theme.fontMono
+                    font.pixelSize: 12
+                    font.bold: true
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: if (plotNode.zoomOut) plotNode.zoomOut(); else plotNode.resetView()
+                }
+            }
+
             // Reset Zoom button
             Rectangle {
                 height: 20
@@ -123,6 +167,37 @@ Rectangle {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: plotNode.resetView()
+                }
+            }
+
+            // Export CSV button
+            Rectangle {
+                height: 20
+                width: csvTxt.contentWidth + 12
+                radius: 3
+                color: Theme.bgElevated
+                border.color: Theme.borderDefault
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 4
+                    Text {
+                        id: csvTxt
+                        text: "Export CSV"
+                        color: Theme.textPrimary
+                        font.family: Theme.fontSans
+                        font.pixelSize: 10
+                        font.weight: Font.DemiBold
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        if (typeof pipeline !== "undefined") {
+                            pipeline.exportTelemetryCsv(root.title);
+                        }
+                    }
                 }
             }
         }
