@@ -347,6 +347,7 @@ add_library(shunya_domain_eng OBJECT
     src/cirsim/kcl_kvl_validator.cpp
     src/cirsim/nonlinear_dc_solver.cpp
     src/cirsim/ac_small_signal_solver.cpp
+    src/cirsim/transient_simulation_engine.cpp
 )
 shunya_configure_domain_target(shunya_domain_eng)
 target_link_libraries(shunya_domain_eng

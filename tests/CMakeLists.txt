@@ -54,6 +54,7 @@ add_executable(shunya_unit_tests
     unit/test_cirsim_topology_and_mna.cpp
     unit/test_cirsim_nonlinear_dc.cpp
     unit/test_cirsim_ac_analysis.cpp
+    unit/test_cirsim_transient.cpp
     unit/test_matdb_registry.cpp
     unit/test_matdb_electronic_spectral.cpp
     unit/test_matdb_crystallography.cpp
