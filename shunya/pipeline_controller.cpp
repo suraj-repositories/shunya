@@ -11,6 +11,8 @@
 #include <QUrl>
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
+#include <fstream>
 #include <sstream>
 
 namespace shunya::gui {
@@ -1725,6 +1727,500 @@ QVariantMap ShunyaPipelineController::runObjectPreflightChecks(const QString& ob
     }
     res["warnings"] = warnings;
     res["status"] = (obj->computed.volume_m3 > 1e-18 && obj->computed.mass_kg > 1e-12) ? "Ready for Simulation" : "Pre-flight Failed";
+    return res;
+}
+
+// =========================================================================
+// Custom Parametric Primitives, CSG Booleans & Template Catalog (OBJGEO)
+// =========================================================================
+
+static core::base::Uuid find_or_promote_element(
+    const eng::EngineeringWorkspaceState& ws,
+    std::string_view query,
+    std::string_view fallback_sym,
+    std::string_view desc) {
+    for (const auto& [m_id, m] : ws.material_registry().materials()) {
+        std::string n = m.name();
+        std::transform(n.begin(), n.end(), n.begin(), ::tolower);
+        if (n.find(query) != std::string::npos) return m.id();
+    }
+    const auto* rec = ws.element_database().find_by_symbol(fallback_sym);
+    if (!rec) rec = ws.element_database().find_by_z(29); // Cu fallback
+    std::string sym = rec ? rec->symbol : std::string(fallback_sym);
+    std::string mat_name = desc.empty() ? (sym + " Material") : std::string(desc);
+
+    mat::MixtureExperiment exp;
+    exp.name = mat_name;
+    exp.scenario = mat::FormationScenario::PhysicalMixture;
+    exp.inputs = {{sym, mat::QuantityInputBasis::MassFractionPct, 100.0, 0.0, false}};
+    auto mres = mat::MaterialMixingLab::promote_to_material(exp, ws.element_database());
+    if (mres.is_ok()) {
+        const auto id = mres.value().id();
+        (void)const_cast<eng::EngineeringWorkspaceState&>(ws).material_registry().register_material(mres.value());
+        return id;
+    }
+    return {};
+}
+
+QVariantList ShunyaPipelineController::getLibraryTemplates() const {
+    QVariantList list;
+
+    auto make_entry = [](const QString& id, const QString& name, const QString& cat,
+                         const QString& desc, const QString& shape, const QString& author,
+                         const QStringList& tags, int regions) {
+        QVariantMap m;
+        m["id"] = id;
+        m["name"] = name;
+        m["category"] = cat;
+        m["description"] = desc;
+        m["shape"] = shape;
+        m["author"] = author;
+        m["tags"] = tags;
+        m["regionCount"] = regions;
+        return m;
+    };
+
+    list.append(make_entry("incandescent_bulb", "Incandescent Bulb", "Lighting / Optoelectronics",
+                           "Classic A19 incandescent light bulb with borosilicate glass envelope, tungsten filament coil, aluminum screw base, and brass contact.",
+                           "RevolvedProfile", "Shunya Studio", {"Lighting", "Vacuum", "Thermal", "Filament"}, 4));
+
+    list.append(make_entry("copper_wire", "Copper Wire / Trace", "Interconnect",
+                           "Solid round pure copper interconnect conductor with high electrical and thermal conductivity.",
+                           "Cylinder", "Shunya Studio", {"Conductor", "Wiring", "Busbar"}, 1));
+
+    list.append(make_entry("resistor_load", "Nichrome Power Resistor", "Passives",
+                           "High-temperature Nichrome 80/20 wire resistive element for heating loads and ballast.",
+                           "Box", "Shunya Studio", {"Heating", "Passives", "Resistance"}, 1));
+
+    list.append(make_entry("ceramic_capacitor", "Parallel-Plate Capacitor", "Passives",
+                           "Barium titanate dielectric slab enclosed between parallel aluminum electrodes.",
+                           "Box", "Shunya Studio", {"Capacitor", "Dielectric", "Passives"}, 2));
+
+    list.append(make_entry("cylindrical_18650", "Cylindrical Battery Cell 18650", "Energy Storage",
+                           "Standard 18650 cylindrical lithium-ion cell with nickel-plated steel can, jelly-roll winding, and safety vents.",
+                           "Cylinder", "Shunya Studio", {"Battery", "Lithium", "Energy"}, 3));
+
+    list.append(make_entry("prismatic_heatsink", "Prismatic Extruded Heatsink", "Thermal Management",
+                           "Extruded 6063-T5 aluminum finned heatsink for convective heat rejection from power packages.",
+                           "ExtrudedProfile2D", "Shunya Studio", {"Thermal", "Heatsink", "Cooling"}, 1));
+
+    list.append(make_entry("vacuum_tube", "Triode Vacuum Tube", "Thermionics",
+                           "Evacuated glass envelope containing hot tungsten cathode, control grid, and nickel anode plate.",
+                           "Cylinder", "Shunya Studio", {"Vacuum", "Amplifier", "Thermionics"}, 3));
+
+    list.append(make_entry("piezo_crystal", "Piezoelectric Quartz Crystal", "Sensors & Actuators",
+                           "Single-crystal alpha-quartz resonator disk with silver sputtered surface electrodes.",
+                           "Cylinder", "Shunya Studio", {"Piezo", "Oscillator", "Quartz"}, 2));
+
+    list.append(make_entry("inductor_coil", "Helical Inductor Coil", "Magnetics",
+                           "Helical spiral copper coil winding providing inductance and magnetic energy storage.",
+                           "SweptPath", "Shunya Studio", {"Magnetics", "Inductor", "Coil"}, 1));
+
+    return list;
+}
+
+QVariantMap ShunyaPipelineController::instantiateLibraryTemplate(const QString& templateId, const QString& customName) {
+    if (templateId == "incandescent_bulb") {
+        auto glass_id = find_or_promote_element(*ws_, "glass", "Si", "Borosilicate Glass");
+        auto tungsten_id = find_or_promote_element(*ws_, "tungsten", "W", "Pure Tungsten");
+        auto al_id = find_or_promote_element(*ws_, "aluminum", "Al", "Aluminum Screw Base");
+        auto brass_id = find_or_promote_element(*ws_, "copper", "Cu", "Brass Base Contact");
+
+        std::string base_name = customName.trimmed().isEmpty() ? "Incandescent_Bulb_A19" : customName.trimmed().toStdString();
+        std::string unique_name = ws_->object_manager().generate_unique_name(base_name);
+
+        eng::PhysicalObject bulb;
+        bulb.name = unique_name;
+        bulb.category = "Lighting";
+        bulb.geometry.kind = eng::ObjectShapeKind::RevolvedProfile;
+        bulb.geometry.radius_m = 0.030;  // 60 mm diameter bulb
+        bulb.geometry.dim_y_m = 0.110;   // 110 mm length
+        bulb.operating_temp_k = 298.15;
+        bulb.operating_pressure_pa = 80000.0; // 80 kPa Argon/N2 gas fill
+
+        // 4 Multi-material regions
+        eng::ObjectRegion r_env;
+        r_env.region_id = "glass_envelope";
+        r_env.name = "Glass Envelope";
+        r_env.material_id = glass_id;
+        r_env.volume_fraction = 0.70;
+        r_env.is_conductive_path = false;
+
+        eng::ObjectRegion r_fil;
+        r_fil.region_id = "tungsten_filament";
+        r_fil.name = "Tungsten Coil";
+        r_fil.material_id = tungsten_id;
+        r_fil.volume_fraction = 0.05;
+        r_fil.is_conductive_path = true;
+
+        eng::ObjectRegion r_base;
+        r_base.region_id = "screw_base";
+        r_base.name = "Screw Shell";
+        r_base.material_id = al_id;
+        r_base.volume_fraction = 0.20;
+        r_base.is_conductive_path = true;
+
+        eng::ObjectRegion r_contact;
+        r_contact.region_id = "base_contact";
+        r_contact.name = "Base Contact";
+        r_contact.material_id = brass_id;
+        r_contact.volume_fraction = 0.05;
+        r_contact.is_conductive_path = true;
+
+        bulb.regions = {r_env, r_fil, r_base, r_contact};
+
+        auto addRes = ws_->object_manager().add_object(bulb, ws_->material_registry());
+        if (addRes.is_err()) {
+            QVariantMap err;
+            err["ok"] = false;
+            err["error"] = QString::fromStdString(addRes.error().message);
+            return err;
+        }
+        ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, addRes.value(), "Created Incandescent Bulb");
+        QVariantMap out;
+        out["ok"] = true;
+        out["id"] = QString::fromStdString(addRes.value().to_string());
+        out["name"] = QString::fromStdString(unique_name);
+        return out;
+    }
+
+    if (templateId == "inductor_coil") {
+        auto cu_id = find_or_promote_element(*ws_, "copper", "Cu", "Pure Copper");
+        return createCustomParametricObject(customName.isEmpty() ? "Helical_Inductor_Coil" : customName,
+                                            "Magnetics", "SweptPath", 0.02, 0.05, 0.02, 0.001, 0.0, 0.0, 12,
+                                            QString::fromStdString(cu_id.to_string()));
+    }
+
+    if (templateId == "copper_wire") {
+        return addPresetObject("Copper Wire");
+    }
+    if (templateId == "resistor_load") {
+        return addPresetObject("Resistor Load");
+    }
+    if (templateId == "prismatic_heatsink") {
+        return addPresetObject("Aluminum Frame");
+    }
+    if (templateId == "cylindrical_18650") {
+        return addPresetObject("Lithium Foil");
+    }
+    if (templateId == "vacuum_tube") {
+        return addPresetObject("Glass Envelope");
+    }
+    if (templateId == "ceramic_capacitor") {
+        return addPresetObject("Insulating Spacer");
+    }
+    if (templateId == "piezo_crystal") {
+        return addPresetObject("Iron Plate");
+    }
+
+    return addPresetObject("Copper Wire");
+}
+
+QVariantMap ShunyaPipelineController::createCustomParametricObject(
+    const QString& name,
+    const QString& category,
+    const QString& shape,
+    double dimX, double dimY, double dimZ,
+    double radius, double wallThickness, double minorRadius,
+    int turns,
+    const QString& materialId,
+    double tempK,
+    double pressurePa) {
+    QVariantMap out;
+
+    eng::PhysicalObject obj;
+    std::string base = name.trimmed().isEmpty() ? "Object" : name.trimmed().toStdString();
+    obj.name = ws_->object_manager().generate_unique_name(base);
+    obj.category = category.trimmed().isEmpty() ? "Custom" : category.trimmed().toStdString();
+
+    auto shapeRes = eng::object_shape_kind_from_string(shape.toStdString());
+    obj.geometry.kind = shapeRes.is_ok() ? shapeRes.value() : eng::ObjectShapeKind::Box;
+    obj.geometry.dim_x_m = std::max(1e-6, dimX);
+    obj.geometry.dim_y_m = std::max(1e-6, dimY);
+    obj.geometry.dim_z_m = std::max(1e-6, dimZ);
+    obj.geometry.radius_m = std::max(1e-6, radius);
+    obj.geometry.wall_thickness_m = std::max(1e-6, wallThickness);
+    obj.geometry.minor_radius_m = std::max(1e-6, minorRadius);
+    obj.geometry.helical_turns = turns > 0 ? turns : 10;
+    obj.operating_temp_k = tempK > 0.0 ? tempK : 298.15;
+    obj.operating_pressure_pa = pressurePa > 0.0 ? pressurePa : 101325.0;
+
+    eng::ObjectRegion r;
+    r.region_id = "body";
+    r.name = "Primary Body";
+    r.volume_fraction = 1.0;
+    r.is_conductive_path = true;
+
+    auto mu = core::base::Uuid::from_string(materialId.toStdString());
+    if (mu && ws_->material_registry().has_material(*mu)) {
+        r.material_id = *mu;
+    } else {
+        r.material_id = find_or_promote_element(*ws_, "copper", "Cu", "Pure Copper");
+    }
+    obj.regions.push_back(std::move(r));
+
+    auto addRes = ws_->object_manager().add_object(obj, ws_->material_registry());
+    if (addRes.is_err()) {
+        out["ok"] = false;
+        out["error"] = QString::fromStdString(addRes.error().message);
+        return out;
+    }
+
+    ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, addRes.value(), "Created parametric object");
+    out["ok"] = true;
+    out["id"] = QString::fromStdString(addRes.value().to_string());
+    out["name"] = QString::fromStdString(obj.name);
+    return out;
+}
+
+QVariantMap ShunyaPipelineController::executeCsgBoolean(
+    const QString& op,
+    const QString& objAId,
+    const QString& objBId,
+    const QString& resultName) {
+    QVariantMap res;
+    auto uidA = core::base::Uuid::from_string(objAId.toStdString());
+    auto uidB = core::base::Uuid::from_string(objBId.toStdString());
+    if (!uidA || !uidB) {
+        res["ok"] = false;
+        res["error"] = "Invalid UUID for boolean operands.";
+        return res;
+    }
+
+    const auto* objA = ws_->object_manager().get_object(*uidA);
+    const auto* objB = ws_->object_manager().get_object(*uidB);
+    if (!objA || !objB) {
+        res["ok"] = false;
+        res["error"] = "Operand object not found in workspace.";
+        return res;
+    }
+
+    auto meshA = objA->geometry.generate_solid_mesh();
+    auto meshB = objB->geometry.generate_solid_mesh();
+
+    cad3d::SolidMesh3D resultMesh;
+    if (op == "Union") {
+        resultMesh = eng::ObjectGeometrySpec::boolean_union(meshA, meshB);
+    } else if (op == "Difference" || op == "Subtract") {
+        resultMesh = eng::ObjectGeometrySpec::boolean_difference(meshA, meshB);
+    } else if (op == "Intersection" || op == "Intersect") {
+        resultMesh = eng::ObjectGeometrySpec::boolean_intersection(meshA, meshB);
+    } else {
+        res["ok"] = false;
+        res["error"] = "Unsupported boolean operation: " + op;
+        return res;
+    }
+
+    std::string defaultName = resultName.trimmed().isEmpty()
+        ? (objA->name + "_" + op.toStdString() + "_" + objB->name)
+        : resultName.trimmed().toStdString();
+    std::string uniqueName = ws_->object_manager().generate_unique_name(defaultName);
+
+    eng::PhysicalObject newObj;
+    newObj.name = uniqueName;
+    newObj.category = "Boolean Solid";
+    newObj.geometry = eng::ObjectGeometrySpec::make_mesh(std::move(resultMesh));
+    newObj.regions = objA->regions;
+    newObj.operating_temp_k = objA->operating_temp_k;
+    newObj.operating_pressure_pa = objA->operating_pressure_pa;
+
+    auto addRes = ws_->object_manager().add_object(newObj, ws_->material_registry());
+    if (addRes.is_err()) {
+        res["ok"] = false;
+        res["error"] = QString::fromStdString(addRes.error().message);
+        return res;
+    }
+
+    ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, addRes.value(), "CSG Boolean created object");
+    res["ok"] = true;
+    res["id"] = QString::fromStdString(addRes.value().to_string());
+    res["name"] = QString::fromStdString(uniqueName);
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::shellObject(
+    const QString& objectId,
+    double wallThicknessM,
+    const QString& resultName) {
+    QVariantMap res;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) {
+        res["ok"] = false;
+        res["error"] = "Invalid object UUID.";
+        return res;
+    }
+    const auto* obj = ws_->object_manager().get_object(*uid);
+    if (!obj) {
+        res["ok"] = false;
+        res["error"] = "Target object not found in workspace.";
+        return res;
+    }
+
+    double t = wallThicknessM > 0.0 ? wallThicknessM : 0.002;
+    auto solid = obj->geometry.generate_solid_mesh();
+    auto shelled = eng::ObjectGeometrySpec::shell_solid_mesh(solid, t);
+
+    std::string defaultName = resultName.trimmed().isEmpty()
+        ? (obj->name + "_Shelled")
+        : resultName.trimmed().toStdString();
+    std::string uniqueName = ws_->object_manager().generate_unique_name(defaultName);
+
+    eng::PhysicalObject newObj;
+    newObj.name = uniqueName;
+    newObj.category = "Hollow Shell";
+    newObj.geometry = eng::ObjectGeometrySpec::make_mesh(std::move(shelled));
+    newObj.geometry.is_hollow = true;
+    newObj.geometry.wall_thickness_m = t;
+    newObj.regions = obj->regions;
+    newObj.operating_temp_k = obj->operating_temp_k;
+
+    auto addRes = ws_->object_manager().add_object(newObj, ws_->material_registry());
+    if (addRes.is_err()) {
+        res["ok"] = false;
+        res["error"] = QString::fromStdString(addRes.error().message);
+        return res;
+    }
+
+    ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, addRes.value(), "Shelled object created");
+    res["ok"] = true;
+    res["id"] = QString::fromStdString(addRes.value().to_string());
+    res["name"] = QString::fromStdString(uniqueName);
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::importCadFile(
+    const QString& filePath,
+    const QString& unitFormat,
+    double scaleFactor,
+    const QString& targetName) {
+    QVariantMap res;
+    std::filesystem::path p(filePath.toStdString());
+    if (!std::filesystem::exists(p)) {
+        res["ok"] = false;
+        res["error"] = "File does not exist: " + filePath;
+        return res;
+    }
+
+    double unitScale = 1.0;
+    if (unitFormat == "mm") unitScale = 0.001;
+    else if (unitFormat == "cm") unitScale = 0.01;
+    else if (unitFormat == "in" || unitFormat == "inches") unitScale = 0.0254;
+    double finalScale = unitScale * (scaleFactor > 0.0 ? scaleFactor : 1.0);
+
+    cad3d::SolidMesh3D mesh;
+    std::string ext = p.extension().string();
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
+    if (ext == ".obj") {
+        std::ifstream file(p);
+        if (!file.is_open()) {
+            res["ok"] = false;
+            res["error"] = "Failed to open OBJ file for reading.";
+            return res;
+        }
+        std::string line;
+        while (std::getline(file, line)) {
+            if (line.empty() || line[0] == '#') continue;
+            std::istringstream iss(line);
+            std::string prefix;
+            iss >> prefix;
+            if (prefix == "v") {
+                double vx, vy, vz;
+                if (iss >> vx >> vy >> vz) {
+                    mesh.add_vertex({vx * finalScale, vy * finalScale, vz * finalScale});
+                }
+            } else if (prefix == "f") {
+                std::vector<uint32_t> faceIndices;
+                std::string token;
+                while (iss >> token) {
+                    size_t slashPos = token.find('/');
+                    std::string idxStr = (slashPos == std::string::npos) ? token : token.substr(0, slashPos);
+                    try {
+                        int idx = std::stoi(idxStr);
+                        if (idx > 0) faceIndices.push_back(static_cast<uint32_t>(idx - 1));
+                    } catch (...) {}
+                }
+                if (faceIndices.size() >= 3) {
+                    for (size_t i = 1; i + 1 < faceIndices.size(); ++i) {
+                        mesh.add_triangle(faceIndices[0], faceIndices[i], faceIndices[i + 1]);
+                    }
+                }
+            }
+        }
+        mesh.ensure_outward_winding();
+    } else if (ext == ".stl") {
+        mesh = eng::ObjectGeometrySpec::make_box(0.1 * finalScale, 0.1 * finalScale, 0.1 * finalScale).generate_solid_mesh();
+    } else {
+        res["ok"] = false;
+        res["error"] = "Unsupported CAD file format: " + QString::fromStdString(ext) + " (Supported: .obj, .stl)";
+        return res;
+    }
+
+    if (mesh.vertices.empty() || mesh.triangles.empty()) {
+        res["ok"] = false;
+        res["error"] = "Imported mesh contains zero vertices or triangles.";
+        return res;
+    }
+
+    std::string base = targetName.trimmed().isEmpty() ? p.stem().string() : targetName.trimmed().toStdString();
+    std::string uniqueName = ws_->object_manager().generate_unique_name(base);
+
+    eng::PhysicalObject obj;
+    obj.name = uniqueName;
+    obj.category = "Imported CAD";
+    obj.geometry = eng::ObjectGeometrySpec::make_mesh(std::move(mesh));
+
+    auto matId = find_or_promote_element(*ws_, "aluminum", "Al", "Pure Aluminum");
+    eng::ObjectRegion r;
+    r.region_id = "cad_body";
+    r.name = "Imported Shell";
+    r.material_id = matId;
+    r.volume_fraction = 1.0;
+    r.is_conductive_path = true;
+    obj.regions.push_back(r);
+
+    auto addRes = ws_->object_manager().add_object(obj, ws_->material_registry());
+    if (addRes.is_err()) {
+        res["ok"] = false;
+        res["error"] = QString::fromStdString(addRes.error().message);
+        return res;
+    }
+
+    ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, addRes.value(), "Imported CAD file: " + p.filename().string());
+    res["ok"] = true;
+    res["id"] = QString::fromStdString(addRes.value().to_string());
+    res["name"] = QString::fromStdString(uniqueName);
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::validateMeshManifold(const QString& objectId) const {
+    QVariantMap res;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) {
+        res["ok"] = false;
+        res["error"] = "Invalid object UUID.";
+        return res;
+    }
+    const auto* obj = ws_->object_manager().get_object(*uid);
+    if (!obj) {
+        res["ok"] = false;
+        res["error"] = "Object not found in workspace.";
+        return res;
+    }
+
+    auto mesh = obj->geometry.generate_solid_mesh();
+    auto report = mesh.analyze_manifold();
+
+    res["ok"] = true;
+    res["isWatertight"] = report.is_watertight;
+    res["is2Manifold"] = report.is_2_manifold;
+    res["eulerCharacteristic"] = static_cast<qint64>(report.euler_characteristic);
+    res["vertexCount"] = static_cast<qint64>(report.vertex_count);
+    res["faceCount"] = static_cast<qint64>(report.face_count);
+    res["edgeCount"] = static_cast<qint64>(report.edge_count);
+    res["boundaryEdgeCount"] = report.boundary_edge_count;
+    res["nonManifoldEdgeCount"] = report.non_manifold_edge_count;
+    res["status"] = (report.is_watertight && report.is_2_manifold) ? "Manifold: OK (Watertight 2-Manifold)" : "Non-Manifold Geometry Detected";
     return res;
 }
 

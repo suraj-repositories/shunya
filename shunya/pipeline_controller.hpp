@@ -244,6 +244,35 @@ public:
         double currentBottomHeight = 140.0) const;
     Q_INVOKABLE QVariantMap runObjectPreflightChecks(const QString& objectId) const;
 
+    // Custom Parametric Primitives, CSG Booleans & Template Catalog (OBJGEO)
+    Q_INVOKABLE QVariantList getLibraryTemplates() const;
+    Q_INVOKABLE QVariantMap instantiateLibraryTemplate(const QString& templateId, const QString& customName = "");
+    Q_INVOKABLE QVariantMap createCustomParametricObject(
+        const QString& name,
+        const QString& category,
+        const QString& shape,
+        double dimX, double dimY, double dimZ,
+        double radius, double wallThickness, double minorRadius,
+        int turns,
+        const QString& materialId,
+        double tempK = 298.15,
+        double pressurePa = 101325.0);
+    Q_INVOKABLE QVariantMap executeCsgBoolean(
+        const QString& op,
+        const QString& objAId,
+        const QString& objBId,
+        const QString& resultName = "");
+    Q_INVOKABLE QVariantMap shellObject(
+        const QString& objectId,
+        double wallThicknessM,
+        const QString& resultName = "");
+    Q_INVOKABLE QVariantMap importCadFile(
+        const QString& filePath,
+        const QString& unitFormat = "m",
+        double scaleFactor = 1.0,
+        const QString& targetName = "");
+    Q_INVOKABLE QVariantMap validateMeshManifold(const QString& objectId) const;
+
     // =========================================================================
     // 4. Functional Circuit Components (OBJCMP)
     // =========================================================================

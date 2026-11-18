@@ -1,4 +1,5 @@
 #include "shunya/eng/physical_object.hpp"
+#include "shunya/cad3d/csg_boolean.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -70,7 +71,14 @@ core::base::Result<ObjectShapeKind> object_shape_kind_from_string(std::string_vi
     if (s == "Sphere") return ObjectShapeKind::Sphere;
     if (s == "Cylinder") return ObjectShapeKind::Cylinder;
     if (s == "Cone") return ObjectShapeKind::Cone;
+    if (s == "Torus") return ObjectShapeKind::Torus;
+    if (s == "Capsule") return ObjectShapeKind::Capsule;
+    if (s == "Plane") return ObjectShapeKind::Plane;
+    if (s == "Pipe") return ObjectShapeKind::Pipe;
     if (s == "ExtrudedProfile2D") return ObjectShapeKind::ExtrudedProfile2D;
+    if (s == "RevolvedProfile") return ObjectShapeKind::RevolvedProfile;
+    if (s == "SweptPath") return ObjectShapeKind::SweptPath;
+    if (s == "LoftedSurface") return ObjectShapeKind::LoftedSurface;
     if (s == "Mesh3D") return ObjectShapeKind::Mesh3D;
     return make_obj_error(4301, "Unknown ObjectShapeKind: " + std::string(s));
 }
@@ -98,6 +106,26 @@ core::base::Result<void> ObjectGeometrySpec::validate() const {
             return make_obj_error(4306, "Cone radii and height must be valid and positive");
         }
         break;
+    case ObjectShapeKind::Torus:
+        if (radius_m <= 0.0 || minor_radius_m <= 0.0) {
+            return make_obj_error(4309, "Torus major and minor radii must be strictly positive");
+        }
+        break;
+    case ObjectShapeKind::Capsule:
+        if (radius_m <= 0.0 || dim_y_m <= 0.0) {
+            return make_obj_error(4310, "Capsule radius and length must be strictly positive");
+        }
+        break;
+    case ObjectShapeKind::Plane:
+        if (dim_x_m <= 0.0 || dim_z_m <= 0.0) {
+            return make_obj_error(4311, "Plane dimensions must be strictly positive");
+        }
+        break;
+    case ObjectShapeKind::Pipe:
+        if (radius_m <= 0.0 || wall_thickness_m <= 0.0 || wall_thickness_m >= radius_m || dim_y_m <= 0.0) {
+            return make_obj_error(4312, "Pipe dimensions and wall thickness must be valid and positive");
+        }
+        break;
     case ObjectShapeKind::ExtrudedProfile2D:
         if (cross_section_area_m2 <= 0.0 || dim_z_m <= 0.0) {
             return make_obj_error(4307, "Extruded 2D profile area and depth must be strictly positive");
@@ -107,6 +135,10 @@ core::base::Result<void> ObjectGeometrySpec::validate() const {
         if (!mesh.has_value() || mesh->vertices.empty() || mesh->triangles.empty()) {
             return make_obj_error(4308, "Mesh3D object must have valid vertices and triangles");
         }
+        break;
+    case ObjectShapeKind::RevolvedProfile:
+    case ObjectShapeKind::SweptPath:
+    case ObjectShapeKind::LoftedSurface:
         break;
     }
     return core::base::Result<void>::ok();
@@ -124,10 +156,34 @@ double ObjectGeometrySpec::compute_volume_m3() const noexcept {
     case ObjectShapeKind::Cone:
         return (1.0 / 3.0) * kPi * dim_y_m *
                (radius_m * radius_m + radius_m * top_radius_m + top_radius_m * top_radius_m) * s_vol;
+    case ObjectShapeKind::Pipe: {
+        const double r_in = std::max(0.0, radius_m - wall_thickness_m);
+        return kPi * (radius_m * radius_m - r_in * r_in) * dim_y_m * s_vol;
+    }
+    case ObjectShapeKind::Torus: {
+        const double r_tube = (minor_radius_m > 0.0) ? minor_radius_m : (0.25 * radius_m);
+        return 2.0 * kPi * kPi * radius_m * r_tube * r_tube * s_vol;
+    }
+    case ObjectShapeKind::Capsule: {
+        const double cyl_h = std::max(0.0, dim_y_m - 2.0 * radius_m);
+        return (kPi * radius_m * radius_m * cyl_h + (4.0 / 3.0) * kPi * radius_m * radius_m * radius_m) * s_vol;
+    }
+    case ObjectShapeKind::Plane:
+        return dim_x_m * (dim_y_m > 0.0 ? dim_y_m : 0.001) * dim_z_m * s_vol;
     case ObjectShapeKind::ExtrudedProfile2D:
         return cross_section_area_m2 * dim_z_m * s_vol;
+    case ObjectShapeKind::SweptPath: {
+        const double turns = helical_turns > 0 ? helical_turns : 10;
+        const double coil_r = 0.5 * dim_x_m;
+        const double coil_h = dim_y_m;
+        const double wire_r = radius_m > 0.0 ? radius_m : 0.0005;
+        const double coil_len = std::sqrt(std::pow(2.0 * kPi * coil_r * turns, 2.0) + std::pow(coil_h, 2.0));
+        return kPi * wire_r * wire_r * coil_len * s_vol;
+    }
+    case ObjectShapeKind::RevolvedProfile:
+    case ObjectShapeKind::LoftedSurface:
     case ObjectShapeKind::Mesh3D:
-        return mesh ? (mesh->compute_volume() * s_vol) : 0.0;
+        return mesh ? (mesh->compute_volume() * s_vol) : (dim_x_m * dim_y_m * dim_z_m * s_vol);
     }
     return 0.0;
 }
@@ -156,12 +212,44 @@ double ObjectGeometrySpec::compute_surface_area_m2() const noexcept {
         const double slant = std::hypot(r1 - r2, h);
         return kPi * (r1 * r1 + r2 * r2 + (r1 + r2) * slant);
     }
+    case ObjectShapeKind::Pipe: {
+        const double R = radius_m * 0.5 * (scale.x + scale.z);
+        const double r = std::max(0.0, R - wall_thickness_m * 0.5 * (scale.x + scale.z));
+        const double h = dim_y_m * scale.y;
+        return 2.0 * kPi * (R + r) * h + 2.0 * kPi * std::max(0.0, R * R - r * r);
+    }
+    case ObjectShapeKind::Torus: {
+        const double R = radius_m * 0.5 * (scale.x + scale.z);
+        const double r = ((minor_radius_m > 0.0) ? minor_radius_m : 0.25 * radius_m) * scale.y;
+        return 4.0 * kPi * kPi * R * r;
+    }
+    case ObjectShapeKind::Capsule: {
+        const double R = radius_m * 0.5 * (scale.x + scale.z);
+        const double cyl_h = std::max(0.0, dim_y_m * scale.y - 2.0 * R);
+        return 2.0 * kPi * R * cyl_h + 4.0 * kPi * R * R;
+    }
+    case ObjectShapeKind::Plane: {
+        const double x = dim_x_m * scale.x;
+        const double y = (dim_y_m > 0.0 ? dim_y_m : 0.001) * scale.y;
+        const double z = dim_z_m * scale.z;
+        return 2.0 * (x * y + y * z + x * z);
+    }
     case ObjectShapeKind::ExtrudedProfile2D: {
         const double r_eq = std::sqrt(std::max(1e-12, cross_section_area_m2) / kPi);
         return 2.0 * cross_section_area_m2 + 2.0 * kPi * r_eq * dim_z_m;
     }
+    case ObjectShapeKind::SweptPath: {
+        const double turns = helical_turns > 0 ? helical_turns : 10;
+        const double coil_r = 0.5 * dim_x_m * 0.5 * (scale.x + scale.z);
+        const double coil_h = dim_y_m * scale.y;
+        const double wire_r = (radius_m > 0.0 ? radius_m : 0.0005) * 0.5 * (scale.x + scale.z);
+        const double coil_len = std::sqrt(std::pow(2.0 * kPi * coil_r * turns, 2.0) + std::pow(coil_h, 2.0));
+        return 2.0 * kPi * wire_r * coil_len + 2.0 * kPi * wire_r * wire_r;
+    }
+    case ObjectShapeKind::RevolvedProfile:
+    case ObjectShapeKind::LoftedSurface:
     case ObjectShapeKind::Mesh3D:
-        return mesh ? mesh->compute_surface_area() : 0.0;
+        return mesh ? mesh->compute_surface_area() : (2.0 * (dim_x_m * dim_y_m + dim_y_m * dim_z_m + dim_x_m * dim_z_m));
     }
     return 0.0;
 }
@@ -169,14 +257,22 @@ double ObjectGeometrySpec::compute_surface_area_m2() const noexcept {
 double ObjectGeometrySpec::compute_characteristic_length_m() const noexcept {
     switch (kind) {
     case ObjectShapeKind::Box:
+    case ObjectShapeKind::Plane:
         return std::max({dim_x_m * scale.x, dim_y_m * scale.y, dim_z_m * scale.z});
     case ObjectShapeKind::Sphere:
         return 2.0 * radius_m * scale.x;
     case ObjectShapeKind::Cylinder:
     case ObjectShapeKind::Cone:
+    case ObjectShapeKind::Pipe:
+    case ObjectShapeKind::Capsule:
+    case ObjectShapeKind::SweptPath:
         return dim_y_m * scale.y;
+    case ObjectShapeKind::Torus:
+        return 2.0 * (radius_m + minor_radius_m) * scale.x;
     case ObjectShapeKind::ExtrudedProfile2D:
         return dim_z_m * scale.z;
+    case ObjectShapeKind::RevolvedProfile:
+    case ObjectShapeKind::LoftedSurface:
     case ObjectShapeKind::Mesh3D:
         if (mesh) {
             auto bb = mesh->compute_bbox().size();
@@ -189,7 +285,8 @@ double ObjectGeometrySpec::compute_characteristic_length_m() const noexcept {
 
 double ObjectGeometrySpec::compute_cross_section_area_m2() const noexcept {
     switch (kind) {
-    case ObjectShapeKind::Box: {
+    case ObjectShapeKind::Box:
+    case ObjectShapeKind::Plane: {
         const double x = dim_x_m * scale.x;
         const double y = dim_y_m * scale.y;
         const double z = dim_z_m * scale.z;
@@ -199,15 +296,31 @@ double ObjectGeometrySpec::compute_cross_section_area_m2() const noexcept {
         return x * y;
     }
     case ObjectShapeKind::Sphere:
+    case ObjectShapeKind::Capsule:
         return kPi * radius_m * radius_m * scale.x * scale.z;
     case ObjectShapeKind::Cylinder:
         return kPi * radius_m * radius_m * scale.x * scale.z;
+    case ObjectShapeKind::Pipe: {
+        const double R = radius_m * 0.5 * (scale.x + scale.z);
+        const double r = std::max(0.0, R - wall_thickness_m * 0.5 * (scale.x + scale.z));
+        return kPi * (R * R - r * r);
+    }
+    case ObjectShapeKind::Torus: {
+        const double r = (minor_radius_m > 0.0 ? minor_radius_m : 0.25 * radius_m) * scale.y;
+        return 2.0 * kPi * r * r;
+    }
     case ObjectShapeKind::Cone: {
         const double r_avg = 0.5 * (radius_m + top_radius_m);
         return kPi * r_avg * r_avg * scale.x * scale.z;
     }
     case ObjectShapeKind::ExtrudedProfile2D:
         return cross_section_area_m2 * scale.x * scale.y;
+    case ObjectShapeKind::SweptPath: {
+        const double r_wire = (radius_m > 0.0 ? radius_m : 0.0005) * 0.5 * (scale.x + scale.z);
+        return kPi * r_wire * r_wire;
+    }
+    case ObjectShapeKind::RevolvedProfile:
+    case ObjectShapeKind::LoftedSurface:
     case ObjectShapeKind::Mesh3D: {
         const double l = std::max(1e-9, compute_characteristic_length_m());
         return compute_volume_m3() / l;
@@ -217,15 +330,18 @@ double ObjectGeometrySpec::compute_cross_section_area_m2() const noexcept {
 }
 
 cad3d::SolidMesh3D ObjectGeometrySpec::generate_solid_mesh() const {
-    if (kind == ObjectShapeKind::Mesh3D && mesh.has_value()) {
+    if (mesh.has_value() && (kind == ObjectShapeKind::Mesh3D ||
+                             kind == ObjectShapeKind::RevolvedProfile ||
+                             kind == ObjectShapeKind::LoftedSurface)) {
         return *mesh;
     }
 
     cad3d::SolidMesh3D out;
-    if (kind == ObjectShapeKind::Box || kind == ObjectShapeKind::ExtrudedProfile2D) {
+    if (kind == ObjectShapeKind::Box || kind == ObjectShapeKind::ExtrudedProfile2D || kind == ObjectShapeKind::Plane) {
         const double w = (kind == ObjectShapeKind::ExtrudedProfile2D)
             ? std::sqrt(std::max(1e-12, cross_section_area_m2)) : dim_x_m;
-        const double h = (kind == ObjectShapeKind::ExtrudedProfile2D) ? w : dim_y_m;
+        const double h = (kind == ObjectShapeKind::ExtrudedProfile2D) ? w :
+                         (kind == ObjectShapeKind::Plane && dim_y_m <= 0.0 ? 0.001 : dim_y_m);
         const double d = dim_z_m;
         const double hx = 0.5 * w * scale.x;
         const double hy = 0.5 * h * scale.y;
@@ -278,6 +394,210 @@ cad3d::SolidMesh3D ObjectGeometrySpec::generate_solid_mesh() const {
         return out;
     }
 
+    if (kind == ObjectShapeKind::Pipe) {
+        const int segs = 24;
+        const double hy = 0.5 * dim_y_m * scale.y;
+        const double R = radius_m * 0.5 * (scale.x + scale.z);
+        const double r = std::max(0.001 * R, R - wall_thickness_m * 0.5 * (scale.x + scale.z));
+
+        std::vector<uint32_t> out_bot(segs), out_top(segs), in_bot(segs), in_top(segs);
+        for (int i = 0; i < segs; ++i) {
+            const double ang = 2.0 * kPi * static_cast<double>(i) / static_cast<double>(segs);
+            const double ca = std::cos(ang), sa = std::sin(ang);
+            out_bot[i] = out.add_vertex({R * ca, -hy, R * sa});
+            out_top[i] = out.add_vertex({R * ca,  hy, R * sa});
+            in_bot[i]  = out.add_vertex({r * ca, -hy, r * sa});
+            in_top[i]  = out.add_vertex({r * ca,  hy, r * sa});
+        }
+        for (int i = 0; i < segs; ++i) {
+            const int nxt = (i + 1) % segs;
+            out.add_triangle(out_bot[i], out_top[i], out_top[nxt]);
+            out.add_triangle(out_bot[i], out_top[nxt], out_bot[nxt]);
+
+            out.add_triangle(in_bot[i], in_top[nxt], in_top[i]);
+            out.add_triangle(in_bot[i], in_bot[nxt], in_top[nxt]);
+
+            out.add_triangle(out_top[i], in_top[i], in_top[nxt]);
+            out.add_triangle(out_top[i], in_top[nxt], out_top[nxt]);
+
+            out.add_triangle(out_bot[i], in_bot[nxt], in_bot[i]);
+            out.add_triangle(out_bot[i], out_bot[nxt], in_bot[nxt]);
+        }
+        out.ensure_outward_winding();
+        return out;
+    }
+
+    if (kind == ObjectShapeKind::Torus) {
+        const int major_segs = 24;
+        const int minor_segs = 12;
+        const double R = radius_m * 0.5 * (scale.x + scale.z);
+        const double r = ((minor_radius_m > 0.0) ? minor_radius_m : 0.25 * radius_m) * scale.y;
+
+        std::vector<std::vector<uint32_t>> grid(major_segs, std::vector<uint32_t>(minor_segs));
+        for (int i = 0; i < major_segs; ++i) {
+            const double u = 2.0 * kPi * static_cast<double>(i) / static_cast<double>(major_segs);
+            const double cu = std::cos(u), su = std::sin(u);
+            for (int j = 0; j < minor_segs; ++j) {
+                const double v = 2.0 * kPi * static_cast<double>(j) / static_cast<double>(minor_segs);
+                const double cv = std::cos(v), sv = std::sin(v);
+                const double px = (R + r * cv) * cu;
+                const double py = r * sv;
+                const double pz = (R + r * cv) * su;
+                grid[i][j] = out.add_vertex({px, py, pz});
+            }
+        }
+        for (int i = 0; i < major_segs; ++i) {
+            const int inxt = (i + 1) % major_segs;
+            for (int j = 0; j < minor_segs; ++j) {
+                const int jnxt = (j + 1) % minor_segs;
+                out.add_triangle(grid[i][j], grid[inxt][j], grid[inxt][jnxt]);
+                out.add_triangle(grid[i][j], grid[inxt][jnxt], grid[i][jnxt]);
+            }
+        }
+        out.ensure_outward_winding();
+        return out;
+    }
+
+    if (kind == ObjectShapeKind::Capsule) {
+        const int segs = 20;
+        const int cap_stacks = 8;
+        const double R = radius_m * 0.5 * (scale.x + scale.z);
+        const double total_h = dim_y_m * scale.y;
+        const double cyl_h = std::max(0.0, total_h - 2.0 * R);
+        const double hy = 0.5 * cyl_h;
+
+        const uint32_t north = out.add_vertex({0.0, hy + R, 0.0});
+        const uint32_t south = out.add_vertex({0.0, -hy - R, 0.0});
+
+        std::vector<std::vector<uint32_t>> top_cap(cap_stacks, std::vector<uint32_t>(segs));
+        std::vector<std::vector<uint32_t>> bot_cap(cap_stacks, std::vector<uint32_t>(segs));
+
+        for (int st = 1; st < cap_stacks; ++st) {
+            const double phi = (kPi * 0.5) * static_cast<double>(st) / static_cast<double>(cap_stacks);
+            const double r_st = R * std::sin(phi);
+            const double y_top = hy + R * std::cos(phi);
+            const double y_bot = -hy - R * std::cos(phi);
+            for (int s = 0; s < segs; ++s) {
+                const double th = 2.0 * kPi * static_cast<double>(s) / static_cast<double>(segs);
+                top_cap[st][s] = out.add_vertex({r_st * std::cos(th), y_top, r_st * std::sin(th)});
+                bot_cap[st][s] = out.add_vertex({r_st * std::cos(th), y_bot, r_st * std::sin(th)});
+            }
+        }
+        for (int s = 0; s < segs; ++s) {
+            const int nxt = (s + 1) % segs;
+            out.add_triangle(north, top_cap[1][s], top_cap[1][nxt]);
+            out.add_triangle(south, bot_cap[1][nxt], bot_cap[1][s]);
+        }
+        for (int st = 1; st + 1 < cap_stacks; ++st) {
+            for (int s = 0; s < segs; ++s) {
+                const int nxt = (s + 1) % segs;
+                out.add_triangle(top_cap[st][s], top_cap[st + 1][s], top_cap[st + 1][nxt]);
+                out.add_triangle(top_cap[st][s], top_cap[st + 1][nxt], top_cap[st][nxt]);
+
+                out.add_triangle(bot_cap[st][s], bot_cap[st][nxt], bot_cap[st + 1][nxt]);
+                out.add_triangle(bot_cap[st][s], bot_cap[st + 1][nxt], bot_cap[st + 1][s]);
+            }
+        }
+        const auto& rim_top = top_cap[cap_stacks - 1];
+        const auto& rim_bot = bot_cap[cap_stacks - 1];
+        for (int s = 0; s < segs; ++s) {
+            const int nxt = (s + 1) % segs;
+            out.add_triangle(rim_top[s], rim_bot[s], rim_bot[nxt]);
+            out.add_triangle(rim_top[s], rim_bot[nxt], rim_top[nxt]);
+        }
+        out.ensure_outward_winding();
+        return out;
+    }
+
+    if (kind == ObjectShapeKind::SweptPath) {
+        const int total_samples = 100;
+        const int wire_segs = 8;
+        const double turns = helical_turns > 0 ? helical_turns : 10;
+        const double R = 0.5 * dim_x_m * 0.5 * (scale.x + scale.z);
+        const double H = dim_y_m * scale.y;
+        const double r_wire = (radius_m > 0.0 ? radius_m : 0.0005) * 0.5 * (scale.x + scale.z);
+
+        std::vector<std::vector<uint32_t>> rings(total_samples, std::vector<uint32_t>(wire_segs));
+        for (int i = 0; i < total_samples; ++i) {
+            const double t = static_cast<double>(i) / static_cast<double>(total_samples - 1);
+            const double theta = 2.0 * kPi * turns * t;
+            const double cx = R * std::cos(theta);
+            const double cy = (t - 0.5) * H;
+            const double cz = R * std::sin(theta);
+
+            const double tx = -2.0 * kPi * turns * R * std::sin(theta);
+            const double ty = H;
+            const double tz =  2.0 * kPi * turns * R * std::cos(theta);
+            core::base::math::Vector3<double> tan{tx, ty, tz};
+            tan = tan.normalized();
+
+            core::base::math::Vector3<double> norm{-std::cos(theta), 0.0, -std::sin(theta)};
+            core::base::math::Vector3<double> binorm = tan.cross(norm).normalized();
+            norm = binorm.cross(tan).normalized();
+
+            for (int j = 0; j < wire_segs; ++j) {
+                const double phi = 2.0 * kPi * static_cast<double>(j) / static_cast<double>(wire_segs);
+                const auto pt = core::base::math::Vector3<double>{cx, cy, cz} +
+                                norm * (r_wire * std::cos(phi)) +
+                                binorm * (r_wire * std::sin(phi));
+                rings[i][j] = out.add_vertex(pt);
+            }
+        }
+        for (int i = 0; i + 1 < total_samples; ++i) {
+            for (int j = 0; j < wire_segs; ++j) {
+                const int nxt = (j + 1) % wire_segs;
+                out.add_triangle(rings[i][j], rings[i + 1][j], rings[i + 1][nxt]);
+                out.add_triangle(rings[i][j], rings[i + 1][nxt], rings[i][nxt]);
+            }
+        }
+        out.ensure_outward_winding();
+        return out;
+    }
+
+    if (kind == ObjectShapeKind::RevolvedProfile) {
+        // Revolve an incandescent bulb envelope profile around Y axis
+        const int slices = 32;
+        const double max_r = radius_m * scale.x;
+        const double h = dim_y_m * scale.y;
+        std::vector<std::pair<double, double>> prof = {
+            { -0.50 * h, 0.40 * max_r },
+            { -0.30 * h, 0.40 * max_r },
+            { -0.15 * h, 0.65 * max_r },
+            {  0.05 * h, 0.95 * max_r },
+            {  0.25 * h, 1.00 * max_r },
+            {  0.40 * h, 0.85 * max_r }
+        };
+        const uint32_t apex = out.add_vertex({0.0, 0.50 * h, 0.0});
+        const uint32_t base_center = out.add_vertex({0.0, -0.50 * h, 0.0});
+        const size_t n_rings = prof.size();
+        std::vector<std::vector<uint32_t>> rings(n_rings, std::vector<uint32_t>(slices));
+        for (size_t r = 0; r < n_rings; ++r) {
+            const double y_val = prof[r].first;
+            const double r_val = prof[r].second;
+            for (int s = 0; s < slices; ++s) {
+                const double th = 2.0 * kPi * static_cast<double>(s) / static_cast<double>(slices);
+                rings[r][s] = out.add_vertex({r_val * std::cos(th), y_val, r_val * std::sin(th)});
+            }
+        }
+        for (int s = 0; s < slices; ++s) {
+            const int nxt = (s + 1) % slices;
+            out.add_triangle(base_center, rings[0][nxt], rings[0][s]);
+        }
+        for (size_t r = 0; r + 1 < n_rings; ++r) {
+            for (int s = 0; s < slices; ++s) {
+                const int nxt = (s + 1) % slices;
+                out.add_triangle(rings[r][s], rings[r + 1][s], rings[r + 1][nxt]);
+                out.add_triangle(rings[r][s], rings[r + 1][nxt], rings[r][nxt]);
+            }
+        }
+        for (int s = 0; s < slices; ++s) {
+            const int nxt = (s + 1) % slices;
+            out.add_triangle(rings[n_rings - 1][s], apex, rings[n_rings - 1][nxt]);
+        }
+        out.ensure_outward_winding();
+        return out;
+    }
+
     // Sphere UV mesh
     const int stacks = 12;
     const int slices = 24;
@@ -309,6 +629,126 @@ cad3d::SolidMesh3D ObjectGeometrySpec::generate_solid_mesh() const {
     return out;
 }
 
+// Parametric builder methods
+ObjectGeometrySpec ObjectGeometrySpec::make_box(double x, double y, double z) {
+    ObjectGeometrySpec spec;
+    spec.kind = ObjectShapeKind::Box;
+    spec.dim_x_m = x;
+    spec.dim_y_m = y;
+    spec.dim_z_m = z;
+    return spec;
+}
+
+ObjectGeometrySpec ObjectGeometrySpec::make_cylinder(double radius, double length) {
+    ObjectGeometrySpec spec;
+    spec.kind = ObjectShapeKind::Cylinder;
+    spec.radius_m = radius;
+    spec.dim_y_m = length;
+    return spec;
+}
+
+ObjectGeometrySpec ObjectGeometrySpec::make_sphere(double radius) {
+    ObjectGeometrySpec spec;
+    spec.kind = ObjectShapeKind::Sphere;
+    spec.radius_m = radius;
+    return spec;
+}
+
+ObjectGeometrySpec ObjectGeometrySpec::make_cone(double bottom_radius, double top_radius, double height) {
+    ObjectGeometrySpec spec;
+    spec.kind = ObjectShapeKind::Cone;
+    spec.radius_m = bottom_radius;
+    spec.top_radius_m = top_radius;
+    spec.dim_y_m = height;
+    return spec;
+}
+
+ObjectGeometrySpec ObjectGeometrySpec::make_pipe(double outer_radius, double wall_thickness, double length) {
+    ObjectGeometrySpec spec;
+    spec.kind = ObjectShapeKind::Pipe;
+    spec.radius_m = outer_radius;
+    spec.wall_thickness_m = wall_thickness;
+    spec.dim_y_m = length;
+    return spec;
+}
+
+ObjectGeometrySpec ObjectGeometrySpec::make_torus(double major_radius, double minor_radius) {
+    ObjectGeometrySpec spec;
+    spec.kind = ObjectShapeKind::Torus;
+    spec.radius_m = major_radius;
+    spec.minor_radius_m = minor_radius;
+    return spec;
+}
+
+ObjectGeometrySpec ObjectGeometrySpec::make_capsule(double radius, double total_length) {
+    ObjectGeometrySpec spec;
+    spec.kind = ObjectShapeKind::Capsule;
+    spec.radius_m = radius;
+    spec.dim_y_m = total_length;
+    return spec;
+}
+
+ObjectGeometrySpec ObjectGeometrySpec::make_helical_coil(double wire_radius, double coil_radius, double coil_height, int turns) {
+    ObjectGeometrySpec spec;
+    spec.kind = ObjectShapeKind::SweptPath;
+    spec.radius_m = wire_radius;
+    spec.dim_x_m = 2.0 * coil_radius;
+    spec.dim_y_m = coil_height;
+    spec.helical_turns = turns;
+    return spec;
+}
+
+ObjectGeometrySpec ObjectGeometrySpec::make_revolved(cad3d::SolidMesh3D m) {
+    ObjectGeometrySpec spec;
+    spec.kind = ObjectShapeKind::RevolvedProfile;
+    spec.mesh = std::move(m);
+    return spec;
+}
+
+ObjectGeometrySpec ObjectGeometrySpec::make_extruded(cad3d::SolidMesh3D m) {
+    ObjectGeometrySpec spec;
+    spec.kind = ObjectShapeKind::ExtrudedProfile2D;
+    spec.mesh = std::move(m);
+    return spec;
+}
+
+ObjectGeometrySpec ObjectGeometrySpec::make_mesh(cad3d::SolidMesh3D m) {
+    ObjectGeometrySpec spec;
+    spec.kind = ObjectShapeKind::Mesh3D;
+    spec.mesh = std::move(m);
+    return spec;
+}
+
+cad3d::SolidMesh3D ObjectGeometrySpec::boolean_union(const cad3d::SolidMesh3D& a, const cad3d::SolidMesh3D& b) {
+    return cad3d::CsgBooleanEngine::boolean_union(a, b);
+}
+
+cad3d::SolidMesh3D ObjectGeometrySpec::boolean_difference(const cad3d::SolidMesh3D& a, const cad3d::SolidMesh3D& b) {
+    return cad3d::CsgBooleanEngine::boolean_difference(a, b);
+}
+
+cad3d::SolidMesh3D ObjectGeometrySpec::boolean_intersection(const cad3d::SolidMesh3D& a, const cad3d::SolidMesh3D& b) {
+    return cad3d::CsgBooleanEngine::boolean_intersection(a, b);
+}
+
+cad3d::SolidMesh3D ObjectGeometrySpec::shell_solid_mesh(const cad3d::SolidMesh3D& solid, double thickness_m) {
+    auto bbox = solid.compute_bbox();
+    auto center = (bbox.min + bbox.max) * 0.5;
+    auto size = bbox.size();
+    if (size.x <= 2.0 * thickness_m || size.y <= 2.0 * thickness_m || size.z <= 2.0 * thickness_m) {
+        return solid;
+    }
+    double sx = (size.x - 2.0 * thickness_m) / size.x;
+    double sy = (size.y - 2.0 * thickness_m) / size.y;
+    double sz = (size.z - 2.0 * thickness_m) / size.z;
+
+    cad3d::SolidMesh3D inner = solid;
+    for (auto& v : inner.vertices) {
+        v = center + core::base::math::Vector3<double>{(v.x - center.x) * sx, (v.y - center.y) * sy, (v.z - center.z) * sz};
+    }
+    return cad3d::CsgBooleanEngine::boolean_difference(solid, inner);
+}
+
 std::string PhysicalObject::to_json() const {
     std::ostringstream ss;
     ss << "{\n";
@@ -321,6 +761,10 @@ std::string PhysicalObject::to_json() const {
     ss << "  \"dim_z_m\": " << std::setprecision(10) << geometry.dim_z_m << ",\n";
     ss << "  \"radius_m\": " << std::setprecision(10) << geometry.radius_m << ",\n";
     ss << "  \"top_radius_m\": " << std::setprecision(10) << geometry.top_radius_m << ",\n";
+    ss << "  \"wall_thickness_m\": " << std::setprecision(10) << geometry.wall_thickness_m << ",\n";
+    ss << "  \"minor_radius_m\": " << std::setprecision(10) << geometry.minor_radius_m << ",\n";
+    ss << "  \"helical_turns\": " << geometry.helical_turns << ",\n";
+    ss << "  \"is_hollow\": " << (geometry.is_hollow ? "true" : "false") << ",\n";
     ss << "  \"cross_section_area_m2\": " << std::setprecision(10) << geometry.cross_section_area_m2 << ",\n";
     ss << "  \"pos_x\": " << geometry.position.x << ", \"pos_y\": " << geometry.position.y << ", \"pos_z\": " << geometry.position.z << ",\n";
     ss << "  \"rot_x\": " << geometry.rotation_deg.x << ", \"rot_y\": " << geometry.rotation_deg.y << ", \"rot_z\": " << geometry.rotation_deg.z << ",\n";
@@ -362,6 +806,10 @@ core::base::Result<PhysicalObject> PhysicalObject::from_json(std::string_view sr
     obj.geometry.dim_z_m = json_num(src, "dim_z_m", 0.1);
     obj.geometry.radius_m = json_num(src, "radius_m", 0.05);
     obj.geometry.top_radius_m = json_num(src, "top_radius_m", 0.0);
+    obj.geometry.wall_thickness_m = json_num(src, "wall_thickness_m", 0.005);
+    obj.geometry.minor_radius_m = json_num(src, "minor_radius_m", 0.01);
+    obj.geometry.helical_turns = static_cast<int>(json_num(src, "helical_turns", 10.0));
+    obj.geometry.is_hollow = json_bool(src, "is_hollow", false);
     obj.geometry.cross_section_area_m2 = json_num(src, "cross_section_area_m2", 0.0);
     obj.geometry.position = {json_num(src, "pos_x", 0.0), json_num(src, "pos_y", 0.0), json_num(src, "pos_z", 0.0)};
     obj.geometry.rotation_deg = {json_num(src, "rot_x", 0.0), json_num(src, "rot_y", 0.0), json_num(src, "rot_z", 0.0)};
@@ -521,6 +969,42 @@ core::base::Result<ObjectComputedProperties> PhysicalObjectManager::evaluate_pro
         p.inertia_izz = p.inertia_ixx;
         break;
     }
+    case ObjectShapeKind::Pipe: {
+        const double r_out = obj.geometry.radius_m * 0.5 * (obj.geometry.scale.x + obj.geometry.scale.z);
+        const double r_in = std::max(0.0, r_out - obj.geometry.wall_thickness_m);
+        const double h = obj.geometry.dim_y_m * obj.geometry.scale.y;
+        p.inertia_iyy = 0.5 * M * (r_out * r_out + r_in * r_in);
+        p.inertia_ixx = (1.0 / 12.0) * M * (3.0 * (r_out * r_out + r_in * r_in) + h * h);
+        p.inertia_izz = p.inertia_ixx;
+        break;
+    }
+    case ObjectShapeKind::Torus: {
+        const double R = obj.geometry.radius_m;
+        const double r = obj.geometry.minor_radius_m;
+        p.inertia_iyy = M * (R * R + 0.75 * r * r);
+        p.inertia_ixx = M * (0.5 * R * R + 0.625 * r * r);
+        p.inertia_izz = p.inertia_ixx;
+        break;
+    }
+    case ObjectShapeKind::Capsule: {
+        const double r = obj.geometry.radius_m * 0.5 * (obj.geometry.scale.x + obj.geometry.scale.z);
+        const double h = obj.geometry.dim_y_m * obj.geometry.scale.y;
+        p.inertia_iyy = 0.5 * M * r * r;
+        p.inertia_ixx = (1.0 / 12.0) * M * (3.0 * r * r + h * h);
+        p.inertia_izz = p.inertia_ixx;
+        break;
+    }
+    case ObjectShapeKind::Plane: {
+        const double w = obj.geometry.dim_x_m * obj.geometry.scale.x;
+        const double d = obj.geometry.dim_z_m * obj.geometry.scale.z;
+        p.inertia_iyy = (1.0 / 12.0) * M * (w * w + d * d);
+        p.inertia_ixx = (1.0 / 12.0) * M * (d * d);
+        p.inertia_izz = (1.0 / 12.0) * M * (w * w);
+        break;
+    }
+    case ObjectShapeKind::RevolvedProfile:
+    case ObjectShapeKind::SweptPath:
+    case ObjectShapeKind::LoftedSurface:
     case ObjectShapeKind::ExtrudedProfile2D:
     case ObjectShapeKind::Mesh3D: {
         const double char_l = std::max(1e-6, obj.geometry.compute_characteristic_length_m());

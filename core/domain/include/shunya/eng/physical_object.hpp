@@ -21,7 +21,14 @@ enum class ObjectShapeKind : uint8_t {
     Sphere,
     Cylinder,
     Cone,
+    Torus,
+    Capsule,
+    Plane,
+    Pipe,
     ExtrudedProfile2D,
+    RevolvedProfile,
+    SweptPath,
+    LoftedSurface,
     Mesh3D
 };
 
@@ -31,7 +38,14 @@ enum class ObjectShapeKind : uint8_t {
     case ObjectShapeKind::Sphere:            return "Sphere";
     case ObjectShapeKind::Cylinder:          return "Cylinder";
     case ObjectShapeKind::Cone:              return "Cone";
+    case ObjectShapeKind::Torus:             return "Torus";
+    case ObjectShapeKind::Capsule:           return "Capsule";
+    case ObjectShapeKind::Plane:             return "Plane";
+    case ObjectShapeKind::Pipe:              return "Pipe";
     case ObjectShapeKind::ExtrudedProfile2D: return "ExtrudedProfile2D";
+    case ObjectShapeKind::RevolvedProfile:   return "RevolvedProfile";
+    case ObjectShapeKind::SweptPath:         return "SweptPath";
+    case ObjectShapeKind::LoftedSurface:     return "LoftedSurface";
     case ObjectShapeKind::Mesh3D:            return "Mesh3D";
     }
     return "Box";
@@ -46,7 +60,12 @@ struct ObjectGeometrySpec {
     double dim_z_m{0.1};
     double radius_m{0.05};
     double top_radius_m{0.0};
+    double wall_thickness_m{0.005};  // For Pipe, Hollow bodies, Shells
+    double minor_radius_m{0.01};      // For Torus minor tube radius
+    int helical_turns{10};           // For SweptPath / Helix coils
+    double helical_pitch_m{0.005};    // For SweptPath / Helix pitch
     double cross_section_area_m2{0.0};
+    bool is_hollow{false};            // Shell / hollow body flag
     std::optional<cad3d::SolidMesh3D> mesh;
 
     core::base::math::Vector3<double> position{0.0, 0.0, 0.0};
@@ -59,6 +78,25 @@ struct ObjectGeometrySpec {
     [[nodiscard]] double compute_characteristic_length_m() const noexcept;
     [[nodiscard]] double compute_cross_section_area_m2() const noexcept;
     [[nodiscard]] cad3d::SolidMesh3D generate_solid_mesh() const;
+
+    // Parametric primitive builders
+    static ObjectGeometrySpec make_box(double x, double y, double z);
+    static ObjectGeometrySpec make_cylinder(double radius, double length);
+    static ObjectGeometrySpec make_sphere(double radius);
+    static ObjectGeometrySpec make_cone(double bottom_radius, double top_radius, double height);
+    static ObjectGeometrySpec make_pipe(double outer_radius, double wall_thickness, double length);
+    static ObjectGeometrySpec make_torus(double major_radius, double minor_radius);
+    static ObjectGeometrySpec make_capsule(double radius, double total_length);
+    static ObjectGeometrySpec make_helical_coil(double wire_radius, double coil_radius, double coil_height, int turns = 10);
+    static ObjectGeometrySpec make_revolved(cad3d::SolidMesh3D m);
+    static ObjectGeometrySpec make_extruded(cad3d::SolidMesh3D m);
+    static ObjectGeometrySpec make_mesh(cad3d::SolidMesh3D m);
+
+    // Boolean and Shell operations
+    [[nodiscard]] static cad3d::SolidMesh3D boolean_union(const cad3d::SolidMesh3D& a, const cad3d::SolidMesh3D& b);
+    [[nodiscard]] static cad3d::SolidMesh3D boolean_difference(const cad3d::SolidMesh3D& a, const cad3d::SolidMesh3D& b);
+    [[nodiscard]] static cad3d::SolidMesh3D boolean_intersection(const cad3d::SolidMesh3D& a, const cad3d::SolidMesh3D& b);
+    [[nodiscard]] static cad3d::SolidMesh3D shell_solid_mesh(const cad3d::SolidMesh3D& solid, double thickness_m);
 };
 
 struct ObjectRegion {

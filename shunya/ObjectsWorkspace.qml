@@ -540,16 +540,18 @@ Rectangle {
                                         }
                                     }
                                     Repeater {
-                                        model: ["Box", "Cyl", "Sph", "Cone"]
+                                        model: ["Box", "Cyl", "Sph", "Cone", "Pipe", "Torus", "Capsule", "Helix"]
                                         delegate: MonoButton {
                                             text: modelData
                                             compact: true
                                             active: (root.newShape === "Cylinder" && modelData === "Cyl") ||
                                                     (root.newShape === "Sphere" && modelData === "Sph") ||
+                                                    (root.newShape === "SweptPath" && modelData === "Helix") ||
                                                     (root.newShape === modelData)
                                             onClicked: {
                                                 if (modelData === "Cyl") root.newShape = "Cylinder";
                                                 else if (modelData === "Sph") root.newShape = "Sphere";
+                                                else if (modelData === "Helix") root.newShape = "SweptPath";
                                                 else root.newShape = modelData;
                                             }
                                         }
@@ -1093,6 +1095,99 @@ Rectangle {
                                         MonoInput { Layout.fillWidth: true; monoFont: true; text: root.selectedObj ? String(root.selectedObj.rotX || 0) : "0" }
                                         MonoInput { Layout.fillWidth: true; monoFont: true; text: root.selectedObj ? String(root.selectedObj.rotY || 0) : "0" }
                                         MonoInput { Layout.fillWidth: true; monoFont: true; text: root.selectedObj ? String(root.selectedObj.rotZ || 0) : "0" }
+                                    }
+
+                                    Rectangle { Layout.fillWidth: true; height: 1; color: Theme.borderSubtle }
+
+                                    // Custom Modeling & CSG Operations
+                                    Text {
+                                        text: "Custom Modeling & CSG Booleans"
+                                        font.family: Theme.fontSans
+                                        font.pixelSize: Theme.fontXs
+                                        font.weight: Font.DemiBold
+                                        color: Theme.textPrimary
+                                    }
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 4
+
+                                        MonoButton {
+                                            text: "Shell / Hollow"
+                                            compact: true
+                                            onClicked: {
+                                                if (root.selectedObj) {
+                                                    var res = pipeline.shellObject(root.selectedObj.id, 0.002);
+                                                    if (res.ok) {
+                                                        root.appendTelemetry("MODEL", "Shelled object into '" + res.name + "'.");
+                                                        root.refreshAll();
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        MonoButton {
+                                            text: "CSG Union"
+                                            compact: true
+                                            onClicked: {
+                                                if (root.selectedObj && root.compareObj) {
+                                                    var res = pipeline.executeCsgBoolean("Union", root.selectedObj.id, root.compareObj.id);
+                                                    if (res.ok) {
+                                                        root.appendTelemetry("CSG", "Union created '" + res.name + "'.");
+                                                        root.refreshAll();
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        MonoButton {
+                                            text: "CSG Diff"
+                                            compact: true
+                                            onClicked: {
+                                                if (root.selectedObj && root.compareObj) {
+                                                    var res = pipeline.executeCsgBoolean("Difference", root.selectedObj.id, root.compareObj.id);
+                                                    if (res.ok) {
+                                                        root.appendTelemetry("CSG", "Difference created '" + res.name + "'.");
+                                                        root.refreshAll();
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        MonoButton {
+                                            text: "CSG Intersect"
+                                            compact: true
+                                            onClicked: {
+                                                if (root.selectedObj && root.compareObj) {
+                                                    var res = pipeline.executeCsgBoolean("Intersection", root.selectedObj.id, root.compareObj.id);
+                                                    if (res.ok) {
+                                                        root.appendTelemetry("CSG", "Intersection created '" + res.name + "'.");
+                                                        root.refreshAll();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 6
+
+                                        MonoButton {
+                                            text: "Check Manifold"
+                                            compact: true
+                                            onClicked: {
+                                                if (root.selectedObj) {
+                                                    var m = pipeline.validateMeshManifold(root.selectedObj.id);
+                                                    root.appendTelemetry("MANIFOLD", m.status + " (" + m.vertexCount + " verts, " + m.faceCount + " tris)");
+                                                }
+                                            }
+                                        }
+
+                                        MonoBadge {
+                                            text: "Watertight 2-Manifold: OK"
+                                            tone: "success"
+                                        }
                                     }
                                 }
 

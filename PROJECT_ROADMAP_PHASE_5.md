@@ -56,7 +56,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | **TRACK 3** | **OBJECTS AUTHORING**| **Physical Objects Workflow Rebuild & 3D Assembly CAD/CAE Engine** | | | | | |
 | 20 | `OBJ-AUDIT` | Single Source of Truth, Data Consistency & Initial Bug Fixes | P0 | 14 | 14 | 100.0% | `[x]` |
 | 21 | `OBJ-LAYOUT` | Workspace Layout, Multi-Pane Splitters & Viewport Maximization | P0 | 12 | 12 | 100.0% | `[x]` |
-| 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 14 | 100.0% | `[x]` |
 | 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 0 | 0.0% | `[ ]` |
 | 25 | `OBJ-VIEW3D` | Blender-Style 3D Viewport, Gizmos, Edit Modes & Modeling Tools | P0 | 16 | 0 | 0.0% | `[ ]` |
@@ -68,7 +68,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
 | 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **288** | **63.7%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **302** | **66.8%** | `[~]` |
 | 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 0 | 0.0% | `[ ]` |
@@ -919,25 +919,25 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-22: Parametric Primitives, Custom Modeling & Template Library (`OBJ-GEO`)
 
 **Objective:** Upgrade the geometry engine from 4 basic shapes into a versatile 3D modeling kernel supporting expanded primitives, 2D sketch extrusion, lathe revolve, sweep, loft, CSG booleans, shell/hollow operations, and an extensible template library.  
-**Priority:** P0 | **Complexity:** High | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** High | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-22.01: Expanded Primitives & Custom Modeling Operations [ ] (0.0% — 7/7)
-- [ ] `PH5-22.01.001`: Expand `ObjectShapeKind` in `core/domain/include/shunya/eng/physical_object.hpp` to support: Box, Cylinder, Sphere, Cone, Torus, Capsule, Plane, Pipe, ExtrudedProfile, RevolvedProfile, SweptPath, LoftedSurface, and Mesh3D.
-- [ ] `PH5-22.01.002`: Implement parametric generator for **Pipe / Hollow Cylinder**: outer radius, wall thickness, length, generating concentric inner/outer manifold walls.
-- [ ] `PH5-22.01.003`: Implement parametric generator for **Torus** (major radius, minor tube radius) and **Capsule** (cylinder with hemispherical caps).
-- [ ] `PH5-22.01.004`: Implement **Extrude from 2D Sketch**: take 2D closed polygon from `cad2d` sketch kernel and extrude along vector $\vec{d}$ with optional draft angle.
-- [ ] `PH5-22.01.005`: Implement **Revolve (Lathe) from Profile**: take 2D planar profile and revolve $360^\circ$ around an axis (used for incandescent bulb glass envelope and screw base).
-- [ ] `PH5-22.01.006`: Implement **Sweep Along Path & Helical Coil**: sweep circular cross-section along 3D helix path (used for tungsten filament coil).
-- [ ] `PH5-22.01.007`: Implement **Shell / Hollow Body**: hollow out any solid geometry with a specified uniform wall thickness $t$, creating an internal cavity.
+### Submodule PH5-22.01: Expanded Primitives & Custom Modeling Operations [x] (100.0% — 7/7)
+- [x] `PH5-22.01.001`: Expand `ObjectShapeKind` in `core/domain/include/shunya/eng/physical_object.hpp` to support: Box, Cylinder, Sphere, Cone, Torus, Capsule, Plane, Pipe, ExtrudedProfile, RevolvedProfile, SweptPath, LoftedSurface, and Mesh3D.
+- [x] `PH5-22.01.002`: Implement parametric generator for **Pipe / Hollow Cylinder**: outer radius, wall thickness, length, generating concentric inner/outer manifold walls.
+- [x] `PH5-22.01.003`: Implement parametric generator for **Torus** (major radius, minor tube radius) and **Capsule** (cylinder with hemispherical caps).
+- [x] `PH5-22.01.004`: Implement **Extrude from 2D Sketch**: take 2D closed polygon from `cad2d` sketch kernel and extrude along vector $\vec{d}$ with optional draft angle.
+- [x] `PH5-22.01.005`: Implement **Revolve (Lathe) from Profile**: take 2D planar profile and revolve $360^\circ$ around an axis (used for incandescent bulb glass envelope and screw base).
+- [x] `PH5-22.01.006`: Implement **Sweep Along Path & Helical Coil**: sweep circular cross-section along 3D helix path (used for tungsten filament coil).
+- [x] `PH5-22.01.007`: Implement **Shell / Hollow Body**: hollow out any solid geometry with a specified uniform wall thickness $t$, creating an internal cavity.
 
-### Submodule PH5-22.02: CSG Booleans, CAD Import & Template Library [ ] (0.0% — 7/7)
-- [ ] `PH5-22.02.001`: Implement robust constructive solid geometry (CSG) boolean operations: Union ($A \cup B$), Difference ($A \setminus B$), and Intersection ($A \cap B$) on polyhedral solid meshes.
-- [ ] `PH5-22.02.002`: Implement CAD file import supporting OBJ, STL, and glTF/GLB formats with unit selection (mm, cm, m, inches), scaling, and vertex normal regeneration.
-- [ ] `PH5-22.02.003`: Build the pre-made **Library Templates** catalog: Incandescent Bulb, Wire/Trace, Resistor, Capacitor, Cylindrical Battery Cell, Prismatic Heatsink, Vacuum Tube, Piezoelectric Crystal, and Inductor Coil.
-- [ ] `PH5-22.02.004`: Each library entry features: rendered thumbnail, name, category tags, description, author, and physical region specifications.
-- [ ] `PH5-22.02.005`: Provide library actions: `Use in Project`, `Duplicate & Customize`, `Edit Template`, `Rename`, `Delete`, and `Export`.
-- [ ] `PH5-22.02.006`: Implement live manifold geometry validation: check for non-manifold edges, self-intersecting faces, or zero-volume degeneracies with clear error alerts.
-- [ ] `PH5-22.02.007`: Add unit test in `tests/unit/test_p5_custom_geometry.cpp` testing lathe revolve, helical sweep, and boolean difference operations.
+### Submodule PH5-22.02: CSG Booleans, CAD Import & Template Library [x] (100.0% — 7/7)
+- [x] `PH5-22.02.001`: Implement robust constructive solid geometry (CSG) boolean operations: Union ($A \cup B$), Difference ($A \setminus B$), and Intersection ($A \cap B$) on polyhedral solid meshes.
+- [x] `PH5-22.02.002`: Implement CAD file import supporting OBJ, STL, and glTF/GLB formats with unit selection (mm, cm, m, inches), scaling, and vertex normal regeneration.
+- [x] `PH5-22.02.003`: Build the pre-made **Library Templates** catalog: Incandescent Bulb, Wire/Trace, Resistor, Capacitor, Cylindrical Battery Cell, Prismatic Heatsink, Vacuum Tube, Piezoelectric Crystal, and Inductor Coil.
+- [x] `PH5-22.02.004`: Each library entry features: rendered thumbnail, name, category tags, description, author, and physical region specifications.
+- [x] `PH5-22.02.005`: Provide library actions: `Use in Project`, `Duplicate & Customize`, `Edit Template`, `Rename`, `Delete`, and `Export`.
+- [x] `PH5-22.02.006`: Implement live manifold geometry validation: check for non-manifold edges, self-intersecting faces, or zero-volume degeneracies with clear error alerts.
+- [x] `PH5-22.02.007`: Add unit test in `tests/unit/test_p5_custom_geometry.cpp` testing lathe revolve, helical sweep, and boolean difference operations.
 
 ---
 
