@@ -212,6 +212,9 @@ add_library(shunya_domain_cad OBJECT
     src/rig3d/modifier_stack.cpp
     src/rig3d/organic_mesh.cpp
     src/rig3d/sculpt_brush.cpp
+    src/rig3d/armature.cpp
+    src/rig3d/skinning.cpp
+    src/rig3d/kinematics.cpp
 )
 shunya_configure_domain_target(shunya_domain_cad)
 target_link_libraries(shunya_domain_cad PUBLIC shunya_domain_core)
