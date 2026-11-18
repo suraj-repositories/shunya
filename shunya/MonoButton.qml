@@ -8,6 +8,8 @@ Rectangle {
     property string variant: "secondary" // "primary", "secondary", "ghost", "danger"
     property bool active: false
     property bool compact: false
+    property string tooltipText: ""
+    property string shortcutText: ""
     signal clicked()
 
     implicitWidth: row.implicitWidth + (compact ? 14 : 20)
@@ -69,5 +71,56 @@ Rectangle {
         hoverEnabled: true
         cursorShape: root.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
         onClicked: if (root.enabled) root.clicked()
+    }
+
+    // Informative Hover Tooltip with Shortcut Badge Reminder
+    Rectangle {
+        id: tooltipBubble
+        visible: ma.containsMouse && (root.tooltipText !== "" || root.shortcutText !== "")
+        z: 99999
+        anchors.bottom: parent.top
+        anchors.bottomMargin: 6
+        anchors.horizontalCenter: parent.horizontalCenter
+        implicitWidth: tooltipRow.implicitWidth + 14
+        implicitHeight: 22
+        radius: Theme.radiusSm
+        color: Theme.bgElevated
+        border.color: Theme.borderDefault
+        border.width: 1
+
+        Row {
+            id: tooltipRow
+            anchors.centerIn: parent
+            spacing: 6
+
+            Text {
+                text: root.tooltipText
+                font.family: Theme.fontSans
+                font.pixelSize: 11
+                color: Theme.textPrimary
+                visible: root.tooltipText !== ""
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Rectangle {
+                visible: root.shortcutText !== ""
+                height: 16
+                width: scTxt.contentWidth + 6
+                radius: 2
+                color: Theme.bgSurface
+                border.color: Theme.borderSubtle
+                border.width: 1
+                anchors.verticalCenter: parent.verticalCenter
+
+                Text {
+                    id: scTxt
+                    anchors.centerIn: parent
+                    text: root.shortcutText
+                    font.family: Theme.fontMono
+                    font.pixelSize: 9
+                    color: Theme.textMuted
+                }
+            }
+        }
     }
 }
