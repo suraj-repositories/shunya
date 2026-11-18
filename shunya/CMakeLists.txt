@@ -82,6 +82,8 @@ qt_add_qml_module(shunya_gui_lib
         MainMenuBar.qml
         NewProjectWizard.qml
         UnsavedChangesGuardDialog.qml
+        EmptyStateView.qml
+        BannerMessage.qml
         DockContainer.qml
         DockOverlay.qml
         RibbonBar.qml
