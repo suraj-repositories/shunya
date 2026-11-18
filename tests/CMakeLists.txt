@@ -33,6 +33,16 @@ add_executable(shunya_unit_tests
     unit/test_ui_polish_and_dialogs.cpp
     unit/test_phase4_materials.cpp
     unit/test_phase4_components.cpp
+    unit/test_phase4_circuit_solver.cpp
+    unit/test_phase4_physics_dynamics.cpp
+    unit/test_phase4_co_simulation.cpp
+    unit/test_phase4_cad_geometry.cpp
+    unit/test_phase4_e2e_rc_car.cpp
+    unit/test_phase4_project_roundtrip.cpp
+    unit/test_phase4_stress_simulation.cpp
+    unit/test_phase4_backward_compatibility.cpp
+    unit/test_phase4_ui.cpp
+    unit/test_phase4_viewport_ssim.cpp
     unit/test_ui_docking.cpp
     unit/test_ui_ribbon_command.cpp
     unit/test_ui_property_inspector.cpp
