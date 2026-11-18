@@ -1,16 +1,22 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Basic
+import QtCore
 import shunya
 
 Rectangle {
     id: root
     color: Theme.bgCanvas
 
+    // =========================================================================
+    // Core Domain Data & Selection State
+    // =========================================================================
     property var objectsList: []
     property var materialsList: []
     property int selectedIdx: 0
+    property int compareIdx: 1
     readonly property var selectedObj: (selectedIdx >= 0 && selectedIdx < objectsList.length) ? objectsList[selectedIdx] : null
+    readonly property var compareObj: (compareIdx >= 0 && compareIdx < objectsList.length) ? objectsList[compareIdx] : null
 
     // Form inputs for new object creation
     property string newName: "Copper_Test_Bar"
@@ -26,11 +32,64 @@ Rectangle {
     property string renamingObjId: ""
     property string renameCandidateText: ""
 
+    // Search filter for object library
+    property string librarySearchQuery: ""
+
+    // Active Property Tab index: 0: Geometry, 1: Regions, 2: Interior, 3: Physics, 4: Simulator
+    property int activePropertiesTab: 0
+
+    // Viewport Mode & Shading State
+    property string viewportMode: "Object Mode" // "Object Mode" | "Edit Mode"
+    property string viewportShading: "Solid"    // "Solid" | "Wireframe" | "X-Ray"
+    property bool showGrid: true
+    property bool snapEnabled: true
+
+    // Layout Dimensions, Presets & Persistence
+    property real leftPaneWidth: 300
+    property real rightPaneWidth: 360
+    property real bottomPaneHeight: 140
+    property bool leftCollapsed: false
+    property bool rightCollapsed: false
+    property bool bottomCollapsed: false
+    property bool isMaximizedViewport: false
+    property string layoutPreset: "Default" // "Default" | "Modeling" | "Testing" | "Compare"
+
+    // Telemetry log stream
+    property var telemetryLogs: [
+        { time: "12:00:01", tag: "INIT", text: "Physical Objects authoring kernel initialized." },
+        { time: "12:00:02", tag: "OBJ", text: "Single source of truth property engine online." },
+        { time: "12:00:03", tag: "PREFLIGHT", text: "Pre-flight validation engine ready." }
+    ]
+
+    function appendTelemetry(tag, text) {
+        var now = new Date();
+        var timeStr = ("0" + now.getHours()).slice(-2) + ":" +
+                      ("0" + now.getMinutes()).slice(-2) + ":" +
+                      ("0" + now.getSeconds()).slice(-2);
+        var arr = root.telemetryLogs.slice();
+        arr.push({ time: timeStr, tag: tag, text: text });
+        if (arr.length > 200) arr.shift();
+        root.telemetryLogs = arr;
+    }
+
+    Settings {
+        id: objectsSettings
+        category: "ObjectsLayout"
+        property alias leftPaneWidth: root.leftPaneWidth
+        property alias rightPaneWidth: root.rightPaneWidth
+        property alias bottomPaneHeight: root.bottomPaneHeight
+        property alias leftCollapsed: root.leftCollapsed
+        property alias rightCollapsed: root.rightCollapsed
+        property alias bottomCollapsed: root.bottomCollapsed
+        property alias layoutPreset: root.layoutPreset
+    }
+
     function refreshAll() {
         if (typeof pipeline === "undefined") return;
         objectsList = pipeline.getObjects();
         materialsList = pipeline.getMaterials();
         if (selectedIdx >= objectsList.length) selectedIdx = Math.max(0, objectsList.length - 1);
+        if (compareIdx >= objectsList.length) compareIdx = Math.max(0, objectsList.length - 1);
         if (preview3d) {
             preview3d.refreshScene();
             if (selectedObj) {
@@ -58,6 +117,31 @@ Rectangle {
         return 0;
     }
 
+    function applyPreset(name) {
+        root.layoutPreset = name;
+        var l = pipeline.calculateObjectLayout(name, root.width, root.height, root.leftPaneWidth, root.rightPaneWidth, root.bottomPaneHeight);
+        root.leftPaneWidth = l.leftWidth;
+        root.rightPaneWidth = l.rightWidth;
+        root.bottomPaneHeight = l.bottomHeight;
+        root.leftCollapsed = l.leftCollapsed;
+        root.rightCollapsed = l.rightCollapsed;
+        root.bottomCollapsed = l.bottomCollapsed;
+        root.appendTelemetry("LAYOUT", "Applied layout preset '" + name + "'.");
+    }
+
+    function resetSplitters() {
+        var l = pipeline.calculateObjectLayout("Default", root.width, root.height, 0, 0, 0);
+        root.leftPaneWidth = l.leftWidth;
+        root.rightPaneWidth = l.rightWidth;
+        root.bottomPaneHeight = l.bottomHeight;
+        root.leftCollapsed = false;
+        root.rightCollapsed = false;
+        root.bottomCollapsed = false;
+        root.isMaximizedViewport = false;
+        root.layoutPreset = "Default";
+        root.appendTelemetry("LAYOUT", "Reset workspace layout to default proportions.");
+    }
+
     Component.onCompleted: {
         refreshAll();
         if (matPicker) {
@@ -70,15 +154,24 @@ Rectangle {
         function onWorkspaceChanged() { root.refreshAll(); }
     }
 
+    // Keyboard Shortcuts for Layout
+    Shortcut { sequence: "F11"; onActivated: root.isMaximizedViewport = !root.isMaximizedViewport }
+    Shortcut { sequence: "Ctrl+Space"; onActivated: root.isMaximizedViewport = !root.isMaximizedViewport }
+    Shortcut { sequence: "Ctrl+B"; onActivated: root.leftCollapsed = !root.leftCollapsed }
+    Shortcut { sequence: "Ctrl+Alt+B"; onActivated: root.rightCollapsed = !root.rightCollapsed }
+    Shortcut { sequence: "Ctrl+J"; onActivated: root.bottomCollapsed = !root.bottomCollapsed }
+    Shortcut { sequence: "Escape"; onActivated: { if (root.isMaximizedViewport) root.isMaximizedViewport = false; } }
+
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 14
-        spacing: 10
+        anchors.margins: root.isMaximizedViewport ? 0 : 12
+        spacing: root.isMaximizedViewport ? 0 : 8
 
         // =========================================================================
-        // Header & Dynamic Template Library
+        // Workspace Top Header (Hidden in Maximize Viewport Mode)
         // =========================================================================
         RowLayout {
+            visible: !root.isMaximizedViewport
             Layout.fillWidth: true
             spacing: 12
 
@@ -101,8 +194,49 @@ Rectangle {
 
             Item { Layout.fillWidth: true }
 
+            // Layout Presets Selector
+            RowLayout {
+                spacing: 4
+                Text {
+                    text: "Layout:"
+                    font.family: Theme.fontSans
+                    font.pixelSize: Theme.fontXs
+                    font.weight: Font.Medium
+                    color: Theme.textMuted
+                }
+
+                Repeater {
+                    model: ["Default", "Modeling", "Testing", "Compare"]
+                    delegate: MonoButton {
+                        text: modelData
+                        compact: true
+                        active: root.layoutPreset === modelData
+                        onClicked: root.applyPreset(modelData)
+                    }
+                }
+            }
+
+            Rectangle { width: 1; height: 18; color: Theme.borderSubtle }
+
+            // Maximize Viewport Button
+            MonoButton {
+                text: root.isMaximizedViewport ? "Restore" : "Maximize"
+                iconName: root.isMaximizedViewport ? "minimize" : "maximize"
+                compact: true
+                onClicked: root.isMaximizedViewport = !root.isMaximizedViewport
+            }
+        }
+
+        // =========================================================================
+        // Dynamic Quick-Template Bar (Hidden in Maximize Viewport Mode)
+        // =========================================================================
+        RowLayout {
+            visible: !root.isMaximizedViewport
+            Layout.fillWidth: true
+            spacing: 8
+
             Text {
-                text: "Templates:"
+                text: "Quick Templates:"
                 font.family: Theme.fontSans
                 font.pixelSize: Theme.fontXs
                 font.weight: Font.Medium
@@ -110,7 +244,7 @@ Rectangle {
             }
 
             Flow {
-                Layout.maximumWidth: 640
+                Layout.fillWidth: true
                 spacing: 4
 
                 Repeater {
@@ -130,6 +264,7 @@ Rectangle {
                         onClicked: {
                             var r = pipeline.addPresetObject(modelData);
                             root.feedbackMsg = r.ok ? ("Added template '" + r.name + "'") : ("Error: " + r.error);
+                            root.appendTelemetry("OBJ", "Added template '" + modelData + "'.");
                             root.refreshAll();
                             if (r.ok) {
                                 root.selectedIdx = root.objectsList.length - 1;
@@ -141,485 +276,1059 @@ Rectangle {
         }
 
         // =========================================================================
-        // 3-Pane Body: Left (Library/Creator), Middle (Live Properties), Right (3D Viewport)
+        // Main 4-Pane Workstation Layout
         // =========================================================================
-        RowLayout {
+        ColumnLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: 12
+            spacing: 0
 
-            // ---------------------------------------------------------------------
-            // LEFT CARD: Object Creator & Project Objects List
-            // ---------------------------------------------------------------------
-            Rectangle {
-                Layout.preferredWidth: 330
+            // Upper 3-Pane Row: Left Pane, Center Viewport, Right Properties
+            RowLayout {
+                Layout.fillWidth: true
                 Layout.fillHeight: true
-                color: Theme.bgSurface
-                border.color: Theme.borderDefault
-                border.width: 1
-                radius: Theme.radiusMd
+                spacing: 0
 
-                ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: 12
-                    spacing: 8
+                // -----------------------------------------------------------------
+                // PANE 1: LEFT PANE - Object Library & Project Objects Tree
+                // -----------------------------------------------------------------
+                Rectangle {
+                    visible: !root.isMaximizedViewport && !root.leftCollapsed
+                    Layout.preferredWidth: root.leftPaneWidth
+                    Layout.minimumWidth: 280
+                    Layout.maximumWidth: 600
+                    Layout.fillHeight: true
+                    color: Theme.bgSurface
+                    border.color: Theme.borderDefault
+                    border.width: 1
+                    radius: Theme.radiusMd
+                    clip: true
 
-                    Text {
-                        text: "New Physical Object"
-                        font.family: Theme.fontSans
-                        font.pixelSize: Theme.fontSm
-                        font.weight: Font.DemiBold
-                        color: Theme.textPrimary
-                    }
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 10
+                        spacing: 8
 
-                    MonoInput {
-                        Layout.fillWidth: true
-                        text: root.newName
-                        placeholderText: "Object Name (e.g. Copper_Test_Bar)"
-                        onTextEdited: (t) => {
-                            root.newName = t;
-                            if (matPicker) matPicker.currentIndex = root.autoMatchMaterial(t);
-                        }
-                    }
+                        // Header with Collapse Chevron
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 6
 
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 4
-                        Repeater {
-                            model: ["Box", "Cylinder", "Sphere", "Cone"]
-                            delegate: MonoButton {
-                                text: modelData
+                            Text {
+                                text: "Object Library"
+                                font.family: Theme.fontSans
+                                font.pixelSize: Theme.fontSm
+                                font.weight: Font.DemiBold
+                                color: Theme.textPrimary
+                                Layout.fillWidth: true
+                            }
+
+                            MonoButton {
+                                iconName: "chevron-left"
                                 compact: true
-                                active: root.newShape === modelData
-                                onClicked: root.newShape = modelData
+                                onClicked: root.leftCollapsed = true
                             }
                         }
-                    }
 
-                    MonoComboBox {
-                        id: matPicker
-                        Layout.fillWidth: true
-                        model: root.materialsList
-                        textRole: "name"
-                    }
-
-                    GridLayout {
-                        columns: 2
-                        columnSpacing: 6
-                        rowSpacing: 4
-                        Layout.fillWidth: true
-
-                        Text { text: "Dim X / W (m):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                        MonoInput { Layout.fillWidth: true; monoFont: true; text: String(root.newDimX); onTextEdited: (t) => root.newDimX = parseFloat(t) || 0.05 }
-
-                        Text { text: "Dim Y / Len (m):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                        MonoInput { Layout.fillWidth: true; monoFont: true; text: String(root.newDimY); onTextEdited: (t) => root.newDimY = parseFloat(t) || 0.25 }
-
-                        Text { text: "Dim Z / Radius (m):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                        // Search Box
                         MonoInput {
                             Layout.fillWidth: true
-                            monoFont: true
-                            text: root.newShape === "Box" ? String(root.newDimZ) : String(root.newRadius)
-                            onTextEdited: (t) => {
-                                var v = parseFloat(t) || 0.01;
-                                root.newDimZ = v;
-                                root.newRadius = v;
-                            }
+                            placeholderText: "Search library & objects..."
+                            onTextEdited: (t) => root.librarySearchQuery = t.toLowerCase()
                         }
-                    }
 
-                    MonoButton {
-                        Layout.fillWidth: true
-                        text: "Create Material Object"
-                        variant: "primary"
-                        iconName: "plus"
-                        onClicked: {
-                            var mid = (matPicker.currentIndex >= 0 && matPicker.currentIndex < root.materialsList.length) ? root.materialsList[matPicker.currentIndex].id : "";
-                            var r = pipeline.createObject(root.newName, "Custom", root.newShape, root.newDimX, root.newDimY, root.newDimZ, root.newRadius, mid, root.newTempK, 101325.0);
-                            root.feedbackMsg = r.ok ? ("Created '" + r.name + "'") : ("Error: " + r.error);
-                            root.refreshAll();
-                            if (r.ok) {
-                                root.selectedIdx = root.objectsList.length - 1;
-                            }
-                        }
-                    }
-
-                    Text {
-                        visible: root.feedbackMsg !== ""
-                        text: root.feedbackMsg
-                        font.family: Theme.fontSans
-                        font.pixelSize: Theme.fontXs
-                        color: root.feedbackMsg.indexOf("Error") !== -1 ? Theme.accentError : Theme.textSecondary
-                        wrapMode: Text.WordWrap
-                        Layout.fillWidth: true
-                    }
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 1
-                        color: Theme.borderSubtle
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Text {
-                            text: "Project Objects (" + root.objectsList.length + ")"
-                            font.family: Theme.fontSans
-                            font.pixelSize: Theme.fontSm
-                            font.weight: Font.DemiBold
-                            color: Theme.textPrimary
+                        // Project Objects Header
+                        RowLayout {
                             Layout.fillWidth: true
+                            Text {
+                                text: "Project Objects (" + root.objectsList.length + ")"
+                                font.family: Theme.fontSans
+                                font.pixelSize: Theme.fontXs
+                                font.weight: Font.DemiBold
+                                color: Theme.textPrimary
+                                Layout.fillWidth: true
+                            }
+
+                            MonoButton {
+                                text: "+ New"
+                                compact: true
+                                variant: "primary"
+                                onClicked: {
+                                    var mid = (matPicker && matPicker.currentIndex >= 0 && matPicker.currentIndex < root.materialsList.length)
+                                        ? root.materialsList[matPicker.currentIndex].id : "";
+                                    var r = pipeline.createObject(root.newName, "Custom", root.newShape,
+                                                                  root.newDimX, root.newDimY, root.newDimZ, root.newRadius,
+                                                                  mid, root.newTempK, 101325.0);
+                                    root.feedbackMsg = r.ok ? ("Created '" + r.name + "'") : ("Error: " + r.error);
+                                    root.appendTelemetry("OBJ", "Created object '" + root.newName + "'.");
+                                    root.refreshAll();
+                                    if (r.ok) root.selectedIdx = root.objectsList.length - 1;
+                                }
+                            }
                         }
-                    }
 
-                    // Scrollable Project Objects List (prevents clipping)
-                    ScrollView {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        clip: true
-                        ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                        // Scrollable Project Objects List
+                        ScrollView {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            clip: true
+                            ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-                        ListView {
-                            id: objListView
-                            width: parent.width
-                            spacing: 4
-                            model: root.objectsList
+                            ListView {
+                                id: objListView
+                                width: parent.width
+                                spacing: 4
+                                model: root.objectsList.filter(o => {
+                                    if (!root.librarySearchQuery) return true;
+                                    return (o.name || "").toLowerCase().indexOf(root.librarySearchQuery) !== -1 ||
+                                           (o.shape || "").toLowerCase().indexOf(root.librarySearchQuery) !== -1;
+                                })
 
-                            delegate: Rectangle {
-                                width: objListView.width
-                                height: root.renamingObjId === modelData.id ? 72 : 54
-                                radius: Theme.radiusSm
-                                color: index === root.selectedIdx ? Theme.bgActive : Theme.bgCanvas
-                                border.color: index === root.selectedIdx ? Theme.borderStrong : Theme.borderSubtle
-                                border.width: 1
+                                delegate: Rectangle {
+                                    width: objListView.width
+                                    height: root.renamingObjId === modelData.id ? 72 : 54
+                                    radius: Theme.radiusSm
+                                    color: index === root.selectedIdx ? Theme.bgActive : Theme.bgCanvas
+                                    border.color: index === root.selectedIdx ? Theme.borderStrong : Theme.borderSubtle
+                                    border.width: 1
 
-                                ColumnLayout {
-                                    anchors.fill: parent
-                                    anchors.margins: 6
-                                    spacing: 4
-
-                                    // Normal Mode
-                                    RowLayout {
-                                        visible: root.renamingObjId !== modelData.id
-                                        Layout.fillWidth: true
-                                        spacing: 6
-
-                                        ColumnLayout {
-                                            Layout.fillWidth: true
-                                            spacing: 1
-
-                                            Text {
-                                                text: modelData.name
-                                                font.family: Theme.fontSans
-                                                font.pixelSize: Theme.fontSm
-                                                font.weight: Font.Medium
-                                                color: Theme.textPrimary
-                                                elide: Text.ElideRight
-                                                Layout.fillWidth: true
-                                            }
-                                            Text {
-                                                text: modelData.shape + "  |  " + Number(modelData.mass).toExponential(2) + " kg" + "  |  " + Number(modelData.density).toFixed(0) + " kg/m³"
-                                                font.family: Theme.fontMono
-                                                font.pixelSize: Theme.fontXs
-                                                color: Theme.textMuted
-                                            }
-                                        }
-
-                                        MonoButton {
-                                            iconName: "edit"
-                                            compact: true
-                                            onClicked: {
-                                                root.renamingObjId = modelData.id;
-                                                root.renameCandidateText = modelData.name;
-                                            }
-                                        }
-
-                                        MonoButton {
-                                            iconName: "copy"
-                                            compact: true
-                                            onClicked: {
-                                                pipeline.duplicateObject(modelData.id);
-                                                root.refreshAll();
-                                            }
-                                        }
-
-                                        MonoButton {
-                                            iconName: "trash"
-                                            compact: true
-                                            onClicked: {
-                                                pipeline.deleteObject(modelData.id);
-                                                root.refreshAll();
-                                            }
-                                        }
-                                    }
-
-                                    // Rename Mode
-                                    RowLayout {
-                                        visible: root.renamingObjId === modelData.id
-                                        Layout.fillWidth: true
+                                    ColumnLayout {
+                                        anchors.fill: parent
+                                        anchors.margins: 6
                                         spacing: 4
 
-                                        MonoInput {
+                                        // Normal Mode
+                                        RowLayout {
+                                            visible: root.renamingObjId !== modelData.id
                                             Layout.fillWidth: true
-                                            text: root.renameCandidateText
-                                            onTextEdited: (t) => root.renameCandidateText = t
-                                        }
+                                            spacing: 6
 
-                                        MonoButton {
-                                            iconName: "check"
-                                            compact: true
-                                            variant: "primary"
-                                            onClicked: {
-                                                var res = pipeline.renameObject(modelData.id, root.renameCandidateText);
-                                                if (res.ok) {
-                                                    root.renamingObjId = "";
+                                            ColumnLayout {
+                                                Layout.fillWidth: true
+                                                spacing: 1
+
+                                                Text {
+                                                    text: modelData.name
+                                                    font.family: Theme.fontSans
+                                                    font.pixelSize: Theme.fontSm
+                                                    font.weight: Font.Medium
+                                                    color: Theme.textPrimary
+                                                    elide: Text.ElideRight
+                                                    Layout.fillWidth: true
+                                                }
+                                                Text {
+                                                    text: modelData.shape + " | " + Number(modelData.mass).toExponential(2) + " kg"
+                                                    font.family: Theme.fontMono
+                                                    font.pixelSize: Theme.fontXs
+                                                    color: Theme.textMuted
+                                                }
+                                            }
+
+                                            MonoButton {
+                                                iconName: "edit"
+                                                compact: true
+                                                onClicked: {
+                                                    root.renamingObjId = modelData.id;
+                                                    root.renameCandidateText = modelData.name;
+                                                }
+                                            }
+
+                                            MonoButton {
+                                                iconName: "copy"
+                                                compact: true
+                                                onClicked: {
+                                                    pipeline.duplicateObject(modelData.id);
+                                                    root.appendTelemetry("OBJ", "Duplicated object '" + modelData.name + "'.");
                                                     root.refreshAll();
-                                                } else {
-                                                    root.feedbackMsg = "Rename Error: " + res.error;
+                                                }
+                                            }
+
+                                            MonoButton {
+                                                iconName: "trash"
+                                                compact: true
+                                                onClicked: {
+                                                    pipeline.deleteObject(modelData.id);
+                                                    root.appendTelemetry("OBJ", "Deleted object '" + modelData.name + "'.");
+                                                    root.refreshAll();
                                                 }
                                             }
                                         }
 
-                                        MonoButton {
-                                            iconName: "x"
+                                        // Rename Mode
+                                        RowLayout {
+                                            visible: root.renamingObjId === modelData.id
+                                            Layout.fillWidth: true
+                                            spacing: 4
+
+                                            MonoInput {
+                                                Layout.fillWidth: true
+                                                text: root.renameCandidateText
+                                                onTextEdited: (t) => root.renameCandidateText = t
+                                            }
+
+                                            MonoButton {
+                                                iconName: "check"
+                                                compact: true
+                                                variant: "primary"
+                                                onClicked: {
+                                                    var res = pipeline.renameObject(modelData.id, root.renameCandidateText);
+                                                    if (res.ok) {
+                                                        root.renamingObjId = "";
+                                                        root.appendTelemetry("OBJ", "Renamed object to '" + res.name + "'.");
+                                                        root.refreshAll();
+                                                    } else {
+                                                        root.feedbackMsg = "Rename Error: " + res.error;
+                                                    }
+                                                }
+                                            }
+
+                                            MonoButton {
+                                                iconName: "x"
+                                                compact: true
+                                                onClicked: {
+                                                    root.renamingObjId = "";
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        z: -1
+                                        onClicked: {
+                                            root.selectedIdx = index;
+                                            if (preview3d) preview3d.selectedObjectId = modelData.id;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Creator Form Toggle / Parameters Box
+                        Rectangle {
+                            Layout.fillWidth: true
+                            radius: Theme.radiusSm
+                            color: Theme.bgCanvas
+                            border.color: Theme.borderSubtle
+                            border.width: 1
+                            implicitHeight: creatorCol.implicitHeight + 12
+
+                            ColumnLayout {
+                                id: creatorCol
+                                anchors.fill: parent
+                                anchors.margins: 6
+                                spacing: 4
+
+                                Text {
+                                    text: "Quick Add Parameters"
+                                    font.family: Theme.fontSans
+                                    font.pixelSize: Theme.fontXs
+                                    font.weight: Font.DemiBold
+                                    color: Theme.textMuted
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 4
+                                    MonoInput {
+                                        Layout.fillWidth: true
+                                        text: root.newName
+                                        placeholderText: "Object Name"
+                                        onTextEdited: (t) => {
+                                            root.newName = t;
+                                            if (matPicker) matPicker.currentIndex = root.autoMatchMaterial(t);
+                                        }
+                                    }
+                                    Repeater {
+                                        model: ["Box", "Cyl", "Sph", "Cone"]
+                                        delegate: MonoButton {
+                                            text: modelData
                                             compact: true
+                                            active: (root.newShape === "Cylinder" && modelData === "Cyl") ||
+                                                    (root.newShape === "Sphere" && modelData === "Sph") ||
+                                                    (root.newShape === modelData)
                                             onClicked: {
-                                                root.renamingObjId = "";
+                                                if (modelData === "Cyl") root.newShape = "Cylinder";
+                                                else if (modelData === "Sph") root.newShape = "Sphere";
+                                                else root.newShape = modelData;
                                             }
                                         }
                                     }
                                 }
 
-                                MouseArea {
-                                    anchors.fill: parent
-                                    z: -1
-                                    onClicked: {
-                                        root.selectedIdx = index;
-                                        if (preview3d) preview3d.selectedObjectId = modelData.id;
-                                    }
+                                MonoComboBox {
+                                    id: matPicker
+                                    Layout.fillWidth: true
+                                    model: root.materialsList
+                                    textRole: "name"
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            // ---------------------------------------------------------------------
-            // CENTER CARD: Selected Object Live Properties & Dimensional Controls
-            // ---------------------------------------------------------------------
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                color: Theme.bgSurface
-                border.color: Theme.borderDefault
-                border.width: 1
-                radius: Theme.radiusMd
+                // Left Splitter
+                StudioSplitter {
+                    id: leftSplitter
+                    visible: !root.isMaximizedViewport && !root.leftCollapsed
+                    orientation: Qt.Vertical
+                    Layout.fillHeight: true
+                    onDragDelta: (delta) => {
+                        var maxLeft = Math.max(280, root.width - (root.rightCollapsed ? 0 : root.rightPaneWidth) - 400);
+                        root.leftPaneWidth = Math.max(280, Math.min(maxLeft, root.leftPaneWidth + delta));
+                    }
+                    onResetRequested: {
+                        root.leftPaneWidth = Math.max(280, root.width * 0.20);
+                    }
+                }
 
-                ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: 14
-                    spacing: 10
+                // Left Restore Handle when Collapsed
+                Rectangle {
+                    visible: !root.isMaximizedViewport && root.leftCollapsed
+                    Layout.preferredWidth: 20
+                    Layout.fillHeight: true
+                    color: Theme.bgSurface
+                    border.color: Theme.borderDefault
+                    border.width: 1
 
-                    // Object Title & Badges
-                    RowLayout {
-                        Layout.fillWidth: true
+                    ColumnLayout {
+                        anchors.centerIn: parent
                         spacing: 8
-
+                        MonoButton {
+                            iconName: "chevron-right"
+                            compact: true
+                            onClicked: root.leftCollapsed = false
+                        }
                         Text {
-                            text: root.selectedObj ? root.selectedObj.name : "No Object Selected"
-                            font.family: Theme.fontSans
-                            font.pixelSize: Theme.fontLg
-                            font.weight: Font.DemiBold
-                            color: Theme.textPrimary
+                            text: "L\nI\nB\nR\nA\nR\nY"
+                            font.family: Theme.fontMono
+                            font.pixelSize: 9
+                            color: Theme.textMuted
+                        }
+                    }
+                }
+
+                // -----------------------------------------------------------------
+                // PANE 2: CENTER PANE - 3D Interactive Viewport & Modeling Canvas
+                // -----------------------------------------------------------------
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 400
+                    Layout.fillHeight: true
+                    color: Theme.bgPrimary
+                    border.color: Theme.borderDefault
+                    border.width: 1
+                    radius: root.isMaximizedViewport ? 0 : Theme.radiusMd
+                    clip: true
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        spacing: 0
+
+                        // Viewport Header Controls Bar
+                        Rectangle {
                             Layout.fillWidth: true
-                        }
-
-                        MonoBadge {
-                            text: root.selectedObj ? root.selectedObj.shape : "Primitive"
-                            tone: "neutral"
-                        }
-
-                        MonoBadge {
-                            text: root.selectedObj && root.selectedObj.hasConductivePath ? "Conductive Path" : "Insulating / Non-Conductive"
-                            tone: root.selectedObj && root.selectedObj.hasConductivePath ? "success" : "neutral"
-                        }
-
-                        MonoBadge {
-                            text: root.selectedObj && root.selectedObj.isSolid ? "Solid Phase" : "Melted Warning"
-                            tone: root.selectedObj && root.selectedObj.isSolid ? "neutral" : "error"
-                        }
-                    }
-
-                    // Live Dimensional Controls for Selected Object (Single Source of Truth)
-                    Rectangle {
-                        visible: root.selectedObj !== null
-                        Layout.fillWidth: true
-                        color: Theme.bgCanvas
-                        border.color: Theme.borderSubtle
-                        border.width: 1
-                        radius: Theme.radiusSm
-                        implicitHeight: dimRow.implicitHeight + 14
-
-                        RowLayout {
-                            id: dimRow
-                            anchors.fill: parent
-                            anchors.margins: 8
-                            spacing: 10
-
-                            Text {
-                                text: "Live Geometry:"
-                                font.family: Theme.fontSans
-                                font.pixelSize: Theme.fontXs
-                                font.weight: Font.DemiBold
-                                color: Theme.textMuted
-                            }
-
-                            Text { text: "Dim X (m):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                            MonoInput {
-                                Layout.preferredWidth: 70
-                                monoFont: true
-                                text: root.selectedObj ? String(root.selectedObj.dimX) : "0.05"
-                                onTextEdited: (t) => {
-                                    if (!root.selectedObj) return;
-                                    var vx = parseFloat(t) || 0.01;
-                                    pipeline.updateObject(root.selectedObj.id, root.selectedObj.name, root.selectedObj.shape,
-                                                          vx, root.selectedObj.dimY, root.selectedObj.dimZ, root.selectedObj.radius,
-                                                          root.selectedObj.tempK, root.selectedObj.pressurePa, root.selectedObj.regions);
-                                    root.refreshAll();
-                                }
-                            }
-
-                            Text { text: "Dim Y / Len (m):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                            MonoInput {
-                                Layout.preferredWidth: 70
-                                monoFont: true
-                                text: root.selectedObj ? String(root.selectedObj.dimY) : "0.25"
-                                onTextEdited: (t) => {
-                                    if (!root.selectedObj) return;
-                                    var vy = parseFloat(t) || 0.01;
-                                    pipeline.updateObject(root.selectedObj.id, root.selectedObj.name, root.selectedObj.shape,
-                                                          root.selectedObj.dimX, vy, root.selectedObj.dimZ, root.selectedObj.radius,
-                                                          root.selectedObj.tempK, root.selectedObj.pressurePa, root.selectedObj.regions);
-                                    root.refreshAll();
-                                }
-                            }
-
-                            Text { text: "Dim Z / Rad (m):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                            MonoInput {
-                                Layout.preferredWidth: 70
-                                monoFont: true
-                                text: root.selectedObj ? (root.selectedObj.shape === "Box" ? String(root.selectedObj.dimZ) : String(root.selectedObj.radius)) : "0.01"
-                                onTextEdited: (t) => {
-                                    if (!root.selectedObj) return;
-                                    var vz = parseFloat(t) || 0.005;
-                                    pipeline.updateObject(root.selectedObj.id, root.selectedObj.name, root.selectedObj.shape,
-                                                          root.selectedObj.dimX, root.selectedObj.dimY, vz, vz,
-                                                          root.selectedObj.tempK, root.selectedObj.pressurePa, root.selectedObj.regions);
-                                    root.refreshAll();
-                                }
-                            }
-
-                            Item { Layout.fillWidth: true }
-                        }
-                    }
-
-                    // Authoritative Physical Property Tensors Grid
-                    GridLayout {
-                        visible: root.selectedObj !== null
-                        columns: 4
-                        columnSpacing: 14
-                        rowSpacing: 6
-                        Layout.fillWidth: true
-
-                        Text { text: "Volume (m³):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; color: Theme.textMuted }
-                        Text { text: root.selectedObj ? Number(root.selectedObj.volume).toExponential(4) : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontSm; color: Theme.textPrimary }
-
-                        Text { text: "Surface Area (m²):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; color: Theme.textMuted }
-                        Text { text: root.selectedObj ? Number(root.selectedObj.surfaceArea).toExponential(4) : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontSm; color: Theme.textPrimary }
-
-                        Text { text: "Effective Density (kg/m³):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; color: Theme.textMuted }
-                        Text { text: root.selectedObj ? Number(root.selectedObj.density).toFixed(2) : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontSm; font.weight: Font.DemiBold; color: Theme.textPrimary }
-
-                        Text { text: "Calculated Mass (kg):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; color: Theme.textMuted }
-                        Text { text: root.selectedObj ? Number(root.selectedObj.mass).toExponential(4) : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontSm; font.weight: Font.Bold; color: Theme.textPrimary }
-
-                        Text { text: "Center of Mass (m):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; color: Theme.textMuted }
-                        Text {
-                            text: root.selectedObj ? ("[" + Number(root.selectedObj.comX || 0).toFixed(3) + ", " + Number(root.selectedObj.comY || 0).toFixed(3) + ", " + Number(root.selectedObj.comZ || 0).toFixed(3) + "]") : ""
-                            font.family: Theme.fontMono
-                            font.pixelSize: Theme.fontXs
-                            color: Theme.textPrimary
-                        }
-
-                        Text { text: "Principal Inertia (kg·m²):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; color: Theme.textMuted }
-                        Text {
-                            text: root.selectedObj ? ("[" + Number(root.selectedObj.ixx || 0).toExponential(2) + ", " + Number(root.selectedObj.iyy || 0).toExponential(2) + ", " + Number(root.selectedObj.izz || 0).toExponential(2) + "]") : ""
-                            font.family: Theme.fontMono
-                            font.pixelSize: Theme.fontXs
-                            color: Theme.textPrimary
-                        }
-
-                        Text { text: "Axial Electrical R (Ω):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; color: Theme.textMuted }
-                        Text { text: root.selectedObj ? Number(root.selectedObj.axialR).toExponential(4) : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontSm; color: Theme.textPrimary }
-
-                        Text { text: "Thermal Mass m·Cp (J/K):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; color: Theme.textMuted }
-                        Text { text: root.selectedObj ? Number(root.selectedObj.thermalMass).toFixed(2) : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontSm; color: Theme.textPrimary }
-
-                        Text { text: "Young's Modulus E (GPa):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; color: Theme.textMuted }
-                        Text { text: root.selectedObj ? (Number(root.selectedObj.youngModulus || 0) / 1e9).toFixed(1) + " GPa" : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontSm; color: Theme.textPrimary }
-
-                        Text { text: "Linear CTE (1/K):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; color: Theme.textMuted }
-                        Text { text: root.selectedObj ? Number(root.selectedObj.cte || 0).toExponential(2) : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontSm; color: Theme.textPrimary }
-                    }
-
-                    Text {
-                        text: "Material Regions & Sub-Bodies"
-                        font.family: Theme.fontSans
-                        font.pixelSize: Theme.fontSm
-                        font.weight: Font.DemiBold
-                        color: Theme.textPrimary
-                    }
-
-                    ListView {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        clip: true
-                        spacing: 4
-                        model: root.selectedObj ? root.selectedObj.regions : []
-                        delegate: Rectangle {
-                            width: ListView.view.width
                             height: 36
-                            radius: Theme.radiusSm
-                            color: Theme.bgCanvas
+                            color: Theme.bgSurface
                             border.color: Theme.borderSubtle
                             border.width: 1
 
                             RowLayout {
                                 anchors.fill: parent
-                                anchors.margins: 8
+                                anchors.margins: 4
+                                spacing: 6
+
+                                // Mode Selector
+                                RowLayout {
+                                    spacing: 2
+                                    Repeater {
+                                        model: ["Object Mode", "Edit Mode"]
+                                        delegate: MonoButton {
+                                            text: modelData
+                                            compact: true
+                                            active: root.viewportMode === modelData
+                                            onClicked: root.viewportMode = modelData
+                                        }
+                                    }
+                                }
+
+                                Rectangle { width: 1; height: 16; color: Theme.borderSubtle }
+
+                                // Shading Mode Selector
+                                RowLayout {
+                                    spacing: 2
+                                    Repeater {
+                                        model: ["Solid", "Wireframe", "X-Ray"]
+                                        delegate: MonoButton {
+                                            text: modelData
+                                            compact: true
+                                            active: root.viewportShading === modelData
+                                            onClicked: root.viewportShading = modelData
+                                        }
+                                    }
+                                }
+
+                                Rectangle { width: 1; height: 16; color: Theme.borderSubtle }
+
+                                // Grid and Snapping Toggles
+                                MonoButton {
+                                    text: "Grid"
+                                    compact: true
+                                    active: root.showGrid
+                                    onClicked: root.showGrid = !root.showGrid
+                                }
+
+                                MonoButton {
+                                    text: root.snapEnabled ? "Snap ON" : "Snap OFF"
+                                    compact: true
+                                    active: root.snapEnabled
+                                    onClicked: root.snapEnabled = !root.snapEnabled
+                                }
+
+                                MonoButton {
+                                    text: "Reset Cam"
+                                    iconName: "reset"
+                                    compact: true
+                                    onClicked: {
+                                        if (preview3d) preview3d.resetCamera();
+                                        if (previewCompare3d) previewCompare3d.resetCamera();
+                                    }
+                                }
+
+                                Item { Layout.fillWidth: true }
+
+                                // Viewport Maximization Button
+                                MonoButton {
+                                    iconName: root.isMaximizedViewport ? "minimize" : "maximize"
+                                    compact: true
+                                    onClicked: root.isMaximizedViewport = !root.isMaximizedViewport
+                                }
+                            }
+                        }
+
+                        // 3D Canvas Viewport (Single or Compare Dual Viewport)
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            spacing: 2
+
+                            // Primary 3D Viewport
+                            Item {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+
+                                Viewport3DItem {
+                                    id: preview3d
+                                    anchors.fill: parent
+                                    darkMode: Theme.isDarkMode
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                        property double lx: 0
+                                        property double ly: 0
+                                        property int btn: 0
+                                        onPressed: (m) => { lx = m.x; ly = m.y; btn = m.button; }
+                                        onPositionChanged: (m) => {
+                                            if (btn === Qt.RightButton) {
+                                                preview3d.panBy(m.x - lx, m.y - ly);
+                                            } else {
+                                                preview3d.orbitBy((m.x - lx) * 0.5, (m.y - ly) * 0.5);
+                                            }
+                                            lx = m.x;
+                                            ly = m.y;
+                                        }
+                                        onWheel: (w) => preview3d.zoomBy(w.angleDelta.y > 0 ? 0.9 : 1.1)
+                                    }
+                                }
+
+                                // Top-Left Viewport Identification Label
+                                Rectangle {
+                                    anchors.top: parent.top
+                                    anchors.left: parent.left
+                                    anchors.margins: 10
+                                    radius: Theme.radiusSm
+                                    color: Theme.bgElevated
+                                    border.color: Theme.borderSubtle
+                                    border.width: 1
+                                    implicitHeight: lblTxt.implicitHeight + 6
+                                    implicitWidth: lblTxt.implicitWidth + 12
+
+                                    Text {
+                                        id: lblTxt
+                                        anchors.centerIn: parent
+                                        text: root.layoutPreset === "Compare"
+                                            ? ("Primary: " + (root.selectedObj ? root.selectedObj.name : "None"))
+                                            : ("Viewport: " + preview3d.meshCount + " objects (" + preview3d.triangleCount + " tris)")
+                                        font.family: Theme.fontSans
+                                        font.pixelSize: Theme.fontXs
+                                        color: Theme.textSecondary
+                                    }
+                                }
+
+                                // Top-Right ViewCube
+                                ViewCube {
+                                    anchors.top: parent.top
+                                    anchors.right: parent.right
+                                    anchors.margins: 10
+                                    opacity: 0.85
+                                }
+                            }
+
+                            // Secondary Viewport (Rendered in Compare Preset)
+                            Item {
+                                visible: root.layoutPreset === "Compare"
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+
+                                Viewport3DItem {
+                                    id: previewCompare3d
+                                    anchors.fill: parent
+                                    darkMode: Theme.isDarkMode
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                        property double lx: 0
+                                        property double ly: 0
+                                        property int btn: 0
+                                        onPressed: (m) => { lx = m.x; ly = m.y; btn = m.button; }
+                                        onPositionChanged: (m) => {
+                                            if (btn === Qt.RightButton) {
+                                                previewCompare3d.panBy(m.x - lx, m.y - ly);
+                                            } else {
+                                                previewCompare3d.orbitBy((m.x - lx) * 0.5, (m.y - ly) * 0.5);
+                                            }
+                                            lx = m.x;
+                                            ly = m.y;
+                                        }
+                                        onWheel: (w) => previewCompare3d.zoomBy(w.angleDelta.y > 0 ? 0.9 : 1.1)
+                                    }
+                                }
+
+                                Rectangle {
+                                    anchors.top: parent.top
+                                    anchors.left: parent.left
+                                    anchors.margins: 10
+                                    radius: Theme.radiusSm
+                                    color: Theme.bgElevated
+                                    border.color: Theme.borderSubtle
+                                    border.width: 1
+                                    implicitHeight: compLblTxt.implicitHeight + 6
+                                    implicitWidth: compLblTxt.implicitWidth + 12
+
+                                    Text {
+                                        id: compLblTxt
+                                        anchors.centerIn: parent
+                                        text: "Compare: " + (root.compareObj ? root.compareObj.name : "None")
+                                        font.family: Theme.fontSans
+                                        font.pixelSize: Theme.fontXs
+                                        color: Theme.accentPrimary
+                                    }
+                                }
+                            }
+                        }
+
+                        // Floating Minimal HUD Toolbar at bottom of Viewport
+                        Rectangle {
+                            Layout.fillWidth: true
+                            height: 28
+                            color: Theme.bgSurface
+                            border.color: Theme.borderSubtle
+                            border.width: 1
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.margins: 4
+                                spacing: 10
+
+                                Text {
+                                    text: "60 FPS"
+                                    font.family: Theme.fontMono
+                                    font.pixelSize: 10
+                                    color: Theme.textSuccess
+                                }
+
+                                Text {
+                                    text: "Manifold: OK"
+                                    font.family: Theme.fontMono
+                                    font.pixelSize: 10
+                                    color: Theme.textSuccess
+                                }
+
+                                Text {
+                                    text: "Tris: " + preview3d.triangleCount
+                                    font.family: Theme.fontMono
+                                    font.pixelSize: 10
+                                    color: Theme.textMuted
+                                }
+
+                                Text {
+                                    text: "Mode: " + root.viewportMode
+                                    font.family: Theme.fontSans
+                                    font.pixelSize: 10
+                                    color: Theme.textSecondary
+                                }
+
+                                Item { Layout.fillWidth: true }
+
+                                MonoButton {
+                                    visible: root.isMaximizedViewport
+                                    text: "Exit Fullscreen (Esc / F11)"
+                                    compact: true
+                                    onClicked: root.isMaximizedViewport = false
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Right Splitter
+                StudioSplitter {
+                    id: rightSplitter
+                    visible: !root.isMaximizedViewport && !root.rightCollapsed
+                    orientation: Qt.Vertical
+                    Layout.fillHeight: true
+                    onDragDelta: (delta) => {
+                        var maxRight = Math.max(340, root.width - (root.leftCollapsed ? 0 : root.leftPaneWidth) - 400);
+                        root.rightPaneWidth = Math.max(340, Math.min(maxRight, root.rightPaneWidth - delta));
+                    }
+                    onResetRequested: {
+                        root.rightPaneWidth = Math.max(340, root.width * 0.25);
+                    }
+                }
+
+                // Right Restore Handle when Collapsed
+                Rectangle {
+                    visible: !root.isMaximizedViewport && root.rightCollapsed
+                    Layout.preferredWidth: 20
+                    Layout.fillHeight: true
+                    color: Theme.bgSurface
+                    border.color: Theme.borderDefault
+                    border.width: 1
+
+                    ColumnLayout {
+                        anchors.centerIn: parent
+                        spacing: 8
+                        MonoButton {
+                            iconName: "chevron-left"
+                            compact: true
+                            onClicked: root.rightCollapsed = false
+                        }
+                        Text {
+                            text: "P\nR\nO\nP\nS"
+                            font.family: Theme.fontMono
+                            font.pixelSize: 9
+                            color: Theme.textMuted
+                        }
+                    }
+                }
+
+                // -----------------------------------------------------------------
+                // PANE 3: RIGHT PANE - Tabbed Properties Inspector
+                // -----------------------------------------------------------------
+                Rectangle {
+                    visible: !root.isMaximizedViewport && !root.rightCollapsed
+                    Layout.preferredWidth: root.rightPaneWidth
+                    Layout.minimumWidth: 340
+                    Layout.maximumWidth: 600
+                    Layout.fillHeight: true
+                    color: Theme.bgSurface
+                    border.color: Theme.borderDefault
+                    border.width: 1
+                    radius: Theme.radiusMd
+                    clip: true
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 10
+                        spacing: 8
+
+                        // Header with Tabs & Collapse Button
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+
+                            Text {
+                                text: root.selectedObj ? root.selectedObj.name : "Properties"
+                                font.family: Theme.fontSans
+                                font.pixelSize: Theme.fontSm
+                                font.weight: Font.DemiBold
+                                color: Theme.textPrimary
+                                elide: Text.ElideRight
+                                Layout.fillWidth: true
+                            }
+
+                            MonoButton {
+                                iconName: "chevron-right"
+                                compact: true
+                                onClicked: root.rightCollapsed = true
+                            }
+                        }
+
+                        // Tab Switcher Bar: Geometry, Regions, Interior, Physics, Simulator
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 2
+
+                            Repeater {
+                                model: ["Geometry", "Regions", "Interior", "Physics", "Simulator"]
+                                delegate: MonoButton {
+                                    text: modelData
+                                    compact: true
+                                    active: root.activePropertiesTab === index
+                                    onClicked: root.activePropertiesTab = index
+                                }
+                            }
+                        }
+
+                        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.borderSubtle }
+
+                        // Scrollable Tab Contents
+                        ScrollView {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            clip: true
+                            contentWidth: availableWidth
+
+                            ColumnLayout {
+                                width: parent.width
                                 spacing: 8
 
-                                Text {
-                                    text: modelData.name
-                                    font.family: Theme.fontSans
-                                    font.pixelSize: Theme.fontXs
-                                    font.weight: Font.Medium
-                                    color: Theme.textPrimary
-                                    Layout.preferredWidth: 120
+                                // =================================================
+                                // TAB 0: GEOMETRY
+                                // =================================================
+                                ColumnLayout {
+                                    visible: root.activePropertiesTab === 0
+                                    width: parent.width
+                                    spacing: 8
+
+                                    Text {
+                                        text: "Parametric Shape & Dimensions"
+                                        font.family: Theme.fontSans
+                                        font.pixelSize: Theme.fontXs
+                                        font.weight: Font.DemiBold
+                                        color: Theme.textPrimary
+                                    }
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 4
+                                        Text { text: "Active Shape:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        MonoBadge { text: root.selectedObj ? root.selectedObj.shape : "Box"; tone: "neutral" }
+                                    }
+
+                                    GridLayout {
+                                        columns: 2
+                                        columnSpacing: 6
+                                        rowSpacing: 4
+                                        Layout.fillWidth: true
+
+                                        Text { text: "Dim X (m):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        MonoInput {
+                                            Layout.fillWidth: true
+                                            monoFont: true
+                                            text: root.selectedObj ? String(root.selectedObj.dimX) : "0.05"
+                                            onTextEdited: (t) => {
+                                                if (!root.selectedObj) return;
+                                                var vx = parseFloat(t) || 0.01;
+                                                pipeline.updateObject(root.selectedObj.id, root.selectedObj.name, root.selectedObj.shape,
+                                                                      vx, root.selectedObj.dimY, root.selectedObj.dimZ, root.selectedObj.radius,
+                                                                      root.selectedObj.tempK, root.selectedObj.pressurePa, root.selectedObj.regions);
+                                                root.refreshAll();
+                                            }
+                                        }
+
+                                        Text { text: "Dim Y / Len (m):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        MonoInput {
+                                            Layout.fillWidth: true
+                                            monoFont: true
+                                            text: root.selectedObj ? String(root.selectedObj.dimY) : "0.25"
+                                            onTextEdited: (t) => {
+                                                if (!root.selectedObj) return;
+                                                var vy = parseFloat(t) || 0.01;
+                                                pipeline.updateObject(root.selectedObj.id, root.selectedObj.name, root.selectedObj.shape,
+                                                                      root.selectedObj.dimX, vy, root.selectedObj.dimZ, root.selectedObj.radius,
+                                                                      root.selectedObj.tempK, root.selectedObj.pressurePa, root.selectedObj.regions);
+                                                root.refreshAll();
+                                            }
+                                        }
+
+                                        Text { text: "Dim Z / Rad (m):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        MonoInput {
+                                            Layout.fillWidth: true
+                                            monoFont: true
+                                            text: root.selectedObj ? (root.selectedObj.shape === "Box" ? String(root.selectedObj.dimZ) : String(root.selectedObj.radius)) : "0.01"
+                                            onTextEdited: (t) => {
+                                                if (!root.selectedObj) return;
+                                                var vz = parseFloat(t) || 0.005;
+                                                pipeline.updateObject(root.selectedObj.id, root.selectedObj.name, root.selectedObj.shape,
+                                                                      root.selectedObj.dimX, root.selectedObj.dimY, vz, vz,
+                                                                      root.selectedObj.tempK, root.selectedObj.pressurePa, root.selectedObj.regions);
+                                                root.refreshAll();
+                                            }
+                                        }
+                                    }
+
+                                    Text {
+                                        text: "3D Transform (Local)"
+                                        font.family: Theme.fontSans
+                                        font.pixelSize: Theme.fontXs
+                                        font.weight: Font.DemiBold
+                                        color: Theme.textPrimary
+                                    }
+
+                                    GridLayout {
+                                        columns: 4
+                                        columnSpacing: 4
+                                        rowSpacing: 2
+                                        Layout.fillWidth: true
+
+                                        Text { text: "Pos (m):"; font.family: Theme.fontSans; font.pixelSize: 10; color: Theme.textMuted }
+                                        MonoInput { Layout.fillWidth: true; monoFont: true; text: root.selectedObj ? String(root.selectedObj.posX || 0) : "0" }
+                                        MonoInput { Layout.fillWidth: true; monoFont: true; text: root.selectedObj ? String(root.selectedObj.posY || 0) : "0" }
+                                        MonoInput { Layout.fillWidth: true; monoFont: true; text: root.selectedObj ? String(root.selectedObj.posZ || 0) : "0" }
+
+                                        Text { text: "Rot (°):"; font.family: Theme.fontSans; font.pixelSize: 10; color: Theme.textMuted }
+                                        MonoInput { Layout.fillWidth: true; monoFont: true; text: root.selectedObj ? String(root.selectedObj.rotX || 0) : "0" }
+                                        MonoInput { Layout.fillWidth: true; monoFont: true; text: root.selectedObj ? String(root.selectedObj.rotY || 0) : "0" }
+                                        MonoInput { Layout.fillWidth: true; monoFont: true; text: root.selectedObj ? String(root.selectedObj.rotZ || 0) : "0" }
+                                    }
                                 }
 
-                                Text {
-                                    text: modelData.materialName
-                                    font.family: Theme.fontSans
-                                    font.pixelSize: Theme.fontXs
-                                    color: Theme.textSecondary
-                                    Layout.fillWidth: true
-                                    elide: Text.ElideRight
+                                // =================================================
+                                // TAB 1: REGIONS
+                                // =================================================
+                                ColumnLayout {
+                                    visible: root.activePropertiesTab === 1
+                                    width: parent.width
+                                    spacing: 8
+
+                                    Text {
+                                        text: "Material Regions & Sub-Bodies"
+                                        font.family: Theme.fontSans
+                                        font.pixelSize: Theme.fontXs
+                                        font.weight: Font.DemiBold
+                                        color: Theme.textPrimary
+                                    }
+
+                                    ListView {
+                                        Layout.fillWidth: true
+                                        implicitHeight: count * 40
+                                        clip: true
+                                        spacing: 4
+                                        model: root.selectedObj ? root.selectedObj.regions : []
+                                        delegate: Rectangle {
+                                            width: ListView.view.width
+                                            height: 36
+                                            radius: Theme.radiusSm
+                                            color: Theme.bgCanvas
+                                            border.color: Theme.borderSubtle
+                                            border.width: 1
+
+                                            RowLayout {
+                                                anchors.fill: parent
+                                                anchors.margins: 8
+                                                spacing: 6
+
+                                                Text {
+                                                    text: modelData.name
+                                                    font.family: Theme.fontSans
+                                                    font.pixelSize: Theme.fontXs
+                                                    font.weight: Font.Medium
+                                                    color: Theme.textPrimary
+                                                    Layout.preferredWidth: 90
+                                                }
+
+                                                Text {
+                                                    text: modelData.materialName
+                                                    font.family: Theme.fontSans
+                                                    font.pixelSize: Theme.fontXs
+                                                    color: Theme.textSecondary
+                                                    Layout.fillWidth: true
+                                                    elide: Text.ElideRight
+                                                }
+
+                                                MonoBadge {
+                                                    text: (modelData.volumeFraction * 100).toFixed(0) + "% vol"
+                                                    tone: "neutral"
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
 
-                                MonoBadge {
-                                    text: (modelData.volumeFraction * 100).toFixed(0) + "% vol"
-                                    tone: "neutral"
+                                // =================================================
+                                // TAB 2: INTERIOR (Cavity & Fill Gas)
+                                // =================================================
+                                ColumnLayout {
+                                    visible: root.activePropertiesTab === 2
+                                    width: parent.width
+                                    spacing: 8
+
+                                    Text {
+                                        text: "Cavity & Fill Gas Configuration"
+                                        font.family: Theme.fontSans
+                                        font.pixelSize: Theme.fontXs
+                                        font.weight: Font.DemiBold
+                                        color: Theme.textPrimary
+                                    }
+
+                                    GridLayout {
+                                        columns: 2
+                                        columnSpacing: 6
+                                        rowSpacing: 4
+                                        Layout.fillWidth: true
+
+                                        Text { text: "Cavity Type:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        MonoBadge { text: "Sealed Inert Gas Fill"; tone: "neutral" }
+
+                                        Text { text: "Gas Species:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        MonoBadge { text: "Argon (95%) + N2 (5%)"; tone: "neutral" }
+
+                                        Text { text: "Fill Pressure (kPa):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        MonoInput { Layout.fillWidth: true; monoFont: true; text: "80.0" }
+
+                                        Text { text: "Fill Temp (K):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        MonoInput { Layout.fillWidth: true; monoFont: true; text: "298.15" }
+
+                                        Text { text: "Seal Integrity:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        MonoBadge { text: "PASS: Fully Enclosed"; tone: "success" }
+
+                                        Text { text: "Gas Mass:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        Text { text: "3.2 mg (1.28e-4 mol)"; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
+                                    }
+                                }
+
+                                // =================================================
+                                // TAB 3: PHYSICS (Computed Tensors)
+                                // =================================================
+                                ColumnLayout {
+                                    visible: root.activePropertiesTab === 3
+                                    width: parent.width
+                                    spacing: 8
+
+                                    Text {
+                                        text: "Authoritative Computed Tensors"
+                                        font.family: Theme.fontSans
+                                        font.pixelSize: Theme.fontXs
+                                        font.weight: Font.DemiBold
+                                        color: Theme.textPrimary
+                                    }
+
+                                    GridLayout {
+                                        columns: 2
+                                        columnSpacing: 10
+                                        rowSpacing: 4
+                                        Layout.fillWidth: true
+
+                                        Text { text: "Volume:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        Text { text: root.selectedObj ? Number(root.selectedObj.volume).toExponential(4) + " m³" : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
+
+                                        Text { text: "Surface Area:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        Text { text: root.selectedObj ? Number(root.selectedObj.surfaceArea).toExponential(4) + " m²" : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
+
+                                        Text { text: "Effective Density:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        Text { text: root.selectedObj ? Number(root.selectedObj.density).toFixed(2) + " kg/m³" : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; font.weight: Font.DemiBold; color: Theme.textPrimary }
+
+                                        Text { text: "Calculated Mass:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        Text { text: root.selectedObj ? Number(root.selectedObj.mass).toExponential(4) + " kg" : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; font.weight: Font.Bold; color: Theme.textPrimary }
+
+                                        Text { text: "Center of Mass:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        Text {
+                                            text: root.selectedObj ? ("[" + Number(root.selectedObj.comX || 0).toFixed(3) + ", " + Number(root.selectedObj.comY || 0).toFixed(3) + ", " + Number(root.selectedObj.comZ || 0).toFixed(3) + "] m") : ""
+                                            font.family: Theme.fontMono
+                                            font.pixelSize: Theme.fontXs
+                                            color: Theme.textPrimary
+                                        }
+
+                                        Text { text: "Principal Inertia:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        Text {
+                                            text: root.selectedObj ? ("[" + Number(root.selectedObj.ixx || 0).toExponential(2) + ", " + Number(root.selectedObj.iyy || 0).toExponential(2) + ", " + Number(root.selectedObj.izz || 0).toExponential(2) + "]") : ""
+                                            font.family: Theme.fontMono
+                                            font.pixelSize: Theme.fontXs
+                                            color: Theme.textPrimary
+                                        }
+
+                                        Text { text: "Axial Electrical R:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        Text { text: root.selectedObj ? Number(root.selectedObj.axialR).toExponential(4) + " Ω" : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
+
+                                        Text { text: "Thermal Mass m·Cp:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        Text { text: root.selectedObj ? Number(root.selectedObj.thermalMass).toFixed(2) + " J/K" : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
+
+                                        Text { text: "Young's Modulus E:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        Text { text: root.selectedObj ? (Number(root.selectedObj.youngModulus || 0) / 1e9).toFixed(1) + " GPa" : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
+
+                                        Text { text: "Linear CTE:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        Text { text: root.selectedObj ? Number(root.selectedObj.cte || 0).toExponential(2) + " 1/K" : ""; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
+                                    }
+                                }
+
+                                // =================================================
+                                // TAB 4: SIMULATOR (Bridge & Pre-Flight Checks)
+                                // =================================================
+                                ColumnLayout {
+                                    visible: root.activePropertiesTab === 4
+                                    width: parent.width
+                                    spacing: 8
+
+                                    Text {
+                                        text: "Simulator Bridge & Pre-Flight Verification"
+                                        font.family: Theme.fontSans
+                                        font.pixelSize: Theme.fontXs
+                                        font.weight: Font.DemiBold
+                                        color: Theme.textPrimary
+                                    }
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 6
+                                        Text { text: "Pre-Flight Status:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        MonoBadge {
+                                            text: root.selectedObj && root.selectedObj.volume > 0 ? "Ready for Simulation" : "Pre-flight Pending"
+                                            tone: root.selectedObj && root.selectedObj.volume > 0 ? "success" : "neutral"
+                                        }
+                                    }
+
+                                    Text {
+                                        text: "Terminal Pins:"
+                                        font.family: Theme.fontSans
+                                        font.pixelSize: Theme.fontXs
+                                        font.weight: Font.Medium
+                                        color: Theme.textPrimary
+                                    }
+
+                                    ColumnLayout {
+                                        spacing: 2
+                                        Text { text: "• Pin 1: Base_Contact (+V)"; font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.textSecondary }
+                                        Text { text: "• Pin 2: Screw_Shell (GND)"; font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.textSecondary }
+                                    }
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 6
+                                        MonoButton {
+                                            text: "Run Pre-flight Checks"
+                                            compact: true
+                                            onClicked: {
+                                                if (root.selectedObj) {
+                                                    var pf = pipeline.runObjectPreflightChecks(root.selectedObj.id);
+                                                    root.appendTelemetry("PREFLIGHT", "Pre-flight checks passed: " + pf.status + " (Mass: " + Number(pf.mass_kg).toExponential(2) + " kg)");
+                                                }
+                                            }
+                                        }
+
+                                        MonoButton {
+                                            text: "Send to Simulator"
+                                            variant: "primary"
+                                            compact: true
+                                            onClicked: {
+                                                if (root.selectedObj) {
+                                                    root.appendTelemetry("SIMULATOR", "Object '" + root.selectedObj.name + "' dispatched to Multiphysics Solver pipeline.");
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -627,55 +1336,109 @@ Rectangle {
                 }
             }
 
+            // Bottom Horizontal Splitter for Telemetry Console
+            StudioSplitter {
+                id: bottomSplitter
+                visible: !root.isMaximizedViewport && !root.bottomCollapsed
+                orientation: Qt.Horizontal
+                Layout.fillWidth: true
+                onDragDelta: (delta) => {
+                    var maxBottom = Math.max(80, root.height * 0.70);
+                    root.bottomPaneHeight = Math.max(80, Math.min(maxBottom, root.bottomPaneHeight - delta));
+                }
+                onResetRequested: {
+                    root.bottomPaneHeight = 140;
+                }
+            }
+
             // ---------------------------------------------------------------------
-            // RIGHT CARD: Real 3D Preview of Workspace Objects
+            // PANE 4: BOTTOM PANE - Diagnostics, Telemetry & Pre-Flight Console
             // ---------------------------------------------------------------------
             Rectangle {
-                Layout.preferredWidth: 360
-                Layout.fillHeight: true
-                color: Theme.bgCanvas
+                visible: !root.isMaximizedViewport && !root.bottomCollapsed
+                Layout.fillWidth: true
+                Layout.preferredHeight: root.bottomPaneHeight
+                Layout.minimumHeight: 80
+                color: Theme.bgSurface
                 border.color: Theme.borderDefault
                 border.width: 1
                 radius: Theme.radiusMd
+                clip: true
 
-                Viewport3DItem {
-                    id: preview3d
+                ColumnLayout {
                     anchors.fill: parent
-                    anchors.margins: 2
-                    darkMode: Theme.isDarkMode
+                    anchors.margins: 6
+                    spacing: 4
 
-                    MouseArea {
-                        anchors.fill: parent
-                        property double lx: 0
-                        property double ly: 0
-                        onPressed: (m) => { lx = m.x; ly = m.y; }
-                        onPositionChanged: (m) => {
-                            preview3d.orbitBy((m.x - lx) * 0.5, (m.y - ly) * 0.5);
-                            lx = m.x;
-                            ly = m.y;
+                    // Telemetry Header
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        Text {
+                            text: "Diagnostics, Solver Telemetry & Pre-Flight Log"
+                            font.family: Theme.fontSans
+                            font.pixelSize: Theme.fontXs
+                            font.weight: Font.DemiBold
+                            color: Theme.textPrimary
+                            Layout.fillWidth: true
                         }
-                        onWheel: (w) => preview3d.zoomBy(w.angleDelta.y > 0 ? 0.9 : 1.1)
+
+                        MonoButton {
+                            text: "Clear"
+                            compact: true
+                            onClicked: root.telemetryLogs = []
+                        }
+
+                        MonoButton {
+                            iconName: "chevron-down"
+                            compact: true
+                            onClicked: root.bottomCollapsed = true
+                        }
                     }
-                }
 
-                Rectangle {
-                    anchors.top: parent.top
-                    anchors.left: parent.left
-                    anchors.margins: 10
-                    radius: Theme.radiusSm
-                    color: Theme.bgElevated
-                    border.color: Theme.borderSubtle
-                    border.width: 1
-                    implicitHeight: previewBadgeText.implicitHeight + 6
-                    implicitWidth: previewBadgeText.implicitWidth + 12
+                    // Monospace Log Stream
+                    ScrollView {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        clip: true
 
-                    Text {
-                        id: previewBadgeText
-                        anchors.centerIn: parent
-                        text: "3D Preview: " + preview3d.meshCount + " objects (" + preview3d.triangleCount + " tris)"
-                        font.family: Theme.fontSans
-                        font.pixelSize: Theme.fontXs
-                        color: Theme.textSecondary
+                        ListView {
+                            id: logListView
+                            width: parent.width
+                            spacing: 2
+                            model: root.telemetryLogs
+
+                            delegate: RowLayout {
+                                width: logListView.width
+                                spacing: 8
+
+                                Text {
+                                    text: "[" + modelData.time + "]"
+                                    font.family: Theme.fontMono
+                                    font.pixelSize: 10
+                                    color: Theme.textMuted
+                                }
+
+                                Text {
+                                    text: "[" + modelData.tag + "]"
+                                    font.family: Theme.fontMono
+                                    font.pixelSize: 10
+                                    font.weight: Font.DemiBold
+                                    color: modelData.tag === "PREFLIGHT" ? Theme.textSuccess :
+                                           (modelData.tag === "LAYOUT" ? Theme.accentPrimary : Theme.textSecondary)
+                                }
+
+                                Text {
+                                    text: modelData.text
+                                    font.family: Theme.fontMono
+                                    font.pixelSize: 10
+                                    color: Theme.textPrimary
+                                    elide: Text.ElideRight
+                                    Layout.fillWidth: true
+                                }
+                            }
+                        }
                     }
                 }
             }

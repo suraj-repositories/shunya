@@ -170,6 +170,7 @@ add_executable(shunya_unit_tests
     unit/test_p5_experiment_persistence.cpp
     unit/test_p5_safe_import_sanitization.cpp
     unit/test_p5_object_single_source_truth.cpp
+    unit/test_p5_object_layout.cpp
 )
 
 target_include_directories(shunya_unit_tests

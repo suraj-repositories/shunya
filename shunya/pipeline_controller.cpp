@@ -1590,6 +1590,144 @@ bool ShunyaPipelineController::deleteObject(const QString& objectId) {
     return true;
 }
 
+QVariantMap ShunyaPipelineController::calculateObjectLayout(
+    const QString& preset,
+    double totalWidth,
+    double totalHeight,
+    double currentLeftWidth,
+    double currentRightWidth,
+    double currentBottomHeight) const {
+    QVariantMap res;
+
+    // Bounds:
+    // Left: min 280
+    // Center: min 400
+    // Right: min 340
+    // Bottom: min 80, max 70% of totalHeight, default 140
+
+    double left = currentLeftWidth > 0.0 ? currentLeftWidth : 300.0;
+    double right = currentRightWidth > 0.0 ? currentRightWidth : 360.0;
+    double bottom = currentBottomHeight > 0.0 ? currentBottomHeight : 140.0;
+    bool leftCollapsed = false;
+    bool rightCollapsed = false;
+    bool bottomCollapsed = false;
+    bool isCompare = false;
+
+    if (preset == "Default" || preset.isEmpty()) {
+        left = std::max(280.0, totalWidth * 0.20);
+        right = std::max(340.0, totalWidth * 0.25);
+        bottom = 140.0;
+        leftCollapsed = false;
+        rightCollapsed = false;
+        bottomCollapsed = false;
+    } else if (preset == "Modeling") {
+        // Modeling Preset: Expanded viewport, minimal properties, geometry editing active
+        left = 280.0;
+        right = 340.0;
+        bottom = 80.0;
+        leftCollapsed = false;
+        rightCollapsed = false;
+        bottomCollapsed = true; // collapsed bottom to maximize viewport
+    } else if (preset == "Testing") {
+        // Testing Preset: Expanded right properties panel focused on Physics Test Bench & Simulator tabs
+        left = 280.0;
+        right = std::max(440.0, totalWidth * 0.35);
+        bottom = 180.0;
+        leftCollapsed = false;
+        rightCollapsed = false;
+        bottomCollapsed = false;
+    } else if (preset == "Compare") {
+        // Compare Preset: Side-by-side dual viewport evaluating two objects simultaneously
+        left = 280.0;
+        right = 340.0;
+        bottom = 120.0;
+        leftCollapsed = false;
+        rightCollapsed = false;
+        bottomCollapsed = false;
+        isCompare = true;
+    }
+
+    // Ensure Center has at least 400px if space permits
+    if (totalWidth > 0.0) {
+        double maxLeftRight = totalWidth - 400.0;
+        if (left + right > maxLeftRight && maxLeftRight >= (280.0 + 340.0)) {
+            double excess = (left + right) - maxLeftRight;
+            double leftReduction = excess * 0.5;
+            left = std::max(280.0, left - leftReduction);
+            right = std::max(340.0, maxLeftRight - left);
+        }
+    }
+
+    left = std::max(280.0, left);
+    right = std::max(340.0, right);
+    double maxBottom = (totalHeight > 0.0) ? (totalHeight * 0.70) : 500.0;
+    bottom = std::max(80.0, std::min(maxBottom, bottom));
+
+    double centerWidth = std::max(400.0, totalWidth - (leftCollapsed ? 0.0 : left) - (rightCollapsed ? 0.0 : right));
+
+    res["preset"] = preset.isEmpty() ? "Default" : preset;
+    res["leftWidth"] = left;
+    res["rightWidth"] = right;
+    res["bottomHeight"] = bottom;
+    res["centerWidth"] = centerWidth;
+    res["leftCollapsed"] = leftCollapsed;
+    res["rightCollapsed"] = rightCollapsed;
+    res["bottomCollapsed"] = bottomCollapsed;
+    res["isCompare"] = isCompare;
+    res["ok"] = true;
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::runObjectPreflightChecks(const QString& objectId) const {
+    QVariantMap res;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) {
+        res["ok"] = false;
+        res["error"] = "Invalid object ID UUID format.";
+        return res;
+    }
+
+    const auto* obj = ws_->object_manager().get_object(*uid);
+    if (!obj) {
+        res["ok"] = false;
+        res["error"] = "Physical object not found in workspace.";
+        return res;
+    }
+
+    res["ok"] = true;
+    res["id"] = QString::fromStdString(obj->id.to_string());
+    res["name"] = QString::fromStdString(obj->name);
+    res["shape"] = QString::fromStdString(std::string(eng::object_shape_kind_to_string(obj->geometry.kind)));
+    res["volume_m3"] = obj->computed.volume_m3;
+    res["surface_area_m2"] = obj->computed.surface_area_m2;
+    res["effective_density_kg_m3"] = obj->computed.effective_density_kg_m3;
+    res["mass_kg"] = obj->computed.mass_kg;
+    res["hasConductivePath"] = obj->computed.has_conductive_path;
+    res["isSolid"] = obj->computed.is_solid_at_operating_temp;
+    res["tempK"] = obj->operating_temp_k;
+    res["pressurePa"] = obj->operating_pressure_pa;
+
+    QVariantList warnings;
+    if (obj->computed.volume_m3 <= 1e-18) {
+        warnings.append("Geometry degeneracy: Volume is zero or near-zero.");
+    }
+    if (obj->computed.mass_kg <= 1e-12) {
+        warnings.append("Mass warning: Mass is negligible; verify material density.");
+    }
+    if (!obj->computed.is_solid_at_operating_temp) {
+        warnings.append("Thermal breakdown: Material melted at operating temperature (" + QString::number(obj->operating_temp_k, 'f', 1) + " K).");
+    }
+    if (!obj->computed.has_conductive_path) {
+        warnings.append("Electrical isolation: Non-conductive body (infinite axial resistance).");
+    }
+    for (const auto& w : obj->computed.warnings) {
+        warnings.append(QString::fromStdString(w));
+    }
+    res["warnings"] = warnings;
+    res["status"] = (obj->computed.volume_m3 > 1e-18 && obj->computed.mass_kg > 1e-12) ? "Ready for Simulation" : "Pre-flight Failed";
+    return res;
+}
+
 // =========================================================================
 // 4. Component Generator
 // =========================================================================

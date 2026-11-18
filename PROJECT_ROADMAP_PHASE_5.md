@@ -21,9 +21,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 176 | 38.9% |
+| `[ ]` | Not Started | 164 | 36.3% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 276 | 61.1% |
+| `[x]` | Completed | 288 | 63.7% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -55,7 +55,20 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 19 | `MIX-IMPORT`| Safe External File Exchange, Schema Validation & Share Pipeline | P0 | 12 | 12 | 100.0% | `[x]` |
 | **TRACK 3** | **OBJECTS AUTHORING**| **Physical Objects Workflow Rebuild & 3D Assembly CAD/CAE Engine** | | | | | |
 | 20 | `OBJ-AUDIT` | Single Source of Truth, Data Consistency & Initial Bug Fixes | P0 | 14 | 14 | 100.0% | `[x]` |
-| 21 | `OBJ-LAYOUT` | Workspace Layout, Multi-Pane Splitters & Viewport Maximization | P0 | 12 | 0 | 0.0% | `[ ]` |
+| 21 | `OBJ-LAYOUT` | Workspace Layout, Multi-Pane Splitters & Viewport Maximization | P0 | 12 | 12 | 100.0% | `[x]` |
+| 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 0 | 0.0% | `[ ]` |
+| 25 | `OBJ-VIEW3D` | Blender-Style 3D Viewport, Gizmos, Edit Modes & Modeling Tools | P0 | 16 | 0 | 0.0% | `[ ]` |
+| 26 | `OBJ-TEST` | Object Multi-Domain Physics Test Bench (Thermal, Electrical, Mechanical, Vacuum) | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 27 | `OBJ-SIM` | End-to-End Simulator Bridge, Pre-Flight Checks & Round-Trip Re-Sync | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 28 | `OBJ-ASSY` | 3D Editor Assembly Integration, Multi-Object Joints & Wire Routing | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 29 | `OBJ-PERSIST`| Versioned Object Persistence, Library & Safe File Exchange | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 30 | `OBJ-HELP` | Object Contextual Info Popovers & 3D Modeling Help Center Guide | P0 | 12 | 0 | 0.0% | `[ ]` |
+| **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
+| 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
+| 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **288** | **63.7%** | `[~]` |
 | 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 0 | 0.0% | `[ ]` |
@@ -876,30 +889,30 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-21: Workspace Layout, Multi-Pane Splitters & Viewport Maximization (`OBJ-LAYOUT`)
 
 **Objective:** Rebuild the Objects workspace from an inverted primitive spawner into an ergonomic 4-pane CAD/CAE layout with draggable splitters, closable cards, layout presets, and a full-screen viewport maximization mode.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/12 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (12/12 — 100.0%)
 
-### Submodule PH5-21.01: 4-Pane Workspace Architecture & Multi-Splitters [ ] (0.0% — 6/6)
-- [ ] `PH5-21.01.001`: Restructure `ObjectsWorkspace.qml` into a professional 4-pane workstation:
+### Submodule PH5-21.01: 4-Pane Workspace Architecture & Multi-Splitters [x] (100.0% — 6/6)
+- [x] `PH5-21.01.001`: Restructure `ObjectsWorkspace.qml` into a professional 4-pane workstation:
   - **Left Pane:** Object Library & Project Objects Tree (width $\ge 280\text{ px}$).
   - **Center Pane:** 3D Viewport & Modeling Canvas (main editing workspace).
   - **Right Pane:** Tabbed Properties Inspector [Geometry, Regions, Interior, Physics, Simulator] (width $\ge 340\text{ px}$).
   - **Bottom Pane:** Diagnostics, Pre-Flight Telemetry & Quick-Test Console (height 80px to 70% window height).
-- [ ] `PH5-21.01.002`: Integrate theme-aware draggable `StudioSplitter` handles between Left, Center, and Right panes, and above the Bottom console pane.
-- [ ] `PH5-21.01.003`: Enforce minimum constraints (Left $\ge 280\text{ px}$, Center $\ge 400\text{ px}$, Right $\ge 340\text{ px}$, Bottom $\ge 80\text{ px}$) preventing pane collapse during drag operations.
-- [ ] `PH5-21.01.004`: Implement double-click reset on splitter handles restoring default proportional distribution (Left: 20%, Center: 55%, Right: 25%).
-- [ ] `PH5-21.01.005`: Persist pane dimensions in `QSettings` (`objectsLeftWidth`, `objectsRightWidth`, `objectsBottomHeight`) across studio sessions.
-- [ ] `PH5-21.01.006`: Enforce `min-width: 0`, `overflow: auto`, and wrapping on all property cards, guaranteeing zero text clipping down to minimum bounds.
+- [x] `PH5-21.01.002`: Integrate theme-aware draggable `StudioSplitter` handles between Left, Center, and Right panes, and above the Bottom console pane.
+- [x] `PH5-21.01.003`: Enforce minimum constraints (Left $\ge 280\text{ px}$, Center $\ge 400\text{ px}$, Right $\ge 340\text{ px}$, Bottom $\ge 80\text{ px}$) preventing pane collapse during drag operations.
+- [x] `PH5-21.01.004`: Implement double-click reset on splitter handles restoring default proportional distribution (Left: 20%, Center: 55%, Right: 25%).
+- [x] `PH5-21.01.005`: Persist pane dimensions in `QSettings` (`objectsLeftWidth`, `objectsRightWidth`, `objectsBottomHeight`) across studio sessions.
+- [x] `PH5-21.01.006`: Enforce `min-width: 0`, `overflow: auto`, and wrapping on all property cards, guaranteeing zero text clipping down to minimum bounds.
 
-### Submodule PH5-21.02: Viewport Maximization, Closable Panes & Layout Presets [ ] (0.0% — 6/6)
-- [ ] `PH5-21.02.001`: Implement full-screen **Maximize Viewport Mode** (`F11` or `Ctrl+Space`) hiding Left, Right, and Bottom panes to yield 100% canvas space to the 3D viewport, accompanied by a floating minimal HUD toolbar.
-- [ ] `PH5-21.02.002`: Add maximize/restore toggle button on the header of the 3D viewport and each individual property card.
-- [ ] `PH5-21.02.003`: Make every card collapsible and closable with header chevron buttons, edge restore handles, and `View` menu shortcuts (`Ctrl+B` for Library, `Ctrl+Alt+B` for Properties).
-- [ ] `PH5-21.02.004`: Implement Layout Presets selector in workspace header:
+### Submodule PH5-21.02: Viewport Maximization, Closable Panes & Layout Presets [x] (100.0% — 6/6)
+- [x] `PH5-21.02.001`: Implement full-screen **Maximize Viewport Mode** (`F11` or `Ctrl+Space`) hiding Left, Right, and Bottom panes to yield 100% canvas space to the 3D viewport, accompanied by a floating minimal HUD toolbar.
+- [x] `PH5-21.02.002`: Add maximize/restore toggle button on the header of the 3D viewport and each individual property card.
+- [x] `PH5-21.02.003`: Make every card collapsible and closable with header chevron buttons, edge restore handles, and `View` menu shortcuts (`Ctrl+B` for Library, `Ctrl+Alt+B` for Properties).
+- [x] `PH5-21.02.004`: Implement Layout Presets selector in workspace header:
   - **Modeling Preset:** Expanded viewport, minimal properties, geometry editing active.
   - **Testing Preset:** Expanded right properties panel focused on Physics Test Bench and Simulation tabs.
   - **Compare Preset:** Side-by-side dual viewport evaluating two objects simultaneously.
-- [ ] `PH5-21.02.005`: Persist active layout preset and panel collapsed states in project manifest.
-- [ ] `PH5-21.02.006`: Add automated UI test verifying layout preset transitions, splitter drag clamping, and Maximize Viewport toggles.
+- [x] `PH5-21.02.005`: Persist active layout preset and panel collapsed states in project manifest.
+- [x] `PH5-21.02.006`: Add automated UI test verifying layout preset transitions, splitter drag clamping, and Maximize Viewport toggles.
 
 ---
 

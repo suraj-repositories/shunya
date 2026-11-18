@@ -234,6 +234,16 @@ public:
     Q_INVOKABLE bool duplicateObject(const QString& objectId);
     Q_INVOKABLE bool deleteObject(const QString& objectId);
 
+    // Layout Presets, Multi-Pane Clamping & Pre-Flight Telemetry
+    Q_INVOKABLE QVariantMap calculateObjectLayout(
+        const QString& preset,
+        double totalWidth,
+        double totalHeight,
+        double currentLeftWidth = 300.0,
+        double currentRightWidth = 360.0,
+        double currentBottomHeight = 140.0) const;
+    Q_INVOKABLE QVariantMap runObjectPreflightChecks(const QString& objectId) const;
+
     // =========================================================================
     // 4. Functional Circuit Components (OBJCMP)
     // =========================================================================
