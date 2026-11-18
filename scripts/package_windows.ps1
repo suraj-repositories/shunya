@@ -42,10 +42,15 @@ foreach ($bin in $Binaries) {
 }
 
 # 3. Copy Periodic Table Database & Core Assets
-Write-Host "[2/5] Copying periodic table data and assets..." -ForegroundColor Yellow
+Write-Host "[2/5] Copying periodic table data and brand assets..." -ForegroundColor Yellow
 if (Test-Path "data/elements.csv") {
     Copy-Item -Path "data/elements.csv" -Destination "$OutputDir/data/elements.csv" -Force
     Write-Host "  -> Bundled: data/elements.csv" -ForegroundColor Green
+}
+if (Test-Path "assets/icons/appshunya.ico") {
+    Copy-Item -Path "assets/icons/appshunya.ico" -Destination "$OutputDir/bin/appshunya.ico" -Force
+    Copy-Item -Path "assets/icons/appshunya.ico" -Destination "$OutputDir/data/appshunya.ico" -Force
+    Write-Host "  -> Bundled: appshunya.ico brand icon" -ForegroundColor Green
 }
 
 # 4. Generate Launchers and Install Script

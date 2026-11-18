@@ -120,7 +120,7 @@ ApplicationWindow {
                 Row {
                     spacing: 8
                     Layout.alignment: Qt.AlignVCenter
-                    ShunyaIcon { name: "battery"; size: 18; anchors.verticalCenter: parent.verticalCenter }
+                    ShunyaIcon { name: "sunken-eye"; size: 18; anchors.verticalCenter: parent.verticalCenter }
                     Text {
                         text: window.projectName
                         font.family: Theme.fontSans

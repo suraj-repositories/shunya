@@ -41,5 +41,6 @@
         <file>icons/move.svg</file>
         <file>icons/rotate.svg</file>
         <file>icons/scale.svg</file>
+        <file>icons/sunken-eye.svg</file>
     </qresource>
 </RCC>

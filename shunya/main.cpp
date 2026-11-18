@@ -1,4 +1,5 @@
 #include <QGuiApplication>
+#include <QIcon>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlExtensionPlugin>
@@ -24,6 +25,7 @@ Q_IMPORT_QML_PLUGIN(shunyaPlugin)
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+    app.setWindowIcon(QIcon(":/icons/sunken-eye.svg"));
 
     QQmlApplicationEngine engine;
     engine.addImageProvider(QStringLiteral("icons"), new shunya::gui::ShunyaIconProvider());

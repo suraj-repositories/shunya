@@ -21,9 +21,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 294 | 65.0% |
+| `[ ]` | Not Started | 280 | 61.9% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 158 | 35.0% |
+| `[x]` | Completed | 172 | 38.1% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -42,7 +42,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 7 | `SIDEBARS` | Collapsible Dual Sidebars, Chevron Toggles & Keyboard Shortcuts | P0 | 12 | 12 | 100.0% | `[x]` |
 | 8 | `MENUNAV` | Top Navigation Bar Streamlining & Comprehensive View Menu Integration | P0 | 14 | 14 | 100.0% | `[x]` |
 | 9 | `CONSOLE` | Monochromatic Diagnostics Console, Resizable Drawer & Telemetry | P0 | 12 | 12 | 100.0% | `[x]` |
-| 10 | `BRANDING` | Visual Identity, Theme-Aware Vector Icon & Desktop Multi-Platform Packaging | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 10 | `BRANDING` | Visual Identity, Theme-Aware Vector Icon & Desktop Multi-Platform Packaging | P0 | 14 | 14 | 100.0% | `[x]` |
 | **TRACK 2** | **MIXING LAB** | **Material Mixing Laboratory Overhaul & Virtual Test Bench** | | | | | |
 | 11 | `MIX-COMP` | Mixing Lab Composition Engine, Normalization & Ingestion Fix | P0 | 14 | 14 | 100.0% | `[x]` |
 | 12 | `MIX-SPLIT` | Mixing Lab Multi-Pane Splitters, Card Layout & Toolbar Overflow | P0 | 12 | 12 | 100.0% | `[x]` |
@@ -551,25 +551,25 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-10: Visual Identity, Theme-Aware Vector Icon & Desktop Multi-Platform Packaging (`BRANDING`)
 
 **Objective:** Ingest `game-icons--sunken-eye.svg` as the unified application identity, making it theme-aware (dark on Light theme, light on Dark theme) across window titlebars, navbar logos, web favicons, and OS installer binaries.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-10.01: Vector Asset Ingestion & Theme-Aware Color Mapping [ ] (0.0% — 7/7)
-- [ ] `PH5-10.01.001`: Copy `C:\Users\Shubham\Downloads\game-icons--sunken-eye.svg` into repository asset locations: `assets/icons/sunken-eye.svg` and `shunya/icons/sunken-eye.svg`.
-- [ ] `PH5-10.01.002`: Register `sunken-eye.svg` in `shunya/icons.qrc` and CMake resource deployment targets.
-- [ ] `PH5-10.01.003`: Modify SVG vector properties to use `fill="currentColor"` and `stroke="currentColor"` enabling dynamic CSS/QML color styling.
-- [ ] `PH5-10.01.004`: Create theme-aware icon provider in C++ (`ShunyaIconProvider`) returning dark icon (`#0A0A0A`) on Light themes and light icon (`#FAFAFA`) on Dark themes.
-- [ ] `PH5-10.01.005`: Replace the top-left window titlebar icon with the theme-aware sunken-eye icon.
-- [ ] `PH5-10.01.006`: Replace the battery icon in the top workflow navbar with the theme-aware sunken-eye brand logo.
-- [ ] `PH5-10.01.007`: Verify that toggling between Light and Dark themes instantly swaps the icon colors without requiring application restart.
+### Submodule PH5-10.01: Vector Asset Ingestion & Theme-Aware Color Mapping [x] (100.0% — 7/7)
+- [x] `PH5-10.01.001`: Copy `C:\Users\Shubham\Downloads\game-icons--sunken-eye.svg` into repository asset locations: `assets/icons/sunken-eye.svg` and `shunya/icons/sunken-eye.svg`.
+- [x] `PH5-10.01.002`: Register `sunken-eye.svg` in `shunya/icons.qrc` and CMake resource deployment targets.
+- [x] `PH5-10.01.003`: Modify SVG vector properties to use `fill="currentColor"` and `stroke="currentColor"` enabling dynamic CSS/QML color styling.
+- [x] `PH5-10.01.004`: Create theme-aware icon provider in C++ (`ShunyaIconProvider`) returning dark icon (`#0A0A0A`) on Light themes and light icon (`#FAFAFA`) on Dark themes.
+- [x] `PH5-10.01.005`: Replace the top-left window titlebar icon with the theme-aware sunken-eye icon.
+- [x] `PH5-10.01.006`: Replace the battery icon in the top workflow navbar with the theme-aware sunken-eye brand logo.
+- [x] `PH5-10.01.007`: Verify that toggling between Light and Dark themes instantly swaps the icon colors without requiring application restart.
 
-### Submodule PH5-10.02: Favicon & Multi-Platform Binary Asset Generation [ ] (0.0% — 7/7)
-- [ ] `PH5-10.02.001`: Implement dynamic `<link rel="icon">` favicon generator updating SVG favicon data URI on theme change in desktop web views and HTML exports.
-- [ ] `PH5-10.02.002`: Support OS `prefers-color-scheme` in favicon and window shell when application theme is set to `System`.
-- [ ] `PH5-10.02.003`: Generate multi-resolution Windows icon `appshunya.ico` containing 16x16, 24x24, 32x32, 48x48, 64x64, 128x128, and 256x256 mipmaps from the Sunken Eye SVG.
-- [ ] `PH5-10.02.004`: Generate Linux PNG desktop icons (16x16 through 512x512) and update desktop launcher file `shunya.desktop`.
-- [ ] `PH5-10.02.005`: Generate macOS icon asset catalog `appshunya.icns` for Apple silicon / Intel bundles.
-- [ ] `PH5-10.02.006`: Update `scripts/package_windows.ps1` and `scripts/package_linux.sh` to package the new multi-resolution brand icons into release artifacts.
-- [ ] `PH5-10.02.007`: Add automated image verification test validating that generated `.ico` and `.png` icons are valid, non-corrupted binaries.
+### Submodule PH5-10.02: Favicon & Multi-Platform Binary Asset Generation [x] (100.0% — 7/7)
+- [x] `PH5-10.02.001`: Implement dynamic `<link rel="icon">` favicon generator updating SVG favicon data URI on theme change in desktop web views and HTML exports.
+- [x] `PH5-10.02.002`: Support OS `prefers-color-scheme` in favicon and window shell when application theme is set to `System`.
+- [x] `PH5-10.02.003`: Generate multi-resolution Windows icon `appshunya.ico` containing 16x16, 24x24, 32x32, 48x48, 64x64, 128x128, and 256x256 mipmaps from the Sunken Eye SVG.
+- [x] `PH5-10.02.004`: Generate Linux PNG desktop icons (16x16 through 512x512) and update desktop launcher file `shunya.desktop`.
+- [x] `PH5-10.02.005`: Generate macOS icon asset catalog `appshunya.icns` for Apple silicon / Intel bundles.
+- [x] `PH5-10.02.006`: Update `scripts/package_windows.ps1` and `scripts/package_linux.sh` to package the new multi-resolution brand icons into release artifacts.
+- [x] `PH5-10.02.007`: Add automated image verification test validating that generated `.ico` and `.png` icons are valid, non-corrupted binaries.
 
 ---
 
