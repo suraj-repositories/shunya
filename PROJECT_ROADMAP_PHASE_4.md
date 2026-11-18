@@ -854,20 +854,20 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
 - [x] `PH4-11.02.001`: Implement base organic mesh creation tools: Quad sphere, Icosphere with multi-resolution levels.
 - [x] `PH4-11.02.002`: Implement interactive brush deformation tools: Clay brush, Smooth brush, Grab brush, and Inflate/Deflate brush.
 - [x] `PH4-11.02.003`: Support dynamic topological symmetry (X-axis bilateral symmetry) during surface sculpting.
-- [ ] `PH4-11.02.004`: Add dynamic vertex masking: protect specific mesh regions from brush deformation during sculpting.
-- [ ] `PH4-11.02.005`: Implement mesh surface smoothing and normal smoothing passes.
+- [x] `PH4-11.02.004`: Add dynamic vertex masking: protect specific mesh regions from brush deformation during sculpting.
+- [x] `PH4-11.02.005`: Implement mesh surface smoothing and normal smoothing passes.
 
 ### Submodule PH4-11.03: Armatures, Skeletal Hierarchy & Bone Placement
-- [ ] `PH4-11.03.001`: Implement Armature entity representing a hierarchical tree of connected skeletal bones.
-- [ ] `PH4-11.03.002`: Build Bone placement tool in 3D: define Bone Head, Bone Tail, and roll angle with interactive octahedron bone visualization.
-- [ ] `PH4-11.03.003`: Support parent-child bone relationships with optional connected heads or offset offsets.
-- [ ] `PH4-11.03.004`: Implement Edit Mode for bones (repositioning joints) and Pose Mode (applying transformations to joints).
+- [x] `PH4-11.03.001`: Implement Armature entity representing a hierarchical tree of connected skeletal bones.
+- [x] `PH4-11.03.002`: Build Bone placement tool in 3D: define Bone Head, Bone Tail, and roll angle with interactive octahedron bone visualization.
+- [x] `PH4-11.03.003`: Support parent-child bone relationships with optional connected heads or offset offsets.
+- [x] `PH4-11.03.004`: Implement Edit Mode for bones (repositioning joints) and Pose Mode (applying transformations to joints).
 
 ### Submodule PH4-11.04: Skinning, Weight Painting & Kinematics
-- [ ] `PH4-11.04.001`: Implement automated Linear Blend Skinning (LBS) with heat-map bone weight calculation.
-- [ ] `PH4-11.04.002`: Implement interactive 3D Weight Painting tool: paint per-vertex bone influences using a color-mapped brush (Blue = 0.0, Red = 1.0).
-- [ ] `PH4-11.04.003`: Implement Forward Kinematics (FK) allowing rotational joint posing down the bone hierarchy.
-- [ ] `PH4-11.04.004`: Implement 2-bone and multi-bone Inverse Kinematics (IK) with target goals and pole vector alignment.
+- [x] `PH4-11.04.001`: Implement automated Linear Blend Skinning (LBS) with heat-map bone weight calculation.
+- [x] `PH4-11.04.002`: Implement interactive 3D Weight Painting tool: paint per-vertex bone influences using a color-mapped brush (Blue = 0.0, Red = 1.0).
+- [x] `PH4-11.04.003`: Implement Forward Kinematics (FK) allowing rotational joint posing down the bone hierarchy.
+- [x] `PH4-11.04.004`: Implement 2-bone and multi-bone Inverse Kinematics (IK) with target goals and pole vector alignment.
 
 ---
 

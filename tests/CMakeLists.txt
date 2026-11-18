@@ -62,6 +62,7 @@ add_executable(shunya_unit_tests
     unit/test_physim_simulation_controller.cpp
     unit/test_cosim_orchestrator.cpp
     unit/test_rig3d_modifiers.cpp
+    unit/test_rig3d_armature_kinematics.cpp
     unit/test_matdb_registry.cpp
     unit/test_matdb_electronic_spectral.cpp
     unit/test_matdb_crystallography.cpp
