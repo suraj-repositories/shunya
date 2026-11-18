@@ -752,21 +752,21 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
 ## Module PH4-09: 3D Physics & Multi-Body Mechanical Machine Simulator (`PHYSIM`)
 
 **Objective:** Build a 3D multi-body physical simulation environment supporting rigid body dynamics, joints, mechanical linkages, collisions, and motor-driven mechanisms.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT`, `CAD3D` | **Status:** `[ ] Not Started` (0/26)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT`, `CAD3D` | **Status:** `[ ] In Progress` (10/26)
 
 ### Submodule PH4-09.01: Rigid Body Dynamics & Integrator
-- [ ] `PH4-09.01.001`: Implement rigid body state representation: Position $\mathbf{x}$, Orientation Quaternion $\mathbf{q}$, Linear Momentum $\mathbf{p}$, and Angular Momentum $\mathbf{L}$.
-- [ ] `PH4-09.01.002`: Compute 3D mass inertia tensors for arbitrary watertight meshes using Mirtich's divergence theorem algorithm.
-- [ ] `PH4-09.01.003`: Implement Symplectic Euler and Runge-Kutta 4th-order (RK4) kinematic integrators preserving angular and linear momentum.
-- [ ] `PH4-09.01.004`: Support dynamic, kinematic (script-driven), and static (fixed ground/walls) body types.
-- [ ] `PH4-09.01.005`: Implement aerodynamic drag, buoyancy in air, and global gravitational acceleration vector controls.
-- [ ] `PH4-09.01.006`: Validate rigid body free-fall, projectile motion, and gyroscopic precession against analytical classical mechanics solutions.
+- [x] `PH4-09.01.001`: Implement rigid body state representation: Position $\mathbf{x}$, Orientation Quaternion $\mathbf{q}$, Linear Momentum $\mathbf{p}$, and Angular Momentum $\mathbf{L}$.
+- [x] `PH4-09.01.002`: Compute 3D mass inertia tensors for arbitrary watertight meshes using Mirtich's divergence theorem algorithm.
+- [x] `PH4-09.01.003`: Implement Symplectic Euler and Runge-Kutta 4th-order (RK4) kinematic integrators preserving angular and linear momentum.
+- [x] `PH4-09.01.004`: Support dynamic, kinematic (script-driven), and static (fixed ground/walls) body types.
+- [x] `PH4-09.01.005`: Implement aerodynamic drag, buoyancy in air, and global gravitational acceleration vector controls.
+- [x] `PH4-09.01.006`: Validate rigid body free-fall, projectile motion, and gyroscopic precession against analytical classical mechanics solutions.
 
 ### Submodule PH4-09.02: Collision Detection & Contact Resolution
-- [ ] `PH4-09.02.001`: Implement dynamic Bounding Volume Hierarchy (AABB BVH) broad-phase collision detection with spatial hashing.
-- [ ] `PH4-09.02.002`: Implement Gilbert-Johnson-Keerthi (GJK) distance and Expanding Polytope Algorithm (EPA) narrow-phase collision for convex polyhedra.
-- [ ] `PH4-09.02.003`: Build Continuous Collision Detection (CCD) via swept volume conservative advancement to prevent tunneling of fast-moving parts.
-- [ ] `PH4-09.02.004`: Implement contact manifold generation: extract contact points, contact normals, and penetration depths.
+- [x] `PH4-09.02.001`: Implement dynamic Bounding Volume Hierarchy (AABB BVH) broad-phase collision detection with spatial hashing.
+- [x] `PH4-09.02.002`: Implement Gilbert-Johnson-Keerthi (GJK) distance and Expanding Polytope Algorithm (EPA) narrow-phase collision for convex polyhedra.
+- [x] `PH4-09.02.003`: Build Continuous Collision Detection (CCD) via swept volume conservative advancement to prevent tunneling of fast-moving parts.
+- [x] `PH4-09.02.004`: Implement contact manifold generation: extract contact points, contact normals, and penetration depths.
 - [ ] `PH4-09.02.005`: Implement Projected Gauss-Seidel (PGS) impulse solver for contact restitution and Coulomb friction (static and dynamic).
 - [ ] `PH4-09.02.006`: Validate restitution coefficient and friction angle against physical experiments (bouncing balls, sliding blocks on inclines).
 

@@ -348,6 +348,9 @@ add_library(shunya_domain_eng OBJECT
     src/cirsim/nonlinear_dc_solver.cpp
     src/cirsim/ac_small_signal_solver.cpp
     src/cirsim/transient_simulation_engine.cpp
+    src/physim/rigid_body.cpp
+    src/physim/integrator.cpp
+    src/physim/collision_pipeline.cpp
 )
 shunya_configure_domain_target(shunya_domain_eng)
 target_link_libraries(shunya_domain_eng
