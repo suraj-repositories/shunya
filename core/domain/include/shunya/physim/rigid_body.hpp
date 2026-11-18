@@ -31,6 +31,15 @@ inline Quaterniond operator*(double s, const Quaterniond& q) noexcept {
     return {q.w * s, q.x * s, q.y * s, q.z * s};
 }
 
+// Matrix3x3 arithmetic helpers
+inline Matrix3x3 operator+(const Matrix3x3& a, const Matrix3x3& b) noexcept {
+    Matrix3x3 res;
+    for (size_t i = 0; i < 9; ++i) {
+        res.m[i] = a.m[i] + b.m[i];
+    }
+    return res;
+}
+
 // =============================================================================
 // Body Type: Dynamic, Kinematic, Static (PH4-09.01.004)
 // =============================================================================
