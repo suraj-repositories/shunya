@@ -6,7 +6,14 @@ Item {
     id: root
     property var model: []
     property int currentIndex: 0
-    property string currentText: (model && model.length > currentIndex && currentIndex >= 0) ? model[currentIndex] : ""
+    property string textRole: ""
+    property string currentText: {
+        if (!model || model.length === 0 || currentIndex < 0 || currentIndex >= model.length) return "";
+        var item = model[currentIndex];
+        if (typeof item === "string") return item;
+        if (textRole !== "" && item[textRole] !== undefined) return item[textRole];
+        return item.name || item.text || item.title || "";
+    }
     property string placeholderText: ""
     property alias count: combo.count
     signal activated(int index, string value)
@@ -19,6 +26,7 @@ Item {
         anchors.fill: parent
         model: root.model
         currentIndex: root.currentIndex
+        textRole: root.textRole
 
         onActivated: (index) => {
             root.currentIndex = index;
@@ -96,7 +104,11 @@ Item {
             highlighted: combo.highlightedIndex === index
 
             contentItem: Text {
-                text: typeof modelData === "string" ? modelData : (modelData.text || "")
+                text: {
+                    if (typeof modelData === "string") return modelData;
+                    if (root.textRole !== "" && modelData && modelData[root.textRole] !== undefined) return modelData[root.textRole];
+                    return (modelData && (modelData.name || modelData.text || modelData.title)) || "";
+                }
                 color: itemDel.highlighted ? Theme.textPrimary : Theme.textSecondary
                 font.family: Theme.fontSans
                 font.pixelSize: Theme.fontSm

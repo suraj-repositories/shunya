@@ -378,19 +378,63 @@ ApplicationWindow {
                         spacing: 4
                         RowLayout {
                             Layout.fillWidth: true
-                            Text { text: "Diagnostics & Solver Telemetry Log"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; font.weight: Font.DemiBold; color: Theme.textPrimary; Layout.fillWidth: true }
-                            MonoButton { iconName: "close"; compact: true; variant: "ghost"; onClicked: window.showConsoleDrawer = false }
+                            spacing: 8
+                            Text {
+                                text: "Diagnostics & Solver Telemetry Log"
+                                font.family: Theme.fontSans
+                                font.pixelSize: Theme.fontXs
+                                font.weight: Font.DemiBold
+                                color: Theme.textPrimary
+                                Layout.fillWidth: true
+                            }
+                            MonoCheckBox {
+                                id: autoScrollCheck
+                                text: "Auto-scroll"
+                                checked: true
+                            }
+                            MonoButton {
+                                text: "Copy"
+                                compact: true
+                                onClicked: {
+                                    logTextArea.selectAll();
+                                    logTextArea.copy();
+                                    logTextArea.deselect();
+                                }
+                            }
+                            MonoButton {
+                                text: "Clear"
+                                compact: true
+                                onClicked: {
+                                    if (typeof studio !== "undefined") {
+                                        studio.clearLog();
+                                    }
+                                }
+                            }
+                            MonoButton {
+                                iconName: "close"
+                                compact: true
+                                variant: "ghost"
+                                onClicked: window.showConsoleDrawer = false
+                            }
                         }
                         ScrollView {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             TextArea {
+                                id: logTextArea
                                 readOnly: true
                                 text: typeof studio !== "undefined" ? studio.logOutput : ""
                                 color: Theme.textSecondary
                                 font.family: Theme.fontMono
                                 font.pixelSize: Theme.fontXs
+                                selectByMouse: true
+                                wrapMode: Text.WrapAnywhere
                                 background: Rectangle { color: Theme.bgPrimary; radius: Theme.radiusSm }
+                                onTextChanged: {
+                                    if (autoScrollCheck.checked) {
+                                        cursorPosition = length;
+                                    }
+                                }
                             }
                         }
                     }

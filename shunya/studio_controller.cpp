@@ -259,10 +259,18 @@ void ShunyaStudioController::appendLog(const QString& msg)
 {
     QString timestamp = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
     QString line = "[" + timestamp + "] " + msg;
-    if (log_output_.isEmpty()) {
-        log_output_ = line;
-    } else {
-        log_output_ += "\n" + line;
+    log_lines_.append(line);
+    constexpr int kMaxLogLines = 10000;
+    if (log_lines_.size() > kMaxLogLines) {
+        log_lines_.removeFirst();
     }
+    log_output_ = log_lines_.join(QLatin1Char('\n'));
+    emit logOutputChanged();
+}
+
+void ShunyaStudioController::clearLog()
+{
+    log_lines_.clear();
+    log_output_.clear();
     emit logOutputChanged();
 }

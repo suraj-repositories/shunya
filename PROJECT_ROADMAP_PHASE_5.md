@@ -21,9 +21,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 426 | 94.2% |
+| `[ ]` | Not Started | 294 | 65.0% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 26 | 5.8% |
+| `[x]` | Completed | 158 | 35.0% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -35,18 +35,18 @@ Parent-level completion status and progress percentages are **strictly calculate
 | **TRACK 1** | **STUDIO & ELEMENTS** | **Desktop Shell, Elements Workspace & Visual Identity** | | | | | |
 | 1 | `ELEMDB` | Periodic Table Database Loader, Path Resolution & Robust Ingestion | P0 | 12 | 12 | 100.0% | `[x]` |
 | 2 | `ELEMINSP` | Element Click Binding, Default Selection & Reactive Inspector | P0 | 14 | 14 | 100.0% | `[x]` |
-| 3 | `ELEMVIEW` | Phase Filtering, Table/Grid Views & Real-Time Multi-Field Search | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 4 | `ELEMLAYOUT` | Responsive Right Panel, Slider Alignment & Anti-Clipping Layout | P0 | 12 | 0 | 0.0% | `[ ]` |
-| 5 | `THEMEDLG` | Theme-Compliant Form Controls (Comboboxes, Selects & Checkboxes) | P0 | 12 | 0 | 0.0% | `[ ]` |
-| 6 | `SPLITTERS` | Multi-Pane Draggable Splitters & Session State Persistence | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 7 | `SIDEBARS` | Collapsible Dual Sidebars, Chevron Toggles & Keyboard Shortcuts | P0 | 12 | 0 | 0.0% | `[ ]` |
-| 8 | `MENUNAV` | Top Navigation Bar Streamlining & Comprehensive View Menu Integration | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 9 | `CONSOLE` | Monochromatic Diagnostics Console, Resizable Drawer & Telemetry | P0 | 12 | 0 | 0.0% | `[ ]` |
+| 3 | `ELEMVIEW` | Phase Filtering, Table/Grid Views & Real-Time Multi-Field Search | P0 | 14 | 14 | 100.0% | `[x]` |
+| 4 | `ELEMLAYOUT` | Responsive Right Panel, Slider Alignment & Anti-Clipping Layout | P0 | 12 | 12 | 100.0% | `[x]` |
+| 5 | `THEMEDLG` | Theme-Compliant Form Controls (Comboboxes, Selects & Checkboxes) | P0 | 12 | 12 | 100.0% | `[x]` |
+| 6 | `SPLITTERS` | Multi-Pane Draggable Splitters & Session State Persistence | P0 | 14 | 14 | 100.0% | `[x]` |
+| 7 | `SIDEBARS` | Collapsible Dual Sidebars, Chevron Toggles & Keyboard Shortcuts | P0 | 12 | 12 | 100.0% | `[x]` |
+| 8 | `MENUNAV` | Top Navigation Bar Streamlining & Comprehensive View Menu Integration | P0 | 14 | 14 | 100.0% | `[x]` |
+| 9 | `CONSOLE` | Monochromatic Diagnostics Console, Resizable Drawer & Telemetry | P0 | 12 | 12 | 100.0% | `[x]` |
 | 10 | `BRANDING` | Visual Identity, Theme-Aware Vector Icon & Desktop Multi-Platform Packaging | P0 | 14 | 0 | 0.0% | `[ ]` |
 | **TRACK 2** | **MIXING LAB** | **Material Mixing Laboratory Overhaul & Virtual Test Bench** | | | | | |
-| 11 | `MIX-COMP` | Mixing Lab Composition Engine, Normalization & Ingestion Fix | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 12 | `MIX-SPLIT` | Mixing Lab Multi-Pane Splitters, Card Layout & Toolbar Overflow | P0 | 12 | 0 | 0.0% | `[ ]` |
-| 13 | `MIX-CTRL` | Mixing Lab Form Controls, Autocomplete, Presets & Button Actions | P0 | 16 | 0 | 0.0% | `[ ]` |
+| 11 | `MIX-COMP` | Mixing Lab Composition Engine, Normalization & Ingestion Fix | P0 | 14 | 14 | 100.0% | `[x]` |
+| 12 | `MIX-SPLIT` | Mixing Lab Multi-Pane Splitters, Card Layout & Toolbar Overflow | P0 | 12 | 12 | 100.0% | `[x]` |
+| 13 | `MIX-CTRL` | Mixing Lab Form Controls, Autocomplete, Presets & Button Actions | P0 | 16 | 16 | 100.0% | `[x]` |
 | 14 | `MIX-TEST` | Virtual Material Test Bench & Environmental Simulation Engine | P0 | 18 | 0 | 0.0% | `[ ]` |
 | 15 | `MIX-BOND` | First-Principles Atomic Bond Checker & Miscibility Engine | P0 | 16 | 0 | 0.0% | `[ ]` |
 | 16 | `MIX-EXPLAIN`| Material Explanation, Metric Comparison & Ranking Engine | P0 | 16 | 0 | 0.0% | `[ ]` |
@@ -528,23 +528,23 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-09: Monochromatic Diagnostics Console, Resizable Drawer & Telemetry (`CONSOLE`)
 
 **Objective:** Refactor the bottom diagnostics console into a resizable, monochromatic telemetry stream with uncolored monospace logs, structured tags, and advanced drawer controls.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/12 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (12/12 — 100.0%)
 
-### Submodule PH5-09.01: Monochromatic Log Stream & Structured Formatting [ ] (0.0% — 6/6)
-- [ ] `PH5-09.01.001`: Strip per-level color-coding (red/yellow/blue/green spans) from log renderers in `shunya/studio_controller.cpp` and QML log views.
-- [ ] `PH5-09.01.002`: Render all log text in a single uniform theme color (`Theme.textSecondary` in dark mode, `Theme.textPrimary` in light mode).
-- [ ] `PH5-09.01.003`: Enforce tabular monospace typography (`Theme.fontMono`, `Theme.fontXs`) for all log lines.
-- [ ] `PH5-09.01.004`: Preserve structured text prefixes: timestamps `[HH:MM:SS.zzz]` and category tags `[INIT]`, `[INFO]`, `[WARN]`, `[ERROR]`, `[SIM]`, `[SOLVER]`, `[ELEM]`.
-- [ ] `PH5-09.01.005`: Style the console drawer background with `Theme.bgSurface` and console text area background with `Theme.bgPrimary`.
-- [ ] `PH5-09.01.006`: Verify log readability and contrast against WCAG 2.1 AA specifications in both Light and Dark modes.
+### Submodule PH5-09.01: Monochromatic Log Stream & Structured Formatting [x] (100.0% — 6/6)
+- [x] `PH5-09.01.001`: Strip per-level color-coding (red/yellow/blue/green spans) from log renderers in `shunya/studio_controller.cpp` and QML log views.
+- [x] `PH5-09.01.002`: Render all log text in a single uniform theme color (`Theme.textSecondary` in dark mode, `Theme.textPrimary` in light mode).
+- [x] `PH5-09.01.003`: Enforce tabular monospace typography (`Theme.fontMono`, `Theme.fontXs`) for all log lines.
+- [x] `PH5-09.01.004`: Preserve structured text prefixes: timestamps `[HH:MM:SS.zzz]` and category tags `[INIT]`, `[INFO]`, `[WARN]`, `[ERROR]`, `[SIM]`, `[SOLVER]`, `[ELEM]`.
+- [x] `PH5-09.01.005`: Style the console drawer background with `Theme.bgSurface` and console text area background with `Theme.bgPrimary`.
+- [x] `PH5-09.01.006`: Verify log readability and contrast against WCAG 2.1 AA specifications in both Light and Dark modes.
 
-### Submodule PH5-09.02: Resizable Drawer Controls & Telemetry Affordances [ ] (0.0% — 6/6)
-- [ ] `PH5-09.02.001`: Attach horizontal drag splitter to the top border of the console drawer supporting drag resizing between 80px and 70% window height.
-- [ ] `PH5-09.02.002`: Add console drawer toolbar containing: Title `"Diagnostics & Solver Telemetry Log"`, Clear Log button, Copy to Clipboard button, Auto-Scroll toggle, and Close (`X`) button.
-- [ ] `PH5-09.02.003`: Ensure clicking the Close (`X`) button hides the drawer while retaining the user's customized height for the next toggle.
-- [ ] `PH5-09.02.004`: Implement high-performance ring-buffer log display supporting up to 10,000 lines without frame rate drops during 100 kHz simulation runs.
-- [ ] `PH5-09.02.005`: Wire ``Ctrl+` `` shortcut globally to toggle console visibility without stealing focus from active editor inputs.
-- [ ] `PH5-09.02.006`: Add unit test verifying log string parsing, monochromatic formatting, and clipboard copy operations.
+### Submodule PH5-09.02: Resizable Drawer Controls & Telemetry Affordances [x] (100.0% — 6/6)
+- [x] `PH5-09.02.001`: Attach horizontal drag splitter to the top border of the console drawer supporting drag resizing between 80px and 70% window height.
+- [x] `PH5-09.02.002`: Add console drawer toolbar containing: Title `"Diagnostics & Solver Telemetry Log"`, Clear Log button, Copy to Clipboard button, Auto-Scroll toggle, and Close (`X`) button.
+- [x] `PH5-09.02.003`: Ensure clicking the Close (`X`) button hides the drawer while retaining the user's customized height for the next toggle.
+- [x] `PH5-09.02.004`: Implement high-performance ring-buffer log display supporting up to 10,000 lines without frame rate drops during 100 kHz simulation runs.
+- [x] `PH5-09.02.005`: Wire ``Ctrl+` `` shortcut globally to toggle console visibility without stealing focus from active editor inputs.
+- [x] `PH5-09.02.006`: Add unit test verifying log string parsing, monochromatic formatting, and clipboard copy operations.
 
 ---
 
@@ -576,75 +576,75 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-11: Mixing Lab Composition Engine, Normalization & Ingestion Fix (`MIX-COMP`)
 
 **Objective:** Eradicate the `"Unknown element in mixture: Fe"` error by tying the Mixing Lab directly to the authoritative `ElementDatabase`, implement real-time composition validation and one-click normalization for inputs exceeding 100%, and resolve the `"Phase: --"` state.  
-**Priority:** P0 | **Complexity:** High | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** High | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-11.01: Element Recognition & Ingestion Pipeline Synchronization [ ] (0.0% — 7/7)
-- [ ] `PH5-11.01.001`: Connect `MaterialMixingLab::evaluate_mixture()` in `core/domain/src/mat/material_mixing_lab.cpp` directly to `ElementDatabase::global()`, guaranteeing that symbols like `"Fe"`, `"Cu"`, `"C"`, `"Ni"`, and all 118 elements are recognized without failure.
-- [ ] `PH5-11.01.002`: Eliminate the spurious `"Rejected: Unknown element in mixture: Fe"` and `"Invalid Formation Rule"` errors that occur when the lab evaluates valid elements before CSV indexing completes.
-- [ ] `PH5-11.01.003`: Implement asynchronous dependency gating ensuring `MixingLabWorkspace.qml` waits for `pipeline.elementCount > 0` before running initial default recipe evaluation.
-- [ ] `PH5-11.01.004`: Resolve `"Phase: --"` permanently: compute multi-phase solidus/liquidus curves based on constituent concentrations at the current temperature and pressure $(T, P)$, correctly reporting `"Solid (Austenite)"`, `"Liquid"`, or `"Gas"`.
-- [ ] `PH5-11.01.005`: Populate the *"Base Elements vs. Resulting Mixture Comparison"* matrix immediately upon valid recipe evaluation, displaying property name, mixture value, constituent breakdown, and epistemic tier.
-- [ ] `PH5-11.01.006`: Fix the *"Property vs. Temperature Sweep"* scientific chart in `MixingLabWorkspace.qml`: initialize temperature axes over the calibrated range $[200.0, 1200.0]\text{ K}$ and plot dynamic Thermal $k$ ($W/m\cdot K$) and Density $\rho$ ($kg/m^3$) curves.
-- [ ] `PH5-11.01.007`: Add unit test `test_p5_mixing_fe_cu_c.cpp` validating that an alloy of 99% Fe and 1% C computes density $7850\text{ kg/m}^3$, thermal conductivity $52.4\text{ W/m}\cdot\text{K}$, and passes chemical validation.
+### Submodule PH5-11.01: Element Recognition & Ingestion Pipeline Synchronization [x] (100.0% — 7/7)
+- [x] `PH5-11.01.001`: Connect `MaterialMixingLab::evaluate_mixture()` in `core/domain/src/mat/material_mixing_lab.cpp` directly to `ElementDatabase::global()`, guaranteeing that symbols like `"Fe"`, `"Cu"`, `"C"`, `"Ni"`, and all 118 elements are recognized without failure.
+- [x] `PH5-11.01.002`: Eliminate the spurious `"Rejected: Unknown element in mixture: Fe"` and `"Invalid Formation Rule"` errors that occur when the lab evaluates valid elements before CSV indexing completes.
+- [x] `PH5-11.01.003`: Implement asynchronous dependency gating ensuring `MixingLabWorkspace.qml` waits for `pipeline.elementCount > 0` before running initial default recipe evaluation.
+- [x] `PH5-11.01.004`: Resolve `"Phase: --"` permanently: compute multi-phase solidus/liquidus curves based on constituent concentrations at the current temperature and pressure $(T, P)$, correctly reporting `"Solid (Austenite)"`, `"Liquid"`, or `"Gas"`.
+- [x] `PH5-11.01.005`: Populate the *"Base Elements vs. Resulting Mixture Comparison"* matrix immediately upon valid recipe evaluation, displaying property name, mixture value, constituent breakdown, and epistemic tier.
+- [x] `PH5-11.01.006`: Fix the *"Property vs. Temperature Sweep"* scientific chart in `MixingLabWorkspace.qml`: initialize temperature axes over the calibrated range $[200.0, 1200.0]\text{ K}$ and plot dynamic Thermal $k$ ($W/m\cdot K$) and Density $\rho$ ($kg/m^3$) curves.
+- [x] `PH5-11.01.007`: Add unit test `test_p5_mixing_fe_cu_c.cpp` validating that an alloy of 99% Fe and 1% C computes density $7850\text{ kg/m}^3$, thermal conductivity $52.4\text{ W/m}\cdot\text{K}$, and passes chemical validation.
 
-### Submodule PH5-11.02: Live Composition Validation & Normalization Engine [ ] (0.0% — 7/7)
-- [ ] `PH5-11.02.001`: Implement real-time composition summation across all constituent elements, tracking mass fractions ($\text{wt}\%$) and molar fractions ($\text{mol}\%$).
-- [ ] `PH5-11.02.002`: Detect composition imbalances (e.g. $\text{Fe } 99\% + \text{C } 1\% + \text{Cu } 10\% = 110\%$) and flag them instantly in the UI with a high-visibility warning chip.
-- [ ] `PH5-11.02.003`: Provide an inline notification banner: `"Total is 110.0%, normalize to 100%?"` equipped with a prominent one-click `"Normalize"` button.
-- [ ] `PH5-11.02.004`: Implement proportional normalization algorithm: $w_i' = \frac{w_i}{\sum_k w_k} \times 100.0$, scaling all constituents proportionally while preserving relative stoichiometry.
-- [ ] `PH5-11.02.005`: Display a live total percentage indicator badge (e.g. `"Total: 100.0%"`) styled with `Theme.statusSuccess` when balanced ($100.0 \pm 0.01\%$) and `Theme.statusWarning` when unbalanced.
-- [ ] `PH5-11.02.006`: Provide a basis switch toggle (`Mass Fraction %` vs `Mole Fraction %` vs `Grams`) that automatically converts constituent fractions without data loss.
-- [ ] `PH5-11.02.007`: Add automated UI test verifying that entering $99\% \text{ Fe} + 1\% \text{ C} + 10\% \text{ Cu}$ triggers the normalization prompt and produces $90.0\% \text{ Fe} + 0.91\% \text{ C} + 9.09\% \text{ Cu}$ upon clicking `"Normalize"`.
+### Submodule PH5-11.02: Live Composition Validation & Normalization Engine [x] (100.0% — 7/7)
+- [x] `PH5-11.02.001`: Implement real-time composition summation across all constituent elements, tracking mass fractions ($\text{wt}\%$) and molar fractions ($\text{mol}\%$).
+- [x] `PH5-11.02.002`: Detect composition imbalances (e.g. $\text{Fe } 99\% + \text{C } 1\% + \text{Cu } 10\% = 110\%$) and flag them instantly in the UI with a high-visibility warning chip.
+- [x] `PH5-11.02.003`: Provide an inline notification banner: `"Total is 110.0%, normalize to 100%?"` equipped with a prominent one-click `"Normalize"` button.
+- [x] `PH5-11.02.004`: Implement proportional normalization algorithm: $w_i' = \frac{w_i}{\sum_k w_k} \times 100.0$, scaling all constituents proportionally while preserving relative stoichiometry.
+- [x] `PH5-11.02.005`: Display a live total percentage indicator badge (e.g. `"Total: 100.0%"`) styled with `Theme.statusSuccess` when balanced ($100.0 \pm 0.01\%$) and `Theme.statusWarning` when unbalanced.
+- [x] `PH5-11.02.006`: Provide a basis switch toggle (`Mass Fraction %` vs `Mole Fraction %` vs `Grams`) that automatically converts constituent fractions without data loss.
+- [x] `PH5-11.02.007`: Add automated UI test verifying that entering $99\% \text{ Fe} + 1\% \text{ C} + 10\% \text{ Cu}$ triggers the normalization prompt and produces $90.0\% \text{ Fe} + 0.91\% \text{ C} + 9.09\% \text{ Cu}$ upon clicking `"Normalize"`.
 
 ---
 
 ## Module PH5-12: Mixing Lab Multi-Pane Splitters, Card Layout & Toolbar Overflow (`MIX-SPLIT`)
 
 **Objective:** Implement flexible draggable splitters between the Left, Middle, and Right cards of the Mixing Lab and between the comparison matrix and sweep chart inside the Middle card, ensuring zero clipping on narrow viewports.  
-**Priority:** P0 | **Complexity:** High | **Status:** `[ ] Not Started` (0/12 — 0.0%)
+**Priority:** P0 | **Complexity:** High | **Status:** `[x] Completed` (12/12 — 100.0%)
 
-### Submodule PH5-12.01: 3-Card Multi-Pane Splitter Architecture [ ] (0.0% — 6/6)
-- [ ] `PH5-12.01.001`: Refactor the root layout of `shunya/MixingLabWorkspace.qml` from static `RowLayout` to a dynamic 3-pane `StudioSplitter` housing Left, Middle, and Right cards.
-- [ ] `PH5-12.01.002`: Enforce strict minimum and maximum width constraints: Left card $\ge 280\text{ px}$, Middle card $\ge 360\text{ px}$, Right card $\ge 240\text{ px}$.
-- [ ] `PH5-12.01.003`: Implement theme-aware vertical splitter handles with hover illumination (`Theme.borderStrong`) and active drag accentuation (`Theme.textPrimary`).
-- [ ] `PH5-12.01.004`: Enable double-click reset on card splitters restoring default proportional distribution (Left: 30%, Middle: 45%, Right: 25%).
-- [ ] `PH5-12.01.005`: Persist card widths in `QSettings` (`mixingLabLeftWidth`, `mixingLabMiddleWidth`, `mixingLabRightWidth`) across studio sessions.
-- [ ] `PH5-12.01.006`: Enforce `Layout.minimumWidth: 0` and `clip: true` on card containers, preventing child components from bleeding over splitter handles.
+### Submodule PH5-12.01: 3-Card Multi-Pane Splitter Architecture [x] (100.0% — 6/6)
+- [x] `PH5-12.01.001`: Refactor the root layout of `shunya/MixingLabWorkspace.qml` from static `RowLayout` to a dynamic 3-pane `StudioSplitter` housing Left, Middle, and Right cards.
+- [x] `PH5-12.01.002`: Enforce strict minimum and maximum width constraints: Left card $\ge 280\text{ px}$, Middle card $\ge 360\text{ px}$, Right card $\ge 240\text{ px}$.
+- [x] `PH5-12.01.003`: Implement theme-aware vertical splitter handles with hover illumination (`Theme.borderStrong`) and active drag accentuation (`Theme.textPrimary`).
+- [x] `PH5-12.01.004`: Enable double-click reset on card splitters restoring default proportional distribution (Left: 30%, Middle: 45%, Right: 25%).
+- [x] `PH5-12.01.005`: Persist card widths in `QSettings` (`mixingLabLeftWidth`, `mixingLabMiddleWidth`, `mixingLabRightWidth`) across studio sessions.
+- [x] `PH5-12.01.006`: Enforce `Layout.minimumWidth: 0` and `clip: true` on card containers, preventing child components from bleeding over splitter handles.
 
-### Submodule PH5-12.02: Middle Card Internal Splitter & Responsive Content Wrapping [ ] (0.0% — 6/6)
-- [ ] `PH5-12.02.001`: Integrate a draggable horizontal splitter inside the Middle card separating the *"Element vs. Mixture Comparison"* table from the *"Property vs. Temperature Sweep"* scientific chart.
-- [ ] `PH5-12.02.002`: Enforce minimum height constraints for the middle card panes: Comparison area $\ge 120\text{ px}$, Sweep chart $\ge 160\text{ px}$, with double-click reset to 50/50 split.
-- [ ] `PH5-12.02.003`: Refactor the Formation Scenario buttons in the Left card to use a responsive `Flow` layout with automatic line wrapping, preventing button cutoff at narrow widths.
-- [ ] `PH5-12.02.004`: Implement an adaptive overflow popup menu (`...`) for the `ScientificPlot` toolbar when the Middle card width drops below 480px, collapsing zoom, format, and export buttons.
-- [ ] `PH5-12.02.005`: Wrap the Left recipe composer in a vertical `ScrollView` (`overflow-y: auto`) ensuring access to all inputs when vertical window space is constrained.
-- [ ] `PH5-12.02.006`: Verify via automated UI tests that no card content overflows or clips when the application window is resized between 960px and 2560px.
+### Submodule PH5-12.02: Middle Card Internal Splitter & Responsive Content Wrapping [x] (100.0% — 6/6)
+- [x] `PH5-12.02.001`: Integrate a draggable horizontal splitter inside the Middle card separating the *"Element vs. Mixture Comparison"* table from the *"Property vs. Temperature Sweep"* scientific chart.
+- [x] `PH5-12.02.002`: Enforce minimum height constraints for the middle card panes: Comparison area $\ge 120\text{ px}$, Sweep chart $\ge 160\text{ px}$, with double-click reset to 50/50 split.
+- [x] `PH5-12.02.003`: Refactor the Formation Scenario buttons in the Left card to use a responsive `Flow` layout with automatic line wrapping, preventing button cutoff at narrow widths.
+- [x] `PH5-12.02.004`: Implement an adaptive overflow popup menu (`...`) for the `ScientificPlot` toolbar when the Middle card width drops below 480px, collapsing zoom, format, and export buttons.
+- [x] `PH5-12.02.005`: Wrap the Left recipe composer in a vertical `ScrollView` (`overflow-y: auto`) ensuring access to all inputs when vertical window space is constrained.
+- [x] `PH5-12.02.006`: Verify via automated UI tests that no card content overflows or clips when the application window is resized between 960px and 2560px.
 
 ---
 
 ## Module PH5-13: Mixing Lab Form Controls, Autocomplete, Presets & Button Actions (`MIX-CTRL`)
 
 **Objective:** Audit and wire every control on the Mixing Lab page to functional behavior, upgrade the presets combobox to a searchable grouped component, provide constituent element autocomplete, and implement interactive density perturbation.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/16 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (16/16 — 100.0%)
 
-### Submodule PH5-13.01: Control Audit & Dead Button Elimination [ ] (0.0% — 8/8)
-- [ ] `PH5-13.01.001`: Conduct an exhaustive audit of all interactive controls in `MixingLabWorkspace.qml`, guaranteeing that zero dead or non-functional buttons exist.
-- [ ] `PH5-13.01.002`: Ensure any button that cannot currently execute is explicitly disabled (`enabled: false`) with a descriptive tooltip explaining the prerequisite (e.g. *"Enter valid constituents before running tests"*).
-- [ ] `PH5-13.01.003`: Wire the `Load` button to immediately populate the recipe form with the selected preset or experiment's constituents, scenario, $T$, and $P$.
-- [ ] `PH5-13.01.004`: Wire Formation Scenario buttons (`PhysicalMixture`, `Alloy`, `Solution`, `ChemicalCompound`, `LayeredMaterial`, `CompositeMaterial`) to dynamically toggle active rule sets and scenario-specific fields (e.g. layer thickness for `LayeredMaterial`, matrix selection for `CompositeMaterial`).
-- [ ] `PH5-13.01.005`: Wire the constituent `Add` button with validation: verify valid element symbol, amount $> 0$, and automatically merge duplicate elements by summing their amounts.
-- [ ] `PH5-13.01.006`: Wire the constituent `Trash` button to remove the ingredient, trigger instant re-evaluation, and provide an undo toast notification.
-- [ ] `PH5-13.01.007`: Wire the `+10% rho` button in the Project Materials card to perturb material density by $+10\%$, propagate recalculations to dependent 3D Objects and Components, and display before/after values in a toast notification.
-- [ ] `PH5-13.01.008`: Add automated test verifying that clicking `+10% rho` updates the material registry and emits reactive change signals across the engineering pipeline.
+### Submodule PH5-13.01: Control Audit & Dead Button Elimination [x] (100.0% — 8/8)
+- [x] `PH5-13.01.001`: Conduct an exhaustive audit of all interactive controls in `MixingLabWorkspace.qml`, guaranteeing that zero dead or non-functional buttons exist.
+- [x] `PH5-13.01.002`: Ensure any button that cannot currently execute is explicitly disabled (`enabled: false`) with a descriptive tooltip explaining the prerequisite (e.g. *"Enter valid constituents before running tests"*).
+- [x] `PH5-13.01.003`: Wire the `Load` button to immediately populate the recipe form with the selected preset or experiment's constituents, scenario, $T$, and $P$.
+- [x] `PH5-13.01.004`: Wire Formation Scenario buttons (`PhysicalMixture`, `Alloy`, `Solution`, `ChemicalCompound`, `LayeredMaterial`, `CompositeMaterial`) to dynamically toggle active rule sets and scenario-specific fields (e.g. layer thickness for `LayeredMaterial`, matrix selection for `CompositeMaterial`).
+- [x] `PH5-13.01.005`: Wire the constituent `Add` button with validation: verify valid element symbol, amount $> 0$, and automatically merge duplicate elements by summing their amounts.
+- [x] `PH5-13.01.006`: Wire the constituent `Trash` button to remove the ingredient, trigger instant re-evaluation, and provide an undo toast notification.
+- [x] `PH5-13.01.007`: Wire the `+10% rho` button in the Project Materials card to perturb material density by $+10\%$, propagate recalculations to dependent 3D Objects and Components, and display before/after values in a toast notification.
+- [x] `PH5-13.01.008`: Add automated test verifying that clicking `+10% rho` updates the material registry and emits reactive change signals across the engineering pipeline.
 
-### Submodule PH5-13.02: Searchable Presets Dropdown & Autocomplete Engine [ ] (0.0% — 8/8)
-- [ ] `PH5-13.02.001`: Replace the un-themed presets combobox with `MonoComboBox.qml`, standardizing height to 36–40px with theme-variable background, text, border, hover, and focus styling.
-- [ ] `PH5-13.02.002`: Implement grouped categorization in the presets dropdown: `Saved Experiments`, `Built-in Engineering Presets`, and `Shared Materials`.
-- [ ] `PH5-13.02.003`: Add real-time search filtering inside the combobox popup, allowing scientists to find recipes by name, element symbol (e.g. `"Cu"`), or scenario.
-- [ ] `PH5-13.02.004`: Provide full keyboard navigation for the presets dropdown (Up/Down arrows, Enter to select, Escape to dismiss).
-- [ ] `PH5-13.02.005`: Vertically align the `Load` button's height, padding, and corner radius with the presets combobox.
-- [ ] `PH5-13.02.006`: Implement element symbol autocomplete for the constituent input field (`MonoInput.qml`), suggesting matching elements from `elements.csv` as the user types (e.g. `"F"` $\to$ `"Fe"`, `"F"`, `"Fm"`).
-- [ ] `PH5-13.02.007`: Wire sweep chart toolbar actions: `LINE` button toggles between Line, Scatter, and Area plot styles; Zoom In (`+`) and Zoom Out (`-`) scale axes; `Reset Zoom` restores $[200.0, 1200.0]\text{ K}$; `Export CSV` downloads curve data; `"pts"` badge displays real point count.
-- [ ] `PH5-13.02.008`: Add unit test validating autocomplete prefix search and duplicate constituent merging logic.
+### Submodule PH5-13.02: Searchable Presets Dropdown & Autocomplete Engine [x] (100.0% — 8/8)
+- [x] `PH5-13.02.001`: Replace the un-themed presets combobox with `MonoComboBox.qml`, standardizing height to 36–40px with theme-variable background, text, border, hover, and focus styling.
+- [x] `PH5-13.02.002`: Implement grouped categorization in the presets dropdown: `Saved Experiments`, `Built-in Engineering Presets`, and `Shared Materials`.
+- [x] `PH5-13.02.003`: Add real-time search filtering inside the combobox popup, allowing scientists to find recipes by name, element symbol (e.g. `"Cu"`), or scenario.
+- [x] `PH5-13.02.004`: Provide full keyboard navigation for the presets dropdown (Up/Down arrows, Enter to select, Escape to dismiss).
+- [x] `PH5-13.02.005`: Vertically align the `Load` button's height, padding, and corner radius with the presets combobox.
+- [x] `PH5-13.02.006`: Implement element symbol autocomplete for the constituent input field (`MonoInput.qml`), suggesting matching elements from `elements.csv` as the user types (e.g. `"F"` $\to$ `"Fe"`, `"F"`, `"Fm"`).
+- [x] `PH5-13.02.007`: Wire sweep chart toolbar actions: `LINE` button toggles between Line, Scatter, and Area plot styles; Zoom In (`+`) and Zoom Out (`-`) scale axes; `Reset Zoom` restores $[200.0, 1200.0]\text{ K}$; `Export CSV` downloads curve data; `"pts"` badge displays real point count.
+- [x] `PH5-13.02.008`: Add unit test validating autocomplete prefix search and duplicate constituent merging logic.
 
 ---
 

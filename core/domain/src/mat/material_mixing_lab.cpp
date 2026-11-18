@@ -231,6 +231,15 @@ core::base::Result<MixtureEvaluationResult> MaterialMixingLab::evaluate(
         const auto* el = db.find_by_symbol(in.symbol_or_id);
         if (!el) el = db.find_by_name(in.symbol_or_id);
         if (!el) {
+            el = matdb::ElementDatabase::global().find_by_symbol(in.symbol_or_id);
+            if (!el) el = matdb::ElementDatabase::global().find_by_name(in.symbol_or_id);
+        }
+        if (!el && !matdb::ElementDatabase::global().is_loaded()) {
+            (void)matdb::ElementDatabase::global().load_default();
+            el = matdb::ElementDatabase::global().find_by_symbol(in.symbol_or_id);
+            if (!el) el = matdb::ElementDatabase::global().find_by_name(in.symbol_or_id);
+        }
+        if (!el) {
             return make_mix_error(4214, "Unknown element in mixture: " + in.symbol_or_id);
         }
         elems.push_back(el);
@@ -622,6 +631,22 @@ core::base::Result<MixtureEvaluationResult> MaterialMixingLab::evaluate(
             res.estimated_melting_point_k.epistemic = (N == 1) ? EpistemicStatus::ConfirmedScientific : EpistemicStatus::ApproximateSimulation;
             res.estimated_melting_point_k.model_note = (N == 1) ? "CSV Melting_Point." : "Linear liquidus estimate (eutectic depression not modeled).";
             res.predicted_phase = (experiment.temperature_k < tm_est) ? EvaluatedPhase::Solid : EvaluatedPhase::Liquid;
+        }
+    }
+
+    if (res.predicted_phase == EvaluatedPhase::Unknown) {
+        int solids = 0, liquids = 0, gases = 0;
+        for (const auto& b : behaviors) {
+            if (b.phase == EvaluatedPhase::Gas) gases++;
+            else if (b.phase == EvaluatedPhase::Liquid) liquids++;
+            else if (b.phase == EvaluatedPhase::Solid) solids++;
+        }
+        if (gases > 0 && solids == 0 && liquids == 0) {
+            res.predicted_phase = EvaluatedPhase::Gas;
+        } else if (liquids > 0 && gases == 0 && solids == 0) {
+            res.predicted_phase = EvaluatedPhase::Liquid;
+        } else {
+            res.predicted_phase = EvaluatedPhase::Solid;
         }
     }
 

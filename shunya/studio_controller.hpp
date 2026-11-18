@@ -60,6 +60,7 @@ public slots:
     void runBenchmark();
     void runSweep(const QString& param, double minVal, double maxVal, int steps);
     void appendLog(const QString& msg);
+    void clearLog();
 
 signals:
     void simTimeChanged();
@@ -79,6 +80,7 @@ private:
     QStringList active_entities_;
     QString benchmark_output_;
     QString log_output_;
+    QStringList log_lines_;
 
     QTimer* timer_{nullptr};
     std::shared_ptr<shunya::eng::EngineeringWorkspaceState> workspace_;
