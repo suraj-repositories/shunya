@@ -33,13 +33,13 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 5 | `CAD3D` | Professional 3D Modeling & Mesh Geometry Engine | P0 | 26 | 26 | 100.0% | `[x]` |
 | 6 | `ECAD3D` | 3D Electronic Component Designer & Specification Engine | P0 | 24 | 24 | 100.0% | `[x]` |
 | 7 | `LIB30` | 30-Component Library & Dual 3D/2D Symbol System | P0 | 30 | 30 | 100.0% | `[x]` |
-| 8 | `CIRSIM` | Dedicated Circuit Simulation Engine (DC, AC, Transient & Non-Linear) | P0 | 26 | 12 | 46.2% | `[~]` |
+| 8 | `CIRSIM` | Dedicated Circuit Simulation Engine (DC, AC, Transient & Non-Linear) | P0 | 26 | 13 | 50.0% | `[~]` |
 | 9 | `PHYSIM` | 3D Physics & Multi-Body Mechanical Machine Simulator | P0 | 26 | 0 | 0.0% | `[ ]` |
 | 10 | `COSIM` | Circuit-to-3D Electro-Mechanical Simulation Integration | P0 | 24 | 0 | 0.0% | `[ ]` |
 | 11 | `RIG3D` | Advanced Modifiers, Organic Modeling & Skeletal Rigging | P1 | 20 | 0 | 0.0% | `[ ]` |
 | 12 | `UIUX` | Professional UI Polish & VS Code-Style Menu System | P0 | 18 | 0 | 0.0% | `[ ]` |
 | 13 | `QA` | Verification, Test Automation & CI/CD Pipeline | P0 | 20 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 4 Integrated Engineering Platform** | **--** | **312** | **188** | **60.3%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 4 Integrated Engineering Platform** | **--** | **312** | **189** | **60.6%** | `[~]` |
 
 ---
 
@@ -706,7 +706,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
 ## Module PH4-08: Dedicated Circuit Simulation Engine (`CIRSIM`)
 
 **Objective:** Build a dedicated, robust, SPICE-grade circuit simulation engine supporting non-linear DC operating point, AC frequency response, and transient numerical integration.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT`, `LIB30` | **Status:** `[~] In Progress` (12/26 — 46.2%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT`, `LIB30` | **Status:** `[~] In Progress` (13/26 — 50.0%)
 
 ### Submodule PH4-08.01: Schematic Topology Parsing & Netlist Matrix Formulation [x] (100.0% — 6/6)
 - [x] `PH4-08.01.001`: Implement high-speed schematic graph parsing converting graphical symbols and wires into an electrical nodal netlist.
@@ -724,11 +724,9 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
 - [x] `PH4-08.02.004`: Implement short-circuit and over-current detection algorithms generating diagnostic error reports with node locations.
 - [x] `PH4-08.02.005`: Calculate total circuit power dissipation and individual component power stresses against maximum ratings.
 - [x] `PH4-08.02.006`: Benchmark DC operating point solving against standard SPICE3f5 reference netlists.
-- [ ] `PH4-08.02.005`: Calculate total circuit power dissipation and individual component power stresses against maximum ratings.
-- [ ] `PH4-08.02.006`: Benchmark DC operating point solving against standard SPICE3f5 reference netlists.
 
-### Submodule PH4-08.03: AC Small-Signal & Frequency Domain Analysis
-- [ ] `PH4-08.03.001`: Implement complex-admittance matrix assembly for linear AC frequency sweeps ($f_{\text{start}}$ to $f_{\text{stop}}$, decade/linear spacing).
+### Submodule PH4-08.03: AC Small-Signal & Frequency Domain Analysis [~] (1/6)
+- [x] `PH4-08.03.001`: Implement complex-admittance matrix assembly for linear AC frequency sweeps ($f_{\text{start}}$ to $f_{\text{stop}}$, decade/linear spacing).
 - [ ] `PH4-08.03.002`: Solve complex linear equations $\mathbf{Y}(\omega) \mathbf{V}(\omega) = \mathbf{I}(\omega)$ using sparse complex LU factorization.
 - [ ] `PH4-08.03.003`: Compute node voltage magnitude (dB) and phase angle (degrees) across frequency decades.
 - [ ] `PH4-08.03.004`: Implement Bode plot calculation (gain margin, phase margin, 3dB cutoff frequency) for filter and amplifier circuits.
