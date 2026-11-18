@@ -622,6 +622,20 @@ std::vector<const ElementRecord*> ElementDatabase::query(const ElementQuery& q) 
     }
 
     std::stable_sort(out.begin(), out.end(), [&](const ElementRecord* a, const ElementRecord* b) {
+        if (!needle.empty()) {
+            auto score = [&](const ElementRecord* el) -> int {
+                if (std::to_string(el->atomic_number) == needle) return 100;
+                if (to_lower_copy(el->symbol) == needle || to_lower_copy(el->iupac_symbol) == needle) return 90;
+                if (to_lower_copy(el->name) == needle || to_lower_copy(el->iupac_name) == needle) return 80;
+                if (to_lower_copy(el->symbol).rfind(needle, 0) == 0) return 70;
+                if (to_lower_copy(el->name).rfind(needle, 0) == 0) return 60;
+                return 10;
+            };
+            const int sa = score(a);
+            const int sb = score(b);
+            if (sa != sb) return sa > sb;
+        }
+
         if (q.sort_by == ElementSortField::Name) {
             return q.descending ? (a->name > b->name) : (a->name < b->name);
         }

@@ -7,6 +7,7 @@ Rectangle {
     property string placeholderText: ""
     property bool readOnly: false
     property bool monoFont: false
+    property bool clearable: false
     signal editingFinished()
     signal textEdited(string newText)
 
@@ -21,7 +22,7 @@ Rectangle {
         id: input
         anchors.fill: parent
         anchors.leftMargin: 8
-        anchors.rightMargin: 8
+        anchors.rightMargin: (root.clearable && input.text.length > 0) ? 24 : 8
         verticalAlignment: TextInput.AlignVCenter
         color: Theme.textPrimary
         selectionColor: Theme.borderStrong
@@ -33,6 +34,14 @@ Rectangle {
         onEditingFinished: root.editingFinished()
         onTextEdited: root.textEdited(input.text)
 
+        Keys.onEscapePressed: (event) => {
+            if (root.clearable || input.text.length > 0) {
+                input.text = "";
+                root.textEdited("");
+                event.accepted = true;
+            }
+        }
+
         Text {
             anchors.fill: parent
             verticalAlignment: Text.AlignVCenter
@@ -41,6 +50,30 @@ Rectangle {
             font: input.font
             visible: input.text.length === 0 && !input.activeFocus
             elide: Text.ElideRight
+        }
+    }
+
+    Text {
+        id: clearBtn
+        anchors.right: parent.right
+        anchors.rightMargin: 6
+        anchors.verticalCenter: parent.verticalCenter
+        visible: root.clearable && input.text.length > 0
+        text: "✕"
+        font.family: Theme.fontSans
+        font.pixelSize: 11
+        color: clearMa.containsMouse ? Theme.textPrimary : Theme.textMuted
+
+        MouseArea {
+            id: clearMa
+            anchors.fill: parent
+            anchors.margins: -4
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+                input.text = "";
+                root.textEdited("");
+            }
         }
     }
 }

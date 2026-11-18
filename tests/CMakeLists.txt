@@ -157,6 +157,7 @@ add_executable(shunya_unit_tests
     unit/test_p3_stress_and_edge_cases.cpp
     unit/test_p5_elements_indexing.cpp
     unit/test_p5_element_inspector.cpp
+    unit/test_p5_phase_filter.cpp
 )
 
 target_include_directories(shunya_unit_tests

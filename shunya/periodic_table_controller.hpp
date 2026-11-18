@@ -15,6 +15,8 @@ class ShunyaPeriodicTableController : public QObject {
     Q_PROPERTY(QString blockFilter READ blockFilter WRITE setBlockFilter NOTIFY gridChanged)
     Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY gridChanged)
     Q_PROPERTY(QString phaseFilter READ phaseFilter WRITE setPhaseFilter NOTIFY gridChanged)
+    Q_PROPERTY(double envTempK READ envTempK WRITE setEnvTempK NOTIFY envConditionsChanged)
+    Q_PROPERTY(double envPressurePa READ envPressurePa WRITE setEnvPressurePa NOTIFY envConditionsChanged)
     Q_PROPERTY(bool hideFBlock READ hideFBlock WRITE setHideFBlock NOTIFY gridChanged)
     Q_PROPERTY(int selectedAtomicNumber READ selectedAtomicNumber WRITE setSelectedAtomicNumber NOTIFY selectionChanged)
     Q_PROPERTY(QVariantList cells READ cells NOTIFY gridChanged)
@@ -39,6 +41,12 @@ public:
     QString phaseFilter() const { return phase_filter_; }
     Q_INVOKABLE void setPhaseFilter(const QString& phase);
 
+    double envTempK() const { return env_temp_k_; }
+    Q_INVOKABLE void setEnvTempK(double t);
+
+    double envPressurePa() const { return env_pressure_pa_; }
+    Q_INVOKABLE void setEnvPressurePa(double p);
+
     bool hideFBlock() const { return hide_f_block_; }
     Q_INVOKABLE void setHideFBlock(bool hide);
 
@@ -55,6 +63,7 @@ public:
 signals:
     void gridChanged();
     void selectionChanged();
+    void envConditionsChanged();
 
 private:
     void rebuild_grid();
@@ -63,6 +72,8 @@ private:
     QString block_filter_{"All"};
     QString search_text_;
     QString phase_filter_;
+    double env_temp_k_{298.15};
+    double env_pressure_pa_{101325.0};
     bool hide_f_block_{false};
     int selected_z_{1}; // Default Hydrogen (H, Z=1) so inspector is populated on startup
     matdb::PropertyRangeStats range_stats_;

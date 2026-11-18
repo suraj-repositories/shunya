@@ -28,6 +28,8 @@ Rectangle {
             periodicTableController.setSelectedAtomicNumber(selectedZ);
             periodicTableController.setSearchText(searchQuery);
             periodicTableController.setPhaseFilter(phaseFilter);
+            periodicTableController.setEnvTempK(envTempK);
+            periodicTableController.setEnvPressurePa(envPressurePa);
         }
     }
 
@@ -66,6 +68,7 @@ Rectangle {
                 id: searchBox
                 Layout.preferredWidth: 220
                 placeholderText: "Search element, symbol, Z..."
+                clearable: true
                 onTextEdited: (t) => { root.searchQuery = t; root.refreshAll(); }
             }
 
@@ -89,6 +92,7 @@ Rectangle {
                 text: root.viewTableMode ? "Grid View" : "Table View"
                 iconName: "elements"
                 compact: true
+                active: root.viewTableMode
                 onClicked: root.viewTableMode = !root.viewTableMode
             }
         }
@@ -300,7 +304,7 @@ Rectangle {
                                     Layout.fillWidth: true
                                     from: 4; to: 3000; stepSize: 5
                                     value: root.envTempK
-                                    onMoved: { root.envTempK = value; root.behaviorReport = pipeline.evaluateElementBehavior(root.selectedZ, root.envTempK, root.envPressurePa, root.envOxidizing); }
+                                    onMoved: { root.envTempK = value; root.refreshAll(); }
                                 }
                                 Text { text: root.envTempK.toFixed(1) + " K"; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary; Layout.preferredWidth: 68; horizontalAlignment: Text.AlignRight }
                             }
@@ -312,14 +316,14 @@ Rectangle {
                                     Layout.fillWidth: true
                                     from: 0.01; to: 500.0; stepSize: 1.0
                                     value: root.envPressurePa / 101325.0
-                                    onMoved: { root.envPressurePa = value * 101325.0; root.behaviorReport = pipeline.evaluateElementBehavior(root.selectedZ, root.envTempK, root.envPressurePa, root.envOxidizing); }
+                                    onMoved: { root.envPressurePa = value * 101325.0; root.refreshAll(); }
                                 }
                                 MonoButton {
                                     text: root.envOxidizing ? "Air/O2" : "Inert"
                                     compact: true
                                     onClicked: {
                                         root.envOxidizing = !root.envOxidizing;
-                                        root.behaviorReport = pipeline.evaluateElementBehavior(root.selectedZ, root.envTempK, root.envPressurePa, root.envOxidizing);
+                                        root.refreshAll();
                                     }
                                 }
                             }

@@ -384,25 +384,25 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-03: Phase Filtering, Table/Grid Views & Real-Time Multi-Field Search (`ELEMVIEW`)
 
 **Objective:** Implement functional phase filtering buttons with element dimming, seamless switching between Periodic Grid and sortable Table View, and real-time multi-criteria element search.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-03.01: Thermodynamic Phase Filtering & Element Dimming [ ] (0.0% — 7/7)
-- [ ] `PH5-03.01.001`: Configure the `All`, `Solid`, `Liquid`, and `Gas` buttons in `shunya/ElementsWorkspace.qml` as an exclusive toggle group with clear active styling (`Theme.bgActive`, `Theme.borderFocus`).
-- [ ] `PH5-03.01.002`: Bind phase evaluation to the active temperature and pressure $(T, P)$ rather than static room-temperature categories (e.g. Gallium is liquid at 303 K).
-- [ ] `PH5-03.01.003`: Implement cell dimming: non-matching element cells have opacity reduced to `0.28` while matching elements remain at `1.0` opacity.
-- [ ] `PH5-03.01.004`: Ensure non-matching elements remain visible in their structural periodic table positions rather than being removed or collapsing the grid layout.
-- [ ] `PH5-03.01.005`: Guarantee that dimmed elements remain clickable, allowing inspection while maintaining the phase filter highlight.
-- [ ] `PH5-03.01.006`: Add tooltip feedback on dimmed cells explaining why they do not match the active filter at current $(T, P)$.
-- [ ] `PH5-03.01.007`: Add unit test validating thermodynamic phase classification across all 118 elements at 100 K, 298.15 K, and 3000 K.
+### Submodule PH5-03.01: Thermodynamic Phase Filtering & Element Dimming [x] (100.0% — 7/7)
+- [x] `PH5-03.01.001`: Configure the `All`, `Solid`, `Liquid`, and `Gas` buttons in `shunya/ElementsWorkspace.qml` as an exclusive toggle group with clear active styling (`Theme.bgActive`, `Theme.borderFocus`).
+- [x] `PH5-03.01.002`: Bind phase evaluation to the active temperature and pressure $(T, P)$ rather than static room-temperature categories (e.g. Gallium is liquid at 303 K).
+- [x] `PH5-03.01.003`: Implement cell dimming: non-matching element cells have opacity reduced to `0.28` while matching elements remain at `1.0` opacity.
+- [x] `PH5-03.01.004`: Ensure non-matching elements remain visible in their structural periodic table positions rather than being removed or collapsing the grid layout.
+- [x] `PH5-03.01.005`: Guarantee that dimmed elements remain clickable, allowing inspection while maintaining the phase filter highlight.
+- [x] `PH5-03.01.006`: Add tooltip feedback on dimmed cells explaining why they do not match the active filter at current $(T, P)$.
+- [x] `PH5-03.01.007`: Add unit test validating thermodynamic phase classification across all 118 elements at 100 K, 298.15 K, and 3000 K.
 
-### Submodule PH5-03.02: Table View Toggle & Multi-Criteria Search Engine [ ] (0.0% — 7/7)
-- [ ] `PH5-03.02.001`: Implement the `Table View` / `Grid View` toggle button in `ElementsWorkspace.qml` switching between the 2D periodic grid and a sortable data table.
-- [ ] `PH5-03.02.002`: Dynamically update the button label: display `"Table View"` while the grid is visible, and `"Grid View"` while the table is visible.
-- [ ] `PH5-03.02.003`: Provide multi-column sorting in Table View (Atomic Number, Symbol, Name, Density, Melting Point, Boiling Point, Electronegativity).
-- [ ] `PH5-03.02.004`: Implement real-time search box filtering matching against element name (case-insensitive substring), symbol (prefix/exact), or atomic number ($Z$).
-- [ ] `PH5-03.02.005`: In Grid View, highlight search-matching cells with active borders while dimming non-matching cells.
-- [ ] `PH5-03.02.006`: In Table View, filter the list view rows to display only elements matching the search query.
-- [ ] `PH5-03.02.007`: Add clear search button (`(X)`) inside the search input box restoring full view on click or Escape key press.
+### Submodule PH5-03.02: Table View Toggle & Multi-Criteria Search Engine [x] (100.0% — 7/7)
+- [x] `PH5-03.02.001`: Implement the `Table View` / `Grid View` toggle button in `ElementsWorkspace.qml` switching between the 2D periodic grid and a sortable data table.
+- [x] `PH5-03.02.002`: Dynamically update the button label: display `"Table View"` while the grid is visible, and `"Grid View"` while the table is visible.
+- [x] `PH5-03.02.003`: Provide multi-column sorting in Table View (Atomic Number, Symbol, Name, Density, Melting Point, Boiling Point, Electronegativity).
+- [x] `PH5-03.02.004`: Implement real-time search box filtering matching against element name (case-insensitive substring), symbol (prefix/exact), or atomic number ($Z$).
+- [x] `PH5-03.02.005`: In Grid View, highlight search-matching cells with active borders while dimming non-matching cells.
+- [x] `PH5-03.02.006`: In Table View, filter the list view rows to display only elements matching the search query.
+- [x] `PH5-03.02.007`: Add clear search button (`(X)`) inside the search input box restoring full view on click or Escape key press.
 
 ---
 

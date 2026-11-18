@@ -102,9 +102,16 @@ ElementBehaviorReport ElementBehaviorEngine::evaluate(
         r.phase = (temperature_k < r.effective_melting_point_k) ? EvaluatedPhase::Solid : EvaluatedPhase::Liquid;
         r.phase_note = "Boiling_Point unavailable in CSV; solid/liquid boundary only.";
         r.unsupported_properties.push_back("Boiling_Point");
+    } else if (r.has_boiling_point) {
+        r.phase = (temperature_k >= r.effective_boiling_point_k) ? EvaluatedPhase::Gas : EvaluatedPhase::Liquid;
+        r.phase_note = "Melting_Point unavailable in CSV; gas/liquid boundary evaluated.";
+        r.unsupported_properties.push_back("Melting_Point");
     } else {
-        r.phase = EvaluatedPhase::Unknown;
-        r.phase_note = "Melting_Point and Boiling_Point missing in CSV.";
+        if (elem.phase == "Gas") r.phase = EvaluatedPhase::Gas;
+        else if (elem.phase == "Liquid") r.phase = EvaluatedPhase::Liquid;
+        else if (elem.phase == "Solid") r.phase = EvaluatedPhase::Solid;
+        else r.phase = EvaluatedPhase::Unknown;
+        r.phase_note = "Melting_Point and Boiling_Point missing in CSV; fallback to standard phase.";
         r.unsupported_properties.push_back("Melting_Point");
         r.unsupported_properties.push_back("Boiling_Point");
     }

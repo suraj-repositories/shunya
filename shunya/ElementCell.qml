@@ -60,5 +60,5 @@ Rectangle {
     }
 
     ToolTip.visible: ma.containsMouse
-    ToolTip.text: root.symbol + " (" + root.elementName + ", Z=" + root.atomicNumber + ") • " + root.valueLabel
+    ToolTip.text: root.symbol + " (" + root.elementName + ", Z=" + root.atomicNumber + ") • " + root.valueLabel + (root.isHighlighted ? "" : " [Dimmed: Does not match active filter/phase]")
 }

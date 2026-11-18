@@ -59,6 +59,22 @@ void ShunyaPeriodicTableController::setPhaseFilter(const QString& phase) {
     emit gridChanged();
 }
 
+void ShunyaPeriodicTableController::setEnvTempK(double t) {
+    if (std::abs(env_temp_k_ - t) < 1e-4) return;
+    env_temp_k_ = t;
+    rebuild_grid();
+    emit envConditionsChanged();
+    emit gridChanged();
+}
+
+void ShunyaPeriodicTableController::setEnvPressurePa(double p) {
+    if (std::abs(env_pressure_pa_ - p) < 1e-2) return;
+    env_pressure_pa_ = p;
+    rebuild_grid();
+    emit envConditionsChanged();
+    emit gridChanged();
+}
+
 void ShunyaPeriodicTableController::setHideFBlock(bool hide) {
     if (hide_f_block_ == hide) return;
     hide_f_block_ = hide;
@@ -90,17 +106,36 @@ void ShunyaPeriodicTableController::rebuild_grid() {
     const QString phase_need = phase_filter_.trimmed().toLower();
     for (const auto& c : grid) {
         const auto* rec = matdb::ElementDatabase::global().find_by_z(c.atomic_number);
-        bool vis = c.visible;
-        if (vis && !needle.isEmpty()) {
+        bool matches = true;
+        if (!needle.isEmpty()) {
             const QString sym = QString::fromStdString(c.symbol).toLower();
             const QString nm = QString::fromStdString(c.name).toLower();
             const QString iupac = rec ? QString::fromStdString(rec->iupac_symbol).toLower() : "";
             const QString zstr = QString::number(c.atomic_number);
-            vis = sym.contains(needle) || nm.contains(needle) || iupac.contains(needle) || zstr == needle;
+            matches = sym.contains(needle) || nm.contains(needle) || iupac.contains(needle) || zstr == needle;
         }
-        if (vis && !phase_need.isEmpty() && rec) {
-            vis = QString::fromStdString(rec->phase).toLower().contains(phase_need);
+
+        QString evaluated_phase = QStringLiteral("solid");
+        if (rec) {
+            if (rec->melting_point && rec->boiling_point) {
+                if (env_temp_k_ < *rec->melting_point) {
+                    evaluated_phase = QStringLiteral("solid");
+                } else if (env_temp_k_ < *rec->boiling_point) {
+                    evaluated_phase = QStringLiteral("liquid");
+                } else {
+                    evaluated_phase = QStringLiteral("gas");
+                }
+            } else if (rec->melting_point) {
+                evaluated_phase = (env_temp_k_ < *rec->melting_point) ? QStringLiteral("solid") : QStringLiteral("liquid");
+            } else {
+                evaluated_phase = QString::fromStdString(rec->phase).toLower();
+            }
         }
+
+        if (matches && !phase_need.isEmpty()) {
+            matches = evaluated_phase.contains(phase_need);
+        }
+
         QVariantMap m;
         m["z"] = c.atomic_number;
         m["symbol"] = QString::fromStdString(rec && !rec->iupac_symbol.empty() ? rec->iupac_symbol : c.symbol);
@@ -109,13 +144,13 @@ void ShunyaPeriodicTableController::rebuild_grid() {
         m["row"] = c.grid_row;
         m["col"] = c.grid_col;
         m["block"] = QString(QChar::fromLatin1(c.block));
-        m["phase"] = rec ? QString::fromStdString(rec->phase) : QStringLiteral("Solid");
+        m["phase"] = evaluated_phase;
         m["mass"] = rec && rec->atomic_weight ? *rec->atomic_weight : c.atomic_weight_amu;
         m["heat"] = c.normalized_heat;
         m["colorHex"] = QString::fromStdString(c.color_hex);
         m["valueLabel"] = QString::fromStdString(c.formatted_value);
-        m["visible"] = vis;
-        m["highlighted"] = c.highlighted && vis;
+        m["visible"] = c.visible;
+        m["highlighted"] = matches;
         list.append(m);
     }
     cells_cache_ = std::move(list);
