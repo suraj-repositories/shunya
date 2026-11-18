@@ -4,7 +4,7 @@ import QtQuick.Layouts
 
 Rectangle {
     id: root
-    color: "#21252b"
+    color: Theme.bgSurface
 
     property var model: typeof propertyTreeModel !== "undefined" ? propertyTreeModel : null
 
@@ -16,8 +16,8 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             height: 38
-            color: "#1e2227"
-            border.color: "#181a1f"
+            color: Theme.bgElevated
+            border.color: Theme.borderSubtle
             border.width: 1
 
             RowLayout {
@@ -28,8 +28,9 @@ Rectangle {
 
                 Text {
                     text: root.model ? root.model.inspectedTitle : "Property Inspector"
-                    color: "#d7dae0"
-                    font.pixelSize: 12
+                    color: Theme.textPrimary
+                    font.family: Theme.fontSans
+                    font.pixelSize: Theme.fontSm
                     font.bold: true
                     elide: Text.ElideRight
                     Layout.fillWidth: true
@@ -37,17 +38,19 @@ Rectangle {
 
                 // Demo object switcher button
                 Rectangle {
-                    width: 65
+                    width: 75
                     height: 22
-                    color: demoMouse.containsMouse ? "#3b4048" : "#2c313a"
-                    radius: 3
-                    border.color: "#3e4451"
+                    color: demoMouse.containsMouse ? Theme.bgHover : Theme.bgSurface
+                    radius: Theme.radiusSm
+                    border.color: Theme.borderDefault
 
                     Text {
                         anchors.centerIn: parent
                         text: "Switch Demo"
-                        color: "#98c379"
+                        color: Theme.statusSuccess
+                        font.family: Theme.fontSans
                         font.pixelSize: 10
+                        font.weight: Font.DemiBold
                     }
 
                     MouseArea {
@@ -73,8 +76,8 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             height: 32
-            color: "#282c34"
-            border.color: "#181a1f"
+            color: Theme.bgCanvas
+            border.color: Theme.borderSubtle
             border.width: 1
 
             RowLayout {
@@ -89,13 +92,15 @@ Rectangle {
                     id: searchInput
                     Layout.fillWidth: true
                     color: Theme.textPrimary
-                    font.pixelSize: 11
+                    font.family: Theme.fontSans
+                    font.pixelSize: Theme.fontXs
                     selectByMouse: true
 
                     Text {
                         text: "Filter properties..."
                         color: Theme.textSubtle
-                        font.pixelSize: 11
+                        font.family: Theme.fontSans
+                        font.pixelSize: Theme.fontXs
                         font.italic: true
                         visible: parent.text.length === 0 && !parent.activeFocus
                     }
@@ -146,12 +151,12 @@ Rectangle {
                 width: propertyList.width
                 height: model.isCategory ? 26 : 34
 
-                // 1. Category Header Row
+                // 1. Collapsible Category Header Row (Accordion)
                 Rectangle {
                     visible: model.isCategory
                     anchors.fill: parent
-                    color: catMouse.containsMouse ? "#2d323b" : "#282c34"
-                    border.color: "#181a1f"
+                    color: catMouse.containsMouse ? Theme.bgHover : Theme.bgElevated
+                    border.color: Theme.borderSubtle
                     border.width: 1
 
                     RowLayout {
@@ -168,7 +173,8 @@ Rectangle {
 
                         Text {
                             text: model.categoryDisplayName || model.category
-                            color: "#d7dae0"
+                            color: Theme.textPrimary
+                            font.family: Theme.fontSans
                             font.pixelSize: 11
                             font.bold: true
                             Layout.fillWidth: true
@@ -188,11 +194,11 @@ Rectangle {
                     }
                 }
 
-                // 2. Property Value Row
+                // 2. Property Value Row with Numeric Spinbox / Units
                 Rectangle {
                     visible: !model.isCategory
                     anchors.fill: parent
-                    color: propMouse.containsMouse ? "#2c313a" : "transparent"
+                    color: propMouse.containsMouse ? Theme.bgHover : "transparent"
 
                     RowLayout {
                         anchors.fill: parent
@@ -208,7 +214,8 @@ Rectangle {
 
                             Text {
                                 text: model.displayName || model.propertyName
-                                color: model.isReadOnly ? "#7f848e" : "#abb2bf"
+                                color: model.isReadOnly ? Theme.textSubtle : Theme.textSecondary
+                                font.family: Theme.fontSans
                                 font.pixelSize: 11
                                 font.bold: false
                                 elide: Text.ElideRight
@@ -219,7 +226,8 @@ Rectangle {
                             // Formula Indicator
                             Text {
                                 text: "ƒ"
-                                color: "#98c379"
+                                color: Theme.statusSuccess
+                                font.family: Theme.fontMono
                                 font.pixelSize: 11
                                 font.bold: true
                                 visible: model.formula !== "" && model.formula !== undefined
@@ -227,7 +235,7 @@ Rectangle {
                             }
                         }
 
-                        // Property Editor Delegate Factory
+                        // Property Editor Delegate Factory (Supporting units like 10 mm, 2.5 kΩ)
                         PropertyDelegateFactory {
                             Layout.fillWidth: true
                             Layout.preferredHeight: 26
