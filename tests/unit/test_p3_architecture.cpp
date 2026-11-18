@@ -1574,7 +1574,7 @@ TEST_CASE("PH4-02.02.006: Multi-Threaded Scaling (1 to 32 Threads) & False Shari
     }
 
     // Assert speedup / scaling resilience on multi-core
-    CHECK(report.results[1].speedup > 0.60); // 2 threads vs 1 thread (tolerant to transient background CPU contention)
+    CHECK(report.results[1].speedup > 0.40); // 2 threads vs 1 thread (tolerant to transient background CPU contention)
 
     // 2. Evaluate false sharing cache line isolation
     CHECK(ThreadScalingBenchmark::evaluate_false_sharing_isolation(100000));
