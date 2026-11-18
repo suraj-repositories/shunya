@@ -1043,4 +1043,68 @@ private:
     std::unordered_map<std::string, std::unordered_map<std::string, std::string>> view_states_;
 };
 
+// =============================================================================
+// PH4-12.02 & PH4-12.03: Status Bar, Command Palette & Dialog Infrastructure
+// =============================================================================
+
+struct StatusBarState {
+    std::string active_tool{"Select"};
+    double cursor_x_mm{0.0};
+    double cursor_y_mm{0.0};
+    double cursor_z_mm{0.0};
+    bool snap_enabled{true};
+    double snap_grid_mm{1.0};
+    std::string active_unit_system{"Metric (mm, kg, s, A)"};
+    double simulation_clock_sec{0.0};
+    std::string simulation_status{"Stopped"};
+    std::string pipeline_status{"Ready"};
+
+    [[nodiscard]] std::string format_cursor_coords() const;
+    [[nodiscard]] std::string format_snap_status() const;
+    [[nodiscard]] std::string format_clock() const;
+};
+
+struct CommandPaletteEntry {
+    std::string id;
+    std::string title;
+    std::string category; // "Workspace", "Tool", "Menu", "Component", "Simulation"
+    std::string shortcut;
+    std::string icon;
+    std::function<void()> callback{nullptr};
+};
+
+class UnifiedCommandPaletteModel {
+public:
+    UnifiedCommandPaletteModel();
+
+    void register_entry(CommandPaletteEntry entry);
+    [[nodiscard]] const std::vector<CommandPaletteEntry>& all_entries() const noexcept { return entries_; }
+    [[nodiscard]] std::vector<CommandPaletteEntry> search(std::string_view query) const;
+    bool execute_entry(std::string_view id);
+
+private:
+    std::vector<CommandPaletteEntry> entries_;
+};
+
+struct PropertyAccordionSection {
+    std::string section_id;
+    std::string title;
+    bool is_collapsed{false};
+    std::vector<std::pair<std::string, std::string>> properties; // key, formatted value with unit
+};
+
+struct EmptyStateDescriptor {
+    std::string title;
+    std::string description;
+    std::string action_label;
+    std::string icon_name;
+};
+
+struct TelemetryCsvExport {
+    std::vector<std::string> column_names;
+    std::vector<std::vector<double>> rows;
+
+    [[nodiscard]] std::string to_csv_string() const;
+};
+
 } // namespace shunya::core::domain

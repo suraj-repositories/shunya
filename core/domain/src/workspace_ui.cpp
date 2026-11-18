@@ -2056,4 +2056,129 @@ bool WorkspaceNavigationModel::has_view_state(std::string_view workspace_id) con
     return it_ws != view_states_.end() && !it_ws->second.empty();
 }
 
+std::string StatusBarState::format_cursor_coords() const {
+    std::ostringstream oss;
+    oss.setf(std::ios::fixed, std::ios::floatfield);
+    oss.precision(2);
+    oss << "X: " << cursor_x_mm << " mm  Y: " << cursor_y_mm << " mm  Z: " << cursor_z_mm << " mm";
+    return oss.str();
+}
+
+std::string StatusBarState::format_snap_status() const {
+    if (!snap_enabled) return "SNAP: OFF";
+    std::ostringstream oss;
+    oss.setf(std::ios::fixed, std::ios::floatfield);
+    oss.precision(1);
+    oss << "SNAP: ON (" << snap_grid_mm << " mm)";
+    return oss.str();
+}
+
+std::string StatusBarState::format_clock() const {
+    std::ostringstream oss;
+    oss.setf(std::ios::fixed, std::ios::floatfield);
+    oss.precision(2);
+    oss << "Clock: " << simulation_clock_sec << " s [" << simulation_status << "]";
+    return oss.str();
+}
+
+UnifiedCommandPaletteModel::UnifiedCommandPaletteModel() {
+    // Workspaces
+    register_entry({"ws.elements", "Switch to Chemical Elements", "Workspace", "Alt+1", "elements", nullptr});
+    register_entry({"ws.mixing_lab", "Switch to Materials & Mixing Lab", "Workspace", "Alt+2", "mixing", nullptr});
+    register_entry({"ws.objects", "Switch to Physical Objects", "Workspace", "Alt+3", "objects", nullptr});
+    register_entry({"ws.components", "Switch to Functional Components & Battery", "Workspace", "Alt+4", "components", nullptr});
+    register_entry({"ws.circuits", "Switch to Circuit Designer & Simulator", "Workspace", "Alt+5", "circuits", nullptr});
+    register_entry({"ws.editor_2d", "Switch to 2D CAD Editor", "Workspace", "Alt+6", "editor2d", nullptr});
+    register_entry({"ws.editor_3d", "Switch to 3D CAD Viewport", "Workspace", "Alt+7", "editor3d", nullptr});
+    register_entry({"ws.simulation", "Switch to Physics Simulation", "Workspace", "Alt+8", "simulation", nullptr});
+    register_entry({"ws.settings", "Switch to Project Settings", "Workspace", "Alt+9", "settings", nullptr});
+
+    // Menu Actions
+    register_entry({"file.new", "File: New Project...", "Menu", "Ctrl+N", "new", nullptr});
+    register_entry({"file.open", "File: Open Project...", "Menu", "Ctrl+O", "open", nullptr});
+    register_entry({"file.save", "File: Save Project", "Menu", "Ctrl+S", "save", nullptr});
+    register_entry({"file.save_as", "File: Save Project As...", "Menu", "Ctrl+Shift+S", "save", nullptr});
+    register_entry({"edit.undo", "Edit: Undo Circuit Edit", "Menu", "Ctrl+Z", "undo", nullptr});
+    register_entry({"edit.redo", "Edit: Redo Circuit Edit", "Menu", "Ctrl+Y", "redo", nullptr});
+    register_entry({"view.dark_mode", "View: Toggle Dark Mode", "Menu", "", "moon", nullptr});
+    register_entry({"view.console", "View: Toggle Diagnostics Console", "Menu", "F12", "info", nullptr});
+
+    // Tools
+    register_entry({"tool.select", "Tool: Selection Pointer", "Tool", "S", "move", nullptr});
+    register_entry({"tool.wire", "Tool: Wire Routing Interaction", "Tool", "W", "wire", nullptr});
+    register_entry({"tool.extrude", "Tool: 3D Extrude Feature", "Tool", "E", "editor3d", nullptr});
+    register_entry({"tool.erc_drc", "Tool: Run Electrical & Design Rule Check", "Tool", "F7", "check", nullptr});
+
+    // Simulation
+    register_entry({"sim.start", "Simulation: Start Transient Simulation", "Simulation", "F5", "play", nullptr});
+    register_entry({"sim.step", "Simulation: Single Step Forward", "Simulation", "F10", "step", nullptr});
+    register_entry({"sim.pause", "Simulation: Pause Simulation Clock", "Simulation", "F6", "pause", nullptr});
+    register_entry({"sim.stop", "Simulation: Stop and Reset State", "Simulation", "Shift+F5", "stop", nullptr});
+}
+
+void UnifiedCommandPaletteModel::register_entry(CommandPaletteEntry entry) {
+    entries_.push_back(std::move(entry));
+}
+
+std::vector<CommandPaletteEntry> UnifiedCommandPaletteModel::search(std::string_view query) const {
+    if (query.empty()) return entries_;
+
+    std::string lower_query;
+    lower_query.reserve(query.size());
+    for (char c : query) {
+        lower_query.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(c))));
+    }
+
+    std::vector<CommandPaletteEntry> results;
+    for (const auto& e : entries_) {
+        std::string lower_title;
+        lower_title.reserve(e.title.size());
+        for (char c : e.title) lower_title.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(c))));
+
+        std::string lower_cat;
+        lower_cat.reserve(e.category.size());
+        for (char c : e.category) lower_cat.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(c))));
+
+        if (lower_title.find(lower_query) != std::string::npos ||
+            lower_cat.find(lower_query) != std::string::npos ||
+            e.id.find(lower_query) != std::string::npos) {
+            results.push_back(e);
+        }
+    }
+    return results;
+}
+
+bool UnifiedCommandPaletteModel::execute_entry(std::string_view id) {
+    for (const auto& e : entries_) {
+        if (e.id == id) {
+            if (e.callback) {
+                e.callback();
+                return true;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+std::string TelemetryCsvExport::to_csv_string() const {
+    std::ostringstream oss;
+    // Header
+    for (size_t i = 0; i < column_names.size(); ++i) {
+        oss << column_names[i];
+        if (i + 1 < column_names.size()) oss << ",";
+    }
+    oss << "\n";
+
+    // Data rows
+    for (const auto& row : rows) {
+        for (size_t i = 0; i < row.size(); ++i) {
+            oss << row[i];
+            if (i + 1 < row.size()) oss << ",";
+        }
+        oss << "\n";
+    }
+    return oss.str();
+}
+
 } // namespace shunya::core::domain
