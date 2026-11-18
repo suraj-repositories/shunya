@@ -894,7 +894,8 @@ core::base::Result<ObjectComputedProperties> PhysicalObjectManager::evaluate_pro
             *mat->electrical().electrical_resistivity > 0.0) {
             sig = 1.0 / (*mat->electrical().electrical_resistivity);
         }
-        if (r.is_conductive_path && sig > 1.0) {
+        const bool is_cond = r.is_conductive_path || (r.role == RegionFunctionalRole::ConductivePath);
+        if (is_cond && sig > 1.0) {
             p.has_conductive_path = true;
             sigma_eff += vf * sig;
         }

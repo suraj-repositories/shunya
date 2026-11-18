@@ -2225,6 +2225,324 @@ QVariantMap ShunyaPipelineController::validateMeshManifold(const QString& object
 }
 
 // =========================================================================
+// PH5-23: Multi-Region Authoring, Material Pickers & Real Computed Tensors
+// =========================================================================
+
+static core::base::Uuid resolve_material_token(
+    eng::EngineeringWorkspaceState& ws,
+    const std::string& token) {
+    if (token.rfind("elem:", 0) == 0) {
+        std::string sym = token.substr(5);
+        return find_or_promote_element(ws, sym, sym, sym + " Pure Element");
+    }
+    if (token.rfind("comp:", 0) == 0) {
+        std::string formula = token.substr(5);
+        // Find existing compound material by formula/name or register
+        for (const auto& [mid, m] : ws.material_registry().materials()) {
+            if (m.name().find(formula) != std::string::npos) return mid;
+        }
+        core::domain::Material comp(core::base::Uuid::generate_random(), formula,
+                                    core::domain::MaterialPhysicalState::Solid, 2500.0);
+        core::domain::ThermalProperties tp;
+        tp.thermal_conductivity = 1.5;
+        tp.specific_heat_capacity = 800.0;
+        comp.set_thermal(tp);
+        core::domain::ElectricalProperties ep;
+        ep.electrical_conductivity = 1e-12;
+        comp.set_electrical(ep);
+        const auto id = comp.id();
+        (void)ws.material_registry().register_material(std::move(comp));
+        return id;
+    }
+    auto uid = core::base::Uuid::from_string(token);
+    if (uid && ws.material_registry().has_material(*uid)) {
+        return *uid;
+    }
+    // Fallback: check by name
+    if (const auto* m = ws.material_registry().get_material(token)) {
+        return m->id();
+    }
+    // Fallback copper
+    return find_or_promote_element(ws, "copper", "Cu", "Copper Fallback");
+}
+
+QVariantList ShunyaPipelineController::getGroupedMaterialsCatalog() const {
+    QVariantList list;
+
+    // 1. Project Materials (Already registered in MaterialRegistry)
+    for (const auto& [mid, m] : ws_->material_registry().materials()) {
+        QVariantMap item;
+        item["id"] = QString::fromStdString(mid.to_string());
+        item["name"] = QString::fromStdString(m.name());
+        item["category"] = "Project Materials";
+        item["density"] = m.density();
+        item["thermalK"] = m.thermal().thermal_conductivity.value_or(1.0);
+        item["electricalSigma"] = m.electrical().electrical_conductivity.value_or(0.0);
+        item["meltingK"] = m.thermal().melting_point_k.value_or(0.0);
+        item["youngModulus"] = m.mechanical().youngs_modulus_pa.value_or(0.0);
+        item["colorHex"] = "#4a9eff";
+        list.append(item);
+    }
+
+    // 2. Pure Chemical Elements from elements.csv
+    const auto& all_elems = ws_->element_database().all_elements();
+    for (const auto& el : all_elems) {
+        QVariantMap item;
+        item["id"] = "elem:" + QString::fromStdString(el.symbol);
+        item["name"] = QString::fromStdString(el.name + " (" + el.symbol + ")");
+        item["symbol"] = QString::fromStdString(el.symbol);
+        item["category"] = "Elements";
+        item["density"] = el.density.value_or(0.0);
+        item["thermalK"] = el.thermal_conductivity.value_or(0.0);
+        item["electricalSigma"] = el.electrical_conductivity.value_or(0.0);
+        item["meltingK"] = el.melting_point.value_or(0.0);
+        item["youngModulus"] = el.young_modulus.value_or(0.0);
+        item["colorHex"] = el.color.empty() ? "#708090" : QString::fromStdString(el.color);
+        list.append(item);
+    }
+
+    // 3. Common Chemical Compounds
+    struct CompoundPreset { const char* formula; const char* name; double rho; double k; double sig; double tm; double E; const char* col; };
+    static const CompoundPreset compounds[] = {
+        {"SiO2", "Silicon Dioxide / Silica Glass (SiO2)", 2200.0, 1.4, 1e-14, 1986.0, 70e9, "#88ccff"},
+        {"Al2O3", "Alumina Ceramic / Sapphire (Al2O3)", 3980.0, 30.0, 1e-12, 2345.0, 370e9, "#f0f4f8"},
+        {"Fe2O3", "Iron(III) Oxide / Rust (Fe2O3)", 5240.0, 12.5, 1e-6, 1838.0, 200e9, "#cc4433"},
+        {"H2O", "Water / Ice (H2O)", 1000.0, 0.6, 5.5e-6, 273.15, 9e9, "#3388ff"},
+        {"PTFE", "Polytetrafluoroethylene / Teflon (PTFE)", 2200.0, 0.25, 1e-16, 600.0, 0.5e9, "#e2e8f0"},
+        {"SiC", "Silicon Carbide / Carborundum (SiC)", 3210.0, 120.0, 1e-2, 3003.0, 410e9, "#2d3748"},
+        {"GaAs", "Gallium Arsenide Semiconductor (GaAs)", 5320.0, 55.0, 1e-4, 1511.0, 85e9, "#4a5568"},
+        {"TiO2", "Titanium Dioxide / Rutile (TiO2)", 4230.0, 8.5, 1e-12, 2116.0, 230e9, "#cbd5e0"}
+    };
+    for (const auto& c : compounds) {
+        QVariantMap item;
+        item["id"] = "comp:" + QString::fromLatin1(c.formula);
+        item["name"] = QString::fromLatin1(c.name);
+        item["category"] = "Compounds";
+        item["density"] = c.rho;
+        item["thermalK"] = c.k;
+        item["electricalSigma"] = c.sig;
+        item["meltingK"] = c.tm;
+        item["youngModulus"] = c.E;
+        item["colorHex"] = QString::fromLatin1(c.col);
+        list.append(item);
+    }
+
+    // 4. Mixing Lab Saved Experiments / Mixtures
+    for (const auto& exp : ws_->mixture_experiments()) {
+        QVariantMap item;
+        item["id"] = QString::fromStdString(exp.id.to_string());
+        item["name"] = QString::fromStdString(exp.name + " (Custom Mixture)");
+        item["category"] = "My Mixes";
+        item["density"] = exp.user_density_override_kg_m3 > 0.0 ? exp.user_density_override_kg_m3 : 7800.0;
+        item["thermalK"] = 50.0;
+        item["electricalSigma"] = 1e6;
+        item["meltingK"] = exp.temperature_k;
+        item["youngModulus"] = 150e9;
+        item["colorHex"] = "#a78bfa";
+        list.append(item);
+    }
+
+    return list;
+}
+
+QVariantList ShunyaPipelineController::getObjectRegions(const QString& objectId) const {
+    QVariantList list;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) return list;
+    const auto* obj = ws_->object_manager().get_object(*uid);
+    if (!obj) return list;
+
+    for (const auto& r : obj->regions) {
+        QVariantMap item;
+        item["id"] = QString::fromStdString(r.region_id);
+        item["name"] = QString::fromStdString(r.name);
+        item["materialId"] = QString::fromStdString(r.material_id.to_string());
+        const auto* mat = ws_->material_registry().get_material(r.material_id);
+        item["materialName"] = mat ? QString::fromStdString(mat->name()) : "Unassigned Material";
+        item["volumeFraction"] = r.volume_fraction;
+        item["thicknessM"] = r.thickness_m;
+        item["isConductive"] = r.is_conductive_path;
+        item["role"] = QString::fromStdString(std::string(eng::region_functional_role_to_string(r.role)));
+        item["operatingTempK"] = r.operating_temp_k;
+        item["physicalState"] = QString::fromStdString(r.physical_state);
+        item["colorHex"] = r.color_hex.empty() ? (mat ? "#4a9eff" : "#888888") : QString::fromStdString(r.color_hex);
+        item["isVisible"] = r.is_visible;
+        item["isIsolated"] = r.is_isolated;
+        item["isLocked"] = r.is_locked;
+        item["bodyRef"] = QString::fromStdString(r.body_ref);
+        list.append(item);
+    }
+    return list;
+}
+
+QVariantMap ShunyaPipelineController::addObjectRegion(
+    const QString& objectId,
+    const QString& name,
+    const QString& materialId,
+    double volumeFraction,
+    const QString& role,
+    bool isConductive,
+    const QString& bodyRef) {
+    QVariantMap res;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) {
+        res["ok"] = false;
+        res["error"] = "Invalid object UUID.";
+        return res;
+    }
+    auto* obj = const_cast<eng::PhysicalObject*>(ws_->object_manager().get_object(*uid));
+    if (!obj) {
+        res["ok"] = false;
+        res["error"] = "Object not found.";
+        return res;
+    }
+
+    core::base::Uuid matUid = resolve_material_token(*ws_, materialId.toStdString());
+
+    eng::ObjectRegion newReg;
+    newReg.region_id = "reg_" + std::to_string(obj->regions.size() + 1);
+    newReg.name = name.isEmpty() ? ("Region " + std::to_string(obj->regions.size() + 1)) : name.toStdString();
+    newReg.material_id = matUid;
+    newReg.volume_fraction = std::clamp(volumeFraction, 0.01, 1.0);
+    newReg.is_conductive_path = isConductive;
+    newReg.body_ref = bodyRef.toStdString();
+
+    auto roleRes = eng::region_functional_role_from_string(role.toStdString());
+    if (roleRes.is_ok()) newReg.role = roleRes.value();
+
+    obj->regions.push_back(std::move(newReg));
+
+    // Re-normalize volume fractions so sum == 1.0
+    double sumV = 0.0;
+    for (const auto& r : obj->regions) sumV += r.volume_fraction;
+    if (sumV > 1e-9) {
+        for (auto& r : obj->regions) r.volume_fraction /= sumV;
+    }
+
+    auto evalRes = eng::PhysicalObjectManager::evaluate_properties(*obj, ws_->material_registry());
+    if (evalRes.is_ok()) obj->computed = evalRes.value();
+
+    ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, *uid, "Added region to " + obj->name);
+    res["ok"] = true;
+    res["regionId"] = QString::fromStdString(obj->regions.back().region_id);
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::removeObjectRegion(const QString& objectId, const QString& regionId) {
+    QVariantMap res;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) {
+        res["ok"] = false;
+        res["error"] = "Invalid object UUID.";
+        return res;
+    }
+    auto* obj = const_cast<eng::PhysicalObject*>(ws_->object_manager().get_object(*uid));
+    if (!obj) {
+        res["ok"] = false;
+        res["error"] = "Object not found.";
+        return res;
+    }
+    if (obj->regions.size() <= 1) {
+        res["ok"] = false;
+        res["error"] = "Cannot delete the only region of an object. An object must have at least one region.";
+        return res;
+    }
+
+    std::string rid = regionId.toStdString();
+    auto it = std::find_if(obj->regions.begin(), obj->regions.end(), [&](const auto& r) { return r.region_id == rid; });
+    if (it == obj->regions.end()) {
+        res["ok"] = false;
+        res["error"] = "Region ID not found.";
+        return res;
+    }
+
+    obj->regions.erase(it);
+
+    // Re-normalize volume fractions so sum == 1.0
+    double sumV = 0.0;
+    for (const auto& r : obj->regions) sumV += r.volume_fraction;
+    if (sumV > 1e-9) {
+        for (auto& r : obj->regions) r.volume_fraction /= sumV;
+    }
+
+    auto evalRes = eng::PhysicalObjectManager::evaluate_properties(*obj, ws_->material_registry());
+    if (evalRes.is_ok()) obj->computed = evalRes.value();
+
+    ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, *uid, "Removed region from " + obj->name);
+    res["ok"] = true;
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::updateObjectRegion(
+    const QString& objectId,
+    const QString& regionId,
+    const QVariantMap& changes) {
+    QVariantMap res;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) {
+        res["ok"] = false;
+        res["error"] = "Invalid object UUID.";
+        return res;
+    }
+    auto* obj = const_cast<eng::PhysicalObject*>(ws_->object_manager().get_object(*uid));
+    if (!obj) {
+        res["ok"] = false;
+        res["error"] = "Object not found.";
+        return res;
+    }
+
+    std::string rid = regionId.toStdString();
+    auto it = std::find_if(obj->regions.begin(), obj->regions.end(), [&](const auto& r) { return r.region_id == rid; });
+    if (it == obj->regions.end()) {
+        res["ok"] = false;
+        res["error"] = "Region ID not found.";
+        return res;
+    }
+
+    if (changes.contains("name")) it->name = changes["name"].toString().toStdString();
+    if (changes.contains("materialId")) {
+        it->material_id = resolve_material_token(*ws_, changes["materialId"].toString().toStdString());
+    }
+    if (changes.contains("volumeFraction")) {
+        it->volume_fraction = std::clamp(changes["volumeFraction"].toDouble(), 0.001, 1.0);
+        // Re-normalize others
+        double sumV = 0.0;
+        for (const auto& r : obj->regions) sumV += r.volume_fraction;
+        if (sumV > 1e-9) {
+            for (auto& r : obj->regions) r.volume_fraction /= sumV;
+        }
+    }
+    if (changes.contains("isConductive")) it->is_conductive_path = changes["isConductive"].toBool();
+    if (changes.contains("role")) {
+        auto roleRes = eng::region_functional_role_from_string(changes["role"].toString().toStdString());
+        if (roleRes.is_ok()) it->role = roleRes.value();
+    }
+    if (changes.contains("operatingTempK")) it->operating_temp_k = changes["operatingTempK"].toDouble();
+    if (changes.contains("physicalState")) it->physical_state = changes["physicalState"].toString().toStdString();
+    if (changes.contains("colorHex")) it->color_hex = changes["colorHex"].toString().toStdString();
+    if (changes.contains("isVisible")) it->is_visible = changes["isVisible"].toBool();
+    if (changes.contains("isIsolated")) it->is_isolated = changes["isIsolated"].toBool();
+    if (changes.contains("isLocked")) it->is_locked = changes["isLocked"].toBool();
+    if (changes.contains("bodyRef")) it->body_ref = changes["bodyRef"].toString().toStdString();
+
+    auto evalRes = eng::PhysicalObjectManager::evaluate_properties(*obj, ws_->material_registry());
+    if (evalRes.is_ok()) obj->computed = evalRes.value();
+
+    ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, *uid, "Updated region " + it->name);
+    res["ok"] = true;
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::setRegionMaterial(
+    const QString& objectId,
+    const QString& regionId,
+    const QString& materialId) {
+    QVariantMap changes;
+    changes["materialId"] = materialId;
+    return updateObjectRegion(objectId, regionId, changes);
+}
+
+// =========================================================================
 // 4. Component Generator
 // =========================================================================
 QVariantList ShunyaPipelineController::getComponents() const {

@@ -1199,57 +1199,11 @@ Rectangle {
                                     width: parent.width
                                     spacing: 8
 
-                                    Text {
-                                        text: "Material Regions & Sub-Bodies"
-                                        font.family: Theme.fontSans
-                                        font.pixelSize: Theme.fontXs
-                                        font.weight: Font.DemiBold
-                                        color: Theme.textPrimary
-                                    }
-
-                                    ListView {
+                                    ObjectRegionsView {
                                         Layout.fillWidth: true
-                                        implicitHeight: count * 40
-                                        clip: true
-                                        spacing: 4
-                                        model: root.selectedObj ? root.selectedObj.regions : []
-                                        delegate: Rectangle {
-                                            width: ListView.view.width
-                                            height: 36
-                                            radius: Theme.radiusSm
-                                            color: Theme.bgCanvas
-                                            border.color: Theme.borderSubtle
-                                            border.width: 1
-
-                                            RowLayout {
-                                                anchors.fill: parent
-                                                anchors.margins: 8
-                                                spacing: 6
-
-                                                Text {
-                                                    text: modelData.name
-                                                    font.family: Theme.fontSans
-                                                    font.pixelSize: Theme.fontXs
-                                                    font.weight: Font.Medium
-                                                    color: Theme.textPrimary
-                                                    Layout.preferredWidth: 90
-                                                }
-
-                                                Text {
-                                                    text: modelData.materialName
-                                                    font.family: Theme.fontSans
-                                                    font.pixelSize: Theme.fontXs
-                                                    color: Theme.textSecondary
-                                                    Layout.fillWidth: true
-                                                    elide: Text.ElideRight
-                                                }
-
-                                                MonoBadge {
-                                                    text: (modelData.volumeFraction * 100).toFixed(0) + "% vol"
-                                                    tone: "neutral"
-                                                }
-                                            }
-                                        }
+                                        implicitHeight: 380
+                                        objectId: root.selectedObj ? root.selectedObj.id : ""
+                                        onRegionsChanged: root.refreshAll()
                                     }
                                 }
 

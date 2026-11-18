@@ -99,6 +99,35 @@ struct ObjectGeometrySpec {
     [[nodiscard]] static cad3d::SolidMesh3D shell_solid_mesh(const cad3d::SolidMesh3D& solid, double thickness_m);
 };
 
+// Functional Role for Object Sub-Body Regions
+enum class RegionFunctionalRole : uint8_t {
+    Structural,
+    ConductivePath,
+    ThermalConductor,
+    DielectricSpacer,
+    ActiveEmitter
+};
+
+[[nodiscard]] constexpr std::string_view region_functional_role_to_string(RegionFunctionalRole r) noexcept {
+    switch (r) {
+    case RegionFunctionalRole::Structural:        return "Structural";
+    case RegionFunctionalRole::ConductivePath:   return "ConductivePath";
+    case RegionFunctionalRole::ThermalConductor:  return "ThermalConductor";
+    case RegionFunctionalRole::DielectricSpacer:  return "DielectricSpacer";
+    case RegionFunctionalRole::ActiveEmitter:     return "ActiveEmitter";
+    }
+    return "Structural";
+}
+
+[[nodiscard]] inline core::base::Result<RegionFunctionalRole> region_functional_role_from_string(std::string_view s) {
+    if (s == "Structural") return RegionFunctionalRole::Structural;
+    if (s == "ConductivePath" || s == "Conductive") return RegionFunctionalRole::ConductivePath;
+    if (s == "ThermalConductor" || s == "Thermal") return RegionFunctionalRole::ThermalConductor;
+    if (s == "DielectricSpacer" || s == "Dielectric" || s == "Insulator") return RegionFunctionalRole::DielectricSpacer;
+    if (s == "ActiveEmitter" || s == "Emitter") return RegionFunctionalRole::ActiveEmitter;
+    return core::base::Error{.code = 4315, .domain = core::base::ErrorDomain::Validation, .severity = core::base::Severity::Error, .message = "Unknown region functional role: " + std::string(s), .details = ""};
+}
+
 struct ObjectRegion {
     std::string region_id{"whole"};
     std::string name{"Primary Body"};
@@ -106,6 +135,23 @@ struct ObjectRegion {
     double volume_fraction{1.0};
     double thickness_m{0.0};
     bool is_conductive_path{true};
+    std::string body_ref;
+    RegionFunctionalRole role{RegionFunctionalRole::Structural};
+    double operating_temp_k{293.15};
+    std::string physical_state{"Solid"};
+    std::string color_hex;
+    bool is_visible{true};
+    bool is_isolated{false};
+    bool is_locked{false};
+
+    ObjectRegion() = default;
+    ObjectRegion(std::string id, std::string nm, core::base::Uuid mat, double vf = 1.0, double thick = 0.0, bool cond = true,
+                 std::string bref = "", RegionFunctionalRole r = RegionFunctionalRole::Structural,
+                 double temp = 293.15, std::string state = "Solid", std::string col = "")
+        : region_id(std::move(id)), name(std::move(nm)), material_id(std::move(mat)),
+          volume_fraction(vf), thickness_m(thick), is_conductive_path(cond),
+          body_ref(std::move(bref)), role(r), operating_temp_k(temp), physical_state(std::move(state)),
+          color_hex(std::move(col)) {}
 };
 
 struct ObjectComputedProperties {

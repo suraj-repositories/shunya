@@ -57,7 +57,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 20 | `OBJ-AUDIT` | Single Source of Truth, Data Consistency & Initial Bug Fixes | P0 | 14 | 14 | 100.0% | `[x]` |
 | 21 | `OBJ-LAYOUT` | Workspace Layout, Multi-Pane Splitters & Viewport Maximization | P0 | 12 | 12 | 100.0% | `[x]` |
 | 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 14 | 100.0% | `[x]` |
-| 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 14 | 100.0% | `[x]` |
 | 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 0 | 0.0% | `[ ]` |
 | 25 | `OBJ-VIEW3D` | Blender-Style 3D Viewport, Gizmos, Edit Modes & Modeling Tools | P0 | 16 | 0 | 0.0% | `[ ]` |
 | 26 | `OBJ-TEST` | Object Multi-Domain Physics Test Bench (Thermal, Electrical, Mechanical, Vacuum) | P0 | 14 | 0 | 0.0% | `[ ]` |
@@ -68,7 +68,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
 | 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **302** | **66.8%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **316** | **69.9%** | `[~]` |
 | 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 0 | 0.0% | `[ ]` |
@@ -944,29 +944,29 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-23: Multi-Region Authoring, Material Pickers & Real Computed Tensors (`OBJ-MATREG`)
 
 **Objective:** Transform single-material primitives into true multi-region objects where sub-bodies and volume fractions bind directly to periodic elements, chemical compounds, and Mixing Lab custom mixtures, generating real physical property tensors.  
-**Priority:** P0 | **Complexity:** High | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** High | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-23.01: Multi-Region Architecture & Geometry Binding [ ] (0.0% — 7/7)
-- [ ] `PH5-23.01.001`: Refactor `ObjectRegion` in `core/domain/include/shunya/eng/physical_object.hpp` to support direct binding to sub-body meshes (`bodyRef`) or volumetric slices (`volumeFraction`).
-- [ ] `PH5-23.01.002`: Support assigning an operational temperature ($T$), initial state (Solid, Liquid, Gas), and functional role (`Structural`, `ConductivePath`, `ThermalConductor`, `DielectricSpacer`, `ActiveEmitter`) per region.
-- [ ] `PH5-23.01.003`: Build interactive Multi-Region editor in `shunya/ObjectRegionsView.qml`: add region, remove region, edit name, assign sub-body, and set volume fraction.
-- [ ] `PH5-23.01.004`: Implement viewport region selection: clicking a sub-body in the 3D viewport selects its region in the list and highlights its geometry in the viewport.
-- [ ] `PH5-23.01.005`: Color-code regions in the 3D viewport by their assigned material's optical color or CPK element standard.
-- [ ] `PH5-23.01.006`: Provide region display toggles: Visibility (eye icon), Isolate (solo view), and Lock (prevent accidental edits).
-- [ ] `PH5-23.01.007`: Display live volume distribution bar showing percentage split per region and asserting $\sum V_i \equiv 100\%$.
+### Submodule PH5-23.01: Multi-Region Architecture & Geometry Binding [x] (100.0% — 7/7)
+- [x] `PH5-23.01.001`: Refactor `ObjectRegion` in `core/domain/include/shunya/eng/physical_object.hpp` to support direct binding to sub-body meshes (`bodyRef`) or volumetric slices (`volumeFraction`).
+- [x] `PH5-23.01.002`: Support assigning an operational temperature ($T$), initial state (Solid, Liquid, Gas), and functional role (`Structural`, `ConductivePath`, `ThermalConductor`, `DielectricSpacer`, `ActiveEmitter`) per region.
+- [x] `PH5-23.01.003`: Build interactive Multi-Region editor in `shunya/ObjectRegionsView.qml`: add region, remove region, edit name, assign sub-body, and set volume fraction.
+- [x] `PH5-23.01.004`: Implement viewport region selection: clicking a sub-body in the 3D viewport selects its region in the list and highlights its geometry in the viewport.
+- [x] `PH5-23.01.005`: Color-code regions in the 3D viewport by their assigned material's optical color or CPK element standard.
+- [x] `PH5-23.01.006`: Provide region display toggles: Visibility (eye icon), Isolate (solo view), and Lock (prevent accidental edits).
+- [x] `PH5-23.01.007`: Display live volume distribution bar showing percentage split per region and asserting $\sum V_i \equiv 100\%$.
 
-### Submodule PH5-23.02: Material Picker & Physical Tensor Derivation [ ] (0.0% — 7/7)
-- [ ] `PH5-23.02.001`: Create `shunya/MaterialPickerCombo.qml` with search filtering and categorization:
+### Submodule PH5-23.02: Material Picker & Physical Tensor Derivation [x] (100.0% — 7/7)
+- [x] `PH5-23.02.001`: Create `shunya/MaterialPickerCombo.qml` with search filtering and categorization:
   - **Elements:** 118 pure elements from `elements.csv` (Cu, Al, Fe, W, Au, Si, etc.).
   - **Compounds:** author-defined chemical compounds ($\text{SiO}_2$, $\text{Al}_2\text{O}_3$, $\text{Fe}_2\text{O}_3$, $\text{H}_2\text{O}$).
   - **My Mixes:** custom alloys, composites, and solutions synthesized in the Mixing Lab.
   - **Shared Materials:** imported or project-registered materials.
-- [ ] `PH5-23.02.002`: Display hover property preview card in the material picker: density ($\rho$), thermal conductivity ($k$), electrical conductivity ($\sigma$), melting point ($T_m$), and Young's modulus ($E$).
-- [ ] `PH5-23.02.003`: Compute exact composite mass: $M = \sum (\rho_i \cdot V_i)$ and effective density $\rho_{\text{eff}} = \frac{M}{V_{\text{total}}}$.
-- [ ] `PH5-23.02.004`: Compute 3D center of mass vector: $\vec{R}_{\text{com}} = \frac{1}{M} \sum (\rho_i \iiint \vec{r} \, dV_i)$ using Gauss divergence theorem over surface meshes.
-- [ ] `PH5-23.02.005`: Compute 3x3 mass moment of inertia tensor $\mathbf{I}$ around center of mass: $I_{xx}, I_{yy}, I_{zz}, I_{xy}, I_{yz}, I_{zx}$.
-- [ ] `PH5-23.02.006`: Compute geometry-aware axial electrical resistance $R = \int \frac{\rho_e(x)}{A(x)} \, dx$ along the principal axis or between user-selected terminal contacts.
-- [ ] `PH5-23.02.007`: Compute lump thermal mass $C_{\text{th}} = \sum (m_i \cdot c_{p,i})$ and thermal resistance $R_{\text{th}} = \frac{L}{k_{\text{eff}} A}$.
+- [x] `PH5-23.02.002`: Display hover property preview card in the material picker: density ($\rho$), thermal conductivity ($k$), electrical conductivity ($\sigma$), melting point ($T_m$), and Young's modulus ($E$).
+- [x] `PH5-23.02.003`: Compute exact composite mass: $M = \sum (\rho_i \cdot V_i)$ and effective density $\rho_{\text{eff}} = \frac{M}{V_{\text{total}}}$.
+- [x] `PH5-23.02.004`: Compute 3D center of mass vector: $\vec{R}_{\text{com}} = \frac{1}{M} \sum (\rho_i \iiint \vec{r} \, dV_i)$ using Gauss divergence theorem over surface meshes.
+- [x] `PH5-23.02.005`: Compute 3x3 mass moment of inertia tensor $\mathbf{I}$ around center of mass: $I_{xx}, I_{yy}, I_{zz}, I_{xy}, I_{yz}, I_{zx}$.
+- [x] `PH5-23.02.006`: Compute geometry-aware axial electrical resistance $R = \int \frac{\rho_e(x)}{A(x)} \, dx$ along the principal axis or between user-selected terminal contacts.
+- [x] `PH5-23.02.007`: Compute lump thermal mass $C_{\text{th}} = \sum (m_i \cdot c_{p,i})$ and thermal resistance $R_{\text{th}} = \frac{L}{k_{\text{eff}} A}$.
 
 ---
 

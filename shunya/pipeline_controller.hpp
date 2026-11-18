@@ -273,6 +273,27 @@ public:
         const QString& targetName = "");
     Q_INVOKABLE QVariantMap validateMeshManifold(const QString& objectId) const;
 
+    // Multi-Region Authoring, Material Pickers & Real Computed Tensors (OBJ-MATREG)
+    Q_INVOKABLE QVariantList getGroupedMaterialsCatalog() const;
+    Q_INVOKABLE QVariantList getObjectRegions(const QString& objectId) const;
+    Q_INVOKABLE QVariantMap addObjectRegion(
+        const QString& objectId,
+        const QString& name,
+        const QString& materialId,
+        double volumeFraction,
+        const QString& role = "Structural",
+        bool isConductive = false,
+        const QString& bodyRef = "");
+    Q_INVOKABLE QVariantMap removeObjectRegion(const QString& objectId, const QString& regionId);
+    Q_INVOKABLE QVariantMap updateObjectRegion(
+        const QString& objectId,
+        const QString& regionId,
+        const QVariantMap& changes);
+    Q_INVOKABLE QVariantMap setRegionMaterial(
+        const QString& objectId,
+        const QString& regionId,
+        const QString& materialId);
+
     // =========================================================================
     // 4. Functional Circuit Components (OBJCMP)
     // =========================================================================
