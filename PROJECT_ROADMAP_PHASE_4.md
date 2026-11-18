@@ -842,18 +842,18 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
 **Priority:** P1 | **Complexity:** High | **Dependencies:** `CAD3D`, `OPT` | **Status:** `[ ] Not Started` (0/20)
 
 ### Submodule PH4-11.01: Non-Destructive 3D Modifiers
-- [ ] `PH4-11.01.001`: Architect a modifier stack pipeline where mesh geometry is evaluated dynamically through ordered non-destructive modifier stages.
-- [ ] `PH4-11.01.002`: Implement **Mirror Modifier**: mirror geometry across X, Y, or Z axes with vertex clipping and center-merge thresholds.
-- [ ] `PH4-11.01.003`: Implement **Array Modifier**: create repetitive linear, circular, or object-offset copies of geometry.
-- [ ] `PH4-11.01.004`: Implement **Solidify Modifier**: extrude closed surfaces to give uniform skin thickness to thin sheet-metal models.
-- [ ] `PH4-11.01.005`: Implement **Subdivision Surface (Subsurf)**: Catmull-Clark iterative subdivision with edge-crease weighting.
-- [ ] `PH4-11.01.006`: Implement **Decimate Modifier**: simplify dense meshes using Quadric Error Metric (QEM) edge collapse while preserving volume and UVs.
-- [ ] `PH4-11.01.007`: Implement "Apply Modifier" operation that bakes the procedural stack permanently into the core `HalfEdgeMesh`.
+- [x] `PH4-11.01.001`: Architect a modifier stack pipeline where mesh geometry is evaluated dynamically through ordered non-destructive modifier stages.
+- [x] `PH4-11.01.002`: Implement **Mirror Modifier**: mirror geometry across X, Y, or Z axes with vertex clipping and center-merge thresholds.
+- [x] `PH4-11.01.003`: Implement **Array Modifier**: create repetitive linear, circular, or object-offset copies of geometry.
+- [x] `PH4-11.01.004`: Implement **Solidify Modifier**: extrude closed surfaces to give uniform skin thickness to thin sheet-metal models.
+- [x] `PH4-11.01.005`: Implement **Subdivision Surface (Subsurf)**: Catmull-Clark iterative subdivision with edge-crease weighting.
+- [x] `PH4-11.01.006`: Implement **Decimate Modifier**: simplify dense meshes using Quadric Error Metric (QEM) edge collapse while preserving volume and UVs.
+- [x] `PH4-11.01.007`: Implement "Apply Modifier" operation that bakes the procedural stack permanently into the core `HalfEdgeMesh`.
 
 ### Submodule PH4-11.02: Foundational Organic Mesh & Sculpting Tools
-- [ ] `PH4-11.02.001`: Implement base organic mesh creation tools: Quad sphere, Icosphere with multi-resolution levels.
-- [ ] `PH4-11.02.002`: Implement interactive brush deformation tools: Clay brush, Smooth brush, Grab brush, and Inflate/Deflate brush.
-- [ ] `PH4-11.02.003`: Support dynamic topological symmetry (X-axis bilateral symmetry) during surface sculpting.
+- [x] `PH4-11.02.001`: Implement base organic mesh creation tools: Quad sphere, Icosphere with multi-resolution levels.
+- [x] `PH4-11.02.002`: Implement interactive brush deformation tools: Clay brush, Smooth brush, Grab brush, and Inflate/Deflate brush.
+- [x] `PH4-11.02.003`: Support dynamic topological symmetry (X-axis bilateral symmetry) during surface sculpting.
 - [ ] `PH4-11.02.004`: Add dynamic vertex masking: protect specific mesh regions from brush deformation during sculpting.
 - [ ] `PH4-11.02.005`: Implement mesh surface smoothing and normal smoothing passes.
 
