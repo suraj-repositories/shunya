@@ -355,6 +355,7 @@ add_library(shunya_domain_eng OBJECT
     src/physim/joint_constraints.cpp
     src/physim/simulation_controller.cpp
     src/cosim/master_coordinator.cpp
+    src/cosim/demonstrator_machines.cpp
 )
 shunya_configure_domain_target(shunya_domain_eng)
 target_link_libraries(shunya_domain_eng
