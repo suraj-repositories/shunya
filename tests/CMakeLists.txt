@@ -43,6 +43,8 @@ add_executable(shunya_unit_tests
     unit/test_phase4_backward_compatibility.cpp
     unit/test_phase4_ui.cpp
     unit/test_phase4_viewport_ssim.cpp
+    unit/test_phase4_sketch_interactions.cpp
+    unit/test_phase4_theme_toggling.cpp
     unit/test_ui_docking.cpp
     unit/test_ui_ribbon_command.cpp
     unit/test_ui_property_inspector.cpp
