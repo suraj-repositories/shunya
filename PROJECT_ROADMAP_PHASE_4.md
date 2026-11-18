@@ -33,13 +33,13 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 5 | `CAD3D` | Professional 3D Modeling & Mesh Geometry Engine | P0 | 26 | 26 | 100.0% | `[x]` |
 | 6 | `ECAD3D` | 3D Electronic Component Designer & Specification Engine | P0 | 24 | 24 | 100.0% | `[x]` |
 | 7 | `LIB30` | 30-Component Library & Dual 3D/2D Symbol System | P0 | 30 | 30 | 100.0% | `[x]` |
-| 8 | `CIRSIM` | Dedicated Circuit Simulation Engine (DC, AC, Transient & Non-Linear) | P0 | 26 | 22 | 84.6% | `[~]` |
+| 8 | `CIRSIM` | Dedicated Circuit Simulation Engine (DC, AC, Transient & Non-Linear) | P0 | 26 | 23 | 88.5% | `[~]` |
 | 9 | `PHYSIM` | 3D Physics & Multi-Body Mechanical Machine Simulator | P0 | 26 | 0 | 0.0% | `[ ]` |
 | 10 | `COSIM` | Circuit-to-3D Electro-Mechanical Simulation Integration | P0 | 24 | 0 | 0.0% | `[ ]` |
 | 11 | `RIG3D` | Advanced Modifiers, Organic Modeling & Skeletal Rigging | P1 | 20 | 0 | 0.0% | `[ ]` |
 | 12 | `UIUX` | Professional UI Polish & VS Code-Style Menu System | P0 | 18 | 0 | 0.0% | `[ ]` |
 | 13 | `QA` | Verification, Test Automation & CI/CD Pipeline | P0 | 20 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 4 Integrated Engineering Platform** | **--** | **312** | **198** | **63.5%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 4 Integrated Engineering Platform** | **--** | **312** | **199** | **63.8%** | `[~]` |
 
 ---
 
@@ -706,7 +706,7 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
 ## Module PH4-08: Dedicated Circuit Simulation Engine (`CIRSIM`)
 
 **Objective:** Build a dedicated, robust, SPICE-grade circuit simulation engine supporting non-linear DC operating point, AC frequency response, and transient numerical integration.  
-**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT`, `LIB30` | **Status:** `[~] In Progress` (22/26 — 84.6%)
+**Priority:** P0 | **Complexity:** Very High | **Dependencies:** `AUDIT`, `OPT`, `LIB30` | **Status:** `[~] In Progress` (23/26 — 88.5%)
 
 ### Submodule PH4-08.01: Schematic Topology Parsing & Netlist Matrix Formulation [x] (100.0% — 6/6)
 - [x] `PH4-08.01.001`: Implement high-speed schematic graph parsing converting graphical symbols and wires into an electrical nodal netlist.
@@ -733,12 +733,13 @@ For each component below, the roadmap requires: (a) 3D Model, (b) 2D Circuit Sym
 - [x] `PH4-08.03.005`: Add impedance matching and resonant frequency detection for RLC circuits.
 - [x] `PH4-08.03.006`: Connect AC simulation results to the desktop interactive scientific plotter item (`ScientificPlot.qml`).
 
-### Submodule PH4-08.04: Transient Time-Domain Analysis & Dynamic Energy Storage [~] (4/7)
+### Submodule PH4-08.04: Transient Time-Domain Analysis & Dynamic Energy Storage [~] (5/7)
 - [x] `PH4-08.04.001`: Implement Trapezoidal and Gear (BDF2) implicit numerical integration schemes for differential algebraic equation (DAE) solving.
 - [x] `PH4-08.04.002`: Implement adaptive time-stepping based on local truncation error (LTE) estimation to capture fast voltage edges while accelerating steady state.
 - [x] `PH4-08.04.003`: Model dynamic capacitor charging/discharging transients with accurate companion models ($C / \Delta t$).
 - [x] `PH4-08.04.004`: Model inductor energy storage, inductive back-EMF, and magnetic saturation curves.
-- [ ] `PH4-08.04.005`: Integrate the 7-region Lithium-ion battery model into the transient solver, tracking capacity depletion and thermal rise under dynamic loads.
+- [x] `PH4-08.04.005`: Integrate the 7-region Lithium-ion battery model into the transient solver, tracking capacity depletion and thermal rise under dynamic loads.
+- [ ] `PH4-08.04.006`: Provide real-time virtual oscilloscope probe points allowing users to click any wire or pin to view live waveforms.
 - [ ] `PH4-08.04.003`: Model dynamic capacitor charging/discharging transients with accurate companion models ($C / \Delta t$).
 - [ ] `PH4-08.04.004`: Model inductor energy storage, inductive back-EMF, and magnetic saturation curves.
 - [ ] `PH4-08.04.005`: Integrate the 7-region Lithium-ion battery model into the transient solver, tracking capacity depletion and thermal rise under dynamic loads.
