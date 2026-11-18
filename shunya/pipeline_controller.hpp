@@ -106,6 +106,47 @@ public:
         const QVariantList& inputs,
         const QString& presetEnvName) const;
 
+    Q_INVOKABLE QVariantMap analyzeAtomicBonds(
+        const QString& scenario,
+        const QVariantList& inputs) const;
+
+    Q_INVOKABLE QVariantMap compareMaterialMetrics(
+        const QString& name,
+        const QString& scenario,
+        double density,
+        double thermalK,
+        double electricalSigma,
+        double meltingK,
+        const QVariantList& inputs) const;
+
+    Q_INVOKABLE QVariantMap rankMaterialsForGoal(
+        const QString& goal,
+        const QString& currentName,
+        const QString& scenario,
+        double density,
+        double thermalK,
+        double electricalSigma,
+        double meltingK,
+        const QVariantList& inputs) const;
+
+    Q_INVOKABLE QVariantMap explainMaterial(
+        const QString& name,
+        const QString& scenario,
+        double density,
+        double thermalK,
+        double electricalSigma,
+        double meltingK,
+        const QVariantList& inputs) const;
+
+    Q_INVOKABLE QString exportMaterialReportMarkdown(
+        const QString& name,
+        const QString& scenario,
+        double density,
+        double thermalK,
+        double electricalSigma,
+        double meltingK,
+        const QVariantList& inputs) const;
+
     Q_INVOKABLE QVariantMap saveAndPromoteMixture(
         const QString& expId,
         const QString& name,

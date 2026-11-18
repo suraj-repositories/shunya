@@ -3,6 +3,8 @@
 #include "viewport_3d_item.hpp"
 #include "shunya/matdb/elements_118_catalog.hpp"
 #include "shunya/mat/virtual_test_bench.hpp"
+#include "shunya/mat/atomic_bond_checker.hpp"
+#include "shunya/mat/material_comparison_engine.hpp"
 
 #include <QFileInfo>
 #include <QUrl>
@@ -537,6 +539,257 @@ QVariantMap ShunyaPipelineController::qualifyMixtureTestBench(
     out["criticalFailures"] = strVecToList(report.critical_failures);
     out["recommendations"] = strVecToList(report.engineering_recommendations);
     return out;
+}
+
+QVariantMap ShunyaPipelineController::analyzeAtomicBonds(
+    const QString& scenario,
+    const QVariantList& inputs) const {
+    QVariantMap out;
+    auto in_list = inputsFromVariantList(inputs);
+    std::vector<const matdb::ElementRecord*> elements;
+    std::vector<double> mole_fractions;
+    const auto& db = ws_->element_database();
+
+    for (const auto& in : in_list) {
+        const auto* el = db.find_by_symbol(in.symbol_or_id);
+        if (!el) el = matdb::ElementDatabase::global().find_by_symbol(in.symbol_or_id);
+        if (el) {
+            elements.push_back(el);
+            mole_fractions.push_back(in.amount);
+        }
+    }
+
+    auto report = mat::AtomicBondChecker::analyze_mixture(elements, mole_fractions, scenario.toStdString());
+
+    out["isCompatible"] = report.is_formation_scenario_compatible;
+    out["primaryBondType"] = QString::fromStdString(report.primary_overall_bond_type);
+    out["overallMiscibility"] = QString::fromStdString(report.overall_miscibility);
+
+    QVariantList pairs;
+    for (const auto& p : report.pairwise_analyses) {
+        QVariantMap pm;
+        pm["elementA"] = QString::fromStdString(p.element_a);
+        pm["elementB"] = QString::fromStdString(p.element_b);
+        pm["deltaElectronegativity"] = p.delta_electronegativity;
+        pm["radiusDifferencePct"] = p.radius_difference_pct;
+        pm["bondType"] = QString::fromStdString(std::string(mat::atomic_bond_type_to_string(p.primary_bond_type)));
+        pm["miscibility"] = QString::fromStdString(std::string(mat::miscibility_state_to_string(p.miscibility)));
+        pm["isHazardous"] = p.is_hazardous;
+        pm["hazardWarning"] = QString::fromStdString(p.hazard_warning);
+        pm["plainLanguageVerdict"] = QString::fromStdString(p.plain_language_verdict);
+        pm["crystalStructures"] = QString::fromStdString(p.crystal_structures);
+        pairs.append(pm);
+    }
+    out["pairwise"] = pairs;
+    out["stoichiometricSuggestions"] = strVecToList(report.stoichiometric_suggestions);
+    out["warnings"] = strVecToList(report.chemical_warnings);
+    out["recommendations"] = strVecToList(report.recommendations);
+    return out;
+}
+
+QVariantMap ShunyaPipelineController::compareMaterialMetrics(
+    const QString& name,
+    const QString& scenario,
+    double density,
+    double thermalK,
+    double electricalSigma,
+    double meltingK,
+    const QVariantList& inputs) const {
+    QVariantMap out;
+    auto in_list = inputsFromVariantList(inputs);
+    std::vector<const matdb::ElementRecord*> elements;
+    std::vector<double> mass_fractions;
+    const auto& db = ws_->element_database();
+
+    for (const auto& in : in_list) {
+        const auto* el = db.find_by_symbol(in.symbol_or_id);
+        if (!el) el = matdb::ElementDatabase::global().find_by_symbol(in.symbol_or_id);
+        if (el) {
+            elements.push_back(el);
+            mass_fractions.push_back(in.amount);
+        }
+    }
+
+    auto current_mat = mat::MaterialComparisonEngine::evaluate_mixture(
+        name.toStdString(), elements, mass_fractions,
+        density, thermalK, electricalSigma, meltingK, scenario.toStdString());
+
+    std::vector<mat::MaterialMetricScores> candidates;
+    candidates.push_back(current_mat);
+
+    for (const auto* el : elements) {
+        candidates.push_back(mat::MaterialComparisonEngine::evaluate_element(*el));
+    }
+
+    for (const auto& [id, pm] : ws_->material_registry().materials()) {
+        mat::MaterialMetricScores s;
+        s.material_name = pm.name();
+        s.density = pm.density();
+        s.thermal_conductivity = pm.thermal().thermal_conductivity.value_or(20.0);
+        s.electrical_conductivity = pm.electrical().electrical_conductivity.value_or(5.0e6) / 1e6;
+        s.temperature_tolerance = pm.thermal().melting_point_k.value_or(1000.0);
+        s.corrosion_resistance = 70.0;
+        s.mechanical_strength = pm.mechanical().yield_strength_pa.value_or(250.0e6) / 1e6;
+        s.economic_abundance = 70.0;
+        s.emi_shielding = std::clamp(s.electrical_conductivity * 1.5, 10.0, 95.0);
+        candidates.push_back(s);
+    }
+
+    mat::MaterialComparisonEngine::normalize_radar_scores(candidates);
+
+    QVariantList cand_list;
+    for (const auto& c : candidates) {
+        QVariantMap cm;
+        cm["name"] = QString::fromStdString(c.material_name);
+        cm["electricalConductivity"] = c.electrical_conductivity;
+        cm["thermalConductivity"] = c.thermal_conductivity;
+        cm["temperatureTolerance"] = c.temperature_tolerance;
+        cm["corrosionResistance"] = c.corrosion_resistance;
+        cm["density"] = c.density;
+        cm["mechanicalStrength"] = c.mechanical_strength;
+        cm["economicAbundance"] = c.economic_abundance;
+        cm["emiShielding"] = c.emi_shielding;
+
+        QVariantList radar_scores;
+        for (double r : c.normalized_radar) radar_scores.append(r);
+        cm["radarScores"] = radar_scores;
+
+        cand_list.append(cm);
+    }
+
+    out["materials"] = cand_list;
+    out["currentMaterial"] = cand_list.isEmpty() ? QVariantMap() : cand_list.first().toMap();
+    return out;
+}
+
+QVariantMap ShunyaPipelineController::rankMaterialsForGoal(
+    const QString& goal,
+    const QString& currentName,
+    const QString& scenario,
+    double density,
+    double thermalK,
+    double electricalSigma,
+    double meltingK,
+    const QVariantList& inputs) const {
+    auto comp = compareMaterialMetrics(currentName, scenario, density, thermalK, electricalSigma, meltingK, inputs);
+    auto mats = comp["materials"].toList();
+
+    std::vector<mat::MaterialMetricScores> candidates;
+    for (const auto& v : mats) {
+        auto m = v.toMap();
+        mat::MaterialMetricScores s;
+        s.material_name = m["name"].toString().toStdString();
+        s.electrical_conductivity = m["electricalConductivity"].toDouble();
+        s.thermal_conductivity = m["thermalConductivity"].toDouble();
+        s.temperature_tolerance = m["temperatureTolerance"].toDouble();
+        s.corrosion_resistance = m["corrosionResistance"].toDouble();
+        s.density = m["density"].toDouble();
+        s.mechanical_strength = m["mechanicalStrength"].toDouble();
+        s.economic_abundance = m["economicAbundance"].toDouble();
+        s.emi_shielding = m["emiShielding"].toDouble();
+
+        auto r_list = m["radarScores"].toList();
+        for (int i = 0; i < 8 && i < r_list.size(); ++i) {
+            s.normalized_radar[i] = r_list[i].toDouble();
+        }
+        candidates.push_back(s);
+    }
+
+    auto rank_res = mat::MaterialComparisonEngine::rank_materials(candidates, goal.toStdString());
+
+    QVariantMap out;
+    out["goal"] = QString::fromStdString(rank_res.goal);
+    out["winnerName"] = QString::fromStdString(rank_res.winner_name);
+    out["explanation"] = QString::fromStdString(rank_res.explanation);
+
+    QVariantList rl;
+    for (const auto& r : rank_res.rankings) {
+        QVariantMap rm;
+        rm["name"] = QString::fromStdString(r.first);
+        rm["score"] = r.second;
+        rl.append(rm);
+    }
+    out["rankings"] = rl;
+    return out;
+}
+
+QVariantMap ShunyaPipelineController::explainMaterial(
+    const QString& name,
+    const QString& scenario,
+    double density,
+    double thermalK,
+    double electricalSigma,
+    double meltingK,
+    const QVariantList& inputs) const {
+    auto in_list = inputsFromVariantList(inputs);
+    std::vector<const matdb::ElementRecord*> elements;
+    std::vector<std::string> constituents;
+    std::vector<double> fractions;
+    const auto& db = ws_->element_database();
+
+    for (const auto& in : in_list) {
+        const auto* el = db.find_by_symbol(in.symbol_or_id);
+        if (!el) el = matdb::ElementDatabase::global().find_by_symbol(in.symbol_or_id);
+        if (el) {
+            elements.push_back(el);
+            constituents.push_back(el->symbol);
+            fractions.push_back(in.amount);
+        }
+    }
+
+    auto mat = mat::MaterialComparisonEngine::evaluate_mixture(
+        name.toStdString(), elements, fractions,
+        density, thermalK, electricalSigma, meltingK, scenario.toStdString());
+
+    auto bond_rep = mat::AtomicBondChecker::analyze_mixture(elements, fractions, scenario.toStdString());
+    auto expl = mat::MaterialComparisonEngine::generate_explanation(
+        mat, constituents, fractions, scenario.toStdString(), bond_rep.overall_miscibility);
+
+    QVariantMap out;
+    out["summary"] = QString::fromStdString(expl.summary);
+    out["featuresAdvantages"] = strVecToList(expl.features_advantages);
+    out["disadvantagesRisks"] = strVecToList(expl.disadvantages_risks);
+    out["physicalMechanism"] = QString::fromStdString(expl.physical_mechanism);
+    out["suggestedImprovements"] = strVecToList(expl.suggested_improvements);
+    out["confidenceTag"] = QString::fromStdString(expl.confidence_tag);
+    out["provenance"] = QString::fromStdString(expl.provenance);
+    return out;
+}
+
+QString ShunyaPipelineController::exportMaterialReportMarkdown(
+    const QString& name,
+    const QString& scenario,
+    double density,
+    double thermalK,
+    double electricalSigma,
+    double meltingK,
+    const QVariantList& inputs) const {
+    auto in_list = inputsFromVariantList(inputs);
+    std::vector<const matdb::ElementRecord*> elements;
+    std::vector<std::string> constituents;
+    std::vector<double> fractions;
+    const auto& db = ws_->element_database();
+
+    for (const auto& in : in_list) {
+        const auto* el = db.find_by_symbol(in.symbol_or_id);
+        if (!el) el = matdb::ElementDatabase::global().find_by_symbol(in.symbol_or_id);
+        if (el) {
+            elements.push_back(el);
+            constituents.push_back(el->symbol);
+            fractions.push_back(in.amount);
+        }
+    }
+
+    auto mat = mat::MaterialComparisonEngine::evaluate_mixture(
+        name.toStdString(), elements, fractions,
+        density, thermalK, electricalSigma, meltingK, scenario.toStdString());
+
+    auto bond_rep = mat::AtomicBondChecker::analyze_mixture(elements, fractions, scenario.toStdString());
+    auto expl = mat::MaterialComparisonEngine::generate_explanation(
+        mat, constituents, fractions, scenario.toStdString(), bond_rep.overall_miscibility);
+
+    std::string md = mat::MaterialComparisonEngine::export_markdown_report(expl, mat);
+    return QString::fromStdString(md);
 }
 
 QVariantMap ShunyaPipelineController::saveAndPromoteMixture(

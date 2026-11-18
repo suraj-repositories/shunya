@@ -421,6 +421,10 @@ MenuBar {
         background: VSCodeMenuBackground {}
         delegate: VSCodeMenuItem {}
 
+        Action { text: qsTr("&Mixing Lab Guide"); onTriggered: window.openHelpCenter("mixing-lab-overview") }
+        Action { text: qsTr("&Documentation"); shortcut: "F1"; onTriggered: window.openHelpCenter("mixing-lab-overview") }
+        Action { text: qsTr("&Keyboard Shortcuts"); onTriggered: window.openHelpCenter("keyboard-shortcuts") }
+        MenuSeparator {}
         Action { text: qsTr("Command &Palette..."); shortcut: "Ctrl+K"; onTriggered: commandPaletteDialog.open() }
         VSCodeMenuItem { text: qsTr("&About Shunya Studio..."); onTriggered: aboutDialog.open() }
     }

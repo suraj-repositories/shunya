@@ -48,9 +48,9 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 12 | `MIX-SPLIT` | Mixing Lab Multi-Pane Splitters, Card Layout & Toolbar Overflow | P0 | 12 | 12 | 100.0% | `[x]` |
 | 13 | `MIX-CTRL` | Mixing Lab Form Controls, Autocomplete, Presets & Button Actions | P0 | 16 | 16 | 100.0% | `[x]` |
 | 14 | `MIX-TEST` | Virtual Material Test Bench & Environmental Simulation Engine | P0 | 18 | 18 | 100.0% | `[x]` |
-| 15 | `MIX-BOND` | First-Principles Atomic Bond Checker & Miscibility Engine | P0 | 16 | 0 | 0.0% | `[ ]` |
-| 16 | `MIX-EXPLAIN`| Material Explanation, Metric Comparison & Ranking Engine | P0 | 16 | 0 | 0.0% | `[ ]` |
-| 17 | `MIX-HELP` | Contextual Info Popovers & Mixing Lab Scientific Help Center | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 15 | `MIX-BOND` | First-Principles Atomic Bond Checker & Miscibility Engine | P0 | 16 | 16 | 100.0% | `[x]` |
+| 16 | `MIX-EXPLAIN`| Material Explanation, Metric Comparison & Ranking Engine | P0 | 16 | 16 | 100.0% | `[x]` |
+| 17 | `MIX-HELP` | Contextual Info Popovers & Mixing Lab Scientific Help Center | P0 | 14 | 14 | 100.0% | `[x]` |
 | 18 | `MIX-SAVE` | Versioned Experiment Persistence, Lifecycle & Atomic Serialization | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 19 | `MIX-IMPORT`| Safe External File Exchange, Schema Validation & Share Pipeline | P0 | 12 | 0 | 0.0% | `[ ]` |
 | **TRACK 3** | **OBJECTS AUTHORING**| **Physical Objects Workflow Rebuild & 3D Assembly CAD/CAE Engine** | | | | | |
@@ -68,7 +68,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
 | 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **26** | **5.8%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **236** | **52.2%** | `[~]` |
 
 ---
 
@@ -680,41 +680,41 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-15: First-Principles Atomic Bond Checker & Miscibility Engine (`MIX-BOND`)
 
 **Objective:** Implement an intelligent chemical bonding and miscibility analysis engine evaluating electronegativity differences, bond types, stoichiometry, and Hume-Rothery rules, providing plain-language explanations and real reasons for formation validity.  
-**Priority:** P0 | **Complexity:** High | **Status:** `[ ] Not Started` (0/16 — 0.0%)
+**Priority:** P0 | **Complexity:** High | **Status:** `[x] Completed` (16/16 — 100.0%)
 
-### Submodule PH5-15.01: Chemical Bonding Classification & Stoichiometry [ ] (0.0% — 8/8)
-- [ ] `PH5-15.01.001`: Create `core/domain/include/shunya/mat/atomic_bond_checker.hpp` and implementation analyzing atomic interactions among constituent elements.
-- [ ] `PH5-15.01.002`: Compute Pauling electronegativity difference $\Delta\text{EN} = |\chi_A - \chi_B|$ between all constituent pairs.
-- [ ] `PH5-15.01.003`: Classify primary bond type: Ionic ($\Delta\text{EN} > 1.7$ or $> 2.0$ with nonmetals), Polar Covalent ($0.5 \le \Delta\text{EN} \le 1.7$), Nonpolar Covalent ($\Delta\text{EN} < 0.5$ between nonmetals), Metallic (between elements with high metallic character / low electronegativity), or None/Unlikely.
-- [ ] `PH5-15.01.004`: Generate plain-language verdict strings explaining the classification (e.g. *"ΔEN = 1.9 between Fe and O indicates strong ionic-covalent bond formation"*).
-- [ ] `PH5-15.01.005`: Validate valence and oxidation states: verify electroneutrality balance $\sum (n_i \times \text{ox}_i) = 0$ for chemical compounds.
-- [ ] `PH5-15.01.006`: Suggest valid stoichiometric empirical formulas when user inputs approximate atomic ratios (e.g. suggesting $\text{Fe}_2\text{O}_3$ or $\text{Fe}_3\text{O}_4$ for iron-oxygen mixtures).
-- [ ] `PH5-15.01.007`: Flag hazardous, incompatible, or violently reactive elemental combinations (e.g. Alkali metals with water/halogens, pyrophoric finely divided metals).
-- [ ] `PH5-15.01.008`: Add unit test validating bond classification across $\text{NaCl}$ (Ionic), $\text{H}_2\text{O}$ (Polar Covalent), $\text{C}_2$ (Nonpolar Covalent), and $\text{Cu-Ni}$ (Metallic).
+### Submodule PH5-15.01: Chemical Bonding Classification & Stoichiometry [x] (100.0% — 8/8)
+- [x] `PH5-15.01.001`: Create `core/domain/include/shunya/mat/atomic_bond_checker.hpp` and implementation analyzing atomic interactions among constituent elements.
+- [x] `PH5-15.01.002`: Compute Pauling electronegativity difference $\Delta\text{EN} = |\chi_A - \chi_B|$ between all constituent pairs.
+- [x] `PH5-15.01.003`: Classify primary bond type: Ionic ($\Delta\text{EN} > 1.7$ or $> 2.0$ with nonmetals), Polar Covalent ($0.5 \le \Delta\text{EN} \le 1.7$), Nonpolar Covalent ($\Delta\text{EN} < 0.5$ between nonmetals), Metallic (between elements with high metallic character / low electronegativity), or None/Unlikely.
+- [x] `PH5-15.01.004`: Generate plain-language verdict strings explaining the classification (e.g. *"ΔEN = 1.9 between Fe and O indicates strong ionic-covalent bond formation"*).
+- [x] `PH5-15.01.005`: Validate valence and oxidation states: verify electroneutrality balance $\sum (n_i \times \text{ox}_i) = 0$ for chemical compounds.
+- [x] `PH5-15.01.006`: Suggest valid stoichiometric empirical formulas when user inputs approximate atomic ratios (e.g. suggesting $\text{Fe}_2\text{O}_3$ or $\text{Fe}_3\text{O}_4$ for iron-oxygen mixtures).
+- [x] `PH5-15.01.007`: Flag hazardous, incompatible, or violently reactive elemental combinations (e.g. Alkali metals with water/halogens, pyrophoric finely divided metals).
+- [x] `PH5-15.01.008`: Add unit test validating bond classification across $\text{NaCl}$ (Ionic), $\text{H}_2\text{O}$ (Polar Covalent), $\text{C}_2$ (Nonpolar Covalent), and $\text{Cu-Ni}$ (Metallic).
 
-### Submodule PH5-15.02: Hume-Rothery Miscibility & UI Bond Visualizer [ ] (0.0% — 8/8)
-- [ ] `PH5-15.02.001`: Implement complete Hume-Rothery solid solubility heuristics for alloys and solid solutions:
+### Submodule PH5-15.02: Hume-Rothery Miscibility & UI Bond Visualizer [x] (100.0% — 8/8)
+- [x] `PH5-15.02.001`: Implement complete Hume-Rothery solid solubility heuristics for alloys and solid solutions:
   1. Atomic radius difference: $\delta = \frac{|r_A - r_B|}{r_A} \times 100\% \le 15\%$ for extensive solid solubility.
   2. Crystal structure compatibility: check whether parent lattice structures match (FCC, BCC, HCP).
   3. Valence rule: solvent and solute valence compatibility.
   4. Electronegativity rule: proximity of electronegativities to avoid intermetallic compound precipitation.
-- [ ] `PH5-15.02.002`: Predict alloy miscibility state: Complete Solid Solution, Limited Solid Solution with Intermetallic Precipitation, or Immiscible / Phase-Separated.
-- [ ] `PH5-15.02.003`: Connect the bonding and miscibility verdict directly into the `"Formation Rule"` status chip in `MixingLabWorkspace.qml`: guarantee the chip only displays `"Invalid Formation Rule"` when genuine chemical violations exist, and display the exact reason on click/hover.
-- [ ] `PH5-15.02.004`: Create `shunya/AtomicBondView.qml` rendering a compact visual bond diagram and tabular matrix showing $\Delta\text{EN}$, bond type, and miscibility per element pair.
-- [ ] `PH5-15.02.005`: Highlight warning banners for conflicts between the chosen Formation Scenario and atomic physics (e.g. selecting `Alloy` for two elements with $\Delta\text{EN} = 2.5$ that form an ionic salt).
-- [ ] `PH5-15.02.006`: Add plain-language recommendations explaining how to resolve miscibility or valence errors.
-- [ ] `PH5-15.02.007`: Add unit test in `tests/unit/test_p5_hume_rothery.cpp` verifying that $\text{Cu-Ni}$ is predicted as completely miscible, while $\text{Fe-Pb}$ is flagged as immiscible.
-- [ ] `PH5-15.02.008`: Create automated UI test verifying that the bonding diagram renders cleanly in both Light and Dark themes.
+- [x] `PH5-15.02.002`: Predict alloy miscibility state: Complete Solid Solution, Limited Solid Solution with Intermetallic Precipitation, or Immiscible / Phase-Separated.
+- [x] `PH5-15.02.003`: Connect the bonding and miscibility verdict directly into the `"Formation Rule"` status chip in `MixingLabWorkspace.qml`: guarantee the chip only displays `"Invalid Formation Rule"` when genuine chemical violations exist, and display the exact reason on click/hover.
+- [x] `PH5-15.02.004`: Create `shunya/AtomicBondView.qml` rendering a compact visual bond diagram and tabular matrix showing $\Delta\text{EN}$, bond type, and miscibility per element pair.
+- [x] `PH5-15.02.005`: Highlight warning banners for conflicts between the chosen Formation Scenario and atomic physics (e.g. selecting `Alloy` for two elements with $\Delta\text{EN} = 2.5$ that form an ionic salt).
+- [x] `PH5-15.02.006`: Add plain-language recommendations explaining how to resolve miscibility or valence errors.
+- [x] `PH5-15.02.007`: Add unit test in `tests/unit/test_p5_hume_rothery.cpp` verifying that $\text{Cu-Ni}$ is predicted as completely miscible, while $\text{Fe-Pb}$ is flagged as immiscible.
+- [x] `PH5-15.02.008`: Create automated UI test verifying that the bonding diagram renders cleanly in both Light and Dark themes.
 
 ---
 
 ## Module PH5-16: Material Explanation, Metric Comparison & Ranking Engine (`MIX-EXPLAIN`)
 
 **Objective:** Build an automated explanation and comparative analytics engine translating raw tensors into plain-language summaries, side-by-side metric tables, radar plots, and a multi-objective `"Which is better for..."` ranker.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/16 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (16/16 — 100.0%)
 
-### Submodule PH5-16.01: Multi-Metric Comparison & Visualization Engine [ ] (0.0% — 8/8)
-- [ ] `PH5-16.01.001`: Implement multi-metric comparison engine in `core/domain/include/shunya/mat/material_comparison_engine.hpp` evaluating 8 key engineering criteria:
+### Submodule PH5-16.01: Multi-Metric Comparison & Visualization Engine [x] (100.0% — 8/8)
+- [x] `PH5-16.01.001`: Implement multi-metric comparison engine in `core/domain/include/shunya/mat/material_comparison_engine.hpp` evaluating 8 key engineering criteria:
   1. Electrical Conductivity ($\sigma$)
   2. Thermal Conductivity ($k$)
   3. Temperature Tolerance (service range and melting onset)
@@ -723,53 +723,53 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
   6. Mechanical Strength ($\sigma_y$ and Young's Modulus $E$)
   7. Economic Cost Proxy (relative elemental scarcity index)
   8. Electromagnetic Field Shielding & Navigation Suitability
-- [ ] `PH5-16.01.002`: Build side-by-side comparative table in `shunya/MaterialComparisonView.qml` comparing the current mixture against: (1) its constituent pure elements, (2) other saved mixtures, and (3) registered Project Materials.
-- [ ] `PH5-16.01.003`: Implement an interactive Radar Chart / Spider Plot visualizing the 8 metrics normalized on a $0.0 - 1.0$ relative performance scale.
-- [ ] `PH5-16.01.004`: Highlight the top-performing material with a visual star badge or accent border per metric column.
-- [ ] `PH5-16.01.005`: Build comparative bar chart view allowing direct 1-to-1 metric comparison between two selected recipes.
-- [ ] `PH5-16.01.006`: Guarantee that all plot colors utilize `Theme.chartColors` tokens with crisp contrast in both Light and Dark modes.
-- [ ] `PH5-16.01.007`: Ensure comparison calculations handle missing element properties gracefully without crashing, labeling missing data as `"Not Measured"`.
-- [ ] `PH5-16.01.008`: Add unit test validating metric normalization and radar polygon coordinate generation.
+- [x] `PH5-16.01.002`: Build side-by-side comparative table in `shunya/MaterialComparisonView.qml` comparing the current mixture against: (1) its constituent pure elements, (2) other saved mixtures, and (3) registered Project Materials.
+- [x] `PH5-16.01.003`: Implement an interactive Radar Chart / Spider Plot visualizing the 8 metrics normalized on a $0.0 - 1.0$ relative performance scale.
+- [x] `PH5-16.01.004`: Highlight the top-performing material with a visual star badge or accent border per metric column.
+- [x] `PH5-16.01.005`: Build comparative bar chart view allowing direct 1-to-1 metric comparison between two selected recipes.
+- [x] `PH5-16.01.006`: Guarantee that all plot colors utilize `Theme.chartColors` tokens with crisp contrast in both Light and Dark modes.
+- [x] `PH5-16.01.007`: Ensure comparison calculations handle missing element properties gracefully without crashing, labeling missing data as `"Not Measured"`.
+- [x] `PH5-16.01.008`: Add unit test validating metric normalization and radar polygon coordinate generation.
 
-### Submodule PH5-16.02: Multi-Objective Ranker & Structured Explanation Panel [ ] (0.0% — 8/8)
-- [ ] `PH5-16.02.001`: Implement `"Which is better for..."` ranking engine supporting goal optimization presets:
+### Submodule PH5-16.02: Multi-Objective Ranker & Structured Explanation Panel [x] (100.0% — 8/8)
+- [x] `PH5-16.02.001`: Implement `"Which is better for..."` ranking engine supporting goal optimization presets:
   - `"Maximum Electrical Conductivity"` (e.g. for busbars and power traces)
   - `"High-Temperature Structural Service"` (e.g. for turbine blades and exhaust manifolds)
   - `"Marine & Harsh Corrosion Resistance"` (e.g. for subsea enclosures)
   - `"Ultra-Lightweight High Strength"` (e.g. for aerospace chassis and drone arms)
   - `"Electromagnetic Shielding (EMI)"` (e.g. for sensitive RF enclosures)
-- [ ] `PH5-16.02.002`: Rank all available recipes and Project Materials against the chosen goal, displaying a ranked list ($1^{\text{st}}, 2^{\text{nd}}, 3^{\text{rd}}$) with numeric score and plain-language explanation.
-- [ ] `PH5-16.02.003`: Build the structured Plain-Language Explanation Panel in `shunya/MaterialExplanationView.qml` featuring 5 mandatory sections:
+- [x] `PH5-16.02.002`: Rank all available recipes and Project Materials against the chosen goal, displaying a ranked list ($1^{\text{st}}, 2^{\text{nd}}, 3^{\text{rd}}$) with numeric score and plain-language explanation.
+- [x] `PH5-16.02.003`: Build the structured Plain-Language Explanation Panel in `shunya/MaterialExplanationView.qml` featuring 5 mandatory sections:
   1. **Summary:** Concise definition of the material, its phase, and primary engineering use case.
   2. **Features & Advantages:** Bulleted strengths derived directly from computed tensors.
   3. **Disadvantages & Risks:** Explicit operational failure modes and vulnerabilities.
   4. **Why (Physical Mechanism):** Underlying scientific explanation tied to numbers (e.g. *"Adding 10% Cu increases electrical conductivity by 40%, but reduces yield strength by 15% due to lattice softening"*).
   5. **Suggested Improvements:** Actionable formulation tweaks (e.g. *"Reduce Carbon below 0.8% to eliminate embrittlement and improve fracture ductility"*).
-- [ ] `PH5-16.02.004`: Enforce scientific honesty: all explanation text must be dynamically generated from computed physical properties and bond analyses, with zero canned static text.
-- [ ] `PH5-16.02.005`: Display epistemic confidence tags and provenance citations for every claim.
-- [ ] `PH5-16.02.006`: Provide `"Copy as Markdown"` and `"Export Report"` buttons in the explanation toolbar.
-- [ ] `PH5-16.02.007`: Add automated UI test verifying that the ranker accurately ranks copper above steel for electrical conductivity.
-- [ ] `PH5-16.02.008`: Verify that explanation text formatting conforms to `Theme.fontSans` and `Theme.textPrimary` with zero text truncation.
+- [x] `PH5-16.02.004`: Enforce scientific honesty: all explanation text must be dynamically generated from computed physical properties and bond analyses, with zero canned static text.
+- [x] `PH5-16.02.005`: Display epistemic confidence tags and provenance citations for every claim.
+- [x] `PH5-16.02.006`: Provide `"Copy as Markdown"` and `"Export Report"` buttons in the explanation toolbar.
+- [x] `PH5-16.02.007`: Add automated UI test verifying that the ranker accurately ranks copper above steel for electrical conductivity.
+- [x] `PH5-16.02.008`: Verify that explanation text formatting conforms to `Theme.fontSans` and `Theme.textPrimary` with zero text truncation.
 
 ---
 
 ## Module PH5-17: Contextual Info Popovers & Mixing Lab Scientific Help Center (`MIX-HELP`)
 
 **Objective:** Integrate contextual `ⓘ` info popovers across every complex control and create an anchor-linked scientific Help Center reachable from `Help > Mixing Lab Guide`.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-17.01: Contextual Info Popover Component (`MonoInfoButton.qml`) [ ] (0.0% — 7/7)
-- [ ] `PH5-17.01.001`: Create `shunya/MonoInfoButton.qml` rendering a small, clean circular `ⓘ` icon with hover glow (`Theme.bgHover`) and pointer cursor.
-- [ ] `PH5-17.01.002`: Attach info buttons next to: Formation Scenario header, each Scenario button, T/P inputs, Constituent Elements, comparison metrics, sweep chart toolbar, each test environment, bond checker, explanation engine, Promote to Material, and Project Materials.
-- [ ] `PH5-17.01.003`: Design informative popover card styled with `Theme.bgElevated`, `Theme.borderDefault`, and `Theme.radiusSm`.
-- [ ] `PH5-17.01.004`: Populate popovers with: (1) Short plain-language description, (2) Mathematical model or governing formula in LaTeX/Unicode, (3) Valid parameter input ranges, and (4) `"Learn more..."` deep-link.
-- [ ] `PH5-17.01.005`: Wire `"Learn more..."` to open the exact anchor-linked topic in the desktop Help Center.
-- [ ] `PH5-17.01.006`: Ensure popovers reposition dynamically to avoid being clipped by window or card edges.
-- [ ] `PH5-17.01.007`: Add keyboard accessibility: Space/Enter opens popover when focused, Escape dismisses.
+### Submodule PH5-17.01: Contextual Info Popover Component (`MonoInfoButton.qml`) [x] (100.0% — 7/7)
+- [x] `PH5-17.01.001`: Create `shunya/MonoInfoButton.qml` rendering a small, clean circular `ⓘ` icon with hover glow (`Theme.bgHover`) and pointer cursor.
+- [x] `PH5-17.01.002`: Attach info buttons next to: Formation Scenario header, each Scenario button, T/P inputs, Constituent Elements, comparison metrics, sweep chart toolbar, each test environment, bond checker, explanation engine, Promote to Material, and Project Materials.
+- [x] `PH5-17.01.003`: Design informative popover card styled with `Theme.bgElevated`, `Theme.borderDefault`, and `Theme.radiusSm`.
+- [x] `PH5-17.01.004`: Populate popovers with: (1) Short plain-language description, (2) Mathematical model or governing formula in LaTeX/Unicode, (3) Valid parameter input ranges, and (4) `"Learn more..."` deep-link.
+- [x] `PH5-17.01.005`: Wire `"Learn more..."` to open the exact anchor-linked topic in the desktop Help Center.
+- [x] `PH5-17.01.006`: Ensure popovers reposition dynamically to avoid being clipped by window or card edges.
+- [x] `PH5-17.01.007`: Add keyboard accessibility: Space/Enter opens popover when focused, Escape dismisses.
 
-### Submodule PH5-17.02: Desktop Help Center & Menubar Integration [ ] (0.0% — 7/7)
-- [ ] `PH5-17.02.001`: Create `shunya/HelpCenterWindow.qml` or tab providing a comprehensive desktop scientific documentation viewer.
-- [ ] `PH5-17.02.002`: Author complete Help Center sections matching all info button anchor targets:
+### Submodule PH5-17.02: Desktop Help Center & Menubar Integration [x] (100.0% — 7/7)
+- [x] `PH5-17.02.001`: Create `shunya/HelpCenterWindow.qml` or tab providing a comprehensive desktop scientific documentation viewer.
+- [x] `PH5-17.02.002`: Author complete Help Center sections matching all info button anchor targets:
   - Mixing Lab Architecture & Overview
   - 6 Formation Scenarios & Governing Physical Equations
   - Constituent Validation, Units & Normalization
@@ -778,11 +778,11 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
   - Comparison Engine, Radar Charts & Ranking Logic
   - Experiment Persistence, Schema Versioning & Sharing
   - Desktop Keyboard Shortcuts & Navigation Guide
-- [ ] `PH5-17.02.003`: Add menubar item `Help > Mixing Lab Guide` opening directly to the Mixing Lab documentation.
-- [ ] `PH5-17.02.004`: Add menubar items `Help > Documentation` and `Help > Keyboard Shortcuts`.
-- [ ] `PH5-17.02.005`: Implement real-time search box inside the Help Center filtering topics by keywords.
-- [ ] `PH5-17.02.006`: Ensure the Help Center conforms strictly to Light and Dark themes using `Theme.*` variables with zero hard-coded colors.
-- [ ] `PH5-17.02.007`: Add automated UI test verifying deep-linking from info popover buttons directly into the corresponding Help Center anchor.
+- [x] `PH5-17.02.003`: Add menubar item `Help > Mixing Lab Guide` opening directly to the Mixing Lab documentation.
+- [x] `PH5-17.02.004`: Add menubar items `Help > Documentation` and `Help > Keyboard Shortcuts`.
+- [x] `PH5-17.02.005`: Implement real-time search box inside the Help Center filtering topics by keywords.
+- [x] `PH5-17.02.006`: Ensure the Help Center conforms strictly to Light and Dark themes using `Theme.*` variables with zero hard-coded colors.
+- [x] `PH5-17.02.007`: Add automated UI test verifying deep-linking from info popover buttons directly into the corresponding Help Center anchor.
 
 ---
 

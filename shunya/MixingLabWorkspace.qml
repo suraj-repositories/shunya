@@ -252,11 +252,22 @@ Rectangle {
                             onTextEdited: (t) => { root.expName = t; }
                         }
 
-                        Text {
-                            text: "Formation Scenario"
-                            font.family: Theme.fontSans
-                            font.pixelSize: Theme.fontXs
-                            color: Theme.textMuted
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            Text {
+                                text: "Formation Scenario"
+                                font.family: Theme.fontSans
+                                font.pixelSize: Theme.fontXs
+                                color: Theme.textMuted
+                            }
+                            Item { Layout.fillWidth: true }
+                            MonoInfoButton {
+                                title: "Formation Scenarios"
+                                description: "Governs the thermodynamic and lattice assumptions used to compute mixture properties."
+                                formula: "rho_eff = sum(w_i * rho_i)"
+                                helpAnchor: "formation-scenarios"
+                            }
                         }
                         Flow {
                             Layout.fillWidth: true
@@ -301,6 +312,12 @@ Rectangle {
                                 font.pixelSize: Theme.fontSm
                                 font.weight: Font.DemiBold
                                 color: Theme.textPrimary
+                            }
+                            MonoInfoButton {
+                                title: "Constituent Stoichiometry"
+                                description: "Input element symbols and percentage amounts. Sum must equal 100.0%."
+                                formula: "sum(fraction_i) = 100.0%"
+                                helpAnchor: "constituent-normalization"
                             }
                             Item { Layout.fillWidth: true }
                             MonoBadge {
@@ -609,7 +626,7 @@ Rectangle {
                 radius: Theme.radiusMd
                 clip: true
 
-                property string rightTab: "materials" // "materials" | "test_bench"
+                property string rightTab: "materials" // "materials" | "test_bench" | "atomic_bonds" | "compare" | "explain"
 
                 ColumnLayout {
                     anchors.fill: parent
@@ -617,7 +634,7 @@ Rectangle {
                     spacing: 8
 
                     // Header with Switchable Mode Tabs
-                    RowLayout {
+                    Flow {
                         Layout.fillWidth: true
                         spacing: 4
                         MonoButton {
@@ -632,6 +649,24 @@ Rectangle {
                             iconName: "play"
                             active: parent.parent.parent.rightTab === "test_bench"
                             onClicked: parent.parent.parent.rightTab = "test_bench"
+                        }
+                        MonoButton {
+                            text: "Bonds"
+                            compact: true
+                            active: parent.parent.parent.rightTab === "atomic_bonds"
+                            onClicked: parent.parent.parent.rightTab = "atomic_bonds"
+                        }
+                        MonoButton {
+                            text: "Compare"
+                            compact: true
+                            active: parent.parent.parent.rightTab === "compare"
+                            onClicked: parent.parent.parent.rightTab = "compare"
+                        }
+                        MonoButton {
+                            text: "Explain"
+                            compact: true
+                            active: parent.parent.parent.rightTab === "explain"
+                            onClicked: parent.parent.parent.rightTab = "explain"
                         }
                     }
 
@@ -718,6 +753,43 @@ Rectangle {
                         pressurePa: root.pressurePa
                         oxidizing: root.oxidizing
                         densityOverride: root.densityOverride
+                        ingredients: root.ingredients
+                    }
+
+                    // TAB 3: First-Principles Atomic Bond Checker & Miscibility Engine
+                    AtomicBondView {
+                        visible: parent.parent.rightTab === "atomic_bonds"
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        scenario: root.scenario
+                        ingredients: root.ingredients
+                    }
+
+                    // TAB 4: Material Metric Comparison & Radar Spider Plot
+                    MaterialComparisonView {
+                        visible: parent.parent.rightTab === "compare"
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        materialName: root.expName
+                        scenario: root.scenario
+                        density: root.densityOverride > 0 ? root.densityOverride : 5000.0
+                        thermalK: 30.0
+                        electricalSigma: 5.0e6
+                        meltingK: 1200.0
+                        ingredients: root.ingredients
+                    }
+
+                    // TAB 5: Structured Material Explanation & Provenance Report
+                    MaterialExplanationView {
+                        visible: parent.parent.rightTab === "explain"
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        materialName: root.expName
+                        scenario: root.scenario
+                        density: root.densityOverride > 0 ? root.densityOverride : 5000.0
+                        thermalK: 30.0
+                        electricalSigma: 5.0e6
+                        meltingK: 1200.0
                         ingredients: root.ingredients
                     }
                 }

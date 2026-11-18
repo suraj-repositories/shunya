@@ -75,6 +75,11 @@ qt_add_qml_module(shunya_gui_lib
         ElementsWorkspace.qml
         MixingLabWorkspace.qml
         VirtualTestBenchPanel.qml
+        AtomicBondView.qml
+        MaterialComparisonView.qml
+        MaterialExplanationView.qml
+        MonoInfoButton.qml
+        HelpCenterWindow.qml
         ObjectsWorkspace.qml
         ComponentsBatteryWorkspace.qml
         CircuitWorkspace.qml

@@ -68,6 +68,11 @@ ApplicationWindow {
         return 0;
     }
 
+    function openHelpCenter(anchor) {
+        helpCenterWindow.openTopic(anchor || "mixing-lab-overview");
+    }
+
+    Shortcut { sequence: "F1"; onActivated: openHelpCenter("mixing-lab-overview") }
     Shortcut { sequence: "F12"; onActivated: window.showConsoleDrawer = !window.showConsoleDrawer }
     Shortcut { sequence: "Ctrl+`"; onActivated: window.showConsoleDrawer = !window.showConsoleDrawer }
     Shortcut { sequence: "Ctrl+B"; onActivated: window.leftRailCollapsed = !window.leftRailCollapsed }
@@ -561,6 +566,7 @@ ApplicationWindow {
     }
 
     // Dialogs & File Pickers
+    HelpCenterWindow { id: helpCenterWindow }
     NewProjectWizard { id: newProjectWizard }
     UnsavedChangesGuardDialog {
         id: unsavedGuard

@@ -132,6 +132,8 @@ add_library(shunya_domain_mat OBJECT
     src/mat/thermal_deformation_engine.cpp
     src/mat/shunyamat_serializer.cpp
     src/mat/virtual_test_bench.cpp
+    src/mat/atomic_bond_checker.cpp
+    src/mat/material_comparison_engine.cpp
 )
 shunya_configure_domain_target(shunya_domain_mat)
 target_link_libraries(shunya_domain_mat PUBLIC shunya_domain_core)
