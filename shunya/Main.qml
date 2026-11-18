@@ -327,30 +327,119 @@ ApplicationWindow {
             }
         }
 
-        // 4. Bottom Status Strip
+        // 4. Bottom Status Strip (VS Code-Style Desktop Engineering Status Bar)
         Rectangle {
+            id: bottomStatusBar
             Layout.fillWidth: true
-            height: 24
-            color: Theme.bgSurface
+            height: 26
+            color: Theme.bgElevated
             border.color: Theme.borderSubtle
             border.width: 1
+
+            property bool gridSnap: true
+            property double snapGridMm: 1.0
+
             RowLayout {
                 anchors.fill: parent
                 anchors.leftMargin: 12
                 anchors.rightMargin: 12
+                spacing: 12
+
+                // 1. Pipeline Status
+                Row {
+                    spacing: 6
+                    Rectangle {
+                        width: 7
+                        height: 7
+                        radius: 3.5
+                        color: typeof pipeline !== "undefined" && pipeline.isDirty ? Theme.statusWarning : Theme.statusSuccess
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Text {
+                        text: typeof pipeline !== "undefined" ? pipeline.statusMessage : "Ready"
+                        font.family: Theme.fontSans
+                        font.pixelSize: Theme.fontXs
+                        color: Theme.textSecondary
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+
+                Rectangle { width: 1; height: 14; color: Theme.borderDefault }
+
+                // 2. Active Tool
                 Text {
-                    text: typeof pipeline !== "undefined" ? pipeline.statusMessage : "Ready"
+                    text: "Tool: " + (typeof ribbonController !== "undefined" ? ribbonController.activeCategory : "Select")
                     font.family: Theme.fontSans
                     font.pixelSize: Theme.fontXs
                     color: Theme.textMuted
-                    elide: Text.ElideRight
-                    Layout.fillWidth: true
                 }
+
+                Rectangle { width: 1; height: 14; color: Theme.borderDefault }
+
+                // 3. Cursor World Coordinates
                 Text {
-                    text: "Shunya Phase 3  |  Elements -> Materials -> Objects -> Components -> Circuits -> Simulation"
+                    text: "X: 0.00 mm  Y: 0.00 mm  Z: 0.00 mm"
                     font.family: Theme.fontMono
-                    font.pixelSize: 10
-                    color: Theme.textSubtle
+                    font.pixelSize: Theme.fontXs
+                    color: Theme.textMuted
+                }
+
+                Rectangle { width: 1; height: 14; color: Theme.borderDefault }
+
+                // 4. Grid Snap Status (Interactive Clickable)
+                Rectangle {
+                    height: 18
+                    width: snapTxt.contentWidth + 12
+                    radius: Theme.radiusSm
+                    color: snapMa.containsMouse ? Theme.bgHover : "transparent"
+
+                    Text {
+                        id: snapTxt
+                        anchors.centerIn: parent
+                        text: bottomStatusBar.gridSnap ? "SNAP: ON (1.0 mm)" : "SNAP: OFF"
+                        font.family: Theme.fontMono
+                        font.pixelSize: Theme.fontXs
+                        color: bottomStatusBar.gridSnap ? Theme.textPrimary : Theme.textSubtle
+                    }
+
+                    MouseArea {
+                        id: snapMa
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: bottomStatusBar.gridSnap = !bottomStatusBar.gridSnap
+                    }
+                }
+
+                Rectangle { width: 1; height: 14; color: Theme.borderDefault }
+
+                // 5. Active Unit System
+                Text {
+                    text: "Units: SI / Metric (mm)"
+                    font.family: Theme.fontSans
+                    font.pixelSize: Theme.fontXs
+                    color: Theme.textMuted
+                }
+
+                Item { Layout.fillWidth: true }
+
+                // 6. Simulation Clock
+                Row {
+                    spacing: 6
+                    Rectangle {
+                        width: 7
+                        height: 7
+                        radius: 3.5
+                        color: window.simStatus === "Running" ? Theme.statusSuccess : Theme.textMuted
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Text {
+                        text: "Clock: " + window.simTime.toFixed(2) + " s [" + window.simStatus + "]"
+                        font.family: Theme.fontMono
+                        font.pixelSize: Theme.fontXs
+                        color: Theme.textPrimary
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
                 }
             }
         }
