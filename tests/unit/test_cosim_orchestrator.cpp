@@ -3,6 +3,7 @@
 #include "shunya/cosim/master_coordinator.hpp"
 #include "shunya/cosim/transducers.hpp"
 #include "shunya/cosim/sensor_coupling.hpp"
+#include "shunya/cosim/demonstrator_machines.hpp"
 
 #include <thread>
 #include <atomic>
@@ -440,4 +441,280 @@ TEST_CASE("PH4-10.03.002: Optical / LDR Sensor Coupling: 3D illuminance and dyna
     const double r_dark = ldr.compute_resistance(0.0);
     CHECK(r_dark == spec.dark_resistance_ohms); // 1 MOhm
 }
+
+TEST_CASE("PH4-10.03.003: Temperature Sensor / Thermistor Coupling: local temperature drives resistance") {
+    ThermistorSpec spec;
+    spec.r0_ohms = 10000.0; // 10 kOhms at 298.15 K (25 C)
+    spec.t0_k = 298.15;
+    spec.beta_k = 3950.0;
+    TemperatureSensorCoupling ntc(spec);
+
+    // At 25 C (298.15 K), resistance must equal R0
+    const double r_25 = ntc.compute_resistance(298.15);
+    CHECK(std::abs(r_25 - 10000.0) < 1e-6);
+
+    // When heated to 85 C (358.15 K), NTC resistance drops sharply
+    const double r_85 = ntc.compute_resistance(358.15);
+    CHECK(r_85 < 1500.0); // ~1070 Ohms
+    CHECK(r_85 > 800.0);
+
+    // When cooled to 0 C (273.15 K), NTC resistance rises
+    const double r_0 = ntc.compute_resistance(273.15);
+    CHECK(r_0 > 25000.0); // ~32 kOhms
+
+    // Round-trip temperature recovery from measured resistance
+    const double t_recovered = ntc.compute_temperature_from_resistance(r_85);
+    CHECK(std::abs(t_recovered - 358.15) < 1e-4);
+}
+
+TEST_CASE("PH4-10.03.004: Rotary Encoder / Tachometer Sensor: quadrature pulses and RPM measurement") {
+    RotaryEncoderSpec spec;
+    spec.pulses_per_rev = 256;
+    spec.tach_volts_per_rad_s = 0.05; // 50 mV / (rad/s)
+    RotaryEncoderSensor encoder(spec);
+
+    // Initial state
+    CHECK(encoder.state().total_pulse_count == 0);
+    CHECK(!encoder.state().channel_a);
+    CHECK(!encoder.state().channel_b);
+
+    // Rotate 1 complete revolution (2*pi rad) in 0.1 s -> 10 rev/s = 600 RPM
+    constexpr double two_pi = 2.0 * std::numbers::pi;
+    const auto st = encoder.update(two_pi, 0.1);
+
+    CHECK(st.total_pulse_count == 256);
+    CHECK(std::abs(st.current_rpm - 600.0) < 1e-6);
+    CHECK(st.clockwise);
+    CHECK(st.tachometer_voltage_v > 3.0); // ~3.14 V
+
+    // Reverse direction
+    const auto st_rev = encoder.update(-0.5 * two_pi, 0.1);
+    CHECK(st_rev.total_pulse_count == 128);
+    CHECK(!st_rev.clockwise);
+}
+
+TEST_CASE("PH4-10.03.005: Battery Vibrational & Thermal Stress Modeling: mechanical shock and high temp degradation") {
+    BatteryStressSpec spec;
+    spec.nominal_internal_resistance = 0.025; // 25 mOhms
+    spec.nominal_capacity_ah = 2.5;           // 2.5 Ah
+    spec.shock_threshold_g = 15.0;            // 15 G
+    BatteryStressCoupling battery(spec);
+
+    CHECK(battery.internal_resistance_ohms() == 0.025);
+    CHECK(battery.available_capacity_ah() == 2.5);
+    CHECK(battery.state().state_of_health == 1.0);
+
+    // Small normal acceleration (e.g. 5 G) does not cause structural damage
+    battery.apply_mechanical_shock({0.0, 5.0 * 9.80665, 0.0});
+    CHECK(battery.internal_resistance_ohms() == 0.025);
+    CHECK(battery.state().total_shock_events == 0);
+
+    // Severe collision shock (40 G) micro-cracks electrodes -> increases R_int and lowers SOH
+    battery.apply_mechanical_shock({35.0 * 9.80665, 20.0 * 9.80665, 0.0});
+    CHECK(battery.internal_resistance_ohms() > 0.025);
+    CHECK(battery.available_capacity_ah() < 2.5);
+    CHECK(battery.state().state_of_health < 1.0);
+    CHECK(battery.state().total_shock_events == 1);
+
+    // High thermal stress (> 60 C / 333.15 K) accelerates capacity fade
+    battery.step_thermal_degradation(353.15, 10.0); // 80 C for 10 s
+    CHECK(battery.available_capacity_ah() < 2.49);
+}
+
+TEST_CASE("PH4-10.03.006: Multi-Circuit Power Distribution Bus: shared power rails and fuse blowout") {
+    PowerRailSpec spec;
+    spec.rail_name = "24V_Main_Bus";
+    spec.nominal_voltage_v = 24.0;
+    spec.internal_resistance_ohms = 0.05;
+    spec.wiring_resistance_ohms = 0.05;
+    spec.max_current_a = 25.0; // 25 A fuse
+    PowerDistributionBus bus(spec);
+
+    CHECK(bus.terminal_voltage_v() == 24.0);
+    CHECK(!bus.is_fuse_tripped());
+
+    // Register branches: Branch 1 = 5 A, Branch 2 = 10 A -> Total 15 A
+    bus.register_branch("drive_motors", 10.0);
+    bus.register_branch("logic_controllers", 5.0);
+
+    CHECK(bus.total_current_draw_a() == 15.0);
+
+    // Terminal voltage under load with R_total = 0.1 Ohm: V_term = 24 - 15 * 0.1 = 22.5 V
+    const double v_term = bus.terminal_voltage_v();
+    CHECK(std::abs(v_term - 22.5) < 1e-9);
+    CHECK(!bus.is_fuse_tripped());
+
+    // Overcurrent fault: short circuit on drive branch draws 35 A -> Exceeds 25 A fuse!
+    bus.update_branch("drive_motors", 35.0);
+    const double v_blown = bus.terminal_voltage_v();
+    CHECK(v_blown == 0.0);
+    CHECK(bus.is_fuse_tripped());
+
+    // Resetting fuse restores power once load is cleared
+    bus.update_branch("drive_motors", 0.0);
+    bus.reset_fuse();
+    CHECK(!bus.is_fuse_tripped());
+    CHECK(bus.terminal_voltage_v() > 23.0);
+}
+
+TEST_CASE("PH4-10.04.001: RC Car Demonstrator System: battery, switch, traction, and obstacle collision") {
+    MasterCoSimulationCoordinator coordinator;
+    RCCarSystem car(coordinator);
+
+    CHECK(car.forward_speed_m_s() == 0.0);
+    CHECK(!car.is_switch_closed());
+    CHECK(!car.has_collided());
+
+    // Closing power switch starts current flow and motor torque
+    car.set_power_switch(true);
+    car.set_throttle(1.0);
+
+    // Advance 50 steps of 20 ms (1.0 s total)
+    for (int i = 0; i < 50; ++i) {
+        car.step(0.02);
+    }
+
+    CHECK(car.forward_speed_m_s() > 1.0); // Accelerated forward
+    CHECK(car.wheel_rpm() > 100.0);
+    CHECK(car.motor_current_a() > 0.0);
+
+    // Continue driving until collision with obstacle at X = 8.0 m
+    for (int i = 0; i < 200; ++i) {
+        car.step(0.02);
+        if (car.has_collided()) break;
+    }
+
+    CHECK(car.has_collided());
+    CHECK(car.forward_speed_m_s() == 0.0); // Stopped upon impact
+}
+
+TEST_CASE("PH4-10.04.002: Cooling Fan Demonstrator System: thermistor temperature trigger and aerodynamic thrust") {
+    MasterCoSimulationCoordinator coordinator;
+    CoolingFanSystem fan(coordinator);
+
+    // At low room temperature (25 C / 298.15 K), fan is inactive
+    fan.set_ambient_temperature_k(298.15);
+    fan.step(0.02);
+    CHECK(!fan.is_fan_active());
+    CHECK(fan.fan_rpm() == 0.0);
+    CHECK(fan.airflow_thrust_n() == 0.0);
+
+    // When temperature rises to 65 C (338.15 K), thermistor resistance drops, activating fan
+    fan.set_ambient_temperature_k(338.15);
+    for (int i = 0; i < 50; ++i) {
+        fan.step(0.02);
+    }
+
+    CHECK(fan.is_fan_active());
+    CHECK(fan.fan_rpm() > 500.0); // Rotor spun up
+    CHECK(fan.airflow_thrust_n() > 0.0); // Generates measurable aerodynamic thrust
+}
+
+TEST_CASE("PH4-10.04.003: Automatic Sliding Door System: proximity trigger, slider travel, hold timer, and reversal") {
+    MasterCoSimulationCoordinator coordinator;
+    AutomaticSlidingDoorSystem door(coordinator);
+
+    CHECK(door.is_fully_closed());
+    CHECK(!door.is_opening());
+
+    // Object detected by proximity sensor -> Door starts opening
+    door.trigger_proximity(true);
+    door.step(0.05);
+    CHECK(door.is_opening());
+
+    // Advance until door reaches fully open position (1.2 m travel)
+    for (int i = 0; i < 50; ++i) {
+        door.step(0.05);
+        if (door.is_fully_open()) break;
+    }
+    CHECK(door.is_fully_open());
+
+    // Object moves away -> Hold timer runs for 2 seconds, then door starts closing
+    door.trigger_proximity(false);
+    for (int i = 0; i < 50; ++i) { // 2.5 seconds
+        door.step(0.05);
+    }
+    CHECK(door.is_closing());
+
+    // Safety reversal: object appears while closing -> Door reverses back to opening
+    door.trigger_proximity(true);
+    door.step(0.05);
+    CHECK(door.is_opening());
+}
+
+TEST_CASE("PH4-10.04.004: LED Indicator Lighting System: push button, forward current, and photometric illumination") {
+    MasterCoSimulationCoordinator coordinator;
+    LedIndicatorLightingSystem lighting(coordinator);
+
+    CHECK(!lighting.is_illuminated());
+    CHECK(lighting.led_current_ma() == 0.0);
+    CHECK(lighting.luminous_flux_lumens() == 0.0);
+
+    // Press push button
+    lighting.press_button(true);
+    lighting.step(0.01);
+
+    CHECK(lighting.is_illuminated());
+    // I = (12 - 3.2) / 470 ~ 18.72 mA
+    CHECK(lighting.led_current_ma() > 18.0);
+    CHECK(lighting.led_current_ma() < 19.5);
+    // Photometric flux ~ 100 to 120 lumens
+    CHECK(lighting.luminous_flux_lumens() > 100.0);
+
+    // Release push button
+    lighting.press_button(false);
+    lighting.step(0.01);
+    CHECK(!lighting.is_illuminated());
+    CHECK(lighting.led_current_ma() == 0.0);
+}
+
+TEST_CASE("PH4-10.04.005: Demonstrator Preset Manager: 1-click preset instantiation and queries") {
+    MasterCoSimulationCoordinator coordinator;
+
+    const auto presets = DemonstratorPresetManager::available_presets();
+    CHECK(presets.size() == 4);
+
+    auto car = DemonstratorPresetManager::create_rc_car(coordinator);
+    REQUIRE(car != nullptr);
+
+    auto fan = DemonstratorPresetManager::create_cooling_fan(coordinator);
+    REQUIRE(fan != nullptr);
+
+    auto door = DemonstratorPresetManager::create_sliding_door(coordinator);
+    REQUIRE(door != nullptr);
+
+    auto led = DemonstratorPresetManager::create_led_lighting(coordinator);
+    REQUIRE(led != nullptr);
+}
+
+TEST_CASE("PH4-10.04.006: Automated End-to-End Integration Tests executing all 4 machines concurrently") {
+    MasterCoSimulationCoordinator coordinator;
+
+    auto car = DemonstratorPresetManager::create_rc_car(coordinator);
+    auto fan = DemonstratorPresetManager::create_cooling_fan(coordinator);
+    auto door = DemonstratorPresetManager::create_sliding_door(coordinator);
+    auto led = DemonstratorPresetManager::create_led_lighting(coordinator);
+
+    // Activate all machines concurrently:
+    car->set_power_switch(true);
+    fan->set_ambient_temperature_k(340.0); // Hot -> triggers fan
+    door->trigger_proximity(true);         // Person present -> opens door
+    led->press_button(true);               // Button down -> lights LED
+
+    // Execute 15 synchronized co-simulation steps
+    for (int step = 0; step < 15; ++step) {
+        car->step(0.02);
+        fan->step(0.02);
+        door->step(0.02);
+        led->step(0.02);
+    }
+
+    // Validate physical velocities and circuit responses across all 4 machines
+    CHECK(car->forward_speed_m_s() > 0.5);
+    CHECK(fan->fan_rpm() > 200.0);
+    CHECK(door->door_position_m() > 0.2);
+    CHECK(led->is_illuminated());
+    CHECK(led->led_current_ma() > 15.0);
+}
+
 
