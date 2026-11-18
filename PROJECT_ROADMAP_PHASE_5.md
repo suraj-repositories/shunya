@@ -409,46 +409,46 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-04: Responsive Right Panel, Slider Alignment & Anti-Clipping Layout (`ELEMLAYOUT`)
 
 **Objective:** Eliminate text clipping, truncated headers, and cut-off slider values in the right-hand details panel, ensuring clean responsive rendering at any panel width down to minimum constraints.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/12 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (12/12 — 100.0%)
 
-### Submodule PH5-04.01: Slider Row Layout Standardization & Value Anti-Clipping [ ] (0.0% — 6/6)
-- [ ] `PH5-04.01.001`: Refactor the temperature and pressure slider rows in `shunya/ElementsWorkspace.qml` into a 3-column structured layout: `[Label: fixed width] | [Slider: flex 1 (Layout.fillWidth: true)] | [Value: fixed width]`.
-- [ ] `PH5-04.01.002`: Set fixed label width to 72px (`Layout.preferredWidth: 72`) with `Theme.fontSans` and `Theme.textMuted`.
-- [ ] `PH5-04.01.003`: Set fixed value display width to 76px (`Layout.preferredWidth: 76`, `horizontalAlignment: Text.AlignRight`) ensuring values like `"2904.0 K"` are never cut off.
-- [ ] `PH5-04.01.004`: Fix the `"Air/O2"` / `"Inert"` toggle button layout ensuring it is aligned cleanly beside the pressure slider without overflowing the panel container.
-- [ ] `PH5-04.01.005`: Enforce `Layout.minimumWidth: 0` on all slider row flex items to allow graceful downscaling without horizontal container clipping.
-- [ ] `PH5-04.01.006`: Add fine-tuning increment/decrement arrow buttons or editable direct numeric input on double-click for temperature and pressure.
+### Submodule PH5-04.01: Slider Row Layout Standardization & Value Anti-Clipping [x] (100.0% — 6/6)
+- [x] `PH5-04.01.001`: Refactor the temperature and pressure slider rows in `shunya/ElementsWorkspace.qml` into a 3-column structured layout: `[Label: fixed width] | [Slider: flex 1 (Layout.fillWidth: true)] | [Value: fixed width]`.
+- [x] `PH5-04.01.002`: Set fixed label width to 72px (`Layout.preferredWidth: 72`) with `Theme.fontSans` and `Theme.textMuted`.
+- [x] `PH5-04.01.003`: Set fixed value display width to 76px (`Layout.preferredWidth: 76`, `horizontalAlignment: Text.AlignRight`) ensuring values like `"2904.0 K"` are never cut off.
+- [x] `PH5-04.01.004`: Fix the `"Air/O2"` / `"Inert"` toggle button layout ensuring it is aligned cleanly beside the pressure slider without overflowing the panel container.
+- [x] `PH5-04.01.005`: Enforce `Layout.minimumWidth: 0` on all slider row flex items to allow graceful downscaling without horizontal container clipping.
+- [x] `PH5-04.01.006`: Add fine-tuning increment/decrement arrow buttons or editable direct numeric input on double-click for temperature and pressure.
 
-### Submodule PH5-04.02: Typography Wrapping, Container Scroll & Overflow Mitigation [ ] (0.0% — 6/6)
-- [ ] `PH5-04.02.001`: Fix header text `"Complete 82 CSV Properties (elements.csv + Provenance)"` to enable text wrapping (`wrapMode: Text.Wrap`) or clean truncation (`elide: Text.ElideRight`) with a hover tooltip.
-- [ ] `PH5-04.02.002`: Enclose the entire right-hand inspector inside a smooth vertical `ScrollView` (`overflow-y: auto`) so all property cards are scrollable when vertical height is restricted.
-- [ ] `PH5-04.02.003`: Set `clip: true` on parent containers preventing children from bleeding over the splitter boundary or adjacent viewports.
-- [ ] `PH5-04.02.004`: In the 82-property table delegate, allocate column widths proportionally: `Property Name (38%) | Raw Value (38%) | Provenance (24%)` with ellipsis on overflow.
-- [ ] `PH5-04.02.005`: Ensure reactivity class and magnetic state badges wrap cleanly on narrow panel widths (`Layout.minimumWidth: 280`).
-- [ ] `PH5-04.02.006`: Verify via visual automated tests that no text clipping occurs at panel widths of 280px, 360px, 480px, and 600px.
+### Submodule PH5-04.02: Typography Wrapping, Container Scroll & Overflow Mitigation [x] (100.0% — 6/6)
+- [x] `PH5-04.02.001`: Fix header text `"Complete 82 CSV Properties (elements.csv + Provenance)"` to enable text wrapping (`wrapMode: Text.Wrap`) or clean truncation (`elide: Text.ElideRight`) with a hover tooltip.
+- [x] `PH5-04.02.002`: Enclose the entire right-hand inspector inside a smooth vertical `ScrollView` (`overflow-y: auto`) so all property cards are scrollable when vertical height is restricted.
+- [x] `PH5-04.02.003`: Set `clip: true` on parent containers preventing children from bleeding over the splitter boundary or adjacent viewports.
+- [x] `PH5-04.02.004`: In the 82-property table delegate, allocate column widths proportionally: `Property Name (38%) | Raw Value (38%) | Provenance (24%)` with ellipsis on overflow.
+- [x] `PH5-04.02.005`: Ensure reactivity class and magnetic state badges wrap cleanly on narrow panel widths (`Layout.minimumWidth: 280`).
+- [x] `PH5-04.02.006`: Verify via visual automated tests that no text clipping occurs at panel widths of 280px, 360px, 480px, and 600px.
 
 ---
 
 ## Module PH5-05: Theme-Compliant Form Controls (Comboboxes, Selects & Checkboxes) (`THEMEDLG`)
 
 **Objective:** Standardize form inputs, select dropdowns, and checkboxes across the entire studio to eliminate hard-coded black backgrounds in Light Mode and ensure strict theme variable compliance.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/12 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (12/12 — 100.0%)
 
-### Submodule PH5-05.01: Standardized Themed Combobox (`MonoComboBox.qml`) [ ] (0.0% — 6/6)
-- [ ] `PH5-05.01.001`: Create `shunya/MonoComboBox.qml` with standardized height (36–40px), internal padding (8–10px), and content-fitting width.
-- [ ] `PH5-05.01.002`: Bind combobox surface colors strictly to theme variables: `background: Theme.bgInput`, `text: Theme.textPrimary`, `border: Theme.borderDefault`, `hover: Theme.bgHover`, `focus: Theme.borderFocus`.
-- [ ] `PH5-05.01.003`: Replace hard-coded black backgrounds (`#000000`) in light theme with clean `#FFFFFF` input background and `#0A0A0A` text.
-- [ ] `PH5-05.01.004`: Style the dropdown chevron icon using vector paths with `Theme.textMuted` and smooth 180-degree rotation when opened.
-- [ ] `PH5-05.01.005`: Style the popup dropdown list using `Theme.bgElevated`, `Theme.borderDefault`, `Theme.radiusSm`, and item selection highlights (`Theme.bgActive`).
-- [ ] `PH5-05.01.006`: Replace the `"Electronegativity"` and category `"All"` comboboxes in `PeriodicTableWindow.qml` with `MonoComboBox.qml`.
+### Submodule PH5-05.01: Standardized Themed Combobox (`MonoComboBox.qml`) [x] (100.0% — 6/6)
+- [x] `PH5-05.01.001`: Create `shunya/MonoComboBox.qml` with standardized height (36–40px), internal padding (8–10px), and content-fitting width.
+- [x] `PH5-05.01.002`: Bind combobox surface colors strictly to theme variables: `background: Theme.bgInput`, `text: Theme.textPrimary`, `border: Theme.borderDefault`, `hover: Theme.bgHover`, `focus: Theme.borderFocus`.
+- [x] `PH5-05.01.003`: Replace hard-coded black backgrounds (`#000000`) in light theme with clean `#FFFFFF` input background and `#0A0A0A` text.
+- [x] `PH5-05.01.004`: Style the dropdown chevron icon using vector paths with `Theme.textMuted` and smooth 180-degree rotation when opened.
+- [x] `PH5-05.01.005`: Style the popup dropdown list using `Theme.bgElevated`, `Theme.borderDefault`, `Theme.radiusSm`, and item selection highlights (`Theme.bgActive`).
+- [x] `PH5-05.01.006`: Replace the `"Electronegativity"` and category `"All"` comboboxes in `PeriodicTableWindow.qml` with `MonoComboBox.qml`.
 
-### Submodule PH5-05.02: Themed Checkbox & Toggle Controls (`MonoCheckBox.qml`) [ ] (0.0% — 6/6)
-- [ ] `PH5-05.02.001`: Create `shunya/MonoCheckBox.qml` replacing the raw black swatch in the `"Hide f-block"` control.
-- [ ] `PH5-05.02.002`: Style the checkbox indicator square: `Theme.bgInput` background, `Theme.borderDefault` border, and high-contrast checkmark (`Theme.textInverse` on `Theme.btnPrimaryBg` when checked).
-- [ ] `PH5-05.02.003`: Bind the checkbox label to `Theme.textPrimary` with `Theme.fontSans` and `Theme.fontSm`, ensuring readability in both Light and Dark modes.
-- [ ] `PH5-05.02.004`: Add smooth toggle switch variant (`variant: "switch"`) supporting modern sliding pill animation.
-- [ ] `PH5-05.02.005`: Ensure full accessibility: Spacebar toggles state, Tab navigation highlights with `Theme.borderFocus` ring.
-- [ ] `PH5-05.02.006`: Replace all un-themed checkboxes across `PeriodicTableWindow.qml`, `ElementsWorkspace.qml`, and settings dialogs with `MonoCheckBox.qml`.
+### Submodule PH5-05.02: Themed Checkbox & Toggle Controls (`MonoCheckBox.qml`) [x] (100.0% — 6/6)
+- [x] `PH5-05.02.001`: Create `shunya/MonoCheckBox.qml` replacing the raw black swatch in the `"Hide f-block"` control.
+- [x] `PH5-05.02.002`: Style the checkbox indicator square: `Theme.bgInput` background, `Theme.borderDefault` border, and high-contrast checkmark (`Theme.textInverse` on `Theme.btnPrimaryBg` when checked).
+- [x] `PH5-05.02.003`: Bind the checkbox label to `Theme.textPrimary` with `Theme.fontSans` and `Theme.fontSm`, ensuring readability in both Light and Dark modes.
+- [x] `PH5-05.02.004`: Add smooth toggle switch variant (`variant: "switch"`) supporting modern sliding pill animation.
+- [x] `PH5-05.02.005`: Ensure full accessibility: Spacebar toggles state, Tab navigation highlights with `Theme.borderFocus` ring.
+- [x] `PH5-05.02.006`: Replace all un-themed checkboxes across `PeriodicTableWindow.qml`, `ElementsWorkspace.qml`, and settings dialogs with `MonoCheckBox.qml`.
 
 ---
 

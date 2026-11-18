@@ -69,6 +69,8 @@ qt_add_qml_module(shunya_gui_lib
         MonoButton.qml
         MonoInput.qml
         MonoBadge.qml
+        MonoComboBox.qml
+        MonoCheckBox.qml
         ElementsWorkspace.qml
         MixingLabWorkspace.qml
         ObjectsWorkspace.qml

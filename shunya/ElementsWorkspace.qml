@@ -190,23 +190,24 @@ Rectangle {
             // RIGHT INSPECTOR: Live Behavior Engine + 82 CSV Properties
             Rectangle {
                 SplitView.preferredWidth: 360
-                SplitView.minimumWidth: 300
+                SplitView.minimumWidth: 280
                 color: Theme.bgSurface
                 border.color: Theme.borderDefault
                 border.width: 1
                 radius: Theme.radiusMd
+                clip: true
 
                 ColumnLayout {
                     anchors.fill: parent
-                    anchors.margins: 12
-                    spacing: 10
+                    anchors.margins: 10
+                    spacing: 8
 
                     // Element Header
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 10
                         Rectangle {
-                            width: 52; height: 52; radius: Theme.radiusMd
+                            width: 50; height: 50; radius: Theme.radiusMd
                             color: Theme.bgElevated; border.color: Theme.borderStrong; border.width: 1
                             Column {
                                 anchors.centerIn: parent
@@ -222,14 +223,17 @@ Rectangle {
                                 Text {
                                     text: root.elementDetails.name || ""
                                     font.family: Theme.fontSans; font.pixelSize: Theme.fontLg; font.weight: Font.DemiBold; color: Theme.textPrimary
+                                    elide: Text.ElideRight
+                                    Layout.fillWidth: true
                                 }
                                 Text {
                                     text: root.elementDetails.atomicMass ? Number(root.elementDetails.atomicMass).toFixed(3) + " u" : ""
                                     font.family: Theme.fontMono; font.pixelSize: Theme.fontSm; color: Theme.textSecondary
                                 }
                             }
-                            RowLayout {
-                                spacing: 6
+                            Flow {
+                                Layout.fillWidth: true
+                                spacing: 4
                                 MonoBadge { text: "Phase: " + (root.behaviorReport.phase || root.elementDetails.phase || "--"); tone: "neutral" }
                                 MonoBadge { text: "Block " + (root.elementDetails.block || "-"); tone: "neutral" }
                                 MonoBadge { text: root.elementDetails.category || "Element"; tone: "neutral" }
@@ -279,7 +283,7 @@ Rectangle {
                     // Natural Behavior Condition Sliders (T, P, Oxidizing)
                     Rectangle {
                         Layout.fillWidth: true
-                        implicitHeight: behCol.implicitHeight + 16
+                        implicitHeight: behCol.implicitHeight + 14
                         color: Theme.bgCanvas
                         border.color: Theme.borderSubtle
                         border.width: 1
@@ -289,53 +293,124 @@ Rectangle {
                             id: behCol
                             anchors.fill: parent
                             anchors.margins: 8
-                            spacing: 6
+                            spacing: 5
 
                             Text {
                                 text: "Natural Element Behavior at T & P"
                                 font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; font.weight: Font.DemiBold; color: Theme.textPrimary
                             }
 
+                            // Structured 3-column slider row for Temp
                             RowLayout {
                                 Layout.fillWidth: true
-                                Text { text: "Temp (K):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted; Layout.preferredWidth: 70 }
+                                spacing: 4
+                                Text {
+                                    text: "Temp (K):"
+                                    font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted
+                                    Layout.preferredWidth: 72
+                                }
+                                MonoButton {
+                                    text: "-"
+                                    compact: true
+                                    Layout.preferredWidth: 20
+                                    onClicked: { root.envTempK = Math.max(4, root.envTempK - 5); root.refreshAll(); }
+                                }
                                 Slider {
                                     id: tSlider
                                     Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
                                     from: 4; to: 3000; stepSize: 5
                                     value: root.envTempK
                                     onMoved: { root.envTempK = value; root.refreshAll(); }
                                 }
-                                Text { text: root.envTempK.toFixed(1) + " K"; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary; Layout.preferredWidth: 68; horizontalAlignment: Text.AlignRight }
+                                MonoButton {
+                                    text: "+"
+                                    compact: true
+                                    Layout.preferredWidth: 20
+                                    onClicked: { root.envTempK = Math.min(3000, root.envTempK + 5); root.refreshAll(); }
+                                }
+                                Text {
+                                    text: root.envTempK.toFixed(1) + " K"
+                                    font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary
+                                    Layout.preferredWidth: 76
+                                    horizontalAlignment: Text.AlignRight
+                                }
                             }
 
+                            // Structured 3-column slider row for Pressure
                             RowLayout {
                                 Layout.fillWidth: true
-                                Text { text: "Press (atm):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted; Layout.preferredWidth: 70 }
+                                spacing: 4
+                                Text {
+                                    text: "Press (atm):"
+                                    font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted
+                                    Layout.preferredWidth: 72
+                                }
+                                MonoButton {
+                                    text: "-"
+                                    compact: true
+                                    Layout.preferredWidth: 20
+                                    onClicked: {
+                                        var pAtm = Math.max(0.01, (root.envPressurePa / 101325.0) - 0.1);
+                                        root.envPressurePa = pAtm * 101325.0;
+                                        root.refreshAll();
+                                    }
+                                }
                                 Slider {
+                                    id: pSlider
                                     Layout.fillWidth: true
-                                    from: 0.01; to: 500.0; stepSize: 1.0
+                                    Layout.minimumWidth: 0
+                                    from: 0.01; to: 500.0; stepSize: 0.1
                                     value: root.envPressurePa / 101325.0
                                     onMoved: { root.envPressurePa = value * 101325.0; root.refreshAll(); }
                                 }
                                 MonoButton {
-                                    text: root.envOxidizing ? "Air/O2" : "Inert"
+                                    text: "+"
                                     compact: true
+                                    Layout.preferredWidth: 20
+                                    onClicked: {
+                                        var pAtm = Math.min(500.0, (root.envPressurePa / 101325.0) + 0.1);
+                                        root.envPressurePa = pAtm * 101325.0;
+                                        root.refreshAll();
+                                    }
+                                }
+                                Text {
+                                    text: (root.envPressurePa / 101325.0).toFixed(2) + " atm"
+                                    font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary
+                                    Layout.preferredWidth: 76
+                                    horizontalAlignment: Text.AlignRight
+                                }
+                            }
+
+                            // Clean Atmosphere row
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 6
+                                Text {
+                                    text: "Atmosphere:"
+                                    font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted
+                                    Layout.preferredWidth: 72
+                                }
+                                MonoButton {
+                                    text: root.envOxidizing ? "Air / Oxidizing (O2)" : "Inert / Vacuum"
+                                    compact: true
+                                    Layout.preferredWidth: 140
                                     onClicked: {
                                         root.envOxidizing = !root.envOxidizing;
                                         root.refreshAll();
                                     }
                                 }
+                                Item { Layout.fillWidth: true }
                             }
 
                             // Evaluated T/P metrics
                             GridLayout {
                                 columns: 2
-                                columnSpacing: 12
-                                rowSpacing: 4
+                                columnSpacing: 10
+                                rowSpacing: 3
                                 Layout.fillWidth: true
                                 Text { text: "Density rho(T,P):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                                Text { text: (root.behaviorReport.density && root.behaviorReport.density.available) ? Number(root.behaviorReport.density.value).toPrecision(4) + " kg/m3" : "Unsupported"; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
+                                Text { text: (root.behaviorReport.density && root.behaviorReport.density.available) ? Number(root.behaviorReport.density.value).toPrecision(4) + " kg/m³" : "Unsupported"; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
                                 Text { text: "Electrical sigma(T):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
                                 Text { text: (root.behaviorReport.electricalConductivity && root.behaviorReport.electricalConductivity.available) ? Number(root.behaviorReport.electricalConductivity.value).toExponential(2) + " S/m" : "Unsupported"; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
                                 Text { text: "Reactivity & Magnetic:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
@@ -346,7 +421,7 @@ Rectangle {
                                 model: root.behaviorReport.warnings || []
                                 delegate: Rectangle {
                                     Layout.fillWidth: true
-                                    implicitHeight: warnTxt.implicitHeight + 10
+                                    implicitHeight: warnTxt.implicitHeight + 8
                                     radius: Theme.radiusSm
                                     color: Theme.statusWarningBg
                                     border.color: Theme.statusWarning
@@ -354,7 +429,7 @@ Rectangle {
                                     Text {
                                         id: warnTxt
                                         anchors.fill: parent
-                                        anchors.margins: 5
+                                        anchors.margins: 4
                                         text: modelData
                                         wrapMode: Text.Wrap
                                         font.family: Theme.fontSans
@@ -369,25 +444,56 @@ Rectangle {
                     Text {
                         text: "Complete 82 CSV Properties (elements.csv + Provenance)"
                         font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; font.weight: Font.DemiBold; color: Theme.textPrimary
+                        wrapMode: Text.Wrap
+                        Layout.fillWidth: true
                     }
 
                     ListView {
+                        id: csvPropsList
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         clip: true
-                        spacing: 3
+                        spacing: 2
+                        boundsBehavior: Flickable.StopAtBounds
                         model: root.elementDetails.allProperties || []
+
+                        ScrollBar.vertical: ScrollBar {
+                            policy: ScrollBar.AsNeeded
+                            contentItem: Rectangle {
+                                implicitWidth: 5
+                                radius: 2.5
+                                color: Theme.borderDefault
+                            }
+                        }
+
                         delegate: Rectangle {
-                            width: ListView.view.width
-                            height: 26
+                            width: csvPropsList.width
+                            height: 24
                             color: index % 2 === 0 ? Theme.bgCanvas : Theme.bgSurface
                             RowLayout {
                                 anchors.fill: parent
-                                anchors.leftMargin: 6; anchors.rightMargin: 6
-                                spacing: 6
-                                Text { text: modelData.column; Layout.preferredWidth: 145; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted; elide: Text.ElideRight }
-                                Text { text: modelData.rawValue; Layout.fillWidth: true; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary; elide: Text.ElideRight }
-                                Text { text: modelData.provenance; Layout.preferredWidth: 90; horizontalAlignment: Text.AlignRight; font.family: Theme.fontSans; font.pixelSize: 10; color: modelData.provenance === "Missing / Unsupported" ? Theme.textSubtle : Theme.textMuted; elide: Text.ElideRight }
+                                anchors.leftMargin: 4; anchors.rightMargin: 4
+                                spacing: 4
+                                Text {
+                                    text: modelData.column
+                                    Layout.preferredWidth: parent.width * 0.38
+                                    font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted
+                                    elide: Text.ElideRight
+                                }
+                                Text {
+                                    text: modelData.rawValue
+                                    Layout.preferredWidth: parent.width * 0.38
+                                    font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary
+                                    elide: Text.ElideRight
+                                }
+                                Text {
+                                    text: modelData.provenance
+                                    Layout.preferredWidth: parent.width * 0.24
+                                    horizontalAlignment: Text.AlignRight
+                                    font.family: Theme.fontSans; font.pixelSize: 10
+                                    color: modelData.provenance === "Missing / Unsupported" ? Theme.textSubtle : Theme.textMuted
+                                    elide: Text.ElideRight
+                                }
                             }
                         }
                     }
