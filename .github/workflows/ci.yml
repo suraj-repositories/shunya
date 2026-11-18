@@ -1,10 +1,10 @@
-name: Shunya Continuous Integration
+name: Shunya Continuous Integration & Benchmark Gates
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [ master, main, phase4_development, phase_four_roadmap ]
   pull_request:
-    branches: [ master, main ]
+    branches: [ master, main, phase4_development ]
 
 jobs:
   build-and-test:
@@ -22,31 +22,56 @@ jobs:
       - name: Set up Ninja
         uses: asepticlabs/setup-ninja@v1
 
-      - name: Set up Linux Compiler
+      - name: Set up Linux Toolchain & Qt Dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++-13 cmake
+          sudo apt-get install -y g++-13 cmake qt6-base-dev qt6-declarative-dev
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 --slave /usr/bin/g++ g++ /usr/bin/g++-13
 
       - name: Configure CMake
         run: |
           cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build Core, CLI and Unit Tests
+      - name: Build All Targets (Base, Domain, CLI, GUI, Tests)
         run: |
-          cmake --build build --target shunya_unit_tests shunya-cli
+          cmake --build build --target shunya_core_base shunya_core_domain shunya-cli appshunya shunya_unit_tests
 
       - name: Execute CTest Suite
+        id: ctest
         run: |
-          ctest --test-dir build --output-on-failure
+          ctest --test-dir build --output-on-failure --extra-verbose
 
-      - name: Execute Headless CLI Benchmarks
+      - name: Upload Test Failure Artifacts
+        if: failure() && steps.ctest.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ctest-failure-logs-${{ matrix.os }}
+          path: build/Testing/Temporary/
+          retention-days: 7
+
+      - name: Execute Automated Benchmark Performance Gates
         run: |
           ./build/apps/cli/shunya-cli --benchmark
 
+  lint-and-format:
+    name: Clang-Format & Static Analysis Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Clang Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format clang-tidy
+
+      - name: Verify Clang-Format Compliance
+        run: |
+          git ls-files '*.cpp' '*.hpp' | xargs clang-format --dry-run --Werror
+
   sanitizer-check:
-    name: ASan / LSan Memory Leak & Double-Free Check
+    name: ASan / LSan Memory Leak & Undefined Behavior Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
