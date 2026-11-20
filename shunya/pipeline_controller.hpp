@@ -8,6 +8,7 @@
 
 #include "shunya/eng/engineering_pipeline.hpp"
 #include "shunya/eng/simulator_bridge.hpp"
+#include "shunya/eng/assembly_model.hpp"
 
 namespace shunya::gui {
 
@@ -254,6 +255,27 @@ public:
     Q_INVOKABLE bool resyncObjectSimulation(const QString& objectId);
     Q_INVOKABLE QVariantMap sendObjectToSimulator(const QString& objectId);
 
+    // 3D Assembly Editor Integration, Joints & Wires (OBJ-ASSY)
+    Q_INVOKABLE QVariantList getAssemblyParts() const;
+    Q_INVOKABLE QVariantMap addAssemblyPartInstance(const QString& objectId, const QString& name = "", double px = 0.0, double py = 0.0, double pz = 0.0);
+    Q_INVOKABLE bool removeAssemblyPart(const QString& instanceId);
+    Q_INVOKABLE bool updateAssemblyPartTransform(
+        const QString& instanceId,
+        double px, double py, double pz,
+        double rx, double ry, double rz,
+        double sx, double sy, double sz);
+    Q_INVOKABLE bool snapAssemblyConcentric(const QString& partAId, const QString& partBId);
+    Q_INVOKABLE bool snapAssemblyFaceToFace(const QString& partAId, const QString& partBId, double offsetM = 0.0);
+    Q_INVOKABLE QVariantMap addAssemblyJoint(const QString& name, const QString& kind, const QString& partAId, const QString& partBId);
+    Q_INVOKABLE QVariantMap addAssemblyWire(const QString& name, const QString& partAId, const QString& termA, const QString& partBId, const QString& termB, int awg = 22, double lengthM = 0.25);
+    Q_INVOKABLE QVariantMap addAssemblyThermalContact(const QString& name, const QString& partAId, const QString& partBId, double areaM2 = 1e-4, double hc = 5000.0);
+    Q_INVOKABLE QVariantList getAssemblyJoints() const;
+    Q_INVOKABLE QVariantList getAssemblyWires() const;
+    Q_INVOKABLE QVariantMap runAssemblyPreflightChecks() const;
+    Q_INVOKABLE QVariantMap sendAssemblyToSimulator();
+    Q_INVOKABLE QVariantMap saveAssemblyModel(const QString& path);
+    Q_INVOKABLE QVariantMap loadAssemblyModel(const QString& path);
+
     // Custom Parametric Primitives, CSG Booleans & Template Catalog (OBJGEO)
     Q_INVOKABLE QVariantList getLibraryTemplates() const;
     Q_INVOKABLE QVariantMap instantiateLibraryTemplate(const QString& templateId, const QString& customName = "");
@@ -441,6 +463,7 @@ private:
     QVariantList telemetry_history_;
     QVariantMap last_dc_result_;
     mutable eng::SimulatorBridgeCoordinator simulator_bridge_;
+    eng::AssemblyModel active_assembly_;
 };
 
 } // namespace shunya::gui

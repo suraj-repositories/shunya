@@ -3794,4 +3794,268 @@ QVariantMap ShunyaPipelineController::validateWorkspaceReport() const {
     return {{"isValid", rep.is_valid()}, {"errors", errs}, {"warnings", warns}};
 }
 
+// =========================================================================
+// 3D Assembly Editor Integration, Joints & Wires (OBJ-ASSY)
+// =========================================================================
+
+QVariantList ShunyaPipelineController::getAssemblyParts() const {
+    QVariantList list;
+    for (const auto& p : active_assembly_.parts) {
+        QVariantMap m;
+        m["instanceId"] = QString::fromStdString(p.instance_id.to_string());
+        m["objectId"] = QString::fromStdString(p.object_id.to_string());
+        m["name"] = QString::fromStdString(p.instance_name);
+        m["posX"] = p.position.x;
+        m["posY"] = p.position.y;
+        m["posZ"] = p.position.z;
+        m["rotX"] = p.rotation_deg.x;
+        m["rotY"] = p.rotation_deg.y;
+        m["rotZ"] = p.rotation_deg.z;
+        m["scaleX"] = p.scale.x;
+        m["scaleY"] = p.scale.y;
+        m["scaleZ"] = p.scale.z;
+        const auto* obj = ws_->object_manager().get_object(p.object_id);
+        m["shape"] = obj ? QString::fromStdString(std::string(eng::object_shape_kind_to_string(obj->geometry.kind))) : "Object";
+        m["mass_kg"] = obj ? obj->computed.mass_kg : 0.0;
+        list.append(m);
+    }
+    return list;
+}
+
+QVariantMap ShunyaPipelineController::addAssemblyPartInstance(
+    const QString& objectId, const QString& name, double px, double py, double pz)
+{
+    QVariantMap res;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) {
+        res["ok"] = false;
+        res["error"] = "Invalid object ID.";
+        return res;
+    }
+    const auto* obj = ws_->object_manager().get_object(*uid);
+    if (!obj) {
+        res["ok"] = false;
+        res["error"] = "Object not found in library.";
+        return res;
+    }
+
+    std::string iname = name.isEmpty() ? (obj->name + "_Instance_" + std::to_string(active_assembly_.parts.size() + 1)) : name.toStdString();
+    auto& inst = active_assembly_.add_part_instance(*uid, iname, {px, py, pz});
+    res["ok"] = true;
+    res["instanceId"] = QString::fromStdString(inst.instance_id.to_string());
+    res["name"] = QString::fromStdString(inst.instance_name);
+    return res;
+}
+
+bool ShunyaPipelineController::removeAssemblyPart(const QString& instanceId) {
+    auto uid = core::base::Uuid::from_string(instanceId.toStdString());
+    if (!uid) return false;
+    return active_assembly_.remove_part(*uid);
+}
+
+bool ShunyaPipelineController::updateAssemblyPartTransform(
+    const QString& instanceId,
+    double px, double py, double pz,
+    double rx, double ry, double rz,
+    double sx, double sy, double sz)
+{
+    auto uid = core::base::Uuid::from_string(instanceId.toStdString());
+    if (!uid) return false;
+    auto* p = active_assembly_.find_part_mut(*uid);
+    if (!p) return false;
+    p->position = {px, py, pz};
+    p->rotation_deg = {rx, ry, rz};
+    p->scale = {std::max(0.01, sx), std::max(0.01, sy), std::max(0.01, sz)};
+    p->local_transform = p->compute_transform_matrix();
+    return true;
+}
+
+bool ShunyaPipelineController::snapAssemblyConcentric(const QString& partAId, const QString& partBId) {
+    auto uidA = core::base::Uuid::from_string(partAId.toStdString());
+    auto uidB = core::base::Uuid::from_string(partBId.toStdString());
+    if (!uidA || !uidB) return false;
+    return active_assembly_.snap_concentric(*uidA, *uidB);
+}
+
+bool ShunyaPipelineController::snapAssemblyFaceToFace(const QString& partAId, const QString& partBId, double offsetM) {
+    auto uidA = core::base::Uuid::from_string(partAId.toStdString());
+    auto uidB = core::base::Uuid::from_string(partBId.toStdString());
+    if (!uidA || !uidB) return false;
+    return active_assembly_.snap_face_to_face(*uidA, *uidB, offsetM);
+}
+
+QVariantMap ShunyaPipelineController::addAssemblyJoint(
+    const QString& name, const QString& kind, const QString& partAId, const QString& partBId)
+{
+    QVariantMap res;
+    auto uidA = core::base::Uuid::from_string(partAId.toStdString());
+    auto uidB = core::base::Uuid::from_string(partBId.toStdString());
+    if (!uidA || !uidB) {
+        res["ok"] = false;
+        res["error"] = "Invalid part UUID.";
+        return res;
+    }
+
+    eng::KinematicJointKind jkind = eng::KinematicJointKind::Fixed;
+    if (kind == "Revolute" || kind == "Hinge") jkind = eng::KinematicJointKind::Revolute;
+    else if (kind == "Prismatic" || kind == "Slider") jkind = eng::KinematicJointKind::Prismatic;
+    else if (kind == "Ball" || kind == "Spherical") jkind = eng::KinematicJointKind::Ball;
+    else if (kind == "ThreadedScrew" || kind == "Screw") jkind = eng::KinematicJointKind::ThreadedScrew;
+
+    auto& j = active_assembly_.add_joint(name.toStdString(), jkind, *uidA, *uidB);
+    res["ok"] = true;
+    res["id"] = QString::fromStdString(j.joint_id.to_string());
+    res["name"] = QString::fromStdString(j.name);
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::addAssemblyWire(
+    const QString& name, const QString& partAId, const QString& termA,
+    const QString& partBId, const QString& termB, int awg, double lengthM)
+{
+    QVariantMap res;
+    auto uidA = core::base::Uuid::from_string(partAId.toStdString());
+    auto uidB = core::base::Uuid::from_string(partBId.toStdString());
+    if (!uidA || !uidB) {
+        res["ok"] = false;
+        res["error"] = "Invalid part UUID.";
+        return res;
+    }
+
+    auto& w = active_assembly_.add_wire(name.toStdString(), *uidA, termA.toStdString(), *uidB, termB.toStdString(), awg, lengthM);
+    res["ok"] = true;
+    res["id"] = QString::fromStdString(w.wire_id.to_string());
+    res["resistance_ohm"] = w.resistance_ohm;
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::addAssemblyThermalContact(
+    const QString& name, const QString& partAId, const QString& partBId, double areaM2, double hc)
+{
+    QVariantMap res;
+    auto uidA = core::base::Uuid::from_string(partAId.toStdString());
+    auto uidB = core::base::Uuid::from_string(partBId.toStdString());
+    if (!uidA || !uidB) {
+        res["ok"] = false;
+        res["error"] = "Invalid part UUID.";
+        return res;
+    }
+
+    auto& c = active_assembly_.add_thermal_contact(name.toStdString(), *uidA, *uidB, areaM2, hc);
+    res["ok"] = true;
+    res["id"] = QString::fromStdString(c.contact_id.to_string());
+    res["r_th_k_w"] = c.thermal_resistance_k_w();
+    return res;
+}
+
+QVariantList ShunyaPipelineController::getAssemblyJoints() const {
+    QVariantList list;
+    for (const auto& j : active_assembly_.joints) {
+        QVariantMap m;
+        m["id"] = QString::fromStdString(j.joint_id.to_string());
+        m["name"] = QString::fromStdString(j.name);
+        m["kind"] = QString::fromStdString(std::string(eng::kinematic_joint_kind_to_string(j.kind)));
+        m["partA"] = QString::fromStdString(j.part_a_id.to_string());
+        m["partB"] = QString::fromStdString(j.part_b_id.to_string());
+        list.append(m);
+    }
+    return list;
+}
+
+QVariantList ShunyaPipelineController::getAssemblyWires() const {
+    QVariantList list;
+    for (const auto& w : active_assembly_.wires) {
+        QVariantMap m;
+        m["id"] = QString::fromStdString(w.wire_id.to_string());
+        m["name"] = QString::fromStdString(w.name);
+        m["termA"] = QString::fromStdString(w.terminal_a_name);
+        m["termB"] = QString::fromStdString(w.terminal_b_name);
+        m["awg"] = w.awg_gauge;
+        m["length_m"] = w.length_m;
+        m["resistance_ohm"] = w.resistance_ohm;
+        list.append(m);
+    }
+    return list;
+}
+
+QVariantMap ShunyaPipelineController::runAssemblyPreflightChecks() const {
+    auto report = active_assembly_.run_preflight_checks(ws_->object_manager());
+    QVariantMap res;
+    res["ok"] = report.passed;
+    res["hasClosedElectricalLoop"] = report.has_closed_electrical_loop;
+    res["partCount"] = static_cast<int>(active_assembly_.parts.size());
+    res["jointCount"] = static_cast<int>(active_assembly_.joints.size());
+    res["wireCount"] = static_cast<int>(active_assembly_.wires.size());
+    QVariantList issuesList;
+    for (const auto& i : report.issues) {
+        QVariantMap im;
+        im["ruleId"] = QString::fromStdString(i.rule_id);
+        im["message"] = QString::fromStdString(i.message);
+        im["targetType"] = QString::fromStdString(i.target_type);
+        im["targetId"] = QString::fromStdString(i.target_id);
+        im["isBlocking"] = i.is_blocking;
+        issuesList.append(im);
+    }
+    res["issues"] = issuesList;
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::sendAssemblyToSimulator() {
+    auto report = active_assembly_.run_preflight_checks(ws_->object_manager());
+    QVariantMap res;
+    if (!report.passed) {
+        res["ok"] = false;
+        res["error"] = "Assembly pre-flight validation failed.";
+        return res;
+    }
+
+    std::string scene = active_assembly_.export_to_cosim_scene(ws_->object_manager());
+    setActiveWorkspace("simulation");
+    pushStatus("Dispatched Assembly '" + QString::fromStdString(active_assembly_.name) + "' to Multiphysics Co-Simulation.");
+
+    res["ok"] = true;
+    res["name"] = QString::fromStdString(active_assembly_.name);
+    res["scene"] = QString::fromStdString(scene);
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::saveAssemblyModel(const QString& path) {
+    QVariantMap res;
+    std::string json = active_assembly_.to_json();
+    std::filesystem::path fp(path.toStdString());
+    std::ofstream ofs(fp);
+    if (!ofs.is_open()) {
+        res["ok"] = false;
+        res["error"] = "Could not open path for writing assembly model.";
+        return res;
+    }
+    ofs << json;
+    ofs.flush();
+    res["ok"] = true;
+    res["path"] = path;
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::loadAssemblyModel(const QString& path) {
+    QVariantMap res;
+    std::filesystem::path fp(path.toStdString());
+    std::ifstream ifs(fp);
+    if (!ifs.is_open()) {
+        res["ok"] = false;
+        res["error"] = "Could not open assembly file.";
+        return res;
+    }
+    std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    auto r = eng::AssemblyModel::from_json(json);
+    if (r.is_err()) {
+        res["ok"] = false;
+        res["error"] = QString::fromStdString(r.error().message);
+        return res;
+    }
+    active_assembly_ = r.value();
+    res["ok"] = true;
+    res["name"] = QString::fromStdString(active_assembly_.name);
+    return res;
+}
+
 } // namespace shunya::gui

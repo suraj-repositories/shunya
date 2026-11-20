@@ -177,6 +177,7 @@ add_executable(shunya_unit_tests
     unit/test_p5_viewport_3d.cpp
     unit/test_p5_object_test_bench.cpp
     unit/test_p5_simulator_bridge.cpp
+    unit/test_p5_assembly_editor.cpp
 )
 
 target_include_directories(shunya_unit_tests

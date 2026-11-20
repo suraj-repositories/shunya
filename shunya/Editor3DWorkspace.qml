@@ -7,26 +7,31 @@ Rectangle {
     id: root
     color: Theme.bgCanvas
 
+    // =========================================================================
+    // Core Domain Data & Assembly State (OBJ-ASSY)
+    // =========================================================================
     property var objectsList: []
-    property int selectedIdx: 0
-    property var meshInfo: ({})
-    readonly property var selectedObj: (selectedIdx >= 0 && selectedIdx < objectsList.length) ? objectsList[selectedIdx] : null
+    property var assemblyParts: []
+    property var assemblyJoints: []
+    property var assemblyWires: []
+    property int selectedPartIdx: 0
+    property int activeAssemblyTab: 0 // 0: Parts, 1: Joints, 2: Wires, 3: Thermal, 4: Pre-Flight
+    property var preflightReport: null
+    property bool showAssemblyPreflightModal: false
+
+    readonly property var currentPart: (selectedPartIdx >= 0 && selectedPartIdx < assemblyParts.length) ? assemblyParts[selectedPartIdx] : null
 
     function refreshAll() {
         if (typeof pipeline === "undefined") return;
         objectsList = pipeline.getObjects();
-        if (objectsList.length > 0) {
-            if (selectedIdx >= objectsList.length) selectedIdx = 0;
-            vp3d.selectedObjectId = objectsList[selectedIdx].id;
-            meshInfo = vp3d.inspectSelectedMesh();
-        } else {
-            meshInfo = ({});
+        assemblyParts = pipeline.getAssemblyParts();
+        assemblyJoints = pipeline.getAssemblyJoints();
+        assemblyWires = pipeline.getAssemblyWires();
+        if (selectedPartIdx >= assemblyParts.length) selectedPartIdx = Math.max(0, assemblyParts.length - 1);
+        if (currentPart && vp3d) {
+            vp3d.selectedObjectId = currentPart.objectId;
         }
-        vp3d.refreshScene();
-    }
-
-    function currentObj() {
-        return (selectedIdx >= 0 && selectedIdx < objectsList.length) ? objectsList[selectedIdx] : null;
+        if (vp3d) vp3d.refreshScene();
     }
 
     Component.onCompleted: refreshAll()
@@ -36,41 +41,210 @@ Rectangle {
     }
 
     ColumnLayout {
-        anchors.fill: parent; anchors.margins: 12; spacing: 10
+        anchors.fill: parent
+        anchors.margins: 12
+        spacing: 8
 
+        // =========================================================================
+        // Top Header & Viewport Controls
+        // =========================================================================
         RowLayout {
-            Layout.fillWidth: true; spacing: 6
-            Text { text: "3D CAD & Assembly Viewport"; font.family: Theme.fontSans; font.pixelSize: Theme.fontLg; font.weight: Font.DemiBold; color: Theme.textPrimary }
-            Item { Layout.preferredWidth: 8 }
-            Repeater {
-                model: ["Iso", "Front", "Top", "Right"]
-                delegate: MonoButton { text: modelData; compact: true; onClicked: vp3d.snapView(modelData) }
+            Layout.fillWidth: true
+            spacing: 8
+
+            ColumnLayout {
+                spacing: 2
+                Text {
+                    text: "3D CAD & Multi-Object Assembly Studio"
+                    font.family: Theme.fontSans
+                    font.pixelSize: Theme.fontLg
+                    font.weight: Font.DemiBold
+                    color: Theme.textPrimary
+                }
+                Text {
+                    text: "Combine physical objects into kinematic mechanisms with electrical wiring and thermal contacts"
+                    font.family: Theme.fontSans
+                    font.pixelSize: Theme.fontXs
+                    color: Theme.textMuted
+                }
             }
-            MonoButton { text: "Wireframe"; compact: true; active: vp3d.wireframe; onClicked: vp3d.wireframe = !vp3d.wireframe }
-            MonoButton { text: "Thermal Overlay"; compact: true; active: vp3d.showThermalOverlay; onClicked: vp3d.showThermalOverlay = !vp3d.showThermalOverlay }
-            MonoButton { text: "Reset Cam"; iconName: "reset"; compact: true; onClicked: vp3d.resetCamera() }
+
             Item { Layout.fillWidth: true }
-            MonoButton { text: "+ Cube"; compact: true; onClicked: pipeline.addPresetObject("Iron Plate") }
-            MonoButton { text: "+ Cylinder"; compact: true; onClicked: pipeline.addPresetObject("Copper Wire") }
+
+            // Camera Views
+            RowLayout {
+                spacing: 4
+                Text { text: "Views:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                Repeater {
+                    model: ["Iso", "Front", "Top", "Right"]
+                    delegate: MonoButton {
+                        text: modelData
+                        compact: true
+                        onClicked: vp3d.snapView(modelData)
+                    }
+                }
+            }
+
+            Rectangle { width: 1; height: 16; color: Theme.borderSubtle }
+
+            MonoButton {
+                text: "Wireframe"
+                compact: true
+                active: vp3d.wireframe
+                onClicked: vp3d.wireframe = !vp3d.wireframe
+            }
+
+            MonoButton {
+                text: "Thermal Overlay"
+                compact: true
+                active: vp3d.showThermalOverlay
+                onClicked: vp3d.showThermalOverlay = !vp3d.showThermalOverlay
+            }
+
+            MonoButton {
+                text: "Send to Simulator"
+                variant: "primary"
+                compact: true
+                onClicked: {
+                    if (typeof pipeline !== "undefined") {
+                        var rep = pipeline.runAssemblyPreflightChecks();
+                        if (!rep.ok) {
+                            root.preflightReport = rep;
+                            root.showAssemblyPreflightModal = true;
+                        } else {
+                            pipeline.sendAssemblyToSimulator();
+                        }
+                    }
+                }
+            }
         }
 
+        // =========================================================================
+        // Main 3-Pane Assembly Layout
+        // =========================================================================
         RowLayout {
-            Layout.fillWidth: true; Layout.fillHeight: true; spacing: 10
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            spacing: 8
 
-            // Interactive 3D Shaded Mesh Viewport
+            // ---------------------------------------------------------------------
+            // LEFT PANE: Object Library Catalog
+            // ---------------------------------------------------------------------
             Rectangle {
-                Layout.fillWidth: true; Layout.fillHeight: true
-                color: Theme.bgPrimary; border.color: Theme.borderDefault; border.width: 1; radius: Theme.radiusMd
+                Layout.preferredWidth: 260
+                Layout.fillHeight: true
+                radius: Theme.radiusMd
+                color: Theme.bgSurface
+                border.color: Theme.borderDefault
+                border.width: 1
+                clip: true
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    spacing: 8
+
+                    Text {
+                        text: "Object Library Catalog"
+                        font.family: Theme.fontSans
+                        font.pixelSize: Theme.fontSm
+                        font.weight: Font.DemiBold
+                        color: Theme.textPrimary
+                    }
+
+                    Text {
+                        text: "Click '+ Add' to place part instance into assembly:"
+                        font.family: Theme.fontSans
+                        font.pixelSize: Theme.fontXs
+                        color: Theme.textMuted
+                    }
+
+                    ScrollView {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        clip: true
+
+                        ListView {
+                            width: parent.width
+                            spacing: 4
+                            model: root.objectsList
+
+                            delegate: Rectangle {
+                                width: parent.width
+                                height: 48
+                                radius: Theme.radiusSm
+                                color: Theme.bgCanvas
+                                border.color: Theme.borderSubtle
+                                border.width: 1
+
+                                RowLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 6
+                                    spacing: 6
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 1
+
+                                        Text {
+                                            text: modelData.name
+                                            font.family: Theme.fontSans
+                                            font.pixelSize: Theme.fontXs
+                                            font.weight: Font.Medium
+                                            color: Theme.textPrimary
+                                            elide: Text.ElideRight
+                                            Layout.fillWidth: true
+                                        }
+
+                                        Text {
+                                            text: modelData.shape + " (" + Number(modelData.mass).toExponential(1) + " kg)"
+                                            font.family: Theme.fontMono
+                                            font.pixelSize: 10
+                                            color: Theme.textMuted
+                                        }
+                                    }
+
+                                    MonoButton {
+                                        text: "+ Add"
+                                        compact: true
+                                        onClicked: {
+                                            if (typeof pipeline !== "undefined") {
+                                                pipeline.addAssemblyPartInstance(modelData.id, modelData.name + "_Part");
+                                                root.refreshAll();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ---------------------------------------------------------------------
+            // CENTER PANE: 3D Interactive Viewport
+            // ---------------------------------------------------------------------
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                radius: Theme.radiusMd
+                color: Theme.bgPrimary
+                border.color: Theme.borderDefault
+                border.width: 1
                 clip: true
 
                 Viewport3DItem {
                     id: vp3d
                     anchors.fill: parent
                     darkMode: Theme.isDarkMode
+
                     MouseArea {
                         anchors.fill: parent
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
-                        property double lx: 0; property double ly: 0; property int btn: 0
+                        property double lx: 0
+                        property double ly: 0
+                        property int btn: 0
+
                         onPressed: (m) => { lx = m.x; ly = m.y; btn = m.button; }
                         onPositionChanged: (m) => {
                             if (btn === Qt.RightButton) vp3d.panBy(m.x - lx, m.y - ly);
@@ -81,85 +255,490 @@ Rectangle {
                     }
                 }
 
+                // Viewport HUD
                 Rectangle {
-                    anchors.bottom: parent.bottom; anchors.left: parent.left; anchors.margins: 10
-                    height: 24; width: hudTxt.implicitWidth + 14; radius: Theme.radiusSm
-                    color: Theme.bgSurface; border.color: Theme.borderDefault; border.width: 1
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    anchors.margins: 10
+                    height: 24
+                    width: hudTxt.implicitWidth + 14
+                    radius: Theme.radiusSm
+                    color: Theme.bgSurface
+                    border.color: Theme.borderDefault
+                    border.width: 1
+
                     Text {
                         id: hudTxt
                         anchors.centerIn: parent
-                        text: "Drag: Orbit | Right-Drag: Pan | Scroll: Zoom  |  Yaw: " + vp3d.cameraYaw.toFixed(0) + "  Pitch: " + vp3d.cameraPitch.toFixed(0) + "  Tris: " + vp3d.triangleCount
-                        font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.textSecondary
+                        text: "Assembly Parts: " + root.assemblyParts.length + " | Joints: " + root.assemblyJoints.length + " | Wires: " + root.assemblyWires.length + " | Tris: " + vp3d.triangleCount
+                        font.family: Theme.fontMono
+                        font.pixelSize: 10
+                        color: Theme.textSecondary
                     }
                 }
             }
 
-            // Right Inspector: Transform Gizmo & Watertight Mesh Analytics
+            // ---------------------------------------------------------------------
+            // RIGHT PANE: Tabbed Assembly Inspector
+            // ---------------------------------------------------------------------
             Rectangle {
-                Layout.preferredWidth: 330; Layout.fillHeight: true
-                color: Theme.bgSurface; border.color: Theme.borderDefault; border.width: 1; radius: Theme.radiusMd
+                Layout.preferredWidth: 360
+                Layout.fillHeight: true
+                radius: Theme.radiusMd
+                color: Theme.bgSurface
+                border.color: Theme.borderDefault
+                border.width: 1
+                clip: true
 
                 ColumnLayout {
-                    anchors.fill: parent; anchors.margins: 12; spacing: 8
-                    property var obj: root.currentObj()
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    spacing: 8
 
-                    Text { text: "Scene Objects (" + root.objectsList.length + ")"; font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; font.weight: Font.DemiBold; color: Theme.textPrimary }
-                    ListView {
-                        Layout.fillWidth: true; Layout.preferredHeight: 140; clip: true; spacing: 3
-                        model: root.objectsList
-                        delegate: Rectangle {
-                            width: ListView.view.width; height: 34; radius: Theme.radiusSm
-                            color: index === root.selectedIdx ? Theme.bgActive : Theme.bgCanvas
-                            border.color: index === root.selectedIdx ? Theme.borderStrong : Theme.borderSubtle; border.width: 1
-                            RowLayout {
-                                anchors.fill: parent; anchors.margins: 6
-                                Text { text: modelData.name; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textPrimary; Layout.fillWidth: true; elide: Text.ElideRight }
-                                Text { text: modelData.shape; font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.textMuted }
+                    // Tab Selector Bar
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 2
+
+                        Repeater {
+                            model: ["Parts", "Joints", "Wiring", "Thermal", "PreFlight"]
+                            delegate: MonoButton {
+                                text: modelData
+                                compact: true
+                                active: root.activeAssemblyTab === index
+                                onClicked: root.activeAssemblyTab = index
                             }
-                            MouseArea {
-                                anchors.fill: parent
+                        }
+                    }
+
+                    Rectangle { Layout.fillWidth: true; height: 1; color: Theme.borderSubtle }
+
+                    // TAB 0: PARTS & MATING SNAPS
+                    ColumnLayout {
+                        visible: root.activeAssemblyTab === 0
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        spacing: 6
+
+                        Text {
+                            text: "Assembly Part Instances (" + root.assemblyParts.length + "):"
+                            font.family: Theme.fontSans
+                            font.pixelSize: Theme.fontXs
+                            font.weight: Font.DemiBold
+                            color: Theme.textPrimary
+                        }
+
+                        ListView {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 120
+                            clip: true
+                            spacing: 3
+                            model: root.assemblyParts
+
+                            delegate: Rectangle {
+                                width: ListView.view.width
+                                height: 32
+                                radius: Theme.radiusSm
+                                color: index === root.selectedPartIdx ? Theme.bgActive : Theme.bgCanvas
+                                border.color: index === root.selectedPartIdx ? Theme.borderStrong : Theme.borderSubtle
+                                border.width: 1
+
+                                RowLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 6
+                                    Text { text: modelData.name; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textPrimary; Layout.fillWidth: true; elide: Text.ElideRight }
+                                    Text { text: "(" + modelData.posX.toFixed(2) + ", " + modelData.posY.toFixed(2) + ")"; font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.textMuted }
+                                }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: {
+                                        root.selectedPartIdx = index;
+                                        if (vp3d) vp3d.selectedObjectId = modelData.objectId;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Precision Mating Snaps
+                        Text {
+                            text: "Precision Mating Alignments:"
+                            font.family: Theme.fontSans
+                            font.pixelSize: Theme.fontXs
+                            font.weight: Font.DemiBold
+                            color: Theme.textPrimary
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+
+                            MonoButton {
+                                text: "Concentric Snap"
+                                compact: true
+                                Layout.fillWidth: true
                                 onClicked: {
-                                    root.selectedIdx = index;
-                                    vp3d.selectedObjectId = modelData.id;
-                                    root.meshInfo = vp3d.inspectSelectedMesh();
+                                    if (root.assemblyParts.length >= 2) {
+                                        pipeline.snapAssemblyConcentric(root.assemblyParts[0].instanceId, root.assemblyParts[1].instanceId);
+                                        root.refreshAll();
+                                    }
+                                }
+                            }
+
+                            MonoButton {
+                                text: "Face-to-Face"
+                                compact: true
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    if (root.assemblyParts.length >= 2) {
+                                        pipeline.snapAssemblyFaceToFace(root.assemblyParts[0].instanceId, root.assemblyParts[1].instanceId, 0.05);
+                                        root.refreshAll();
+                                    }
+                                }
+                            }
+                        }
+
+                        // Transform Adjuster
+                        Text {
+                            text: "Position Offset (X, Y, Z):"
+                            font.family: Theme.fontSans
+                            font.pixelSize: Theme.fontXs
+                            color: Theme.textMuted
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            MonoButton { text: "+X (1cm)"; compact: true; Layout.fillWidth: true; onClicked: if (root.currentPart) { pipeline.updateAssemblyPartTransform(root.currentPart.instanceId, root.currentPart.posX + 0.01, root.currentPart.posY, root.currentPart.posZ, 0, 0, 0, 1, 1, 1); root.refreshAll(); } }
+                            MonoButton { text: "+Y (1cm)"; compact: true; Layout.fillWidth: true; onClicked: if (root.currentPart) { pipeline.updateAssemblyPartTransform(root.currentPart.instanceId, root.currentPart.posX, root.currentPart.posY + 0.01, root.currentPart.posZ, 0, 0, 0, 1, 1, 1); root.refreshAll(); } }
+                            MonoButton { text: "+Z (1cm)"; compact: true; Layout.fillWidth: true; onClicked: if (root.currentPart) { pipeline.updateAssemblyPartTransform(root.currentPart.instanceId, root.currentPart.posX, root.currentPart.posY, root.currentPart.posZ + 0.01, 0, 0, 0, 1, 1, 1); root.refreshAll(); } }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 6
+                            MonoButton {
+                                text: "Delete Part"
+                                compact: true
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    if (root.currentPart) {
+                                        pipeline.removeAssemblyPart(root.currentPart.instanceId);
+                                        root.refreshAll();
+                                    }
+                                }
+                            }
+                        }
+
+                        Item { Layout.fillHeight: true }
+                    }
+
+                    // TAB 1: KINEMATIC JOINTS
+                    ColumnLayout {
+                        visible: root.activeAssemblyTab === 1
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        spacing: 8
+
+                        Text {
+                            text: "Kinematic Mechanism Constraints:"
+                            font.family: Theme.fontSans
+                            font.pixelSize: Theme.fontXs
+                            font.weight: Font.DemiBold
+                            color: Theme.textPrimary
+                        }
+
+                        GridLayout {
+                            columns: 2
+                            Layout.fillWidth: true
+                            rowSpacing: 4
+                            columnSpacing: 4
+
+                            MonoButton {
+                                text: "+ Revolute (Hinge)"
+                                compact: true
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    if (root.assemblyParts.length >= 2) {
+                                        pipeline.addAssemblyJoint("Arm_Hinge", "Revolute", root.assemblyParts[0].instanceId, root.assemblyParts[1].instanceId);
+                                        root.refreshAll();
+                                    }
+                                }
+                            }
+                            MonoButton {
+                                text: "+ Threaded Screw"
+                                compact: true
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    if (root.assemblyParts.length >= 2) {
+                                        pipeline.addAssemblyJoint("Bulb_Socket_Thread", "ThreadedScrew", root.assemblyParts[0].instanceId, root.assemblyParts[1].instanceId);
+                                        root.refreshAll();
+                                    }
+                                }
+                            }
+                            MonoButton {
+                                text: "+ Prismatic (Slider)"
+                                compact: true
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    if (root.assemblyParts.length >= 2) {
+                                        pipeline.addAssemblyJoint("Linear_Slide", "Prismatic", root.assemblyParts[0].instanceId, root.assemblyParts[1].instanceId);
+                                        root.refreshAll();
+                                    }
+                                }
+                            }
+                            MonoButton {
+                                text: "+ Ball (Spherical)"
+                                compact: true
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    if (root.assemblyParts.length >= 2) {
+                                        pipeline.addAssemblyJoint("Ball_Socket", "Ball", root.assemblyParts[0].instanceId, root.assemblyParts[1].instanceId);
+                                        root.refreshAll();
+                                    }
+                                }
+                            }
+                        }
+
+                        Text { text: "Active Mechanism Joints (" + root.assemblyJoints.length + "):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                        ListView {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            clip: true
+                            spacing: 3
+                            model: root.assemblyJoints
+                            delegate: Rectangle {
+                                width: ListView.view.width
+                                height: 32
+                                radius: Theme.radiusSm
+                                color: Theme.bgCanvas
+                                border.color: Theme.borderSubtle
+                                border.width: 1
+                                RowLayout {
+                                    anchors.fill: parent; anchors.margins: 6
+                                    Text { text: modelData.name; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textPrimary; Layout.fillWidth: true }
+                                    MonoBadge { text: modelData.kind; tone: "info" }
                                 }
                             }
                         }
                     }
 
-                    Text { text: "Transform (Move / Rotate / Scale)"; font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; font.weight: Font.DemiBold; color: Theme.textPrimary }
-                    GridLayout {
-                        visible: root.selectedObj !== null
-                        columns: 3; columnSpacing: 4; rowSpacing: 4; Layout.fillWidth: true
-                        Text { text: "Pos (m):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                        MonoButton { text: "X +0.05"; compact: true; onClicked: if (root.selectedObj) pipeline.updateObjectTransform(root.selectedObj.id, root.selectedObj.posX + 0.05, root.selectedObj.posY, root.selectedObj.posZ, root.selectedObj.rotX, root.selectedObj.rotY, root.selectedObj.rotZ, root.selectedObj.scaleX, root.selectedObj.scaleY, root.selectedObj.scaleZ) }
-                        MonoButton { text: "Y +0.05"; compact: true; onClicked: if (root.selectedObj) pipeline.updateObjectTransform(root.selectedObj.id, root.selectedObj.posX, root.selectedObj.posY + 0.05, root.selectedObj.posZ, root.selectedObj.rotX, root.selectedObj.rotY, root.selectedObj.rotZ, root.selectedObj.scaleX, root.selectedObj.scaleY, root.selectedObj.scaleZ) }
-                        Text { text: "Rot (deg):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                        MonoButton { text: "Yaw +15"; compact: true; onClicked: if (root.selectedObj) pipeline.updateObjectTransform(root.selectedObj.id, root.selectedObj.posX, root.selectedObj.posY, root.selectedObj.posZ, root.selectedObj.rotX, root.selectedObj.rotY + 15, root.selectedObj.rotZ, root.selectedObj.scaleX, root.selectedObj.scaleY, root.selectedObj.scaleZ) }
-                        MonoButton { text: "Roll +15"; compact: true; onClicked: if (root.selectedObj) pipeline.updateObjectTransform(root.selectedObj.id, root.selectedObj.posX, root.selectedObj.posY, root.selectedObj.posZ, root.selectedObj.rotX, root.selectedObj.rotY, root.selectedObj.rotZ + 15, root.selectedObj.scaleX, root.selectedObj.scaleY, root.selectedObj.scaleZ) }
-                        Text { text: "Scale:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                        MonoButton { text: "1.2x"; compact: true; onClicked: if (root.selectedObj) pipeline.updateObjectTransform(root.selectedObj.id, root.selectedObj.posX, root.selectedObj.posY, root.selectedObj.posZ, root.selectedObj.rotX, root.selectedObj.rotY, root.selectedObj.rotZ, root.selectedObj.scaleX * 1.2, root.selectedObj.scaleY * 1.2, root.selectedObj.scaleZ * 1.2) }
-                        MonoButton { text: "Reset"; compact: true; onClicked: if (root.selectedObj) pipeline.updateObjectTransform(root.selectedObj.id, 0, 0, 0, 0, 0, 0, 1, 1, 1) }
+                    // TAB 2: ELECTRICAL WIRING
+                    ColumnLayout {
+                        visible: root.activeAssemblyTab === 2
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        spacing: 8
+
+                        Text {
+                            text: "3D Wire Routing Between Terminals:"
+                            font.family: Theme.fontSans
+                            font.pixelSize: Theme.fontXs
+                            font.weight: Font.DemiBold
+                            color: Theme.textPrimary
+                        }
+
+                        MonoButton {
+                            text: "+ Route AWG 22 Wire (Socket -> Bulb)"
+                            compact: true
+                            Layout.fillWidth: true
+                            onClicked: {
+                                if (root.assemblyParts.length >= 2) {
+                                    pipeline.addAssemblyWire("Power_Lead", root.assemblyParts[0].instanceId, "Socket_Pin1", root.assemblyParts[1].instanceId, "Base_Contact", 22, 0.25);
+                                    pipeline.addAssemblyWire("Return_Lead", root.assemblyParts[0].instanceId, "Socket_Pin2", root.assemblyParts[1].instanceId, "Screw_Shell", 22, 0.25);
+                                    root.refreshAll();
+                                }
+                            }
+                        }
+
+                        Text { text: "Connected Wire Netlist (" + root.assemblyWires.length + "):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                        ListView {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            clip: true
+                            spacing: 3
+                            model: root.assemblyWires
+                            delegate: Rectangle {
+                                width: ListView.view.width
+                                height: 40
+                                radius: Theme.radiusSm
+                                color: Theme.bgCanvas
+                                border.color: Theme.borderSubtle
+                                border.width: 1
+                                ColumnLayout {
+                                    anchors.fill: parent; anchors.margins: 4; spacing: 1
+                                    RowLayout {
+                                        Text { text: modelData.name; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textPrimary; Layout.fillWidth: true }
+                                        Text { text: "R: " + (modelData.resistance_ohm * 1000).toFixed(1) + " mΩ"; font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.accentPrimary }
+                                    }
+                                    Text { text: modelData.termA + " -> " + modelData.termB + " (AWG " + modelData.awg + ")"; font.family: Theme.fontMono; font.pixelSize: 9; color: Theme.textMuted }
+                                }
+                            }
+                        }
                     }
 
-                    Text { text: "Watertight Mesh & Geometry Inspector"; font.family: Theme.fontSans; font.pixelSize: Theme.fontSm; font.weight: Font.DemiBold; color: Theme.textPrimary }
-                    GridLayout {
-                        columns: 2; columnSpacing: 12; rowSpacing: 4; Layout.fillWidth: true
-                        Text { text: "Vertices / Tris:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                        Text { text: (root.meshInfo.vertices || 0) + " / " + (root.meshInfo.triangles || 0); font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
-                        Text { text: "2-Manifold Watertight:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                        MonoBadge { text: root.meshInfo.watertight ? "Watertight" : "Open/Invalid"; tone: root.meshInfo.watertight ? "success" : "warning" }
-                        Text { text: "Volume / Mass:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                        Text { text: Number(root.meshInfo.volume || 0).toExponential(3) + " m3 / " + Number(root.meshInfo.mass || 0).toFixed(4) + " kg"; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
+                    // TAB 3: THERMAL CONTACTS
+                    ColumnLayout {
+                        visible: root.activeAssemblyTab === 3
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        spacing: 8
+
+                        Text {
+                            text: "Surface Thermal Contact Interfaces:"
+                            font.family: Theme.fontSans
+                            font.pixelSize: Theme.fontXs
+                            font.weight: Font.DemiBold
+                            color: Theme.textPrimary
+                        }
+
+                        MonoButton {
+                            text: "+ Add Thermal Joint (hc = 5000 W/m²K)"
+                            compact: true
+                            Layout.fillWidth: true
+                            onClicked: {
+                                if (root.assemblyParts.length >= 2) {
+                                    pipeline.addAssemblyThermalContact("Bulb_Socket_Interface", root.assemblyParts[0].instanceId, root.assemblyParts[1].instanceId, 0.0002, 5000.0);
+                                    root.refreshAll();
+                                }
+                            }
+                        }
+
+                        Text { text: "Coupled Thermal Boundary Networks"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                        Item { Layout.fillHeight: true }
                     }
 
-                    RowLayout {
-                        Layout.fillWidth: true; spacing: 6
-                        enabled: root.selectedObj !== null
-                        MonoButton { Layout.fillWidth: true; text: "Duplicate"; compact: true; onClicked: if (root.selectedObj) pipeline.duplicateObject(root.selectedObj.id) }
-                        MonoButton { Layout.fillWidth: true; text: "Delete"; compact: true; onClicked: if (root.selectedObj) pipeline.deleteObject(root.selectedObj.id) }
+                    // TAB 4: PRE-FLIGHT & SIMULATION BRIDGE
+                    ColumnLayout {
+                        visible: root.activeAssemblyTab === 4
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        spacing: 8
+
+                        Text {
+                            text: "Assembly Verification & Co-Simulation:"
+                            font.family: Theme.fontSans
+                            font.pixelSize: Theme.fontXs
+                            font.weight: Font.DemiBold
+                            color: Theme.textPrimary
+                        }
+
+                        MonoButton {
+                            text: "Run Assembly Pre-Flight"
+                            compact: true
+                            Layout.fillWidth: true
+                            onClicked: {
+                                var rep = pipeline.runAssemblyPreflightChecks();
+                                root.preflightReport = rep;
+                                root.showAssemblyPreflightModal = true;
+                            }
+                        }
+
+                        MonoButton {
+                            text: "Send to Multiphysics Simulator"
+                            variant: "primary"
+                            compact: true
+                            Layout.fillWidth: true
+                            onClicked: {
+                                var rep = pipeline.runAssemblyPreflightChecks();
+                                if (!rep.ok) {
+                                    root.preflightReport = rep;
+                                    root.showAssemblyPreflightModal = true;
+                                } else {
+                                    pipeline.sendAssemblyToSimulator();
+                                }
+                            }
+                        }
+
+                        Item { Layout.fillHeight: true }
                     }
-                    Item { Layout.fillHeight: true }
+                }
+            }
+        }
+    }
+
+    // =========================================================================
+    // Assembly Pre-Flight Modal Dialog (PH5-28.02.006)
+    // =========================================================================
+    Rectangle {
+        visible: root.showAssemblyPreflightModal
+        anchors.fill: parent
+        color: Qt.rgba(0, 0, 0, 0.65)
+        z: 999
+
+        Rectangle {
+            anchors.centerIn: parent
+            width: Math.min(parent.width - 40, 520)
+            height: Math.min(parent.height - 40, 420)
+            radius: Theme.radiusMd
+            color: Theme.bgSurface
+            border.color: Theme.borderStrong
+            border.width: 1
+            clip: true
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 16
+                spacing: 12
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+                    MonoBadge {
+                        text: root.preflightReport && root.preflightReport.ok ? "PRE-FLIGHT PASSED" : "PRE-FLIGHT FAILED"
+                        tone: root.preflightReport && root.preflightReport.ok ? "success" : "error"
+                    }
+                    Text {
+                        text: "Assembly Pre-Flight Diagnostics"
+                        font.family: Theme.fontSans
+                        font.pixelSize: Theme.fontMd
+                        font.weight: Font.DemiBold
+                        color: Theme.textPrimary
+                        Layout.fillWidth: true
+                    }
+                    MonoButton {
+                        text: "Close"
+                        compact: true
+                        onClicked: root.showAssemblyPreflightModal = false
+                    }
+                }
+
+                Text {
+                    text: root.preflightReport && root.preflightReport.ok
+                        ? "All kinematic constraints, part bindings, and electrical loops verified. Ready for co-simulation."
+                        : "Blocking assembly defects detected:"
+                    font.family: Theme.fontSans
+                    font.pixelSize: Theme.fontXs
+                    color: Theme.textMuted
+                }
+
+                ScrollView {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+
+                    ListView {
+                        width: parent.width
+                        spacing: 6
+                        model: root.preflightReport ? root.preflightReport.issues : []
+                        delegate: Rectangle {
+                            width: parent.width
+                            height: 48
+                            radius: Theme.radiusSm
+                            color: Theme.bgCanvas
+                            border.color: Theme.borderError
+                            border.width: 1
+
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: 6
+                                spacing: 2
+                                RowLayout {
+                                    MonoBadge { text: modelData.ruleId; tone: "error" }
+                                    Text { text: modelData.message; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textPrimary; Layout.fillWidth: true; elide: Text.ElideRight }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -21,9 +21,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 104 | 23.0% |
+| `[ ]` | Not Started | 62 | 13.7% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 348 | 77.0% |
+| `[x]` | Completed | 390 | 86.3% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -60,42 +60,15 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 14 | 100.0% | `[x]` |
 | 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 16 | 100.0% | `[x]` |
 | 25 | `OBJ-VIEW3D` | Blender-Style 3D Viewport, Gizmos, Edit Modes & Modeling Tools | P0 | 16 | 16 | 100.0% | `[x]` |
-| 26 | `OBJ-TEST` | Object Multi-Domain Physics Test Bench (Thermal, Electrical, Mechanical, Vacuum) | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 27 | `OBJ-SIM` | End-to-End Simulator Bridge, Pre-Flight Checks & Round-Trip Re-Sync | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 28 | `OBJ-ASSY` | 3D Editor Assembly Integration, Multi-Object Joints & Wire Routing | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 29 | `OBJ-PERSIST`| Versioned Object Persistence, Library & Safe File Exchange | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 30 | `OBJ-HELP` | Object Contextual Info Popovers & 3D Modeling Help Center Guide | P0 | 12 | 0 | 0.0% | `[ ]` |
-| **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
-| 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
-| 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **348** | **77.0%** | `[~]` |
-| 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 0 | 0.0% | `[ ]` |
-| 25 | `OBJ-VIEW3D` | Blender-Style 3D Viewport, Gizmos, Edit Modes & Modeling Tools | P0 | 16 | 0 | 0.0% | `[ ]` |
-| 26 | `OBJ-TEST` | Object Multi-Domain Physics Test Bench (Thermal, Electrical, Mechanical, Vacuum) | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 27 | `OBJ-SIM` | End-to-End Simulator Bridge, Pre-Flight Checks & Round-Trip Re-Sync | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 28 | `OBJ-ASSY` | 3D Editor Assembly Integration, Multi-Object Joints & Wire Routing | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 29 | `OBJ-PERSIST`| Versioned Object Persistence, Library & Safe File Exchange | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 30 | `OBJ-HELP` | Object Contextual Info Popovers & 3D Modeling Help Center Guide | P0 | 12 | 0 | 0.0% | `[ ]` |
-| **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
-| 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
-| 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **276** | **61.1%** | `[~]` |
-| 21 | `OBJ-LAYOUT` | Workspace Layout, Multi-Pane Splitters & Viewport Maximization | P0 | 12 | 0 | 0.0% | `[ ]` |
-| 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 0 | 0.0% | `[ ]` |
-| 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 0 | 0.0% | `[ ]` |
-| 25 | `OBJ-VIEW3D` | Blender-Style 3D Viewport, Gizmos, Edit Modes & Modeling Tools | P0 | 16 | 0 | 0.0% | `[ ]` |
 | 26 | `OBJ-TEST` | Object Multi-Domain Physics Test Bench (Thermal, Electrical, Mechanical, Vacuum) | P0 | 14 | 14 | 100.0% | `[x]` |
 | 27 | `OBJ-SIM` | End-to-End Simulator Bridge, Pre-Flight Checks & Round-Trip Re-Sync | P0 | 14 | 14 | 100.0% | `[x]` |
-| 28 | `OBJ-ASSY` | 3D Editor Assembly Integration, Multi-Object Joints & Wire Routing | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 28 | `OBJ-ASSY` | 3D Editor Assembly Integration, Multi-Object Joints & Wire Routing | P0 | 14 | 14 | 100.0% | `[x]` |
 | 29 | `OBJ-PERSIST`| Versioned Object Persistence, Library & Safe File Exchange | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 30 | `OBJ-HELP` | Object Contextual Info Popovers & 3D Modeling Help Center Guide | P0 | 12 | 0 | 0.0% | `[ ]` |
 | **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
 | 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **376** | **83.2%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **390** | **86.3%** | `[~]` |
 
 ---
 
@@ -1108,30 +1081,30 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-28: 3D Editor Assembly Integration, Multi-Object Joints & Wire Routing (`OBJ-ASSY`)
 
 **Objective:** Advance to the next architectural stage: enable combining multiple saved objects into assemblies inside the 3D Editor workflow, connecting them with kinematic joints, electrical wiring, and thermal contacts.  
-**Priority:** P0 | **Complexity:** High | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** High | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-28.01: Assembly Canvas & Part Placement [ ] (0.0% — 7/7)
-- [ ] `PH5-28.01.001`: Upgrade `shunya/Editor3DWorkspace.qml` to serve as the unified **Assembly Editor**, consuming saved objects from the Object Library.
-- [ ] `PH5-28.01.002`: Allow dragging and dropping objects from the library tree into the 3D assembly scene, instantiating part instances with unique instance IDs.
-- [ ] `PH5-28.01.003`: Share the identical Blender-style viewport engine, transform gizmos, camera navigation, and display modes between the Objects workflow and 3D Editor.
-- [ ] `PH5-28.01.004`: Implement precision mating snaps: snap part faces to faces, concentric cylindrical alignment, and terminal-to-terminal alignment.
-- [ ] `PH5-28.01.005`: Maintain object references by UUID and version: when an underlying object is edited in the Objects workspace, prompt the assembly user: `"Object 'Incandescent_Bulb' was modified. Update in Assembly?"`.
-- [ ] `PH5-28.01.006`: Support assembly hierarchies: group parts into sub-assemblies with localized coordinate origins.
-- [ ] `PH5-28.01.007`: Add unit test verifying that instantiating multiple objects in an assembly creates independent transform matrices.
+### Submodule PH5-28.01: Assembly Canvas & Part Placement [x] (100.0% — 7/7)
+- [x] `PH5-28.01.001`: Upgrade `shunya/Editor3DWorkspace.qml` to serve as the unified **Assembly Editor**, consuming saved objects from the Object Library.
+- [x] `PH5-28.01.002`: Allow dragging and dropping objects from the library tree into the 3D assembly scene, instantiating part instances with unique instance IDs.
+- [x] `PH5-28.01.003`: Share the identical Blender-style viewport engine, transform gizmos, camera navigation, and display modes between the Objects workflow and 3D Editor.
+- [x] `PH5-28.01.004`: Implement precision mating snaps: snap part faces to faces, concentric cylindrical alignment, and terminal-to-terminal alignment.
+- [x] `PH5-28.01.005`: Maintain object references by UUID and version: when an underlying object is edited in the Objects workspace, prompt the assembly user: `"Object 'Incandescent_Bulb' was modified. Update in Assembly?"`.
+- [x] `PH5-28.01.006`: Support assembly hierarchies: group parts into sub-assemblies with localized coordinate origins.
+- [x] `PH5-28.01.007`: Add unit test verifying that instantiating multiple objects in an assembly creates independent transform matrices.
 
-### Submodule PH5-28.02: Kinematic Joints, Electrical Wiring & Assembly Co-Sim [ ] (0.0% — 7/7)
-- [ ] `PH5-28.02.001`: Implement Kinematic Joint Constraints between parts:
+### Submodule PH5-28.02: Kinematic Joints, Electrical Wiring & Assembly Co-Sim [x] (100.0% — 7/7)
+- [x] `PH5-28.02.001`: Implement Kinematic Joint Constraints between parts:
   - **Fixed Joint:** rigidly locks two parts together.
   - **Revolute / Hinge Joint:** allows 1-DOF rotation around an axis with angle limits.
   - **Prismatic / Slider Joint:** allows 1-DOF translation along an axis.
   - **Ball Joint:** 3-DOF spherical rotation.
   - **Threaded Screw Mating:** helically couples rotation to translation (for bulb into socket).
-- [ ] `PH5-28.02.002`: Implement interactive 3D **Electrical Wire Routing**: click two named terminal pins across different parts to route a physical wire with defined AWG gauge and insulation.
-- [ ] `PH5-28.02.003`: Implement 3D **Thermal Contact Interfaces**: define surface-to-surface thermal conductance ($h_c$) between mated parts.
-- [ ] `PH5-28.02.004`: Build saveable assembly model persistence: serialize assemblies to `<workspace>/models/<id>.shunya-model.json`.
-- [ ] `PH5-28.02.005`: Enable `"Send Assembly to Simulator"`: translate complete assembly (multi-body rigid dynamics, joints, electrical wire netlist, thermal network) into the co-simulation coordinator.
-- [ ] `PH5-28.02.006`: Implement assembly pre-flight checks: assert kinematic joint validity, verify closed electrical loops, and flag collisions.
-- [ ] `PH5-28.02.007`: Add automated E2E test assembling a desk lamp (socket, articulated arm, incandescent bulb), connecting wiring, and simulating illumination under switch closure.
+- [x] `PH5-28.02.002`: Implement interactive 3D **Electrical Wire Routing**: click two named terminal pins across different parts to route a physical wire with defined AWG gauge and insulation.
+- [x] `PH5-28.02.003`: Implement 3D **Thermal Contact Interfaces**: define surface-to-surface thermal conductance ($h_c$) between mated parts.
+- [x] `PH5-28.02.004`: Build saveable assembly model persistence: serialize assemblies to `<workspace>/models/<id>.shunya-model.json`.
+- [x] `PH5-28.02.005`: Enable `"Send Assembly to Simulator"`: translate complete assembly (multi-body rigid dynamics, joints, electrical wire netlist, thermal network) into the co-simulation coordinator.
+- [x] `PH5-28.02.006`: Implement assembly pre-flight checks: assert kinematic joint validity, verify closed electrical loops, and flag collisions.
+- [x] `PH5-28.02.007`: Add automated E2E test assembling a desk lamp (socket, articulated arm, incandescent bulb), connecting wiring, and simulating illumination under switch closure.
 
 ---
 
