@@ -21,9 +21,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 48 | 10.6% |
+| `[ ]` | Not Started | 36 | 8.0% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 404 | 89.4% |
+| `[x]` | Completed | 416 | 92.0% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -64,11 +64,11 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 27 | `OBJ-SIM` | End-to-End Simulator Bridge, Pre-Flight Checks & Round-Trip Re-Sync | P0 | 14 | 14 | 100.0% | `[x]` |
 | 28 | `OBJ-ASSY` | 3D Editor Assembly Integration, Multi-Object Joints & Wire Routing | P0 | 14 | 14 | 100.0% | `[x]` |
 | 29 | `OBJ-PERSIST`| Versioned Object Persistence, Library & Safe File Exchange | P0 | 14 | 14 | 100.0% | `[x]` |
-| 30 | `OBJ-HELP` | Object Contextual Info Popovers & 3D Modeling Help Center Guide | P0 | 12 | 0 | 0.0% | `[ ]` |
+| 30 | `OBJ-HELP` | Object Contextual Info Popovers & 3D Modeling Help Center Guide | P0 | 12 | 12 | 100.0% | `[x]` |
 | **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
 | 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **404** | **89.4%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **416** | **92.0%** | `[~]` |
 
 ---
 
@@ -1136,28 +1136,28 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-30: Object Contextual Info Popovers & 3D Modeling Help Center Guide (`OBJ-HELP`)
 
 **Objective:** Integrate contextual `ⓘ` info buttons across all object authoring controls and build a dedicated "Objects & 3D Modeling" section in the desktop Help Center featuring a complete incandescent bulb tutorial.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/12 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (12/12 — 100.0%)
 
-### Submodule PH5-30.01: Contextual Info Popovers on Authoring Controls [ ] (0.0% — 6/6)
-- [ ] `PH5-30.01.001`: Attach `MonoInfoButton.qml` (`ⓘ`) next to: Object Geometry controls, Region Manager, Cavity & Fill Gas settings, Terminal pin assignments, Test Bench launchers, and Simulator Bridge triggers.
-- [ ] `PH5-30.01.002`: Design popover content explaining: (1) Core physical principle, (2) Mathematical model or governing formula, (3) Valid parameter ranges, and (4) `"Learn more..."` deep-link.
-- [ ] `PH5-30.01.003`: Provide tooltip shortcut hints on every viewport toolbar button (e.g. `Orbit (MMB)`, `Move (G)`, `Extrude (E)`).
-- [ ] `PH5-30.01.004`: Wire `"Learn more..."` links to open the exact anchor target in the desktop Help Center.
-- [ ] `PH5-30.01.005`: Ensure popovers reposition dynamically to prevent boundary clipping.
-- [ ] `PH5-30.01.006`: Guarantee full keyboard navigation and dismiss on Escape key press.
+### Submodule PH5-30.01: Contextual Info Popovers on Authoring Controls [x] (100.0% — 6/6)
+- [x] `PH5-30.01.001`: Attach `MonoInfoButton.qml` (`ⓘ`) next to: Object Geometry controls, Region Manager, Cavity & Fill Gas settings, Terminal pin assignments, Test Bench launchers, and Simulator Bridge triggers.
+- [x] `PH5-30.01.002`: Design popover content explaining: (1) Core physical principle, (2) Mathematical model or governing formula, (3) Valid parameter ranges, and (4) `"Learn more..."` deep-link.
+- [x] `PH5-30.01.003`: Provide tooltip shortcut hints on every viewport toolbar button (e.g. `Orbit (MMB)`, `Move (G)`, `Extrude (E)`).
+- [x] `PH5-30.01.004`: Wire `"Learn more..."` links to open the exact anchor target in the desktop Help Center.
+- [x] `PH5-30.01.005`: Ensure popovers reposition dynamically to prevent boundary clipping.
+- [x] `PH5-30.01.006`: Guarantee full keyboard navigation and dismiss on Escape key press.
 
-### Submodule PH5-30.02: Desktop Help Center: Objects & 3D Modeling Guide [ ] (0.0% — 6/6)
-- [ ] `PH5-30.02.001`: Add dedicated **"Objects & 3D Modeling Guide"** chapter in `HelpCenterWindow.qml` reachable from menubar `Help > Objects & Modeling Guide`.
-- [ ] `PH5-30.02.002`: Author comprehensive tutorial: **"Step-by-Step Authoring of an Incandescent Light Bulb"**:
+### Submodule PH5-30.02: Desktop Help Center: Objects & 3D Modeling Guide [x] (100.0% — 6/6)
+- [x] `PH5-30.02.001`: Add dedicated **"Objects & 3D Modeling Guide"** chapter in `HelpCenterWindow.qml` reachable from menubar `Help > Objects & Modeling Guide`.
+- [x] `PH5-30.02.002`: Author comprehensive tutorial: **"Step-by-Step Authoring of an Incandescent Light Bulb"**:
   - Part 1: Revolving the glass envelope and hollowing with shell thickness.
   - Part 2: Generating the helical tungsten filament and molybdenum support wires.
   - Part 3: Assigning materials from elements.csv and chemical compound libraries.
   - Part 4: Setting up the interior cavity, sealing, and comparing Vacuum vs Argon fill.
   - Part 5: Placing terminal contacts and running the in-situ electrical test bench.
-- [ ] `PH5-30.02.003`: Author complete **Blender-Style Keyboard Shortcuts Cheat-Sheet** documenting all viewport navigation, transform, and mesh edit hotkeys.
-- [ ] `PH5-30.02.004`: Author documentation covering assembly mating constraints, kinematics, and electro-mechanical co-simulation.
-- [ ] `PH5-30.02.005`: Integrate search indexing for all 3D modeling keywords, tools, and error messages.
-- [ ] `PH5-30.02.006`: Add automated UI test verifying deep-linking from cavity info button into the Incandescent Bulb tutorial.
+- [x] `PH5-30.02.003`: Author complete **Blender-Style Keyboard Shortcuts Cheat-Sheet** documenting all viewport navigation, transform, and mesh edit hotkeys.
+- [x] `PH5-30.02.004`: Author documentation covering assembly mating constraints, kinematics, and electro-mechanical co-simulation.
+- [x] `PH5-30.02.005`: Integrate search indexing for all 3D modeling keywords, tools, and error messages.
+- [x] `PH5-30.02.006`: Add automated UI test verifying deep-linking from cavity info button into the Incandescent Bulb tutorial.
 
 ---
 

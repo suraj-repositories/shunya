@@ -75,6 +75,41 @@ Window {
             category: "Navigation",
             summary: "Comprehensive hotkey reference for Shunya Engineering Studio.",
             content: "Essential Desktop Shortcuts:\n\n• Ctrl + B: Toggle Left Navigation Sidebar\n• Ctrl + J: Toggle Bottom Diagnostics Console\n• Ctrl + Alt + B: Toggle Right Properties Sidebar\n• F11 / Ctrl + Space: Maximize Viewport Mode\n• Ctrl + Shift + P: Open Command Palette\n• Ctrl + Z / Ctrl + Y: Global Undo / Redo\n• Space / Enter: Activate focused control / Expand info popover\n• Escape: Dismiss open popovers, dropdowns, and modals"
+        },
+        {
+            id: "objects-modeling-overview",
+            title: "Objects & 3D Modeling Architecture",
+            category: "3D CAD & Modeling",
+            summary: "Multi-region cyber-physical object authoring, single source of truth, and computed physical tensors.",
+            content: "The Objects Authoring System provides full 3D solid parametric modeling, multi-region material assignment, interior cavity physics, and physical tensor computation.\n\nKey Principles:\n• Single Source of Truth: Geometry and material regions deterministically derive Volume, Mass, Density, Center of Mass, and Inertia Tensors (Ixx, Iyy, Izz) with zero numerical discrepancies.\n• Multi-Region Hierarchy: Decompose complex parts into functional regions (Core, Cladding, Conductive Path, Heat Sink, Structural Shell).\n• Pre-Flight Verification: Automated checks ensure all regions have assigned materials, cavities are sealed, and geometry is non-degenerate before simulation dispatch."
+        },
+        {
+            id: "incandescent-bulb-tutorial",
+            title: "Tutorial: Step-by-Step Authoring of an Incandescent Light Bulb",
+            category: "3D CAD & Modeling",
+            summary: "Complete 5-part guide from revolving glass envelope and sweeping tungsten coil to argon gas cavity and 120V test.",
+            content: "Step-by-Step Authoring of a 60W Incandescent Light Bulb (Worked Example):\n\nPart 1: Revolving the Glass Envelope & Shelling:\n• Select Revolved Profile or Capsule geometry (R = 0.030m, H = 0.110m).\n• Apply Shelling with wall thickness 0.0012m to create a hollow glass envelope.\n\nPart 2: Generating the Helical Tungsten Filament & Support Leads:\n• Create a Swept Path helical coil with wire radius 25 um, coil radius 1.5 mm, length 20 mm, and 20 turns.\n• Add molybdenum support leads holding the filament in place.\n\nPart 3: Assigning Materials from elements.csv & Compound Registries:\n• Region 'envelope': Borosilicate Glass (SiO2-B2O3, insulating, transparent).\n• Region 'filament': Tungsten (W, 99.95%, role: ConductivePath, sigma = 1.78e7 S/m, Tm = 3695 K).\n• Region 'base': Brass (Cu-Zn alloy, threaded mechanical interface).\n\nPart 4: Setting up Interior Cavity: Vacuum vs Argon Fill Gas:\n• Set Cavity Spec: Volume = 1.35e-4 m3, sealed = true.\n• Compare Hard Vacuum (< 1e-4 Pa) vs Inert Gas (80 kPa Argon).\n• Science Note: Argon gas suppresses tungsten evaporation rate by ~95%, extending lamp lifetime from 10 hours to 1000+ hours.\n\nPart 5: Placing Terminal Contacts & Running Electrical Test Bench:\n• Add Terminals: '+V' on foot contact, 'GND' on threaded base shell.\n• In the Test Bench tab, apply 120 V AC/DC.\n• Verify: Power = 60W, current = 0.50A, filament heats to 2750K, while outer envelope remains safely below 380K."
+        },
+        {
+            id: "blender-viewport-shortcuts",
+            title: "Blender-Style 3D Viewport & Modeling Shortcuts",
+            category: "Navigation",
+            summary: "Familiar Blender hotkeys for camera navigation, transform gizmos, and polyhedral editing.",
+            content: "Blender-Compatible Viewport Shortcuts Reference:\n\nCamera Navigation:\n• Orbit: Middle Mouse Button (MMB) drag\n• Pan: Shift + MMB drag\n• Zoom: Mouse Wheel Scroll or Ctrl + MMB drag\n• Front Orthographic View: Numpad 1\n• Right Orthographic View: Numpad 3\n• Top Orthographic View: Numpad 7\n• Toggle Perspective / Orthographic: Numpad 5\n• Focus Selected Object: F or Numpad .\n\nTransform Gizmos:\n• Move / Translate Gizmo: G\n• Rotate Gizmo: R\n• Scale Gizmo: S\n• Cancel Active Transform: Right Click or Escape\n\nPolyhedral Edit Mode:\n• Toggle Object Mode / Edit Mode: Tab\n• Vertex Selection Mask: 1\n• Edge Selection Mask: 2\n• Face Selection Mask: 3\n• Extrude Selected Face: E\n• Inset Selected Face: I\n• Bevel Selected Edge / Face: Ctrl + B"
+        },
+        {
+            id: "cavity-gas-physics",
+            title: "Interior Cavity, Real Gas PVT & Paschen Breakdown",
+            category: "Physics & Chemistry",
+            summary: "Governing thermodynamics of sealed/open cavities, vacuum outgassing, and dielectric arcing.",
+            content: "Interior Cavities & Gas Physics Models:\n\n1. Real Gas PVT State:\n   P * (V - n*b) = n * R * T * exp(-a*n / (R*T*V))\n   Evaluates non-ideal compressibility and thermal expansion for real gases (Argon, Nitrogen, Krypton, Xenon).\n\n2. Gas Conduction & Radiation Coupling:\n   q_gas = k_gas(T) * (T_hot - T_wall) / delta_x\n   Filament thermal radiation follows Stefan-Boltzmann law: q_rad = epsilon * sigma_SB * (T_hot^4 - T_wall^4).\n\n3. Evaporative Sublimation Mass Loss (Langmuir):\n   dm/dt = P_vapor * sqrt(M / (2 * pi * R * T))\n   Ambient inert gas back-scatters evaporated metal atoms, dramatically reducing net mass loss rate.\n\n4. Paschen's Law Dielectric Breakdown:\n   V_b = (B * P * d) / (ln(A * P * d) - ln(ln(1 + 1/gamma_se)))\n   Calculates minimum arcing voltage across terminals based on gas pressure and electrode gap.\n\n5. Seal Integrity & Leak Rate:\n   Q_leak = C_conductance * (P_internal^2 - P_ambient^2)"
+        },
+        {
+            id: "assemblies-kinematics-wires",
+            title: "3D Editor Assemblies, Kinematic Joints & Wire Routing",
+            category: "3D CAD & Modeling",
+            summary: "Assembling multi-body mechanisms, precision mating, kinematic joints, and electrical netlist routing.",
+            content: "Assembly Editor & Electro-Mechanical Co-Simulation:\n\n• Part Instantiation: Drag objects from Object Library into the 3D scene, generating independent spatial transforms.\n• Precision Mating: Snap concentric cylindrical axes, snap planar faces with optional offset, and snap electrical terminals.\n• Kinematic Joints:\n  - Fixed Joint: Rigid 0-DOF lock\n  - Revolute Joint: 1-DOF hinge with angle limits [theta_min, theta_max]\n  - Prismatic Joint: 1-DOF linear slider along specified axis\n  - Ball Joint: 3-DOF spherical rotation\n  - Threaded Screw Joint: Helically couples rotation to translation (pitch mm/rev)\n• Electrical Wire Routing: Connects named terminals across parts with defined AWG gauge and insulation; automatically calculates electrical branch resistance R = rho * L / A.\n• Thermal Contact Interfaces: Surface conductance h_c across mated parts (q = h_c * A * Delta_T).\n• Pre-Flight & Co-Sim: Verifies closed electrical loops and joint validity before sending to the Multiphysics Co-Simulator."
         }
     ]
 

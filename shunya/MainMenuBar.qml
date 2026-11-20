@@ -424,6 +424,9 @@ MenuBar {
         delegate: VSCodeMenuItem {}
 
         Action { text: qsTr("&Mixing Lab Guide"); onTriggered: window.openHelpCenter("mixing-lab-overview") }
+        Action { text: qsTr("&Objects & Modeling Guide"); onTriggered: window.openHelpCenter("objects-modeling-overview") }
+        Action { text: qsTr("&Incandescent Bulb Tutorial"); onTriggered: window.openHelpCenter("incandescent-bulb-tutorial") }
+        Action { text: qsTr("&3D Viewport Shortcuts"); onTriggered: window.openHelpCenter("blender-viewport-shortcuts") }
         Action { text: qsTr("&Documentation"); shortcut: "F1"; onTriggered: window.openHelpCenter("mixing-lab-overview") }
         Action { text: qsTr("&Keyboard Shortcuts"); onTriggered: window.openHelpCenter("keyboard-shortcuts") }
         MenuSeparator {}

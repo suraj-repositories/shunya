@@ -179,6 +179,7 @@ add_executable(shunya_unit_tests
     unit/test_p5_simulator_bridge.cpp
     unit/test_p5_assembly_editor.cpp
     unit/test_p5_object_persistence.cpp
+    unit/test_p5_object_help.cpp
 )
 
 target_include_directories(shunya_unit_tests

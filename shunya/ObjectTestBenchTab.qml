@@ -75,6 +75,14 @@ Item {
                             Layout.fillWidth: true
                         }
 
+                        MonoInfoButton {
+                            title: "Multiphysics Object Test Bench"
+                            description: "Subject 3D physical objects with terminals and cavities to coupled Electrical, Thermal, Mechanical, and Pressure qualification tests."
+                            formula: "P = V²/R = I²R,  q = k*A*ΔT/L,  σ = F/A"
+                            parameterRange: "V: 0-1000V, T: 4-3000K, F: 0-100kN"
+                            helpAnchor: "virtual-test-bench"
+                        }
+
                         MonoBadge {
                             text: activePreset.replace("_", " ")
                             color: Theme.accentPrimary

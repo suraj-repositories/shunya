@@ -1282,12 +1282,24 @@ Rectangle {
                                     width: parent.width
                                     spacing: 8
 
-                                    Text {
-                                        text: "Parametric Shape & Dimensions"
-                                        font.family: Theme.fontSans
-                                        font.pixelSize: Theme.fontXs
-                                        font.weight: Font.DemiBold
-                                        color: Theme.textPrimary
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 4
+                                        Text {
+                                            text: "Parametric Shape & Dimensions"
+                                            font.family: Theme.fontSans
+                                            font.pixelSize: Theme.fontXs
+                                            font.weight: Font.DemiBold
+                                            color: Theme.textPrimary
+                                        }
+                                        Item { Layout.fillWidth: true }
+                                        MonoInfoButton {
+                                            title: "Parametric Solid Geometry"
+                                            description: "Analytical primitives, CAD sweeps, and revolved cross-sections. Single source of truth for volume, surface area, and bounding envelopes."
+                                            formula: "V = ∫∫∫ dV,  A = ∬ dA"
+                                            parameterRange: "Dim: 1e-4m to 10m"
+                                            helpAnchor: "objects-modeling-overview"
+                                        }
                                     }
 
                                     RowLayout {
@@ -1476,6 +1488,26 @@ Rectangle {
                                     width: parent.width
                                     spacing: 8
 
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 4
+                                        Text {
+                                            text: "Material Regions & Functional Roles"
+                                            font.family: Theme.fontSans
+                                            font.pixelSize: Theme.fontXs
+                                            font.weight: Font.DemiBold
+                                            color: Theme.textPrimary
+                                        }
+                                        Item { Layout.fillWidth: true }
+                                        MonoInfoButton {
+                                            title: "Multi-Region Material Architecture"
+                                            description: "Assigns chemical elements, alloys, and compounds from elements.csv or Mixing Lab to volumetric regions with defined functional roles."
+                                            formula: "Σ vf_i = 1.0,  M = V * Σ (vf_i * ρ_i)"
+                                            parameterRange: "vf: 0.0 to 1.0"
+                                            helpAnchor: "objects-modeling-overview"
+                                        }
+                                    }
+
                                     ObjectRegionsView {
                                         Layout.fillWidth: true
                                         implicitHeight: 380
@@ -1499,12 +1531,24 @@ Rectangle {
                                         }
                                     }
 
-                                    Text {
-                                        text: "Cavity & Fill Gas Configuration"
-                                        font.family: Theme.fontSans
-                                        font.pixelSize: Theme.fontXs
-                                        font.weight: Font.DemiBold
-                                        color: Theme.textPrimary
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 4
+                                        Text {
+                                            text: "Cavity & Fill Gas Configuration"
+                                            font.family: Theme.fontSans
+                                            font.pixelSize: Theme.fontXs
+                                            font.weight: Font.DemiBold
+                                            color: Theme.textPrimary
+                                        }
+                                        Item { Layout.fillWidth: true }
+                                        MonoInfoButton {
+                                            title: "Interior Sealed Cavities & Gas Physics"
+                                            description: "Models sealed/open cavities, vacuum outgassing, inert fill gases (Argon, N2, Kr, Xe), and Paschen dielectric breakdown."
+                                            formula: "P(V - nb) = nRT exp(-an/RTV),  dm/dt = P_v * sqrt(M / 2πRT)"
+                                            parameterRange: "P: 1e-6 Pa to 1e7 Pa"
+                                            helpAnchor: "cavity-gas-physics"
+                                        }
                                     }
 
                                     GridLayout {
@@ -1795,12 +1839,24 @@ Rectangle {
                                     width: parent.width
                                     spacing: 10
 
-                                    Text {
-                                        text: "Simulator Bridge & Pre-Flight Verification"
-                                        font.family: Theme.fontSans
-                                        font.pixelSize: Theme.fontXs
-                                        font.weight: Font.DemiBold
-                                        color: Theme.textPrimary
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 4
+                                        Text {
+                                            text: "Simulator Bridge & Pre-Flight Verification"
+                                            font.family: Theme.fontSans
+                                            font.pixelSize: Theme.fontXs
+                                            font.weight: Font.DemiBold
+                                            color: Theme.textPrimary
+                                        }
+                                        Item { Layout.fillWidth: true }
+                                        MonoInfoButton {
+                                            title: "Multiphysics Simulator Bridge"
+                                            description: "Translates 3D physical object definitions into executable simulation scenes with automated pre-flight assertion rules."
+                                            formula: "PreFlight: Sealed ∧ NonDegenerate ∧ ConductivePins"
+                                            parameterRange: "Pass / Fail scorecards"
+                                            helpAnchor: "objects-modeling-overview"
+                                        }
                                     }
 
                                     // Pre-Flight Status Card
