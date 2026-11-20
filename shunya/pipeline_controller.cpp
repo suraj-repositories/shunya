@@ -6,6 +6,7 @@
 #include "shunya/mat/atomic_bond_checker.hpp"
 #include "shunya/mat/material_comparison_engine.hpp"
 #include "shunya/mat/experiment_persistence.hpp"
+#include "shunya/eng/object_test_bench.hpp"
 
 #include <QFileInfo>
 #include <QUrl>
@@ -2717,6 +2718,113 @@ QVariantMap ShunyaPipelineController::evaluateIncandescentBulbMilestone(
     res["expectedLifespanHours"] = pt.expected_lifespan_hours;
     res["safeGlassEnvelopeTemp"] = pt.safe_glass_envelope_temp;
     return res;
+}
+
+QVariantMap ShunyaPipelineController::runObjectTestBench(
+    const QString& objectId,
+    const QString& presetName,
+    double voltage,
+    double ambientTempK,
+    double forceN,
+    double pressurePa) const {
+    QVariantMap res;
+    if (!ws_) { res["ok"] = false; return res; }
+
+    const eng::PhysicalObject* target = nullptr;
+    if (auto uid = core::base::Uuid::from_string(objectId.toStdString())) {
+        target = ws_->object_manager().get_object(*uid);
+    }
+    if (!target && !ws_->object_manager().objects().empty()) {
+        target = &ws_->object_manager().objects().front();
+    }
+    if (!target) {
+        res["ok"] = false;
+        res["error"] = "No object found";
+        return res;
+    }
+
+    eng::ObjectTestBenchStimuli stimuli = eng::ObjectTestBenchEngine::preset_standard_room();
+    if (presetName == "Spacecraft_LEO") {
+        stimuli = eng::ObjectTestBenchEngine::preset_spacecraft_leo();
+    } else if (presetName == "High_Voltage_Step") {
+        stimuli = eng::ObjectTestBenchEngine::preset_high_voltage_step();
+    } else if (presetName == "Lunar_Surface") {
+        stimuli = eng::ObjectTestBenchEngine::preset_lunar_surface();
+    }
+
+    if (voltage > 0.0) stimuli.applied_voltage_v = voltage;
+    if (ambientTempK > 0.0) stimuli.ambient_temperature_k = ambientTempK;
+    if (forceN >= 0.0) stimuli.applied_force_n = forceN;
+    if (pressurePa > 0.0) stimuli.ambient_pressure_pa = pressurePa;
+
+    auto rep = eng::ObjectTestBenchEngine::qualify_object(*target, ws_->material_registry(), stimuli);
+
+    res["ok"] = true;
+    res["objectName"] = QString::fromStdString(rep.object_name);
+    res["overallPassed"] = rep.overall_passed;
+    res["compositeScore"] = rep.composite_score;
+    res["markdown"] = QString::fromStdString(rep.to_markdown());
+    res["json"] = QString::fromStdString(rep.to_json());
+
+    QVariantList domList;
+    for (const auto& d : rep.domains) {
+        QVariantMap dm;
+        dm["name"] = QString::fromStdString(d.domain_name);
+        dm["passed"] = d.passed;
+        dm["score"] = d.score;
+        dm["metricSummary"] = QString::fromStdString(d.metric_summary);
+        dm["physicalModel"] = QString::fromStdString(d.physical_model);
+        dm["provenance"] = QString::fromStdString(d.provenance);
+        QVariantList det;
+        for (const auto& dt : d.details) det.append(QString::fromStdString(dt));
+        dm["details"] = det;
+        QVariantList wrn;
+        for (const auto& w : d.warnings) wrn.append(QString::fromStdString(w));
+        dm["warnings"] = wrn;
+        QVariantList fl;
+        for (const auto& f : d.failure_reasons) fl.append(QString::fromStdString(f));
+        dm["failures"] = fl;
+        domList.append(dm);
+    }
+    res["domains"] = domList;
+
+    QVariantList critList;
+    for (const auto& f : rep.critical_failures) critList.append(QString::fromStdString(f));
+    res["criticalFailures"] = critList;
+
+    QVariantList recList;
+    for (const auto& r : rep.engineering_recommendations) recList.append(QString::fromStdString(r));
+    res["recommendations"] = recList;
+
+    // Response Curves
+    QVariantList cTemp;
+    for (const auto& pt : rep.curve_temperature_vs_time) {
+        QVariantMap p; p["x"] = pt.x; p["y"] = pt.y; cTemp.append(p);
+    }
+    res["curveTempVsTime"] = cTemp;
+
+    QVariantList cVolt;
+    for (const auto& pt : rep.curve_voltage_vs_current) {
+        QVariantMap p; p["x"] = pt.x; p["y"] = pt.y; cVolt.append(p);
+    }
+    res["curveVoltVsCurrent"] = cVolt;
+
+    QVariantList cDefl;
+    for (const auto& pt : rep.curve_deflection_vs_load) {
+        QVariantMap p; p["x"] = pt.x; p["y"] = pt.y; cDefl.append(p);
+    }
+    res["curveDeflectVsLoad"] = cDefl;
+
+    return res;
+}
+
+QString ShunyaPipelineController::exportObjectTestCertificateMarkdown(
+    const QString& objectId,
+    const QString& presetName,
+    double voltage,
+    double ambientTempK) const {
+    auto res = runObjectTestBench(objectId, presetName, voltage, ambientTempK, 0.0, 101325.0);
+    return res.value("markdown").toString();
 }
 
 // =========================================================================

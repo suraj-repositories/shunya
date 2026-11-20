@@ -175,6 +175,7 @@ add_executable(shunya_unit_tests
     unit/test_p5_object_regions.cpp
     unit/test_p5_incandescent_bulb.cpp
     unit/test_p5_viewport_3d.cpp
+    unit/test_p5_object_test_bench.cpp
 )
 
 target_include_directories(shunya_unit_tests

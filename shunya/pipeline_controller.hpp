@@ -313,6 +313,20 @@ public:
         const QString& objectId,
         double inputVoltageV = 120.0) const;
 
+    // Object Multi-Domain Physics Test Bench (OBJ-TEST)
+    Q_INVOKABLE QVariantMap runObjectTestBench(
+        const QString& objectId,
+        const QString& presetName = "Standard_Room",
+        double voltage = 120.0,
+        double ambientTempK = 298.15,
+        double forceN = 0.0,
+        double pressurePa = 101325.0) const;
+    Q_INVOKABLE QString exportObjectTestCertificateMarkdown(
+        const QString& objectId,
+        const QString& presetName = "Standard_Room",
+        double voltage = 120.0,
+        double ambientTempK = 298.15) const;
+
     // =========================================================================
     // 4. Functional Circuit Components (OBJCMP)
     // =========================================================================

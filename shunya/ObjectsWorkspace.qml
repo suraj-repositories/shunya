@@ -1109,7 +1109,7 @@ Rectangle {
                             spacing: 2
 
                             Repeater {
-                                model: ["Geometry", "Regions", "Interior", "Physics", "Simulator"]
+                                model: ["Geometry", "Regions", "Interior", "Physics", "Test Bench", "Simulator"]
                                 delegate: MonoButton {
                                     text: modelData
                                     compact: true
@@ -1631,10 +1631,25 @@ Rectangle {
                                 }
 
                                 // =================================================
-                                // TAB 4: SIMULATOR (Bridge & Pre-Flight Checks)
+                                // TAB 4: TEST BENCH (Multiphysics Qualification)
                                 // =================================================
                                 ColumnLayout {
                                     visible: root.activePropertiesTab === 4
+                                    width: parent.width
+                                    spacing: 8
+
+                                    ObjectTestBenchTab {
+                                        Layout.fillWidth: true
+                                        implicitHeight: 700
+                                        objectId: root.selectedObj ? root.selectedObj.id : ""
+                                    }
+                                }
+
+                                // =================================================
+                                // TAB 5: SIMULATOR (Bridge & Pre-Flight Checks)
+                                // =================================================
+                                ColumnLayout {
+                                    visible: root.activePropertiesTab === 5
                                     width: parent.width
                                     spacing: 8
 

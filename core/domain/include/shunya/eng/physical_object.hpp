@@ -184,12 +184,21 @@ struct ObjectComputedProperties {
     std::vector<std::string> warnings;
 };
 
+struct ObjectTerminal {
+    std::string name{"+V"};
+    core::base::math::Vector3<double> position{0.0, 0.0, 0.0};
+    core::base::math::Vector3<double> normal{0.0, 0.0, 1.0};
+    double voltage_v{0.0};
+    bool is_conductive{true};
+};
+
 struct PhysicalObject {
     core::base::Uuid id{core::base::Uuid::generate_random()};
     std::string name{"Object"};
     std::string category{"Custom"};
     ObjectGeometrySpec geometry;
     std::vector<ObjectRegion> regions;
+    std::vector<ObjectTerminal> terminals;
     double operating_temp_k{298.15};
     double operating_pressure_pa{101325.0};
     CavitySpec cavity;

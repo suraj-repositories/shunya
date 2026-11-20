@@ -87,7 +87,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 0 | 0.0% | `[ ]` |
 | 25 | `OBJ-VIEW3D` | Blender-Style 3D Viewport, Gizmos, Edit Modes & Modeling Tools | P0 | 16 | 0 | 0.0% | `[ ]` |
-| 26 | `OBJ-TEST` | Object Multi-Domain Physics Test Bench (Thermal, Electrical, Mechanical, Vacuum) | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 26 | `OBJ-TEST` | Object Multi-Domain Physics Test Bench (Thermal, Electrical, Mechanical, Vacuum) | P0 | 14 | 14 | 100.0% | `[x]` |
 | 27 | `OBJ-SIM` | End-to-End Simulator Bridge, Pre-Flight Checks & Round-Trip Re-Sync | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 28 | `OBJ-ASSY` | 3D Editor Assembly Integration, Multi-Object Joints & Wire Routing | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 29 | `OBJ-PERSIST`| Versioned Object Persistence, Library & Safe File Exchange | P0 | 14 | 0 | 0.0% | `[ ]` |
@@ -95,7 +95,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
 | 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **262** | **58.0%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **362** | **80.1%** | `[~]` |
 
 ---
 
@@ -1049,25 +1049,25 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-26: Object Multi-Domain Physics Test Bench (`OBJ-TEST`)
 
 **Objective:** Equip the Objects workspace with an interactive physical test bench applying the same rigorous models as the Mixing Lab directly onto 3D geometry with internal cavities and named terminals.  
-**Priority:** P0 | **Complexity:** High | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** High | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-26.01: Multiphysics Test Domain Execution [ ] (0.0% — 7/7)
-- [ ] `PH5-26.01.001`: Create `core/domain/include/shunya/eng/object_test_bench.hpp` implementing test qualification routines operating on `PhysicalObject` instances.
-- [ ] `PH5-26.01.002`: **Thermal Qualification:** Apply heat flux ($W$) or ambient temperature profile; evaluate steady-state thermal distribution, hotspot locations, thermal expansion deformation, and thermal stress.
-- [ ] `PH5-26.01.003`: **Electrical Qualification:** Apply potential difference ($V$) or current ($I$) between two named electrical terminals; solve branch resistance, current density distribution $J = \sigma E$, Joule dissipation $I^2 R$, and evaluate thermal runaway threshold.
-- [ ] `PH5-26.01.004`: **Mechanical Qualification:** Apply selectable gravity vector (0 g, Earth, Moon) and static point/distributed loads; evaluate cantilever deflection, maximum von Mises stress $\sigma_{\text{vm}}$, and safety factor against yield ($SF = \frac{\sigma_y}{\sigma_{\text{vm}}}$).
-- [ ] `PH5-26.01.005`: **Pressure & Vacuum Qualification:** Compute envelope stress induced by pressure differential $\Delta P = |P_{\text{cavity}} - P_{\text{ambient}}|$; evaluate outgassing rate and leak risk.
-- [ ] `PH5-26.01.006`: **Environmental Degradation:** Evaluate oxidation and corrosion rates of exposed external surfaces based on ambient humidity, oxygen concentration, and operating temperature.
-- [ ] `PH5-26.01.007`: Add unit test `test_p5_object_test_bench.cpp` verifying that applying 120 V across the bulb terminals produces expected Joule heating and current metrics.
+### Submodule PH5-26.01: Multiphysics Test Domain Execution [x] (100.0% — 7/7)
+- [x] `PH5-26.01.001`: Create `core/domain/include/shunya/eng/object_test_bench.hpp` implementing test qualification routines operating on `PhysicalObject` instances.
+- [x] `PH5-26.01.002`: **Thermal Qualification:** Apply heat flux ($W$) or ambient temperature profile; evaluate steady-state thermal distribution, hotspot locations, thermal expansion deformation, and thermal stress.
+- [x] `PH5-26.01.003`: **Electrical Qualification:** Apply potential difference ($V$) or current ($I$) between two named electrical terminals; solve branch resistance, current density distribution $J = \sigma E$, Joule dissipation $I^2 R$, and evaluate thermal runaway threshold.
+- [x] `PH5-26.01.004`: **Mechanical Qualification:** Apply selectable gravity vector (0 g, Earth, Moon) and static point/distributed loads; evaluate cantilever deflection, maximum von Mises stress $\sigma_{\text{vm}}$, and safety factor against yield ($SF = \frac{\sigma_y}{\sigma_{\text{vm}}}$).
+- [x] `PH5-26.01.005`: **Pressure & Vacuum Qualification:** Compute envelope stress induced by pressure differential $\Delta P = |P_{\text{cavity}} - P_{\text{ambient}}|$; evaluate outgassing rate and leak risk.
+- [x] `PH5-26.01.006`: **Environmental Degradation:** Evaluate oxidation and corrosion rates of exposed external surfaces based on ambient humidity, oxygen concentration, and operating temperature.
+- [x] `PH5-26.01.007`: Add unit test `test_p5_object_test_bench.cpp` verifying that applying 120 V across the bulb terminals produces expected Joule heating and current metrics.
 
-### Submodule PH5-26.02: Test Results UI, Scorecards & Report Export [ ] (0.0% — 7/7)
-- [ ] `PH5-26.02.001`: Build `shunya/ObjectTestBenchTab.qml` inside the Right properties inspector featuring test execution cards and environment presets.
-- [ ] `PH5-26.02.002`: Display clear pass/fail scorecards comparing computed stresses, temperatures, and currents against material allowable limits.
-- [ ] `PH5-26.02.003`: Display scientific provenance metadata for every test result, citing the underlying mathematical equation, boundary assumptions, and material database source.
-- [ ] `PH5-26.02.004`: Integrate the structured explanation engine: generate plain-language summaries of test results, vulnerability analyses, and design improvement recommendations.
-- [ ] `PH5-26.02.005`: Provide 2D response plots in the bottom pane: Temperature vs Time, Voltage vs Current, Deflection vs Load.
-- [ ] `PH5-26.02.006`: Provide `"Export Test Certificate"` button exporting full qualification dossier to formatted Markdown and JSON.
-- [ ] `PH5-26.02.007`: Add automated UI test verifying that running the Electrical test on an object without terminals flags an informative warning.
+### Submodule PH5-26.02: Test Results UI, Scorecards & Report Export [x] (100.0% — 7/7)
+- [x] `PH5-26.02.001`: Build `shunya/ObjectTestBenchTab.qml` inside the Right properties inspector featuring test execution cards and environment presets.
+- [x] `PH5-26.02.002`: Display clear pass/fail scorecards comparing computed stresses, temperatures, and currents against material allowable limits.
+- [x] `PH5-26.02.003`: Display scientific provenance metadata for every test result, citing the underlying mathematical equation, boundary assumptions, and material database source.
+- [x] `PH5-26.02.004`: Integrate the structured explanation engine: generate plain-language summaries of test results, vulnerability analyses, and design improvement recommendations.
+- [x] `PH5-26.02.005`: Provide 2D response plots in the bottom pane: Temperature vs Time, Voltage vs Current, Deflection vs Load.
+- [x] `PH5-26.02.006`: Provide `"Export Test Certificate"` button exporting full qualification dossier to formatted Markdown and JSON.
+- [x] `PH5-26.02.007`: Add automated UI test verifying that running the Electrical test on an object without terminals flags an informative warning.
 
 ---
 

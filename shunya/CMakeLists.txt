@@ -85,6 +85,7 @@ qt_add_qml_module(shunya_gui_lib
         ObjectsWorkspace.qml
         MaterialPickerCombo.qml
         ObjectRegionsView.qml
+        ObjectTestBenchTab.qml
         ComponentsBatteryWorkspace.qml
         CircuitWorkspace.qml
         Editor2DWorkspace.qml

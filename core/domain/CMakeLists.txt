@@ -336,6 +336,7 @@ add_library(shunya_domain_eng OBJECT
     src/eng/entity_relationship_graph.cpp
     src/eng/physical_object.cpp
     src/eng/cavity_physics.cpp
+    src/eng/object_test_bench.cpp
     src/eng/component_generator.cpp
     src/eng/battery_engineer.cpp
     src/eng/interactive_circuit.cpp
