@@ -21,9 +21,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 120 | 26.5% |
+| `[ ]` | Not Started | 104 | 23.0% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 332 | 73.5% |
+| `[x]` | Completed | 348 | 77.0% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -59,7 +59,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 14 | 100.0% | `[x]` |
 | 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 14 | 100.0% | `[x]` |
 | 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 16 | 100.0% | `[x]` |
-| 25 | `OBJ-VIEW3D` | Blender-Style 3D Viewport, Gizmos, Edit Modes & Modeling Tools | P0 | 16 | 0 | 0.0% | `[ ]` |
+| 25 | `OBJ-VIEW3D` | Blender-Style 3D Viewport, Gizmos, Edit Modes & Modeling Tools | P0 | 16 | 16 | 100.0% | `[x]` |
 | 26 | `OBJ-TEST` | Object Multi-Domain Physics Test Bench (Thermal, Electrical, Mechanical, Vacuum) | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 27 | `OBJ-SIM` | End-to-End Simulator Bridge, Pre-Flight Checks & Round-Trip Re-Sync | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 28 | `OBJ-ASSY` | 3D Editor Assembly Integration, Multi-Object Joints & Wire Routing | P0 | 14 | 0 | 0.0% | `[ ]` |
@@ -68,7 +68,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
 | 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **332** | **73.5%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **348** | **77.0%** | `[~]` |
 | 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 0 | 0.0% | `[ ]` |
@@ -1009,40 +1009,40 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-25: Blender-Style 3D Viewport, Gizmos, Edit Modes & Modeling Tools (`OBJ-VIEW3D`)
 
 **Objective:** Implement a hardware-accelerated 3D viewport delivering Blender-grade navigation, transform gizmos, object and mesh edit modes, polyhedral modeling tools, X-ray cross-sections, and 60 FPS rendering up to 100k triangles.  
-**Priority:** P0 | **Complexity:** High | **Status:** `[ ] Not Started` (0/16 — 0.0%)
+**Priority:** P0 | **Complexity:** High | **Status:** `[x] Completed` (16/16 — 100.0%)
 
-### Submodule PH5-25.01: Viewport Navigation, Lighting, Grid & Gizmos [ ] (0.0% — 8/8)
-- [ ] `PH5-25.01.001`: Modernize `shunya/Viewport3DItem` using hardware-accelerated OpenGL/Vulkan/Qt RHI pipeline supporting directional key lighting, ambient occlusion, and material diffuse coloring.
-- [ ] `PH5-25.01.002`: Implement Blender navigation controls: Orbit (Middle Mouse Drag), Pan (Shift + Middle Mouse), Zoom (Wheel or Ctrl + Middle Mouse), Fly mode (Shift + `~`), and Focus Selected (`F` or Numpad `.`).
-- [ ] `PH5-25.01.003`: Support standard orthogonal views via Numpad: Front (`1`), Top (`7`), Side (`3`), and Toggle Perspective/Orthographic (`5`).
-- [ ] `PH5-25.01.004`: Render dynamic ground grid with unit scale indicators (mm, cm, m), XYZ coordinate axes, and 3D interactive ViewCube overlay.
-- [ ] `PH5-25.01.005`: Implement interactive 3D Transform Gizmos:
+### Submodule PH5-25.01: Viewport Navigation, Lighting, Grid & Gizmos [x] (100.0% — 8/8)
+- [x] `PH5-25.01.001`: Modernize `shunya/Viewport3DItem` using hardware-accelerated OpenGL/Vulkan/Qt RHI pipeline supporting directional key lighting, ambient occlusion, and material diffuse coloring.
+- [x] `PH5-25.01.002`: Implement Blender navigation controls: Orbit (Middle Mouse Drag), Pan (Shift + Middle Mouse), Zoom (Wheel or Ctrl + Middle Mouse), Fly mode (Shift + `~`), and Focus Selected (`F` or Numpad `.`).
+- [x] `PH5-25.01.003`: Support standard orthogonal views via Numpad: Front (`1`), Top (`7`), Side (`3`), and Toggle Perspective/Orthographic (`5`).
+- [x] `PH5-25.01.004`: Render dynamic ground grid with unit scale indicators (mm, cm, m), XYZ coordinate axes, and 3D interactive ViewCube overlay.
+- [x] `PH5-25.01.005`: Implement interactive 3D Transform Gizmos:
   - **Move (G):** translation arrows along X (red), Y (green), Z (blue), and planar drag quads.
   - **Rotate (R):** trackball ring gizmos with degree angle readouts.
   - **Scale (S):** uniform and axis-constrained scaling boxes.
-- [ ] `PH5-25.01.006`: Implement precision snapping: snap to grid increments, vertex snapping, edge midpoint snapping, and face surface alignment.
-- [ ] `PH5-25.01.007`: Support local vs global coordinate orientation spaces and pivot point selection (Active Element, Median Point, Bounding Box Center, 3D Cursor).
-- [ ] `PH5-25.01.008`: Support multi-selection modes: click select, rectangular box select (`B`), lasso select, select all (`A`), invert selection (`Ctrl+I`), and select by material/region.
+- [x] `PH5-25.01.006`: Implement precision snapping: snap to grid increments, vertex snapping, edge midpoint snapping, and face surface alignment.
+- [x] `PH5-25.01.007`: Support local vs global coordinate orientation spaces and pivot point selection (Active Element, Median Point, Bounding Box Center, 3D Cursor).
+- [x] `PH5-25.01.008`: Support multi-selection modes: click select, rectangular box select (`B`), lasso select, select all (`A`), invert selection (`Ctrl+I`), and select by material/region.
 
-### Submodule PH5-25.02: Edit Mode, Modeling Operations & Display Modes [ ] (0.0% — 8/8)
-- [ ] `PH5-25.02.001`: Implement dual operational modes toggled via `Tab` key: **Object Mode** (transform entire object) and **Edit Mode** (edit sub-mesh geometry).
-- [ ] `PH5-25.02.002`: In Edit Mode, support selection masks for **Vertices** (`1`), **Edges** (`2`), and **Faces** (`3`).
-- [ ] `PH5-25.02.003`: Implement primary polyhedral modeling tools:
+### Submodule PH5-25.02: Edit Mode, Modeling Operations & Display Modes [x] (100.0% — 8/8)
+- [x] `PH5-25.02.001`: Implement dual operational modes toggled via `Tab` key: **Object Mode** (transform entire object) and **Edit Mode** (edit sub-mesh geometry).
+- [x] `PH5-25.02.002`: In Edit Mode, support selection masks for **Vertices** (`1`), **Edges** (`2`), and **Faces** (`3`).
+- [x] `PH5-25.02.003`: Implement primary polyhedral modeling tools:
   - **Extrude (`E`):** extrude selected faces/edges along normal with numeric distance input.
   - **Inset (`I`):** inset faces with adjustable boundary margin.
   - **Bevel (`Ctrl+B`):** chamfer or round edges with segment count control.
   - **Loop Cut (`Ctrl+R`):** insert edge loops across quad topologies.
   - **Subdivide:** uniform quad/triangle mesh refinement.
   - **Merge / Dissolve:** collapse vertices/edges with distance threshold.
-- [ ] `PH5-25.02.004`: Implement parametric sculpting handles for primitives, allowing live dragging of radius, height, and chamfer directly in the viewport.
-- [ ] `PH5-25.02.005`: Implement interactive Measurement Tools: ruler measuring distance between vertices and protractor measuring dihedral angles.
-- [ ] `PH5-25.02.006`: Provide multiple display rendering modes:
+- [x] `PH5-25.02.004`: Implement parametric sculpting handles for primitives, allowing live dragging of radius, height, and chamfer directly in the viewport.
+- [x] `PH5-25.02.005`: Implement interactive Measurement Tools: ruler measuring distance between vertices and protractor measuring dihedral angles.
+- [x] `PH5-25.02.006`: Provide multiple display rendering modes:
   - **Solid Shaded:** PBR lighting with material diffuse colors.
   - **Wireframe:** edge topology overlay.
   - **X-Ray:** semi-transparent surfaces displaying interior sub-bodies and cavities.
   - **Cross-Section (Clipping Plane):** dynamic cutting plane exposing filament and interior structure inside outer glass envelope.
-- [ ] `PH5-25.02.007`: Implement deep multi-level Undo/Redo (`Ctrl+Z` / `Ctrl+Shift+Z`) tracking all geometric mutations, material assignments, and region edits.
-- [ ] `PH5-25.02.008`: Benchmark viewport rendering performance, guaranteeing minimum 60 FPS at 100,000 triangles under continuous camera orbit.
+- [x] `PH5-25.02.007`: Implement deep multi-level Undo/Redo (`Ctrl+Z` / `Ctrl+Shift+Z`) tracking all geometric mutations, material assignments, and region edits.
+- [x] `PH5-25.02.008`: Benchmark viewport rendering performance, guaranteeing minimum 60 FPS at 100,000 triangles under continuous camera orbit.
 
 ---
 

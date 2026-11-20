@@ -40,7 +40,11 @@ Rectangle {
 
     // Viewport Mode & Shading State
     property string viewportMode: "Object Mode" // "Object Mode" | "Edit Mode"
-    property string viewportShading: "Solid"    // "Solid" | "Wireframe" | "X-Ray"
+    property string viewportShading: "Solid"    // "Solid" | "Wireframe" | "X-Ray" | "Section"
+    property string gizmoMode: "translate"      // "translate" | "rotate" | "scale" | "none"
+    property string editMask: "face"            // "vertex" | "edge" | "face"
+    property string sectionPlane: "XY"          // "XY" | "YZ" | "ZX"
+    property double sectionOffset: 0.0
     property bool showGrid: true
     property bool snapEnabled: true
 
@@ -159,13 +163,28 @@ Rectangle {
         function onWorkspaceChanged() { root.refreshAll(); }
     }
 
-    // Keyboard Shortcuts for Layout
+    // Keyboard Shortcuts for Layout & Viewport
     Shortcut { sequence: "F11"; onActivated: root.isMaximizedViewport = !root.isMaximizedViewport }
     Shortcut { sequence: "Ctrl+Space"; onActivated: root.isMaximizedViewport = !root.isMaximizedViewport }
     Shortcut { sequence: "Ctrl+B"; onActivated: root.leftCollapsed = !root.leftCollapsed }
     Shortcut { sequence: "Ctrl+Alt+B"; onActivated: root.rightCollapsed = !root.rightCollapsed }
     Shortcut { sequence: "Ctrl+J"; onActivated: root.bottomCollapsed = !root.bottomCollapsed }
     Shortcut { sequence: "Escape"; onActivated: { if (root.isMaximizedViewport) root.isMaximizedViewport = false; } }
+
+    // Blender Navigation and Modeling Hotkeys
+    Shortcut { sequence: "Tab"; onActivated: root.viewportMode = (root.viewportMode === "Object Mode" ? "Edit Mode" : "Object Mode") }
+    Shortcut { sequence: "1"; onActivated: { if (root.viewportMode === "Edit Mode") root.editMask = "vertex"; else if (preview3d) preview3d.snapView("Front"); } }
+    Shortcut { sequence: "2"; onActivated: { if (root.viewportMode === "Edit Mode") root.editMask = "edge"; } }
+    Shortcut { sequence: "3"; onActivated: { if (root.viewportMode === "Edit Mode") root.editMask = "face"; else if (preview3d) preview3d.snapView("Right"); } }
+    Shortcut { sequence: "7"; onActivated: { if (preview3d) preview3d.snapView("Top"); } }
+    Shortcut { sequence: "5"; onActivated: { if (preview3d) preview3d.toggleProjection(); } }
+    Shortcut { sequence: "F"; onActivated: { if (preview3d) preview3d.focusSelected(); } }
+    Shortcut { sequence: "G"; onActivated: root.gizmoMode = "translate" }
+    Shortcut { sequence: "R"; onActivated: root.gizmoMode = "rotate" }
+    Shortcut { sequence: "S"; onActivated: root.gizmoMode = "scale" }
+    Shortcut { sequence: "E"; onActivated: { if (root.viewportMode === "Edit Mode" && preview3d) preview3d.extrudeSelected(0.02); } }
+    Shortcut { sequence: "I"; onActivated: { if (root.viewportMode === "Edit Mode" && preview3d) preview3d.insetSelected(0.005); } }
+    Shortcut { sequence: "Ctrl+B"; onActivated: { if (root.viewportMode === "Edit Mode" && preview3d) preview3d.bevelSelected(0.005, 2); } }
 
     ColumnLayout {
         anchors.fill: parent
@@ -643,9 +662,9 @@ Rectangle {
                             RowLayout {
                                 anchors.fill: parent
                                 anchors.margins: 4
-                                spacing: 6
+                                spacing: 4
 
-                                // Mode Selector
+                                // Mode Selector (Tab)
                                 RowLayout {
                                     spacing: 2
                                     Repeater {
@@ -661,11 +680,36 @@ Rectangle {
 
                                 Rectangle { width: 1; height: 16; color: Theme.borderSubtle }
 
+                                // Transform Gizmo Selector (G, R, S)
+                                RowLayout {
+                                    spacing: 2
+                                    MonoButton {
+                                        text: "Move (G)"
+                                        compact: true
+                                        active: root.gizmoMode === "translate"
+                                        onClicked: root.gizmoMode = "translate"
+                                    }
+                                    MonoButton {
+                                        text: "Rotate (R)"
+                                        compact: true
+                                        active: root.gizmoMode === "rotate"
+                                        onClicked: root.gizmoMode = "rotate"
+                                    }
+                                    MonoButton {
+                                        text: "Scale (S)"
+                                        compact: true
+                                        active: root.gizmoMode === "scale"
+                                        onClicked: root.gizmoMode = "scale"
+                                    }
+                                }
+
+                                Rectangle { width: 1; height: 16; color: Theme.borderSubtle }
+
                                 // Shading Mode Selector
                                 RowLayout {
                                     spacing: 2
                                     Repeater {
-                                        model: ["Solid", "Wireframe", "X-Ray"]
+                                        model: ["Solid", "Wireframe", "X-Ray", "Section"]
                                         delegate: MonoButton {
                                             text: modelData
                                             compact: true
@@ -675,21 +719,86 @@ Rectangle {
                                     }
                                 }
 
-                                Rectangle { width: 1; height: 16; color: Theme.borderSubtle }
+                                // Edit Mode Sub-Tools (Masks and Polyhedral Ops)
+                                RowLayout {
+                                    visible: root.viewportMode === "Edit Mode"
+                                    spacing: 2
 
-                                // Grid and Snapping Toggles
-                                MonoButton {
-                                    text: "Grid"
-                                    compact: true
-                                    active: root.showGrid
-                                    onClicked: root.showGrid = !root.showGrid
+                                    Rectangle { width: 1; height: 16; color: Theme.borderSubtle }
+
+                                    MonoButton {
+                                        text: "Verts (1)"
+                                        compact: true
+                                        active: root.editMask === "vertex"
+                                        onClicked: root.editMask = "vertex"
+                                    }
+                                    MonoButton {
+                                        text: "Edges (2)"
+                                        compact: true
+                                        active: root.editMask === "edge"
+                                        onClicked: root.editMask = "edge"
+                                    }
+                                    MonoButton {
+                                        text: "Faces (3)"
+                                        compact: true
+                                        active: root.editMask === "face"
+                                        onClicked: root.editMask = "face"
+                                    }
+
+                                    MonoButton {
+                                        text: "Extrude (E)"
+                                        compact: true
+                                        onClicked: { if (preview3d) preview3d.extrudeSelected(0.02); }
+                                    }
+                                    MonoButton {
+                                        text: "Inset (I)"
+                                        compact: true
+                                        onClicked: { if (preview3d) preview3d.insetSelected(0.005); }
+                                    }
+                                    MonoButton {
+                                        text: "Bevel"
+                                        compact: true
+                                        onClicked: { if (preview3d) preview3d.bevelSelected(0.005, 2); }
+                                    }
+                                    MonoButton {
+                                        text: "Subdiv"
+                                        compact: true
+                                        onClicked: { if (preview3d) preview3d.subdivideSelected(); }
+                                    }
                                 }
 
+                                // Section Analysis Controls
+                                RowLayout {
+                                    visible: root.viewportShading === "Section"
+                                    spacing: 2
+
+                                    Rectangle { width: 1; height: 16; color: Theme.borderSubtle }
+
+                                    Repeater {
+                                        model: ["XY", "YZ", "ZX"]
+                                        delegate: MonoButton {
+                                            text: modelData
+                                            compact: true
+                                            active: root.sectionPlane === modelData
+                                            onClicked: root.sectionPlane = modelData
+                                        }
+                                    }
+                                }
+
+                                Rectangle { width: 1; height: 16; color: Theme.borderSubtle }
+
+                                // Snapping and Camera Toggles
                                 MonoButton {
                                     text: root.snapEnabled ? "Snap ON" : "Snap OFF"
                                     compact: true
                                     active: root.snapEnabled
                                     onClicked: root.snapEnabled = !root.snapEnabled
+                                }
+
+                                MonoButton {
+                                    text: "Focus (F)"
+                                    compact: true
+                                    onClicked: { if (preview3d) preview3d.focusSelected(); }
                                 }
 
                                 MonoButton {
@@ -728,23 +837,44 @@ Rectangle {
                                     id: preview3d
                                     anchors.fill: parent
                                     darkMode: Theme.isDarkMode
+                                    displayMode: root.viewportShading.toLowerCase()
+                                    interactionMode: root.viewportMode === "Edit Mode" ? "edit" : "object"
+                                    selectionMask: root.editMask
+                                    gizmoMode: root.gizmoMode
+                                    snapEnabled: root.snapEnabled
+                                    sectionPlane: root.sectionPlane
+                                    sectionOffset: root.sectionOffset
 
                                     MouseArea {
                                         anchors.fill: parent
-                                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                        acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
                                         property double lx: 0
                                         property double ly: 0
                                         property int btn: 0
-                                        onPressed: (m) => { lx = m.x; ly = m.y; btn = m.button; }
+                                        property string activeGizmoAxis: "none"
+
+                                        onPressed: (m) => {
+                                            lx = m.x; ly = m.y; btn = m.button;
+                                            if (btn === Qt.LeftButton) {
+                                                activeGizmoAxis = preview3d.testGizmoHover(m.x, m.y, preview3d.width, preview3d.height);
+                                            }
+                                        }
                                         onPositionChanged: (m) => {
-                                            if (btn === Qt.RightButton) {
-                                                preview3d.panBy(m.x - lx, m.y - ly);
+                                            const dx = m.x - lx;
+                                            const dy = m.y - ly;
+                                            if (btn === Qt.LeftButton && activeGizmoAxis !== "none") {
+                                                preview3d.applyGizmoDrag(activeGizmoAxis, dx, dy, preview3d.width, preview3d.height);
+                                            } else if (btn === Qt.RightButton || (btn === Qt.MiddleButton && (m.modifiers & Qt.ShiftModifier))) {
+                                                preview3d.panBy(dx, dy);
+                                            } else if (btn === Qt.MiddleButton && (m.modifiers & Qt.ControlModifier)) {
+                                                preview3d.zoomBy(dy > 0 ? 0.95 : 1.05);
                                             } else {
-                                                preview3d.orbitBy((m.x - lx) * 0.5, (m.y - ly) * 0.5);
+                                                preview3d.orbitBy(dx * 0.5, dy * 0.5);
                                             }
                                             lx = m.x;
                                             ly = m.y;
                                         }
+                                        onReleased: (m) => { activeGizmoAxis = "none"; }
                                         onWheel: (w) => preview3d.zoomBy(w.angleDelta.y > 0 ? 0.9 : 1.1)
                                     }
                                 }

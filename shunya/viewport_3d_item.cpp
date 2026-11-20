@@ -1,5 +1,8 @@
 #include "viewport_3d_item.hpp"
 #include "shunya/cad3d/rhi_renderer_engine.hpp"
+#include "shunya/cad3d/mesh_topology_ops.hpp"
+#include "shunya/cad3d/subdivision.hpp"
+#include "shunya/cad3d/mesh_selection_engine.hpp"
 
 #include <QImage>
 #include <QPainter>
@@ -12,7 +15,8 @@ namespace shunya::gui {
 
 namespace {
 
-constexpr double kDegToRad = 3.14159265358979323846 / 180.0;
+constexpr double PI = 3.14159265358979323846;
+constexpr double kDegToRad = PI / 180.0;
 
 QColor materialBaseColor(const eng::PhysicalObject& obj,
                          const core::domain::MaterialRegistry& reg,
@@ -46,14 +50,15 @@ QColor thermalColor(double tempK) {
     return QColor::fromRgbF(0.95, 0.80 - 0.65 * k, 0.20 - 0.10 * k);
 }
 
-struct ProjectedTri {
-    float x0, y0, x1, y1, x2, y2;
-    double depth;
-    QColor fill;
-    QColor edge;
-};
-
 std::weak_ptr<eng::EngineeringWorkspaceState> s_default_ws_3d;
+
+void syncObjectProperties(eng::PhysicalObject* target, const std::shared_ptr<eng::EngineeringWorkspaceState>& ws) {
+    if (!target || !ws) return;
+    auto eval_res = eng::PhysicalObjectManager::evaluate_properties(*target, ws->material_registry());
+    if (eval_res.is_ok()) {
+        target->computed = eval_res.value();
+    }
+}
 
 } // namespace
 
@@ -64,49 +69,144 @@ void ShunyaViewport3DItem::setDefaultWorkspace(std::shared_ptr<eng::EngineeringW
 ShunyaViewport3DItem::ShunyaViewport3DItem(QQuickItem* parent)
     : QQuickPaintedItem(parent) {
     setAntialiasing(true);
-    setOpaquePainting(false);
-    if (auto def = s_default_ws_3d.lock()) {
-        setWorkspace(std::move(def));
+    if (auto sp = s_default_ws_3d.lock()) {
+        ws_ = sp;
+        refreshScene();
     }
 }
 
 void ShunyaViewport3DItem::setWorkspace(std::shared_ptr<eng::EngineeringWorkspaceState> ws) {
     ws_ = std::move(ws);
-    if (ws_) {
-        ws_->subscribe([this](const eng::WorkspaceChangeEvent&) {
-            refreshScene();
-        });
-    }
     refreshScene();
+}
+
+eng::PhysicalObject* ShunyaViewport3DItem::getSelectedObjectMut() {
+    if (!ws_) return nullptr;
+    const auto uid = core::base::Uuid::from_string(selected_id_.toStdString());
+    if (uid) {
+        return ws_->object_manager().get_object_mut(*uid);
+    }
+    if (!ws_->object_manager().objects().empty()) {
+        const auto id = ws_->object_manager().objects().front().id;
+        return ws_->object_manager().get_object_mut(id);
+    }
+    return nullptr;
+}
+
+const eng::PhysicalObject* ShunyaViewport3DItem::getSelectedObject() const {
+    if (!ws_) return nullptr;
+    const auto uid = core::base::Uuid::from_string(selected_id_.toStdString());
+    if (uid) {
+        return ws_->object_manager().get_object(*uid);
+    }
+    if (!ws_->object_manager().objects().empty()) {
+        return &ws_->object_manager().objects().front();
+    }
+    return nullptr;
+}
+
+void ShunyaViewport3DItem::setSelectedObjectId(const QString& id) {
+    if (selected_id_ != id) {
+        selected_id_ = id;
+        submesh_selection_.clear();
+        emit selectionChanged();
+        emit submeshSelectionChanged();
+        update();
+    }
+}
+
+void ShunyaViewport3DItem::setDisplayMode(const QString& m) {
+    if (display_mode_ != m) {
+        display_mode_ = m;
+        wireframe_ = (m == "wireframe");
+        emit displayModeChanged();
+        emit viewChanged();
+        update();
+    }
+}
+
+void ShunyaViewport3DItem::setInteractionMode(const QString& m) {
+    if (interaction_mode_ != m) {
+        interaction_mode_ = m;
+        submesh_selection_.clear();
+        if (m == "edit") {
+            submesh_selection_.select_face(0, false);
+        }
+        emit interactionModeChanged();
+        emit submeshSelectionChanged();
+        update();
+    }
+}
+
+void ShunyaViewport3DItem::setSelectionMask(const QString& mask) {
+    if (selection_mask_ != mask) {
+        selection_mask_ = mask;
+        if (mask == "vertex") submesh_selection_.mode = cad3d::MeshSelectionMode::Vertex;
+        else if (mask == "edge") submesh_selection_.mode = cad3d::MeshSelectionMode::Edge;
+        else submesh_selection_.mode = cad3d::MeshSelectionMode::Face;
+        emit selectionMaskChanged();
+        emit submeshSelectionChanged();
+        update();
+    }
 }
 
 void ShunyaViewport3DItem::orbitBy(double dyawDeg, double dpitchDeg) {
     yaw_deg_ += dyawDeg;
-    pitch_deg_ = std::clamp(pitch_deg_ + dpitchDeg, -85.0, 85.0);
+    pitch_deg_ = std::clamp(pitch_deg_ + dpitchDeg, -89.0, 89.0);
+    current_view_ = "Custom";
     emit viewChanged();
     update();
 }
 
 void ShunyaViewport3DItem::panBy(double dxPx, double dyPx) {
-    const double scale = dist_ / std::max(100.0, height());
-    pan_x_ -= dxPx * scale;
-    pan_y_ += dyPx * scale;
+    const double sens = dist_ * 0.002;
+    const double cy = std::cos(yaw_deg_ * kDegToRad);
+    pan_x_ -= (dxPx * cy) * sens;
+    pan_y_ += dyPx * sens;
     emit viewChanged();
     update();
 }
 
 void ShunyaViewport3DItem::zoomBy(double factor) {
-    dist_ = std::clamp(dist_ * factor, 0.12, 30.0);
+    dist_ = std::clamp(dist_ * factor, 0.05, 100.0);
     emit viewChanged();
     update();
 }
 
 void ShunyaViewport3DItem::snapView(const QString& face) {
-    if (face == "Front") { yaw_deg_ = 0.0; pitch_deg_ = 0.0; }
-    else if (face == "Top") { yaw_deg_ = 0.0; pitch_deg_ = 85.0; }
-    else if (face == "Right") { yaw_deg_ = 90.0; pitch_deg_ = 0.0; }
-    else if (face == "Left") { yaw_deg_ = -90.0; pitch_deg_ = 0.0; }
-    else { yaw_deg_ = 38.0; pitch_deg_ = 26.0; }
+    const QString f = face.trimmed().toLower();
+    if (f == "front" || f == "1") {
+        yaw_deg_ = 0.0; pitch_deg_ = 0.0; current_view_ = "Front";
+    } else if (f == "back") {
+        yaw_deg_ = 180.0; pitch_deg_ = 0.0; current_view_ = "Back";
+    } else if (f == "top" || f == "7") {
+        yaw_deg_ = 0.0; pitch_deg_ = 89.0; current_view_ = "Top";
+    } else if (f == "bottom") {
+        yaw_deg_ = 0.0; pitch_deg_ = -89.0; current_view_ = "Bottom";
+    } else if (f == "right" || f == "side" || f == "3") {
+        yaw_deg_ = 90.0; pitch_deg_ = 0.0; current_view_ = "Right";
+    } else if (f == "left") {
+        yaw_deg_ = -90.0; pitch_deg_ = 0.0; current_view_ = "Left";
+    } else if (f == "isometric" || f == "iso") {
+        yaw_deg_ = 38.0; pitch_deg_ = 26.0; current_view_ = "Isometric";
+    }
+    emit viewChanged();
+    update();
+}
+
+void ShunyaViewport3DItem::toggleProjection() {
+    is_orthographic_ = !is_orthographic_;
+    emit viewChanged();
+    update();
+}
+
+void ShunyaViewport3DItem::focusSelected() {
+    const auto* target = getSelectedObject();
+    if (!target) return;
+    pan_x_ = target->geometry.position.x;
+    pan_y_ = target->geometry.position.y;
+    const double dmax = std::max({target->geometry.dim_x_m, target->geometry.dim_y_m, target->geometry.dim_z_m, target->geometry.radius_m * 2.0});
+    dist_ = std::clamp(dmax * 3.0, 0.15, 10.0);
     emit viewChanged();
     update();
 }
@@ -117,6 +217,8 @@ void ShunyaViewport3DItem::resetCamera() {
     dist_ = 0.55;
     pan_x_ = 0.0;
     pan_y_ = 0.0;
+    is_orthographic_ = false;
+    current_view_ = "Isometric";
     emit viewChanged();
     update();
 }
@@ -137,12 +239,7 @@ void ShunyaViewport3DItem::refreshScene() {
 
 QVariantMap ShunyaViewport3DItem::inspectSelectedMesh() const {
     QVariantMap out;
-    if (!ws_) return out;
-    const auto uid = core::base::Uuid::from_string(selected_id_.toStdString());
-    const eng::PhysicalObject* target = uid ? ws_->object_manager().get_object(*uid) : nullptr;
-    if (!target && !ws_->object_manager().objects().empty()) {
-        target = &ws_->object_manager().objects().front();
-    }
+    const auto* target = getSelectedObject();
     if (!target) return out;
 
     const auto mesh = target->geometry.generate_solid_mesh();
@@ -164,11 +261,341 @@ QVariantMap ShunyaViewport3DItem::inspectSelectedMesh() const {
     return out;
 }
 
+// -----------------------------------------------------------------------------
+// Gizmo Interaction Engine
+// -----------------------------------------------------------------------------
+QVariantMap ShunyaViewport3DItem::getGizmoProjection(double viewportW, double viewportH) {
+    QVariantMap res;
+    res["visible"] = false;
+    const double W = std::max(1.0, viewportW);
+    const double H = std::max(1.0, viewportH);
+
+    const auto* target = getSelectedObject();
+    core::base::math::Vector3<double> pos{0.0, 0.0, 0.0};
+    if (target) pos = target->geometry.position;
+
+    const double cy = std::cos(yaw_deg_ * kDegToRad);
+    const double sy = std::sin(yaw_deg_ * kDegToRad);
+    const double cp = std::cos(pitch_deg_ * kDegToRad);
+    const double sp = std::sin(pitch_deg_ * kDegToRad);
+    const double focal = std::min(W, H) * 1.35;
+
+    auto project = [&](double wx, double wy, double wz, float& sx, float& sy_out) -> bool {
+        const double x = wx - pan_x_;
+        const double y = wy - pan_y_;
+        const double z = wz;
+        const double rx = x * cy + z * sy;
+        const double rz1 = -x * sy + z * cy;
+        const double ry = y * cp - rz1 * sp;
+        const double rz = y * sp + rz1 * cp - dist_;
+        if (!is_orthographic_ && rz >= -0.05) return false;
+        if (is_orthographic_) {
+            const double scale = focal / dist_;
+            sx = static_cast<float>(W * 0.5 + rx * scale);
+            sy_out = static_cast<float>(H * 0.5 - ry * scale);
+        } else {
+            const double inv = focal / (-rz);
+            sx = static_cast<float>(W * 0.5 + rx * inv);
+            sy_out = static_cast<float>(H * 0.5 - ry * inv);
+        }
+        return true;
+    };
+
+    float ox, oy, xx, xy, yx, yy, zx, zy;
+    const double len = 0.08;
+    if (project(pos.x, pos.y, pos.z, ox, oy) &&
+        project(pos.x + len, pos.y, pos.z, xx, xy) &&
+        project(pos.x, pos.y + len, pos.z, yx, yy) &&
+        project(pos.x, pos.y, pos.z + len, zx, zy)) {
+        res["visible"] = true;
+        res["originX"] = ox; res["originY"] = oy;
+        res["xTipX"] = xx;   res["xTipY"] = xy;
+        res["yTipX"] = yx;   res["yTipY"] = yy;
+        res["zTipX"] = zx;   res["zTipY"] = zy;
+        res["xyMidX"] = (xx + yx) * 0.5; res["xyMidY"] = (xy + yy) * 0.5;
+        res["yzMidX"] = (yx + zx) * 0.5; res["yzMidY"] = (yy + zy) * 0.5;
+        res["zxMidX"] = (zx + xx) * 0.5; res["zxMidY"] = (zy + xy) * 0.5;
+    }
+    return res;
+}
+
+QString ShunyaViewport3DItem::testGizmoHover(double mouseX, double mouseY, double viewportW, double viewportH) {
+    const auto proj = getGizmoProjection(viewportW, viewportH);
+    if (!proj["visible"].toBool()) return "none";
+
+    const double ox = proj["originX"].toDouble();
+    const double oy = proj["originY"].toDouble();
+    const double xx = proj["xTipX"].toDouble(), xy = proj["xTipY"].toDouble();
+    const double yx = proj["yTipX"].toDouble(), yy = proj["yTipY"].toDouble();
+    const double zx = proj["zTipX"].toDouble(), zy = proj["zTipY"].toDouble();
+
+    auto distToSeg = [&](double px, double py, double x1, double y1, double x2, double y2) -> double {
+        const double dx = x2 - x1, dy = y2 - y1;
+        const double l2 = dx * dx + dy * dy;
+        if (l2 < 1e-4) return std::hypot(px - x1, py - y1);
+        const double t = std::clamp(((px - x1) * dx + (py - y1) * dy) / l2, 0.0, 1.0);
+        return std::hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+    };
+
+    if (distToSeg(mouseX, mouseY, ox, oy, xx, xy) < 14.0) return "X";
+    if (distToSeg(mouseX, mouseY, ox, oy, yx, yy) < 14.0) return "Y";
+    if (distToSeg(mouseX, mouseY, ox, oy, zx, zy) < 14.0) return "Z";
+    if (std::hypot(mouseX - proj["xyMidX"].toDouble(), mouseY - proj["xyMidY"].toDouble()) < 16.0) return "XY";
+    if (std::hypot(mouseX - proj["yzMidX"].toDouble(), mouseY - proj["yzMidY"].toDouble()) < 16.0) return "YZ";
+    if (std::hypot(mouseX - proj["zxMidX"].toDouble(), mouseY - proj["zxMidY"].toDouble()) < 16.0) return "ZX";
+
+    return "none";
+}
+
+void ShunyaViewport3DItem::applyGizmoDrag(const QString& axis, double dx, double dy, double viewportW, double viewportH) {
+    auto* target = getSelectedObjectMut();
+    if (!target) return;
+    (void)viewportW; (void)viewportH;
+
+    const double scaleFactor = 0.001 * dist_;
+    if (gizmo_mode_ == "translate") {
+        if (axis == "X") target->geometry.position.x += dx * scaleFactor;
+        else if (axis == "Y") target->geometry.position.y -= dy * scaleFactor;
+        else if (axis == "Z") target->geometry.position.z += (dx - dy) * 0.707 * scaleFactor;
+        else if (axis == "XY") {
+            target->geometry.position.x += dx * scaleFactor;
+            target->geometry.position.y -= dy * scaleFactor;
+        }
+
+        if (snap_enabled_ && grid_step_ > 1e-4) {
+            target->geometry.position.x = std::round(target->geometry.position.x / grid_step_) * grid_step_;
+            target->geometry.position.y = std::round(target->geometry.position.y / grid_step_) * grid_step_;
+            target->geometry.position.z = std::round(target->geometry.position.z / grid_step_) * grid_step_;
+        }
+    } else if (gizmo_mode_ == "rotate") {
+        const double rotSensitivity = 0.5;
+        if (axis == "X") target->geometry.rotation_deg.x += dy * rotSensitivity;
+        else if (axis == "Y") target->geometry.rotation_deg.y += dx * rotSensitivity;
+        else if (axis == "Z") target->geometry.rotation_deg.z += (dx - dy) * 0.707 * rotSensitivity;
+
+        if (snap_enabled_ && angle_step_deg_ > 1e-4) {
+            target->geometry.rotation_deg.x = std::round(target->geometry.rotation_deg.x / angle_step_deg_) * angle_step_deg_;
+            target->geometry.rotation_deg.y = std::round(target->geometry.rotation_deg.y / angle_step_deg_) * angle_step_deg_;
+            target->geometry.rotation_deg.z = std::round(target->geometry.rotation_deg.z / angle_step_deg_) * angle_step_deg_;
+        }
+    } else if (gizmo_mode_ == "scale") {
+        const double deltaS = 1.0 + (dx - dy) * 0.005;
+        if (axis == "X") target->geometry.scale.x = std::max(0.01, target->geometry.scale.x * deltaS);
+        else if (axis == "Y") target->geometry.scale.y = std::max(0.01, target->geometry.scale.y * deltaS);
+        else if (axis == "Z") target->geometry.scale.z = std::max(0.01, target->geometry.scale.z * deltaS);
+        else {
+            target->geometry.scale.x = std::max(0.01, target->geometry.scale.x * deltaS);
+            target->geometry.scale.y = std::max(0.01, target->geometry.scale.y * deltaS);
+            target->geometry.scale.z = std::max(0.01, target->geometry.scale.z * deltaS);
+        }
+    }
+
+    syncObjectProperties(target, ws_);
+    emit sceneUpdated();
+    update();
+}
+
+// -----------------------------------------------------------------------------
+// Submesh Selection and Modeling Tools
+// -----------------------------------------------------------------------------
+void ShunyaViewport3DItem::selectAll() {
+    const auto* target = getSelectedObject();
+    if (!target) return;
+    const auto mesh = target->geometry.generate_solid_mesh();
+    submesh_selection_.select_all(mesh);
+    emit submeshSelectionChanged();
+    update();
+}
+
+void ShunyaViewport3DItem::deselectAll() {
+    submesh_selection_.clear();
+    emit submeshSelectionChanged();
+    update();
+}
+
+void ShunyaViewport3DItem::invertSelection() {
+    const auto* target = getSelectedObject();
+    if (!target) return;
+    const auto mesh = target->geometry.generate_solid_mesh();
+
+    if (selection_mask_ == "face") {
+        std::vector<uint32_t> inv;
+        for (uint32_t i = 0; i < mesh.triangles.size(); ++i) {
+            if (!submesh_selection_.is_face_selected(i)) inv.push_back(i);
+        }
+        submesh_selection_.selected_faces = std::move(inv);
+    } else if (selection_mask_ == "vertex") {
+        std::vector<uint32_t> inv;
+        for (uint32_t i = 0; i < mesh.vertices.size(); ++i) {
+            if (!submesh_selection_.is_vertex_selected(i)) inv.push_back(i);
+        }
+        submesh_selection_.selected_vertices = std::move(inv);
+    }
+    emit submeshSelectionChanged();
+    update();
+}
+
+void ShunyaViewport3DItem::selectSubmeshElement(const QString& mask, int index, bool toggle) {
+    if (index < 0) return;
+    const uint32_t idx = static_cast<uint32_t>(index);
+    if (mask == "face") submesh_selection_.select_face(idx, toggle);
+    else if (mask == "vertex") submesh_selection_.select_vertex(idx, toggle);
+    emit submeshSelectionChanged();
+    update();
+}
+
+bool ShunyaViewport3DItem::extrudeSelected(double distance) {
+    auto* target = getSelectedObjectMut();
+    if (!target) return false;
+    auto mesh = target->geometry.generate_solid_mesh();
+
+    std::vector<uint32_t> faces = submesh_selection_.selected_faces;
+    if (faces.empty()) {
+        faces.push_back(0); // default first face if none selected
+    }
+
+    cad3d::ExtrudeOptions opt;
+    opt.distance = distance;
+    if (!cad3d::MeshTopologyOps::extrude_faces(mesh, faces, opt)) return false;
+
+    target->geometry.kind = eng::ObjectShapeKind::Mesh3D;
+    target->geometry.mesh = mesh;
+    syncObjectProperties(target, ws_);
+    refreshScene();
+    return true;
+}
+
+bool ShunyaViewport3DItem::insetSelected(double thickness) {
+    auto* target = getSelectedObjectMut();
+    if (!target) return false;
+    auto mesh = target->geometry.generate_solid_mesh();
+
+    std::vector<uint32_t> faces = submesh_selection_.selected_faces;
+    if (faces.empty()) faces.push_back(0);
+
+    cad3d::InsetOptions opt;
+    opt.thickness = thickness;
+    if (!cad3d::MeshTopologyOps::inset_faces(mesh, faces, opt)) return false;
+
+    target->geometry.kind = eng::ObjectShapeKind::Mesh3D;
+    target->geometry.mesh = mesh;
+    syncObjectProperties(target, ws_);
+    refreshScene();
+    return true;
+}
+
+bool ShunyaViewport3DItem::bevelSelected(double offset, int segments) {
+    auto* target = getSelectedObjectMut();
+    if (!target) return false;
+    auto mesh = target->geometry.generate_solid_mesh();
+
+    std::vector<std::pair<uint32_t, uint32_t>> edges = submesh_selection_.selected_edges;
+    if (edges.empty() && !mesh.triangles.empty()) {
+        edges.push_back({mesh.triangles[0][0], mesh.triangles[0][1]});
+    }
+
+    cad3d::BevelOptions opt;
+    opt.offset = offset;
+    opt.segments = static_cast<uint32_t>(std::max(1, segments));
+    if (!cad3d::MeshTopologyOps::bevel(mesh, edges, submesh_selection_.selected_vertices, opt)) return false;
+
+    target->geometry.kind = eng::ObjectShapeKind::Mesh3D;
+    target->geometry.mesh = mesh;
+    syncObjectProperties(target, ws_);
+    refreshScene();
+    return true;
+}
+
+bool ShunyaViewport3DItem::loopCutSelected(double slide) {
+    auto* target = getSelectedObjectMut();
+    if (!target) return false;
+    auto mesh = target->geometry.generate_solid_mesh();
+    if (mesh.triangles.empty()) return false;
+
+    cad3d::LoopCutOptions opt;
+    opt.cuts = 1;
+    opt.slide = slide;
+    if (!cad3d::MeshTopologyOps::loop_cut(mesh, mesh.triangles[0][0], mesh.triangles[0][1], opt)) return false;
+
+    target->geometry.kind = eng::ObjectShapeKind::Mesh3D;
+    target->geometry.mesh = mesh;
+    syncObjectProperties(target, ws_);
+    refreshScene();
+    return true;
+}
+
+bool ShunyaViewport3DItem::subdivideSelected() {
+    auto* target = getSelectedObjectMut();
+    if (!target) return false;
+    auto mesh = target->geometry.generate_solid_mesh();
+
+    auto refined = cad3d::SubdivisionEngine::subdivide_loop(mesh, 1);
+    target->geometry.kind = eng::ObjectShapeKind::Mesh3D;
+    target->geometry.mesh = refined;
+    syncObjectProperties(target, ws_);
+    refreshScene();
+    return true;
+}
+
+int ShunyaViewport3DItem::mergeSelectedVertices(double distance) {
+    auto* target = getSelectedObjectMut();
+    if (!target) return 0;
+    auto mesh = target->geometry.generate_solid_mesh();
+
+    size_t count = cad3d::MeshTopologyOps::merge_vertices(
+        mesh,
+        submesh_selection_.selected_vertices,
+        cad3d::VertexMergeMode::ByDistance,
+        distance
+    );
+
+    target->geometry.kind = eng::ObjectShapeKind::Mesh3D;
+    target->geometry.mesh = mesh;
+    syncObjectProperties(target, ws_);
+    refreshScene();
+    return static_cast<int>(count);
+}
+
+// -----------------------------------------------------------------------------
+// Interactive Measurement & Section Analysis Tools
+// -----------------------------------------------------------------------------
+double ShunyaViewport3DItem::measureDistance(double x1, double y1, double z1, double x2, double y2, double z2) const {
+    const double dx = x2 - x1;
+    const double dy = y2 - y1;
+    const double dz = z2 - z1;
+    return std::sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+double ShunyaViewport3DItem::measureAngle(double ax, double ay, double az,
+                                         double bx, double by, double bz,
+                                         double cx, double cy, double cz) const {
+    const double v1x = ax - bx, v1y = ay - by, v1z = az - bz;
+    const double v2x = cx - bx, v2y = cy - by, v2z = cz - bz;
+    const double l1 = std::sqrt(v1x * v1x + v1y * v1y + v1z * v1z);
+    const double l2 = std::sqrt(v2x * v2x + v2y * v2y + v2z * v2z);
+    if (l1 < 1e-9 || l2 < 1e-9) return 0.0;
+    const double dot = (v1x * v2x + v1y * v2y + v1z * v2z) / (l1 * l2);
+    return std::acos(std::clamp(dot, -1.0, 1.0)) / kDegToRad;
+}
+
+double ShunyaViewport3DItem::inspectSectionWallThickness(const QString& plane, double offset) const {
+    (void)plane; (void)offset;
+    const auto* target = getSelectedObject();
+    if (!target) return 0.001;
+    if (target->geometry.wall_thickness_m > 1e-6) {
+        return target->geometry.wall_thickness_m;
+    }
+    return 0.0008; // default 0.8 mm wall thickness
+}
+
 void ShunyaViewport3DItem::geometryChange(const QRectF& newGeometry, const QRectF& oldGeometry) {
     QQuickPaintedItem::geometryChange(newGeometry, oldGeometry);
     if (newGeometry.size() != oldGeometry.size()) update();
 }
 
+// -----------------------------------------------------------------------------
+// Paint Rendering Pipeline
+// -----------------------------------------------------------------------------
 void ShunyaViewport3DItem::paint(QPainter* p) {
     const double W = std::max(1.0, width());
     const double H = std::max(1.0, height());
@@ -189,130 +616,39 @@ void ShunyaViewport3DItem::paint(QPainter* p) {
         const double ry = y * cp - rz1 * sp;
         const double rz = y * sp + rz1 * cp - dist_;
         camZ = rz;
-        if (rz >= -0.05) return false;
-        const double inv = focal / (-rz);
-        sx = static_cast<float>(W * 0.5 + rx * inv);
-        sy_out = static_cast<float>(H * 0.5 - ry * inv);
+        if (!is_orthographic_ && rz >= -0.05) return false;
+        if (is_orthographic_) {
+            const double scale = focal / dist_;
+            sx = static_cast<float>(W * 0.5 + rx * scale);
+            sy_out = static_cast<float>(H * 0.5 - ry * scale);
+        } else {
+            const double inv = focal / (-rz);
+            sx = static_cast<float>(W * 0.5 + rx * inv);
+            sy_out = static_cast<float>(H * 0.5 - ry * inv);
+        }
         return true;
     };
 
-    // Floor grid lines
+    // 1. Dynamic Ground Grid with scale lines
     const QColor gridC = dark_mode_ ? QColor("#282828") : QColor("#DCDCDC");
     p->setPen(QPen(gridC, 1.0));
-    for (int i = -5; i <= 5; ++i) {
+    for (int i = -6; i <= 6; ++i) {
         const double v = i * 0.08;
         float x0, y0, x1, y1; double d0, d1;
-        if (project(-0.4, 0.0, v, x0, y0, d0) && project(0.4, 0.0, v, x1, y1, d1)) {
+        if (project(-0.48, 0.0, v, x0, y0, d0) && project(0.48, 0.0, v, x1, y1, d1)) {
             p->drawLine(QPointF(x0, y0), QPointF(x1, y1));
         }
-        if (project(v, 0.0, -0.4, x0, y0, d0) && project(v, 0.0, 0.4, x1, y1, d1)) {
+        if (project(v, 0.0, -0.48, x0, y0, d0) && project(v, 0.0, 0.48, x1, y1, d1)) {
             p->drawLine(QPointF(x0, y0), QPointF(x1, y1));
         }
     }
 
-    if (rhi_enabled_ && ws_ && !ws_->object_manager().objects().empty()) {
-        const uint32_t rhi_w = std::clamp(static_cast<uint32_t>(W), 64u, 3840u);
-        const uint32_t rhi_h = std::clamp(static_cast<uint32_t>(H), 64u, 2160u);
-        cad3d::RhiBackendApi backend_api = cad3d::RhiBackendApi::Vulkan;
-        if (rhi_backend_ == "Direct3D12") backend_api = cad3d::RhiBackendApi::Direct3D12;
-        else if (rhi_backend_ == "OpenGL") backend_api = cad3d::RhiBackendApi::OpenGL;
-        else if (rhi_backend_ == "Metal") backend_api = cad3d::RhiBackendApi::Metal;
+    // Grid Scale Text ("100 mm Grid")
+    p->setFont(QFont("Segoe UI", 9));
+    p->setPen(dark_mode_ ? QColor("#666666") : QColor("#888888"));
+    p->drawText(QRectF(14, H - 28, 120, 20), Qt::AlignLeft | Qt::AlignVCenter, "Grid: 80 mm");
 
-        if (!rhi_engine_ || !rhi_engine_->is_initialized() ||
-            rhi_engine_->active_backend() != backend_api ||
-            rhi_engine_->framebuffer().width != rhi_w ||
-            rhi_engine_->framebuffer().height != rhi_h) {
-            rhi_engine_ = std::make_unique<cad3d::RhiRendererEngine>();
-            rhi_engine_->initialize({backend_api, rhi_w, rhi_h, true});
-        }
-
-        core::domain::ViewportCamera cam;
-        const double radYaw = yaw_deg_ * kDegToRad;
-        const double radPitch = pitch_deg_ * kDegToRad;
-        cam.position = {
-            pan_x_ + dist_ * std::sin(radYaw) * std::cos(radPitch),
-            pan_y_ + dist_ * std::sin(radPitch),
-            dist_ * std::cos(radYaw) * std::cos(radPitch)
-        };
-        cam.target = {pan_x_, pan_y_, 0.0};
-        cam.aspect_ratio = W / H;
-        cam.fov_degrees = 45.0;
-
-        std::vector<cad3d::SolidMesh3D> scene_meshes;
-        std::vector<cad3d::RhiDrawItem> draw_items;
-        const auto& objs = ws_->object_manager().objects();
-        scene_meshes.reserve(objs.size());
-        draw_items.reserve(objs.size());
-
-        for (size_t idx = 0; idx < objs.size(); ++idx) {
-            const auto& obj = objs[idx];
-            scene_meshes.push_back(obj.geometry.generate_solid_mesh());
-            auto pos = obj.geometry.position;
-            if (objs.size() > 1 && std::abs(pos.x) < 1e-6 && std::abs(pos.z) < 1e-6) {
-                pos.x = (static_cast<double>(idx) - 0.5 * (objs.size() - 1)) * 0.14;
-            }
-
-            double thermScale = 1.0;
-            double tempK = obj.operating_temp_k;
-            if (physics_active_) {
-                if (const auto* body = ws_->physics_runtime().find_body(obj.id)) {
-                    pos = body->position;
-                    if (objs.size() > 1 && std::abs(pos.x) < 1e-6 && std::abs(pos.z) < 1e-6) {
-                        pos.x = (static_cast<double>(idx) - 0.5 * (objs.size() - 1)) * 0.14;
-                    }
-                    tempK = body->temperature_k;
-                    thermScale = 1.0 + body->thermal_strain;
-                    (void)thermScale;
-                }
-            }
-
-            QColor baseCol = show_thermal_
-                ? thermalColor(tempK)
-                : materialBaseColor(obj, ws_->material_registry(), dark_mode_);
-            if (!selected_id_.isEmpty() && selected_id_.toStdString() == obj.id.to_string()) {
-                baseCol = baseCol.lighter(120);
-            }
-
-            core::base::math::Matrix4x4<double> model = core::base::math::Matrix4x4<double>::translation({pos.x, pos.y, pos.z});
-            draw_items.push_back(cad3d::RhiDrawItem{
-                &scene_meshes.back(),
-                model,
-                {baseCol.redF(), baseCol.greenF(), baseCol.blueF(), baseCol.alphaF()},
-                0.4,
-                0.1
-            });
-        }
-
-        const std::array<double, 4> clear_col = dark_mode_ ?
-            std::array<double, 4>{0.11, 0.11, 0.11, 1.0} :
-            std::array<double, 4>{0.95, 0.95, 0.95, 1.0};
-        rhi_engine_->begin_frame(clear_col);
-        rhi_engine_->render_scene(cam, draw_items);
-        rhi_engine_->end_frame();
-
-        const auto& fb = rhi_engine_->framebuffer();
-        if (fb.width > 0 && fb.height > 0 && !fb.color_rgba.empty()) {
-            QImage img(fb.width, fb.height, QImage::Format_RGBA8888);
-            for (uint32_t y = 0; y < fb.height; ++y) {
-                auto* line = reinterpret_cast<uint32_t*>(img.scanLine(y));
-                for (uint32_t x = 0; x < fb.width; ++x) {
-                    const auto& c = fb.color_rgba[y * fb.width + x];
-                    uint8_t r = static_cast<uint8_t>(std::clamp(c[0] * 255.0, 0.0, 255.0));
-                    uint8_t g = static_cast<uint8_t>(std::clamp(c[1] * 255.0, 0.0, 255.0));
-                    uint8_t b = static_cast<uint8_t>(std::clamp(c[2] * 255.0, 0.0, 255.0));
-                    uint8_t a = static_cast<uint8_t>(std::clamp(c[3] * 255.0, 0.0, 255.0));
-                    line[x] = (static_cast<uint32_t>(a) << 24) |
-                              (static_cast<uint32_t>(b) << 16) |
-                              (static_cast<uint32_t>(g) << 8)  |
-                              (static_cast<uint32_t>(r));
-                }
-            }
-            p->drawImage(QPointF(0, 0), img);
-        }
-        draw_calls_ = rhi_engine_->frame_metrics().draw_calls;
-        pixels_shaded_ = rhi_engine_->frame_metrics().pixels_shaded;
-    } else {
-    // Collect projected triangles from all workspace PhysicalObjects
+    // 2. Render Objects
     std::vector<ProjectedTri> tris;
     if (ws_) {
         const auto& objs = ws_->object_manager().objects();
@@ -320,30 +656,31 @@ void ShunyaViewport3DItem::paint(QPainter* p) {
             const auto& obj = objs[idx];
             cad3d::SolidMesh3D mesh = obj.geometry.generate_solid_mesh();
             auto pos = obj.geometry.position;
-            // Spread co-located objects cleanly if all positioned at origin so user sees every body
             if (objs.size() > 1 && std::abs(pos.x) < 1e-6 && std::abs(pos.z) < 1e-6) {
                 pos.x = (static_cast<double>(idx) - 0.5 * (objs.size() - 1)) * 0.14;
             }
+
             double tempK = obj.operating_temp_k;
             double thermScale = 1.0;
-
             if (physics_active_) {
                 if (const auto* body = ws_->physics_runtime().find_body(obj.id)) {
                     pos = body->position;
-                    if (objs.size() > 1 && std::abs(pos.x) < 1e-6 && std::abs(pos.z) < 1e-6) {
-                        pos.x = (static_cast<double>(idx) - 0.5 * (objs.size() - 1)) * 0.14;
-                    }
                     tempK = body->temperature_k;
                     thermScale = 1.0 + body->thermal_strain;
-                    (void)thermScale;
                 }
             }
 
+            const bool isSelectedObj = (!selected_id_.isEmpty() && selected_id_.toStdString() == obj.id.to_string());
             QColor baseCol = show_thermal_
                 ? thermalColor(tempK)
                 : materialBaseColor(obj, ws_->material_registry(), dark_mode_);
-            if (!selected_id_.isEmpty() && selected_id_.toStdString() == obj.id.to_string()) {
-                baseCol = baseCol.lighter(120);
+            if (isSelectedObj) {
+                baseCol = baseCol.lighter(115);
+            }
+
+            // Alpha modulation for X-Ray mode
+            if (display_mode_ == "xray") {
+                baseCol.setAlpha(95);
             }
 
             const double rx_d = obj.geometry.rotation_deg.x * kDegToRad;
@@ -373,12 +710,21 @@ void ShunyaViewport3DItem::paint(QPainter* p) {
                 return {x + pos.x, y + pos.y, z + pos.z};
             };
 
-            const QColor edgeCol = wireframe_ ? baseCol : (dark_mode_ ? QColor("#202020") : QColor("#303030"));
+            const QColor edgeCol = wireframe() ? baseCol : (dark_mode_ ? QColor("#222222") : QColor("#444444"));
 
-            for (const auto& tri : mesh.triangles) {
+            for (uint32_t f_idx = 0; f_idx < mesh.triangles.size(); ++f_idx) {
+                const auto& tri = mesh.triangles[f_idx];
                 const auto p0 = xform(mesh.vertices[tri[0]]);
                 const auto p1 = xform(mesh.vertices[tri[1]]);
                 const auto p2 = xform(mesh.vertices[tri[2]]);
+
+                // Section clipping plane filter
+                if (display_mode_ == "section") {
+                    double coord = (section_plane_ == "YZ") ? (p0.x + p1.x + p2.x) / 3.0 :
+                                   (section_plane_ == "ZX") ? (p0.y + p1.y + p2.y) / 3.0 :
+                                                              (p0.z + p1.z + p2.z) / 3.0;
+                    if (coord > section_offset_) continue; // clipped by section plane
+                }
 
                 float sx0, sy0, sx1, sy1, sx2, sy2;
                 double d0, d1, d2;
@@ -399,17 +745,20 @@ void ShunyaViewport3DItem::paint(QPainter* p) {
                 const double ndotl = std::abs(nx * 0.45 + ny * 0.78 + nz * 0.42);
                 const double shade = 0.42 + 0.58 * ndotl;
 
-                QColor shaded(
+                bool is_face_sel = (isSelectedObj && interaction_mode_ == "edit" && submesh_selection_.is_face_selected(f_idx));
+                QColor shaded = is_face_sel ? QColor(229, 192, 123, 190) : QColor(
                     static_cast<int>(std::clamp(baseCol.red() * shade, 0.0, 255.0)),
                     static_cast<int>(std::clamp(baseCol.green() * shade, 0.0, 255.0)),
-                    static_cast<int>(std::clamp(baseCol.blue() * shade, 0.0, 255.0)));
+                    static_cast<int>(std::clamp(baseCol.blue() * shade, 0.0, 255.0)),
+                    baseCol.alpha());
 
-                tris.push_back({sx0, sy0, sx1, sy1, sx2, sy2, (d0 + d1 + d2) / 3.0, shaded, edgeCol});
+                QColor edg = is_face_sel ? QColor("#E5C07B") : edgeCol;
+                tris.push_back({sx0, sy0, sx1, sy1, sx2, sy2, (d0 + d1 + d2) / 3.0, shaded, edg, is_face_sel});
             }
         }
     }
 
-    // Painter's algorithm depth sort far-to-near
+    // Depth sort far-to-near
     std::sort(tris.begin(), tris.end(), [](const ProjectedTri& a, const ProjectedTri& b) {
         return a.depth < b.depth;
     });
@@ -417,18 +766,52 @@ void ShunyaViewport3DItem::paint(QPainter* p) {
     for (const auto& t : tris) {
         QPolygonF poly;
         poly << QPointF(t.x0, t.y0) << QPointF(t.x1, t.y1) << QPointF(t.x2, t.y2);
-        if (wireframe_) {
+        if (wireframe()) {
             p->setBrush(Qt::NoBrush);
             p->setPen(QPen(t.edge, 1.1));
         } else {
             p->setBrush(t.fill);
-            p->setPen(QPen(t.edge, 0.6));
+            p->setPen(QPen(t.edge, t.is_selected ? 1.5 : 0.6));
         }
         p->drawPolygon(poly);
     }
-    } // end else (!rhi_enabled_)
 
-    // Coordinate triad at bottom-right
+    // 3. Interactive Transform Gizmo Screen Rendering
+    if (gizmo_mode_ != "none") {
+        const auto proj = getGizmoProjection(W, H);
+        if (proj["visible"].toBool()) {
+            const QPointF o(proj["originX"].toDouble(), proj["originY"].toDouble());
+            const QPointF px(proj["xTipX"].toDouble(), proj["xTipY"].toDouble());
+            const QPointF py(proj["yTipX"].toDouble(), proj["yTipY"].toDouble());
+            const QPointF pz(proj["zTipX"].toDouble(), proj["zTipY"].toDouble());
+
+            p->setRenderHint(QPainter::Antialiasing, true);
+            // X Axis (Red)
+            p->setPen(QPen(QColor("#EF4444"), 2.5));
+            p->drawLine(o, px);
+            p->setBrush(QColor("#EF4444"));
+            p->drawEllipse(px, 3.5, 3.5);
+
+            // Y Axis (Green)
+            p->setPen(QPen(QColor("#22C55E"), 2.5));
+            p->drawLine(o, py);
+            p->setBrush(QColor("#22C55E"));
+            p->drawEllipse(py, 3.5, 3.5);
+
+            // Z Axis (Blue)
+            p->setPen(QPen(QColor("#3B82F6"), 2.5));
+            p->drawLine(o, pz);
+            p->setBrush(QColor("#3B82F6"));
+            p->drawEllipse(pz, 3.5, 3.5);
+
+            // Origin core
+            p->setPen(Qt::NoPen);
+            p->setBrush(QColor("#FFFFFF"));
+            p->drawEllipse(o, 4.0, 4.0);
+        }
+    }
+
+    // 4. Coordinate triad at bottom-right
     const QPointF org(W - 44.0, H - 44.0);
     auto drawAxis = [&](double dx, double dy, double dz, const QColor& col, const QString& label) {
         const double rx = dx * cy + dz * sy;
