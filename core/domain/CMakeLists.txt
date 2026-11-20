@@ -339,6 +339,7 @@ add_library(shunya_domain_eng OBJECT
     src/eng/object_test_bench.cpp
     src/eng/simulator_bridge.cpp
     src/eng/assembly_model.cpp
+    src/eng/object_persistence.cpp
     src/eng/component_generator.cpp
     src/eng/battery_engineer.cpp
     src/eng/interactive_circuit.cpp

@@ -9,6 +9,7 @@
 #include "shunya/eng/engineering_pipeline.hpp"
 #include "shunya/eng/simulator_bridge.hpp"
 #include "shunya/eng/assembly_model.hpp"
+#include "shunya/eng/object_persistence.hpp"
 
 namespace shunya::gui {
 
@@ -276,6 +277,18 @@ public:
     Q_INVOKABLE QVariantMap saveAssemblyModel(const QString& path);
     Q_INVOKABLE QVariantMap loadAssemblyModel(const QString& path);
 
+    // Versioned Object Persistence & Safe File Exchange (OBJ-PERSIST)
+    Q_INVOKABLE bool saveObjectToFile(const QString& objectId, const QString& filePath = "");
+    Q_INVOKABLE QVariantMap loadObjectFromFile(const QString& filePath);
+    Q_INVOKABLE QVariantMap previewObjectFile(const QString& filePath);
+    Q_INVOKABLE QVariantMap importObjectFile(const QString& filePath, const QString& conflictResolution = "KeepBoth");
+    Q_INVOKABLE QString exportObjectBundle(const QString& objectId) const;
+    Q_INVOKABLE bool isObjectDirty(const QString& objectId) const;
+    Q_INVOKABLE void markObjectDirty(const QString& objectId);
+    Q_INVOKABLE QVariantMap deleteObjectToTrash(const QString& objectId);
+    Q_INVOKABLE bool restoreObjectFromTrash(const QString& trashedFileName);
+    Q_INVOKABLE QString getObjectThumbnailSvg(const QString& objectId) const;
+
     // Custom Parametric Primitives, CSG Booleans & Template Catalog (OBJGEO)
     Q_INVOKABLE QVariantList getLibraryTemplates() const;
     Q_INVOKABLE QVariantMap instantiateLibraryTemplate(const QString& templateId, const QString& customName = "");
@@ -464,6 +477,7 @@ private:
     QVariantMap last_dc_result_;
     mutable eng::SimulatorBridgeCoordinator simulator_bridge_;
     eng::AssemblyModel active_assembly_;
+    eng::ObjectWorkspaceSession object_session_;
 };
 
 } // namespace shunya::gui

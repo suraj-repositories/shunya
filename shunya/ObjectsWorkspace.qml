@@ -212,6 +212,42 @@ Rectangle {
     Shortcut { sequence: "E"; onActivated: { if (root.viewportMode === "Edit Mode" && preview3d) preview3d.extrudeSelected(0.02); } }
     Shortcut { sequence: "I"; onActivated: { if (root.viewportMode === "Edit Mode" && preview3d) preview3d.insetSelected(0.005); } }
     Shortcut { sequence: "Ctrl+B"; onActivated: { if (root.viewportMode === "Edit Mode" && preview3d) preview3d.bevelSelected(0.005, 2); } }
+    Shortcut {
+        sequence: "Ctrl+S"
+        onActivated: {
+            if (root.selectedObj && typeof pipeline !== "undefined") {
+                pipeline.saveObjectToFile(root.selectedObj.id);
+                root.refreshAll();
+            }
+        }
+    }
+
+    ObjectImportPreviewDialog {
+        id: importPreviewDlg
+        onImportConfirmed: (path, strategy) => {
+            if (typeof pipeline !== "undefined") {
+                var impRes = pipeline.importObjectFile(path, strategy);
+                if (impRes.ok) {
+                    root.refreshAll();
+                    root.appendTelemetry("IMPORT", "Imported object '" + impRes.name + "' successfully.");
+                } else {
+                    root.appendTelemetry("ERROR", "Import failed: " + impRes.error);
+                }
+            }
+        }
+    }
+
+    DropArea {
+        anchors.fill: parent
+        onDropped: (drop) => {
+            if (drop.hasUrls && drop.urls.length > 0) {
+                var url = drop.urls[0].toString();
+                if (url.indexOf(".json") !== -1 || url.indexOf(".shunya-obj") !== -1) {
+                    importPreviewDlg.loadPreview(url);
+                }
+            }
+        }
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -306,6 +342,31 @@ Rectangle {
                                 pipeline.sendObjectToSimulator(root.selectedObj.id);
                                 root.appendTelemetry("SIMULATOR", "Object '" + root.selectedObj.name + "' validated and sent to Multiphysics Simulator.");
                             }
+                        }
+                    }
+                }
+
+                MonoButton {
+                    text: "Save"
+                    iconName: "save"
+                    compact: true
+                    enabled: root.selectedObj !== null
+                    onClicked: {
+                        if (root.selectedObj && typeof pipeline !== "undefined") {
+                            pipeline.saveObjectToFile(root.selectedObj.id);
+                            root.refreshAll();
+                        }
+                    }
+                }
+
+                MonoButton {
+                    text: "Export..."
+                    compact: true
+                    enabled: root.selectedObj !== null
+                    onClicked: {
+                        if (root.selectedObj && typeof pipeline !== "undefined") {
+                            var json = pipeline.exportObjectBundle(root.selectedObj.id);
+                            root.appendTelemetry("EXPORT", "Generated standalone JSON bundle for object '" + root.selectedObj.name + "' (" + json.length + " bytes).");
                         }
                     }
                 }
@@ -1168,7 +1229,7 @@ Rectangle {
                             spacing: 4
 
                             Text {
-                                text: root.selectedObj ? root.selectedObj.name : "Properties"
+                                text: (root.selectedObj ? root.selectedObj.name : "Properties") + ((root.selectedObj && typeof pipeline !== "undefined" && pipeline.isObjectDirty(root.selectedObj.id)) ? " *" : "")
                                 font.family: Theme.fontSans
                                 font.pixelSize: Theme.fontSm
                                 font.weight: Font.DemiBold

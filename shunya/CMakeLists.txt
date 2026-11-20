@@ -82,6 +82,7 @@ qt_add_qml_module(shunya_gui_lib
         HelpCenterWindow.qml
         ExperimentManagerDialog.qml
         ImportPreviewDialog.qml
+        ObjectImportPreviewDialog.qml
         ObjectsWorkspace.qml
         MaterialPickerCombo.qml
         ObjectRegionsView.qml

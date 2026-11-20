@@ -21,9 +21,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 62 | 13.7% |
+| `[ ]` | Not Started | 48 | 10.6% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 390 | 86.3% |
+| `[x]` | Completed | 404 | 89.4% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -63,12 +63,12 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 26 | `OBJ-TEST` | Object Multi-Domain Physics Test Bench (Thermal, Electrical, Mechanical, Vacuum) | P0 | 14 | 14 | 100.0% | `[x]` |
 | 27 | `OBJ-SIM` | End-to-End Simulator Bridge, Pre-Flight Checks & Round-Trip Re-Sync | P0 | 14 | 14 | 100.0% | `[x]` |
 | 28 | `OBJ-ASSY` | 3D Editor Assembly Integration, Multi-Object Joints & Wire Routing | P0 | 14 | 14 | 100.0% | `[x]` |
-| 29 | `OBJ-PERSIST`| Versioned Object Persistence, Library & Safe File Exchange | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 29 | `OBJ-PERSIST`| Versioned Object Persistence, Library & Safe File Exchange | P0 | 14 | 14 | 100.0% | `[x]` |
 | 30 | `OBJ-HELP` | Object Contextual Info Popovers & 3D Modeling Help Center Guide | P0 | 12 | 0 | 0.0% | `[ ]` |
 | **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
 | 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **390** | **86.3%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **404** | **89.4%** | `[~]` |
 
 ---
 
@@ -1111,25 +1111,25 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-29: Versioned Object Persistence, Library & Safe File Exchange (`OBJ-PERSIST`)
 
 **Objective:** Implement file-based persistence for objects (`*.shunya-obj.json`) and assemblies (`*.shunya-model.json`) with versioned schemas, atomic disk writes, CRUD management with trash/undo, and safe external sharing.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-29.01: Atomic File Storage & Versioned Schema [ ] (0.0% — 7/7)
-- [ ] `PH5-29.01.001`: Establish workspace storage directory structure: `<workspace>/objects/*.shunya-obj.json` and `<workspace>/models/*.shunya-model.json`.
-- [ ] `PH5-29.01.002`: Define strict versioned JSON schemas (`schemaVersion: "5.0.0"`) storing geometry, mesh references, regions, materials, cavities, terminals, and computed tensors.
-- [ ] `PH5-29.01.003`: Implement atomic write protocol: write JSON to temporary file (`<id>.tmp`), perform `fsync()`, and atomically rename to prevent corruption during unexpected shutdowns.
-- [ ] `PH5-29.01.004`: Implement dirty state tracking: display `*` badge in window title and object card header when uncommitted modifications exist.
-- [ ] `PH5-29.01.005`: Support CRUD lifecycle: Save, Save As, Update, Rename, Duplicate, and Delete (with confirmation guard and 30-second undo trash recovery).
-- [ ] `PH5-29.01.006`: Generate visual 3D preview thumbnails automatically on save and store alongside JSON metadata.
-- [ ] `PH5-29.01.007`: Add unit test verifying atomic disk serialization round-trip and schema validation error reporting.
+### Submodule PH5-29.01: Atomic File Storage & Versioned Schema [x] (100.0% — 7/7)
+- [x] `PH5-29.01.001`: Establish workspace storage directory structure: `<workspace>/objects/*.shunya-obj.json` and `<workspace>/models/*.shunya-model.json`.
+- [x] `PH5-29.01.002`: Define strict versioned JSON schemas (`schemaVersion: "5.0.0"`) storing geometry, mesh references, regions, materials, cavities, terminals, and computed tensors.
+- [x] `PH5-29.01.003`: Implement atomic write protocol: write JSON to temporary file (`<id>.tmp`), perform `fsync()`, and atomically rename to prevent corruption during unexpected shutdowns.
+- [x] `PH5-29.01.004`: Implement dirty state tracking: display `*` badge in window title and object card header when uncommitted modifications exist.
+- [x] `PH5-29.01.005`: Support CRUD lifecycle: Save, Save As, Update, Rename, Duplicate, and Delete (with confirmation guard and 30-second undo trash recovery).
+- [x] `PH5-29.01.006`: Generate visual 3D preview thumbnails automatically on save and store alongside JSON metadata.
+- [x] `PH5-29.01.007`: Add unit test verifying atomic disk serialization round-trip and schema validation error reporting.
 
-### Submodule PH5-29.02: Safe External File Exchange & Material Bundling [ ] (0.0% — 7/7)
-- [ ] `PH5-29.02.001`: Add `Import Object...` in the library panel and under menubar `File > Import > Import Physical Object...`.
-- [ ] `PH5-29.02.002`: Support drag-and-drop ingestion of `.shunya-obj.json` files over the Objects workspace.
-- [ ] `PH5-29.02.003`: Treat all external files as untrusted data: enforce strict JSON syntax verification, sanitize string properties, and sandbox geometry to prevent buffer overruns or code execution.
-- [ ] `PH5-29.02.004`: Implement pre-import preview modal displaying object name, author, creation date, 3D thumbnail, and constituent region materials.
-- [ ] `PH5-29.02.005`: Implement name conflict resolution: `Replace Existing`, `Keep Both (Auto-Rename)`, or `Cancel`.
-- [ ] `PH5-29.02.006`: Implement **Missing Material Resolution**: when importing an object that references custom materials from another user's Mixing Lab, automatically bundle and import those dependent materials into the project registry.
-- [ ] `PH5-29.02.007`: Implement `Export Object...` bundling geometry, regions, dependent materials, and author provenance into a standalone `.shunya-obj.json` package.
+### Submodule PH5-29.02: Safe External File Exchange & Material Bundling [x] (100.0% — 7/7)
+- [x] `PH5-29.02.001`: Add `Import Object...` in the library panel and under menubar `File > Import > Import Physical Object...`.
+- [x] `PH5-29.02.002`: Support drag-and-drop ingestion of `.shunya-obj.json` files over the Objects workspace.
+- [x] `PH5-29.02.003`: Treat all external files as untrusted data: enforce strict JSON syntax verification, sanitize string properties, and sandbox geometry to prevent buffer overruns or code execution.
+- [x] `PH5-29.02.004`: Implement pre-import preview modal displaying object name, author, creation date, 3D thumbnail, and constituent region materials.
+- [x] `PH5-29.02.005`: Implement name conflict resolution: `Replace Existing`, `Keep Both (Auto-Rename)`, or `Cancel`.
+- [x] `PH5-29.02.006`: Implement **Missing Material Resolution**: when importing an object that references custom materials from another user's Mixing Lab, automatically bundle and import those dependent materials into the project registry.
+- [x] `PH5-29.02.007`: Implement `Export Object...` bundling geometry, regions, dependent materials, and author provenance into a standalone `.shunya-obj.json` package.
 
 ---
 

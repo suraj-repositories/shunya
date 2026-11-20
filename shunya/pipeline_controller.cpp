@@ -4058,4 +4058,226 @@ QVariantMap ShunyaPipelineController::loadAssemblyModel(const QString& path) {
     return res;
 }
 
+bool ShunyaPipelineController::saveObjectToFile(const QString& objectId, const QString& filePath) {
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) return false;
+    const auto* obj = ws_->object_manager().get_object(*uid);
+    if (!obj) return false;
+
+    eng::VersionedObjectBundle bundle;
+    bundle.object = *obj;
+    bundle.metadata.author = "Shunya Engineer";
+    bundle.metadata.notes = "Saved from Shunya Objects Studio";
+
+    // Bundle materials used by regions
+    for (const auto& r : obj->regions) {
+        if (const auto* mat = ws_->material_registry().get_material(r.material_id)) {
+            bundle.bundled_materials.push_back(*mat);
+        }
+    }
+
+    std::filesystem::path dest;
+    if (filePath.trimmed().isEmpty()) {
+        std::filesystem::path wsRoot = std::filesystem::current_path();
+        eng::ObjectPersistence::ensure_workspace_folders(wsRoot);
+        dest = wsRoot / "objects" / (obj->name + ".shunya-obj.json");
+    } else {
+        dest = std::filesystem::path(normalizeLocalPath(filePath).toStdString());
+    }
+
+    auto res = eng::ObjectPersistence::save_object_atomic(dest, bundle);
+    if (res.is_ok()) {
+        object_session_.mark_clean(*uid);
+        pushStatus("Saved object '" + QString::fromStdString(obj->name) + "' to " + QString::fromStdString(dest.filename().string()));
+        return true;
+    }
+    return false;
+}
+
+QVariantMap ShunyaPipelineController::loadObjectFromFile(const QString& filePath) {
+    QVariantMap res;
+    std::filesystem::path fp(normalizeLocalPath(filePath).toStdString());
+    auto b_res = eng::ObjectPersistence::load_object_file(fp);
+    if (b_res.is_err()) {
+        res["ok"] = false;
+        res["error"] = QString::fromStdString(b_res.error().message);
+        return res;
+    }
+
+    auto imp_res = eng::ObjectPersistence::import_and_resolve_materials(
+        b_res.value(), ws_->object_manager(), ws_->material_registry(), eng::NameConflictResolution::KeepBoth);
+    if (imp_res.is_err()) {
+        res["ok"] = false;
+        res["error"] = QString::fromStdString(imp_res.error().message);
+        return res;
+    }
+
+    const auto& imp_obj = imp_res.value();
+    ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, imp_obj.id, "Loaded object from file: " + fp.filename().string());
+    res["ok"] = true;
+    res["id"] = QString::fromStdString(imp_obj.id.to_string());
+    res["name"] = QString::fromStdString(imp_obj.name);
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::previewObjectFile(const QString& filePath) {
+    QVariantMap res;
+    std::filesystem::path fp(normalizeLocalPath(filePath).toStdString());
+    std::ifstream in(fp, std::ios::in | std::ios::binary);
+    if (!in.is_open()) {
+        res["ok"] = false;
+        res["error"] = "Cannot open file for preview.";
+        return res;
+    }
+    std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    auto prev_res = eng::ObjectPersistence::generate_import_preview(content, ws_->material_registry());
+    if (prev_res.is_err()) {
+        res["ok"] = false;
+        res["error"] = QString::fromStdString(prev_res.error().message);
+        return res;
+    }
+    const auto& p = prev_res.value();
+    res["ok"] = true;
+    res["name"] = QString::fromStdString(p.name);
+    res["author"] = QString::fromStdString(p.author);
+    res["creationDate"] = QString::fromStdString(p.creation_date);
+    res["shapeType"] = QString::fromStdString(p.shape_type);
+    res["regionCount"] = static_cast<int>(p.region_count);
+    res["materials"] = strVecToList(p.material_names);
+    res["bundledMaterialsCount"] = static_cast<int>(p.bundled_materials_count);
+    res["massKg"] = p.mass_kg;
+    res["volumeM3"] = p.volume_m3;
+    res["thumbnail"] = QString::fromStdString(p.thumbnail_base64);
+    res["hasMissingMaterials"] = p.has_missing_materials;
+    res["missingMaterials"] = strVecToList(p.missing_material_names);
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::importObjectFile(const QString& filePath, const QString& conflictResolution) {
+    QVariantMap res;
+    std::filesystem::path fp(normalizeLocalPath(filePath).toStdString());
+    auto b_res = eng::ObjectPersistence::load_object_file(fp);
+    if (b_res.is_err()) {
+        res["ok"] = false;
+        res["error"] = QString::fromStdString(b_res.error().message);
+        return res;
+    }
+
+    eng::NameConflictResolution cr = eng::NameConflictResolution::KeepBoth;
+    if (conflictResolution == "ReplaceExisting") {
+        cr = eng::NameConflictResolution::ReplaceExisting;
+    } else if (conflictResolution == "Cancel") {
+        cr = eng::NameConflictResolution::Cancel;
+    }
+
+    auto imp_res = eng::ObjectPersistence::import_and_resolve_materials(
+        b_res.value(), ws_->object_manager(), ws_->material_registry(), cr);
+    if (imp_res.is_err()) {
+        res["ok"] = false;
+        res["error"] = QString::fromStdString(imp_res.error().message);
+        return res;
+    }
+
+    const auto& imported = imp_res.value();
+    ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, imported.id, "Imported object: " + imported.name);
+    pushStatus("Imported Object '" + QString::fromStdString(imported.name) + "' successfully.");
+    res["ok"] = true;
+    res["id"] = QString::fromStdString(imported.id.to_string());
+    res["name"] = QString::fromStdString(imported.name);
+    return res;
+}
+
+QString ShunyaPipelineController::exportObjectBundle(const QString& objectId) const {
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) return "";
+    const auto* obj = ws_->object_manager().get_object(*uid);
+    if (!obj) return "";
+
+    eng::VersionedObjectBundle bundle;
+    bundle.object = *obj;
+    bundle.metadata.author = "Shunya Engineer";
+    for (const auto& r : obj->regions) {
+        if (const auto* mat = ws_->material_registry().get_material(r.material_id)) {
+            bundle.bundled_materials.push_back(*mat);
+        }
+    }
+    return QString::fromStdString(eng::ObjectPersistence::serialize_object_bundle(bundle));
+}
+
+bool ShunyaPipelineController::isObjectDirty(const QString& objectId) const {
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) return false;
+    return object_session_.is_dirty(*uid);
+}
+
+void ShunyaPipelineController::markObjectDirty(const QString& objectId) {
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (uid) {
+        object_session_.mark_dirty(*uid);
+    }
+}
+
+QVariantMap ShunyaPipelineController::deleteObjectToTrash(const QString& objectId) {
+    QVariantMap res;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) {
+        res["ok"] = false;
+        res["error"] = "Invalid object UUID.";
+        return res;
+    }
+    const auto* obj = ws_->object_manager().get_object(*uid);
+    if (!obj) {
+        res["ok"] = false;
+        res["error"] = "Object not found.";
+        return res;
+    }
+
+    // Backup copy to .trash/
+    std::filesystem::path wsRoot = std::filesystem::current_path();
+    eng::ObjectPersistence::ensure_workspace_folders(wsRoot);
+    std::filesystem::path trashFile = wsRoot / ".trash" / (obj->name + ".shunya-obj.json");
+
+    eng::VersionedObjectBundle bundle;
+    bundle.object = *obj;
+    bundle.metadata.notes = "Trashed object backup";
+    (void)eng::ObjectPersistence::save_object_atomic(trashFile, bundle);
+
+    std::string name = obj->name;
+    ws_->object_manager().remove_object(*uid);
+    object_session_.mark_clean(*uid);
+    ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, *uid, "Deleted object to trash: " + name);
+
+    pushStatus("Deleted object '" + QString::fromStdString(name) + "' (backed up to trash).");
+    res["ok"] = true;
+    res["name"] = QString::fromStdString(name);
+    res["trashedFile"] = QString::fromStdString(trashFile.filename().string());
+    return res;
+}
+
+bool ShunyaPipelineController::restoreObjectFromTrash(const QString& trashedFileName) {
+    std::filesystem::path wsRoot = std::filesystem::current_path();
+    std::filesystem::path trashFile = wsRoot / ".trash" / trashedFileName.toStdString();
+    if (!std::filesystem::exists(trashFile)) return false;
+
+    auto b_res = eng::ObjectPersistence::load_object_file(trashFile);
+    if (b_res.is_err()) return false;
+
+    auto imp_res = eng::ObjectPersistence::import_and_resolve_materials(
+        b_res.value(), ws_->object_manager(), ws_->material_registry(), eng::NameConflictResolution::KeepBoth);
+    if (imp_res.is_err()) return false;
+
+    std::error_code ec;
+    std::filesystem::remove(trashFile, ec);
+    pushStatus("Restored object '" + QString::fromStdString(imp_res.value().name) + "' from trash.");
+    return true;
+}
+
+QString ShunyaPipelineController::getObjectThumbnailSvg(const QString& objectId) const {
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) return "";
+    const auto* obj = ws_->object_manager().get_object(*uid);
+    if (!obj) return "";
+    return QString::fromStdString(eng::ObjectPersistence::generate_svg_thumbnail(*obj));
+}
+
 } // namespace shunya::gui
