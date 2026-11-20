@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "shunya/eng/engineering_pipeline.hpp"
+#include "shunya/eng/simulator_bridge.hpp"
 
 namespace shunya::gui {
 
@@ -244,6 +245,15 @@ public:
         double currentBottomHeight = 140.0) const;
     Q_INVOKABLE QVariantMap runObjectPreflightChecks(const QString& objectId) const;
 
+    // Simulator Bridge & Quick-Run In-Situ Simulation (OBJ-SIM)
+    Q_INVOKABLE QVariantMap startObjectQuickRun(const QString& objectId, const QString& presetName, double durationS = 2.0, double dtS = 0.001);
+    Q_INVOKABLE QVariantMap stepObjectQuickRun(double dtS = 0.016);
+    Q_INVOKABLE void stopObjectQuickRun();
+    Q_INVOKABLE QVariantList getObjectTelemetryStream(int maxCount = 100) const;
+    Q_INVOKABLE QString getObjectSimulationSyncStatus() const;
+    Q_INVOKABLE bool resyncObjectSimulation(const QString& objectId);
+    Q_INVOKABLE QVariantMap sendObjectToSimulator(const QString& objectId);
+
     // Custom Parametric Primitives, CSG Booleans & Template Catalog (OBJGEO)
     Q_INVOKABLE QVariantList getLibraryTemplates() const;
     Q_INVOKABLE QVariantMap instantiateLibraryTemplate(const QString& templateId, const QString& customName = "");
@@ -430,6 +440,7 @@ private:
     QString status_message_{"Ready"};
     QVariantList telemetry_history_;
     QVariantMap last_dc_result_;
+    mutable eng::SimulatorBridgeCoordinator simulator_bridge_;
 };
 
 } // namespace shunya::gui

@@ -1533,6 +1533,7 @@ QVariantMap ShunyaPipelineController::updateObject(
         return out;
     }
     ws_->notify_object_modified(*uid, "Updated object '" + name.toStdString() + "'");
+    simulator_bridge_.mark_object_modified(*uid);
     out["ok"] = true;
     return out;
 }
@@ -1551,6 +1552,7 @@ QVariantMap ShunyaPipelineController::updateObjectTransform(
     obj->geometry.rotation_deg = {rx, ry, rz};
     obj->geometry.scale = {std::max(0.01, sx), std::max(0.01, sy), std::max(0.01, sz)};
     ws_->notify_object_modified(*uid, "Transformed object '" + obj->name + "'");
+    simulator_bridge_.mark_object_modified(*uid);
     out["ok"] = true;
     return out;
 }
@@ -1697,6 +1699,9 @@ QVariantMap ShunyaPipelineController::runObjectPreflightChecks(const QString& ob
         return res;
     }
 
+    // Run 5 comprehensive pre-flight rules via SimulatorBridgeCoordinator
+    auto report = eng::SimulatorBridgeCoordinator::validate_object(*obj, ws_->material_registry());
+
     res["ok"] = true;
     res["id"] = QString::fromStdString(obj->id.to_string());
     res["name"] = QString::fromStdString(obj->name);
@@ -1709,25 +1714,162 @@ QVariantMap ShunyaPipelineController::runObjectPreflightChecks(const QString& ob
     res["isSolid"] = obj->computed.is_solid_at_operating_temp;
     res["tempK"] = obj->operating_temp_k;
     res["pressurePa"] = obj->operating_pressure_pa;
+    res["simulationReady"] = report.passed;
+    res["markdown"] = QString::fromStdString(report.to_markdown());
+    res["json"] = QString::fromStdString(report.to_json());
 
     QVariantList warnings;
-    if (obj->computed.volume_m3 <= 1e-18) {
-        warnings.append("Geometry degeneracy: Volume is zero or near-zero.");
+    QVariantList issuesList;
+    for (const auto& issue : report.issues) {
+        QVariantMap im;
+        im["ruleId"] = QString::fromStdString(issue.rule_id);
+        im["severity"] = (issue.severity == eng::PreFlightSeverity::Error) ? "Error" :
+                         (issue.severity == eng::PreFlightSeverity::Warning ? "Warning" : "Info");
+        im["targetType"] = QString::fromStdString(issue.target_type);
+        im["targetId"] = QString::fromStdString(issue.target_id);
+        im["targetName"] = QString::fromStdString(issue.target_name);
+        im["message"] = QString::fromStdString(issue.message);
+        im["isBlocking"] = issue.is_blocking;
+        issuesList.append(im);
+
+        if (issue.severity == eng::PreFlightSeverity::Error || issue.severity == eng::PreFlightSeverity::Warning) {
+            warnings.append(QString::fromStdString(issue.message));
+        }
     }
-    if (obj->computed.mass_kg <= 1e-12) {
-        warnings.append("Mass warning: Mass is negligible; verify material density.");
-    }
-    if (!obj->computed.is_solid_at_operating_temp) {
-        warnings.append("Thermal breakdown: Material melted at operating temperature (" + QString::number(obj->operating_temp_k, 'f', 1) + " K).");
-    }
-    if (!obj->computed.has_conductive_path) {
-        warnings.append("Electrical isolation: Non-conductive body (infinite axial resistance).");
-    }
-    for (const auto& w : obj->computed.warnings) {
-        warnings.append(QString::fromStdString(w));
-    }
+    res["issues"] = issuesList;
     res["warnings"] = warnings;
-    res["status"] = (obj->computed.volume_m3 > 1e-18 && obj->computed.mass_kg > 1e-12) ? "Ready for Simulation" : "Pre-flight Failed";
+    res["status"] = report.passed ? "Ready for Simulation" : "Pre-flight Failed";
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::startObjectQuickRun(
+    const QString& objectId,
+    const QString& presetName,
+    double durationS,
+    double dtS)
+{
+    QVariantMap res;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) {
+        res["ok"] = false;
+        res["error"] = "Invalid object ID.";
+        return res;
+    }
+    const auto* obj = ws_->object_manager().get_object(*uid);
+    if (!obj) {
+        res["ok"] = false;
+        res["error"] = "Object not found.";
+        return res;
+    }
+
+    eng::SimulationQuickRunPreset preset = eng::SimulationQuickRunPreset::Step_Voltage_120V;
+    if (presetName == "Drop_Test_1m" || presetName.contains("Drop")) {
+        preset = eng::SimulationQuickRunPreset::Drop_Test_1m;
+    } else if (presetName == "Thermal_Shock_1200K" || presetName.contains("Thermal")) {
+        preset = eng::SimulationQuickRunPreset::Thermal_Shock_1200K;
+    } else if (presetName == "Tensile_Pull_1kN" || presetName.contains("Tensile")) {
+        preset = eng::SimulationQuickRunPreset::Tensile_Pull_1kN;
+    }
+
+    simulator_bridge_.start_quick_run(preset, *obj, ws_->material_registry(), durationS, dtS);
+    res["ok"] = true;
+    res["status"] = "Simulation Started";
+    res["preset"] = presetName;
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::stepObjectQuickRun(double dtS) {
+    QVariantMap res;
+    if (!simulator_bridge_.is_running()) {
+        res["running"] = false;
+        return res;
+    }
+
+    simulator_bridge_.step_simulation(dtS);
+    auto snap = simulator_bridge_.latest_telemetry();
+    res["running"] = simulator_bridge_.is_running();
+    res["time_s"] = snap.time_s;
+    res["current_a"] = snap.current_a;
+    res["voltage_v"] = snap.voltage_v;
+    res["temperature_k"] = snap.temperature_k;
+    res["deformation_m"] = snap.deformation_m;
+    res["kinetic_energy_j"] = snap.kinetic_energy_j;
+    res["potential_energy_j"] = snap.potential_energy_j;
+    res["posY"] = snap.position.y;
+    res["velY"] = snap.velocity.y;
+    return res;
+}
+
+void ShunyaPipelineController::stopObjectQuickRun() {
+    simulator_bridge_.stop_simulation();
+}
+
+QVariantList ShunyaPipelineController::getObjectTelemetryStream(int maxCount) const {
+    QVariantList list;
+    auto samples = simulator_bridge_.sample_telemetry(static_cast<size_t>(maxCount));
+    for (const auto& s : samples) {
+        QVariantMap m;
+        m["time_s"] = s.time_s;
+        m["current_a"] = s.current_a;
+        m["voltage_v"] = s.voltage_v;
+        m["temperature_k"] = s.temperature_k;
+        m["deformation_m"] = s.deformation_m;
+        m["kinetic_energy_j"] = s.kinetic_energy_j;
+        m["potential_energy_j"] = s.potential_energy_j;
+        m["posY"] = s.position.y;
+        m["velY"] = s.velocity.y;
+        list.append(m);
+    }
+    return list;
+}
+
+QString ShunyaPipelineController::getObjectSimulationSyncStatus() const {
+    switch (simulator_bridge_.sync_status()) {
+        case eng::SyncStatus::In_Sync_Clean: return "In Sync: Clean";
+        case eng::SyncStatus::Modified_Out_Of_Sync: return "Modified: Out of Sync";
+        case eng::SyncStatus::Simulation_Running: return "Simulation Running";
+    }
+    return "In Sync: Clean";
+}
+
+bool ShunyaPipelineController::resyncObjectSimulation(const QString& objectId) {
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) return false;
+    const auto* obj = ws_->object_manager().get_object(*uid);
+    if (!obj) return false;
+
+    return simulator_bridge_.resync_active_simulation(*obj, ws_->material_registry());
+}
+
+QVariantMap ShunyaPipelineController::sendObjectToSimulator(const QString& objectId) {
+    QVariantMap res;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) {
+        res["ok"] = false;
+        res["error"] = "Invalid object ID.";
+        return res;
+    }
+    const auto* obj = ws_->object_manager().get_object(*uid);
+    if (!obj) {
+        res["ok"] = false;
+        res["error"] = "Physical object not found.";
+        return res;
+    }
+
+    auto model_res = eng::SimulatorBridgeCoordinator::generate_simulation_model(*obj, ws_->material_registry());
+    if (model_res.is_err()) {
+        res["ok"] = false;
+        res["error"] = QString::fromStdString(model_res.error().message);
+        return res;
+    }
+
+    // Set active workspace to "simulation"
+    setActiveWorkspace("simulation");
+    pushStatus(QString("Dispatched object '%1' to Multiphysics Simulation scene.").arg(QString::fromStdString(obj->name)));
+
+    res["ok"] = true;
+    res["name"] = QString::fromStdString(obj->name);
+    res["status"] = "Dispatched to Multiphysics Simulator";
     return res;
 }
 

@@ -63,6 +63,33 @@ Rectangle {
     property var cavityThermodynamics: ({})
     property var bulbMilestoneReport: ({})
 
+    // Simulator Bridge & Quick-Run State (OBJ-SIM)
+    property string simSyncStatus: (typeof pipeline !== "undefined") ? pipeline.getObjectSimulationSyncStatus() : "In Sync: Clean"
+    property string simQuickRunPreset: "Step_Voltage_120V"
+    property bool simIsRunning: false
+    property var preflightModalReport: null
+    property bool showPreflightModal: false
+    property var liveTelemetrySnap: ({ time_s: 0, current_a: 0, voltage_v: 0, temperature_k: 298.15, deformation_m: 0, kinetic_energy_j: 0, potential_energy_j: 0, posY: 0, velY: 0 })
+
+    Timer {
+        id: liveTelemetryTimer
+        interval: 16 // ~60 Hz streaming
+        running: root.simIsRunning
+        repeat: true
+        onTriggered: {
+            if (typeof pipeline === "undefined") return;
+            var snap = pipeline.stepObjectQuickRun(0.016);
+            if (!snap.running) {
+                root.simIsRunning = false;
+                root.appendTelemetry("SIM-DONE", "Simulation quick-run reached duration limit.");
+            } else {
+                root.liveTelemetrySnap = snap;
+                root.appendTelemetry("SIM-60HZ", "t=" + Number(snap.time_s).toFixed(2) + "s | V=" + Number(snap.voltage_v).toFixed(1) + "V | I=" + (Number(snap.current_a) * 1000).toFixed(1) + "mA | T=" + Number(snap.temperature_k).toFixed(1) + "K | def=" + (Number(snap.deformation_m) * 1e6).toFixed(1) + "µm");
+            }
+            root.simSyncStatus = pipeline.getObjectSimulationSyncStatus();
+        }
+    }
+
     // Telemetry log stream
     property var telemetryLogs: [
         { time: "12:00:01", tag: "INIT", text: "Physical Objects authoring kernel initialized." },
@@ -236,6 +263,50 @@ Rectangle {
                         compact: true
                         active: root.layoutPreset === modelData
                         onClicked: root.applyPreset(modelData)
+                    }
+                }
+            }
+
+            Rectangle { width: 1; height: 18; color: Theme.borderSubtle }
+
+            // Simulation Sync Status & Send to Simulator (OBJ-SIM)
+            RowLayout {
+                spacing: 6
+
+                MonoBadge {
+                    text: root.simSyncStatus
+                    tone: root.simSyncStatus.indexOf("Clean") !== -1 ? "success" : (root.simSyncStatus.indexOf("Running") !== -1 ? "info" : "warning")
+                }
+
+                MonoButton {
+                    visible: root.simSyncStatus.indexOf("Out of Sync") !== -1
+                    text: "Update Model"
+                    compact: true
+                    onClicked: {
+                        if (root.selectedObj && typeof pipeline !== "undefined") {
+                            pipeline.resyncObjectSimulation(root.selectedObj.id);
+                            root.simSyncStatus = pipeline.getObjectSimulationSyncStatus();
+                            root.appendTelemetry("SYNC", "Active simulation model resynced with updated object parameters.");
+                        }
+                    }
+                }
+
+                MonoButton {
+                    text: "Send to Simulator"
+                    variant: "primary"
+                    compact: true
+                    onClicked: {
+                        if (root.selectedObj && typeof pipeline !== "undefined") {
+                            var pf = pipeline.runObjectPreflightChecks(root.selectedObj.id);
+                            if (!pf.simulationReady) {
+                                root.preflightModalReport = pf;
+                                root.showPreflightModal = true;
+                                root.appendTelemetry("PREFLIGHT", "Pre-flight checks failed (" + (pf.issues ? pf.issues.length : 0) + " issues). Opened diagnostics modal.");
+                            } else {
+                                pipeline.sendObjectToSimulator(root.selectedObj.id);
+                                root.appendTelemetry("SIMULATOR", "Object '" + root.selectedObj.name + "' validated and sent to Multiphysics Simulator.");
+                            }
+                        }
                     }
                 }
             }
@@ -431,14 +502,24 @@ Rectangle {
                                                 Layout.fillWidth: true
                                                 spacing: 1
 
-                                                Text {
-                                                    text: modelData.name
-                                                    font.family: Theme.fontSans
-                                                    font.pixelSize: Theme.fontSm
-                                                    font.weight: Font.Medium
-                                                    color: Theme.textPrimary
-                                                    elide: Text.ElideRight
+                                                RowLayout {
                                                     Layout.fillWidth: true
+                                                    spacing: 4
+
+                                                    Text {
+                                                        text: modelData.name
+                                                        font.family: Theme.fontSans
+                                                        font.pixelSize: Theme.fontSm
+                                                        font.weight: Font.Medium
+                                                        color: Theme.textPrimary
+                                                        elide: Text.ElideRight
+                                                        Layout.fillWidth: true
+                                                    }
+
+                                                    MonoBadge {
+                                                        text: (modelData.volume > 0 && modelData.mass > 0) ? "Simulation Ready" : "Pre-flight Pending"
+                                                        tone: (modelData.volume > 0 && modelData.mass > 0) ? "success" : "neutral"
+                                                    }
                                                 }
                                                 Text {
                                                     text: modelData.shape + " | " + Number(modelData.mass).toExponential(2) + " kg"
@@ -1651,7 +1732,7 @@ Rectangle {
                                 ColumnLayout {
                                     visible: root.activePropertiesTab === 5
                                     width: parent.width
-                                    spacing: 8
+                                    spacing: 10
 
                                     Text {
                                         text: "Simulator Bridge & Pre-Flight Verification"
@@ -1661,18 +1742,209 @@ Rectangle {
                                         color: Theme.textPrimary
                                     }
 
-                                    RowLayout {
+                                    // Pre-Flight Status Card
+                                    Rectangle {
                                         Layout.fillWidth: true
-                                        spacing: 6
-                                        Text { text: "Pre-Flight Status:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                                        MonoBadge {
-                                            text: root.selectedObj && root.selectedObj.volume > 0 ? "Ready for Simulation" : "Pre-flight Pending"
-                                            tone: root.selectedObj && root.selectedObj.volume > 0 ? "success" : "neutral"
+                                        implicitHeight: 74
+                                        radius: Theme.radiusSm
+                                        color: Theme.bgCanvas
+                                        border.color: Theme.borderSubtle
+                                        border.width: 1
+
+                                        ColumnLayout {
+                                            anchors.fill: parent
+                                            anchors.margins: 8
+                                            spacing: 6
+
+                                            RowLayout {
+                                                Layout.fillWidth: true
+                                                spacing: 6
+                                                Text { text: "Pre-Flight Status:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                                MonoBadge {
+                                                    text: root.selectedObj && root.selectedObj.volume > 0 ? "Ready for Simulation" : "Pre-flight Pending"
+                                                    tone: root.selectedObj && root.selectedObj.volume > 0 ? "success" : "neutral"
+                                                }
+                                                Item { Layout.fillWidth: true }
+                                                MonoBadge {
+                                                    text: root.simSyncStatus
+                                                    tone: root.simSyncStatus.indexOf("Clean") !== -1 ? "success" : (root.simSyncStatus.indexOf("Running") !== -1 ? "info" : "warning")
+                                                }
+                                            }
+
+                                            RowLayout {
+                                                Layout.fillWidth: true
+                                                spacing: 6
+                                                MonoButton {
+                                                    text: "Run Pre-flight Checks"
+                                                    compact: true
+                                                    onClicked: {
+                                                        if (root.selectedObj && typeof pipeline !== "undefined") {
+                                                            var pf = pipeline.runObjectPreflightChecks(root.selectedObj.id);
+                                                            if (!pf.simulationReady) {
+                                                                root.preflightModalReport = pf;
+                                                                root.showPreflightModal = true;
+                                                                root.appendTelemetry("PREFLIGHT", "Pre-flight checks failed (" + (pf.issues ? pf.issues.length : 0) + " issues). Opened diagnostics modal.");
+                                                            } else {
+                                                                root.appendTelemetry("PREFLIGHT", "Pre-flight checks passed: " + pf.status + " (Mass: " + Number(pf.mass_kg).toExponential(2) + " kg)");
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                MonoButton {
+                                                    text: "Send to Simulator"
+                                                    variant: "primary"
+                                                    compact: true
+                                                    onClicked: {
+                                                        if (root.selectedObj && typeof pipeline !== "undefined") {
+                                                            var pf = pipeline.runObjectPreflightChecks(root.selectedObj.id);
+                                                            if (!pf.simulationReady) {
+                                                                root.preflightModalReport = pf;
+                                                                root.showPreflightModal = true;
+                                                                root.appendTelemetry("PREFLIGHT", "Pre-flight checks failed. Cannot send to simulator.");
+                                                            } else {
+                                                                pipeline.sendObjectToSimulator(root.selectedObj.id);
+                                                                root.appendTelemetry("SIMULATOR", "Object '" + root.selectedObj.name + "' dispatched to Multiphysics Solver pipeline.");
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
 
+                                    // Quick-Run In-Situ Simulation Panel (PH5-27.02)
+                                    Rectangle {
+                                        Layout.fillWidth: true
+                                        implicitHeight: 280
+                                        radius: Theme.radiusSm
+                                        color: Theme.bgCanvas
+                                        border.color: Theme.borderSubtle
+                                        border.width: 1
+
+                                        ColumnLayout {
+                                            anchors.fill: parent
+                                            anchors.margins: 10
+                                            spacing: 8
+
+                                            Text {
+                                                text: "In-Situ Simulation Quick-Run Presets:"
+                                                font.family: Theme.fontSans
+                                                font.pixelSize: Theme.fontXs
+                                                font.weight: Font.DemiBold
+                                                color: Theme.textPrimary
+                                            }
+
+                                            // 4 Presets
+                                            GridLayout {
+                                                Layout.fillWidth: true
+                                                columns: 2
+                                                rowSpacing: 4
+                                                columnSpacing: 6
+
+                                                MonoButton {
+                                                    text: "Step Voltage (120V)"
+                                                    Layout.fillWidth: true
+                                                    compact: true
+                                                    active: root.simQuickRunPreset === "Step_Voltage_120V"
+                                                    onClicked: root.simQuickRunPreset = "Step_Voltage_120V"
+                                                }
+                                                MonoButton {
+                                                    text: "Drop Test (1m)"
+                                                    Layout.fillWidth: true
+                                                    compact: true
+                                                    active: root.simQuickRunPreset === "Drop_Test_1m"
+                                                    onClicked: root.simQuickRunPreset = "Drop_Test_1m"
+                                                }
+                                                MonoButton {
+                                                    text: "Thermal Shock (1200K)"
+                                                    Layout.fillWidth: true
+                                                    compact: true
+                                                    active: root.simQuickRunPreset === "Thermal_Shock_1200K"
+                                                    onClicked: root.simQuickRunPreset = "Thermal_Shock_1200K"
+                                                }
+                                                MonoButton {
+                                                    text: "Tensile Pull (1 kN)"
+                                                    Layout.fillWidth: true
+                                                    compact: true
+                                                    active: root.simQuickRunPreset === "Tensile_Pull_1kN"
+                                                    onClicked: root.simQuickRunPreset = "Tensile_Pull_1kN"
+                                                }
+                                            }
+
+                                            // Simulation Execution Buttons
+                                            RowLayout {
+                                                Layout.fillWidth: true
+                                                spacing: 6
+
+                                                MonoButton {
+                                                    text: root.simIsRunning ? "Stop Simulation" : "Start Simulation"
+                                                    variant: root.simIsRunning ? "neutral" : "primary"
+                                                    iconName: root.simIsRunning ? "pause" : "play"
+                                                    compact: true
+                                                    onClicked: {
+                                                        if (root.simIsRunning) {
+                                                            pipeline.stopObjectQuickRun();
+                                                            root.simIsRunning = false;
+                                                            root.appendTelemetry("SIM", "Simulation paused by user.");
+                                                        } else {
+                                                            if (root.selectedObj && typeof pipeline !== "undefined") {
+                                                                pipeline.startObjectQuickRun(root.selectedObj.id, root.simQuickRunPreset, 5.0, 0.016);
+                                                                root.simIsRunning = true;
+                                                                root.appendTelemetry("SIM", "Started in-situ simulation quick-run: " + root.simQuickRunPreset);
+                                                            }
+                                                        }
+                                                        root.simSyncStatus = pipeline.getObjectSimulationSyncStatus();
+                                                    }
+                                                }
+
+                                                MonoButton {
+                                                    visible: root.simSyncStatus.indexOf("Out of Sync") !== -1
+                                                    text: "Update Simulation Model"
+                                                    compact: true
+                                                    onClicked: {
+                                                        if (root.selectedObj && typeof pipeline !== "undefined") {
+                                                            pipeline.resyncObjectSimulation(root.selectedObj.id);
+                                                            root.simSyncStatus = pipeline.getObjectSimulationSyncStatus();
+                                                            root.appendTelemetry("SYNC", "Object properties re-synchronized with active simulation model.");
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            // Live 60Hz Telemetry Readout
+                                            Text {
+                                                text: "Live Telemetry Readout (60 Hz):"
+                                                font.family: Theme.fontSans
+                                                font.pixelSize: Theme.fontXs
+                                                font.weight: Font.Medium
+                                                color: Theme.textSecondary
+                                            }
+
+                                            GridLayout {
+                                                Layout.fillWidth: true
+                                                columns: 2
+                                                rowSpacing: 4
+                                                columnSpacing: 8
+
+                                                Text { text: "Time:"; font.family: Theme.fontSans; font.pixelSize: 10; color: Theme.textMuted }
+                                                Text { text: Number(root.liveTelemetrySnap.time_s || 0).toFixed(2) + " s"; font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.textPrimary }
+
+                                                Text { text: "Voltage / Current:"; font.family: Theme.fontSans; font.pixelSize: 10; color: Theme.textMuted }
+                                                Text { text: Number(root.liveTelemetrySnap.voltage_v || 0).toFixed(1) + " V / " + (Number(root.liveTelemetrySnap.current_a || 0) * 1000).toFixed(1) + " mA"; font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.textPrimary }
+
+                                                Text { text: "Core Temperature:"; font.family: Theme.fontSans; font.pixelSize: 10; color: Theme.textMuted }
+                                                Text { text: Number(root.liveTelemetrySnap.temperature_k || 298.15).toFixed(1) + " K"; font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.accentPrimary }
+
+                                                Text { text: "Deformation:"; font.family: Theme.fontSans; font.pixelSize: 10; color: Theme.textMuted }
+                                                Text { text: (Number(root.liveTelemetrySnap.deformation_m || 0) * 1e6).toFixed(1) + " µm"; font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.textPrimary }
+                                            }
+                                        }
+                                    }
+
+                                    // Terminal Pins List
                                     Text {
-                                        text: "Terminal Pins:"
+                                        text: "Terminal Pins Configuration:"
                                         font.family: Theme.fontSans
                                         font.pixelSize: Theme.fontXs
                                         font.weight: Font.Medium
@@ -1683,32 +1955,6 @@ Rectangle {
                                         spacing: 2
                                         Text { text: "• Pin 1: Base_Contact (+V)"; font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.textSecondary }
                                         Text { text: "• Pin 2: Screw_Shell (GND)"; font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.textSecondary }
-                                    }
-
-                                    RowLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 6
-                                        MonoButton {
-                                            text: "Run Pre-flight Checks"
-                                            compact: true
-                                            onClicked: {
-                                                if (root.selectedObj) {
-                                                    var pf = pipeline.runObjectPreflightChecks(root.selectedObj.id);
-                                                    root.appendTelemetry("PREFLIGHT", "Pre-flight checks passed: " + pf.status + " (Mass: " + Number(pf.mass_kg).toExponential(2) + " kg)");
-                                                }
-                                            }
-                                        }
-
-                                        MonoButton {
-                                            text: "Send to Simulator"
-                                            variant: "primary"
-                                            compact: true
-                                            onClicked: {
-                                                if (root.selectedObj) {
-                                                    root.appendTelemetry("SIMULATOR", "Object '" + root.selectedObj.name + "' dispatched to Multiphysics Solver pipeline.");
-                                                }
-                                            }
-                                        }
                                     }
                                 }
                             }
@@ -1817,6 +2063,133 @@ Rectangle {
                                     color: Theme.textPrimary
                                     elide: Text.ElideRight
                                     Layout.fillWidth: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // =========================================================================
+    // Pre-Flight Validation Failure Modal Dialog (PH5-27.01.003)
+    // =========================================================================
+    Rectangle {
+        id: preflightModal
+        visible: root.showPreflightModal
+        anchors.fill: parent
+        color: Qt.rgba(0, 0, 0, 0.65)
+        z: 999
+
+        Rectangle {
+            anchors.centerIn: parent
+            width: Math.min(parent.width - 40, 580)
+            height: Math.min(parent.height - 40, 480)
+            radius: Theme.radiusMd
+            color: Theme.bgSurface
+            border.color: Theme.borderStrong
+            border.width: 1
+            clip: true
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 16
+                spacing: 12
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+                    MonoBadge { text: "PRE-FLIGHT FAILED"; tone: "error" }
+                    Text {
+                        text: "Pre-Flight Validation Diagnostics"
+                        font.family: Theme.fontSans
+                        font.pixelSize: Theme.fontMd
+                        font.weight: Font.DemiBold
+                        color: Theme.textPrimary
+                        Layout.fillWidth: true
+                    }
+                    MonoButton {
+                        text: "Close"
+                        compact: true
+                        onClicked: root.showPreflightModal = false
+                    }
+                }
+
+                Text {
+                    text: "The object contains blocking validation errors preventing multiphysics simulation. Click 'Jump to Problem' to navigate directly to the offending region, cavity, or terminal."
+                    font.family: Theme.fontSans
+                    font.pixelSize: Theme.fontXs
+                    color: Theme.textMuted
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                }
+
+                ScrollView {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+
+                    ListView {
+                        width: parent.width
+                        spacing: 8
+                        model: root.preflightModalReport ? root.preflightModalReport.issues : []
+                        delegate: Rectangle {
+                            width: parent.width
+                            height: 64
+                            radius: Theme.radiusSm
+                            color: Theme.bgCanvas
+                            border.color: (modelData.severity === "Error" || modelData.isBlocking) ? Theme.borderError : Theme.borderWarning
+                            border.width: 1
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.margins: 8
+                                spacing: 8
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 2
+                                    RowLayout {
+                                        spacing: 6
+                                        MonoBadge {
+                                            text: modelData.ruleId
+                                            tone: (modelData.severity === "Error" || modelData.isBlocking) ? "error" : "warning"
+                                        }
+                                        Text {
+                                            text: String(modelData.targetType).toUpperCase() + ": " + modelData.targetName
+                                            font.family: Theme.fontSans
+                                            font.pixelSize: Theme.fontXs
+                                            font.weight: Font.DemiBold
+                                            color: Theme.textPrimary
+                                        }
+                                    }
+                                    Text {
+                                        text: modelData.message
+                                        font.family: Theme.fontSans
+                                        font.pixelSize: Theme.fontXs
+                                        color: Theme.textSecondary
+                                        elide: Text.ElideRight
+                                        Layout.fillWidth: true
+                                    }
+                                }
+
+                                MonoButton {
+                                    text: "Jump to Problem"
+                                    compact: true
+                                    variant: "primary"
+                                    onClicked: {
+                                        root.showPreflightModal = false;
+                                        if (modelData.targetType === "region") {
+                                            root.activePropertiesTab = 1; // Regions
+                                        } else if (modelData.targetType === "cavity") {
+                                            root.activePropertiesTab = 2; // Interior
+                                        } else if (modelData.targetType === "terminal") {
+                                            root.activePropertiesTab = 5; // Simulator
+                                        } else {
+                                            root.activePropertiesTab = 0; // Geometry
+                                        }
+                                    }
                                 }
                             }
                         }

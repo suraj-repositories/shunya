@@ -190,6 +190,7 @@ struct ObjectTerminal {
     core::base::math::Vector3<double> normal{0.0, 0.0, 1.0};
     double voltage_v{0.0};
     bool is_conductive{true};
+    std::string connected_region{"core"};
 };
 
 struct PhysicalObject {

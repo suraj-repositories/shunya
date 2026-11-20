@@ -88,14 +88,14 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 0 | 0.0% | `[ ]` |
 | 25 | `OBJ-VIEW3D` | Blender-Style 3D Viewport, Gizmos, Edit Modes & Modeling Tools | P0 | 16 | 0 | 0.0% | `[ ]` |
 | 26 | `OBJ-TEST` | Object Multi-Domain Physics Test Bench (Thermal, Electrical, Mechanical, Vacuum) | P0 | 14 | 14 | 100.0% | `[x]` |
-| 27 | `OBJ-SIM` | End-to-End Simulator Bridge, Pre-Flight Checks & Round-Trip Re-Sync | P0 | 14 | 0 | 0.0% | `[ ]` |
+| 27 | `OBJ-SIM` | End-to-End Simulator Bridge, Pre-Flight Checks & Round-Trip Re-Sync | P0 | 14 | 14 | 100.0% | `[x]` |
 | 28 | `OBJ-ASSY` | 3D Editor Assembly Integration, Multi-Object Joints & Wire Routing | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 29 | `OBJ-PERSIST`| Versioned Object Persistence, Library & Safe File Exchange | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 30 | `OBJ-HELP` | Object Contextual Info Popovers & 3D Modeling Help Center Guide | P0 | 12 | 0 | 0.0% | `[ ]` |
 | **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
 | 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **362** | **80.1%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **376** | **83.2%** | `[~]` |
 
 ---
 
@@ -1074,34 +1074,34 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-27: End-to-End Simulator Bridge, Pre-Flight Checks & Round-Trip Re-Sync (`OBJ-SIM`)
 
 **Objective:** Build a direct bridge from the Objects workspace to the multiphysics simulator, enabling one-click testing of individual objects, pre-flight verification, and bidirectional parameter synchronization.  
-**Priority:** P0 | **Complexity:** High | **Status:** `[ ] Not Started` (0/14 — 0.0%)
+**Priority:** P0 | **Complexity:** High | **Status:** `[x] Completed` (14/14 — 100.0%)
 
-### Submodule PH5-27.01: Pre-Flight Verification & Simulation Model Generation [ ] (0.0% — 7/7)
-- [ ] `PH5-27.01.001`: Implement `SimulatorBridgeCoordinator` in `core/domain/include/shunya/eng/simulator_bridge.hpp` translating `PhysicalObject` into an executable simulation model.
-- [ ] `PH5-27.01.002`: Implement comprehensive **Pre-Flight Validation Engine**:
+### Submodule PH5-27.01: Pre-Flight Verification & Simulation Model Generation [x] (100.0% — 7/7)
+- [x] `PH5-27.01.001`: Implement `SimulatorBridgeCoordinator` in `core/domain/include/shunya/eng/simulator_bridge.hpp` translating `PhysicalObject` into an executable simulation model.
+- [x] `PH5-27.01.002`: Implement comprehensive **Pre-Flight Validation Engine**:
   1. Check that all regions have valid materials assigned.
   2. Verify all cavities are fully sealed and enclosed.
   3. Validate that electrical terminals connect to conductive internal regions.
   4. Assert zero zero-volume or degenerate geometry regions.
   5. Check that solid meshes are closed, oriented, and manifold.
-- [ ] `PH5-27.01.003`: When pre-flight validation fails, display an informative modal dialog listing each error with a clickable `"Jump to Problem"` link focusing the offending region or terminal.
-- [ ] `PH5-27.01.004`: Automatically generate lumped thermal nodes, electrical branch models, and mass/inertia tensors from the physical object definition.
-- [ ] `PH5-27.01.005`: Add a `"Simulation Ready"` badge indicator next to object names in the library when all pre-flight assertions pass.
-- [ ] `PH5-27.01.006`: Add `"Send to Simulator"` button on the workspace header: upon click, perform pre-flight checks, serialize model, and switch active workspace to Simulation with the object spawned in a calibrated test scene.
-- [ ] `PH5-27.01.007`: Add unit test validating pre-flight failure detection on unsealed cavities and unassigned materials.
+- [x] `PH5-27.01.003`: When pre-flight validation fails, display an informative modal dialog listing each error with a clickable `"Jump to Problem"` link focusing the offending region or terminal.
+- [x] `PH5-27.01.004`: Automatically generate lumped thermal nodes, electrical branch models, and mass/inertia tensors from the physical object definition.
+- [x] `PH5-27.01.005`: Add a `"Simulation Ready"` badge indicator next to object names in the library when all pre-flight assertions pass.
+- [x] `PH5-27.01.006`: Add `"Send to Simulator"` button on the workspace header: upon click, perform pre-flight checks, serialize model, and switch active workspace to Simulation with the object spawned in a calibrated test scene.
+- [x] `PH5-27.01.007`: Add unit test validating pre-flight failure detection on unsealed cavities and unassigned materials.
 
-### Submodule PH5-27.02: "Test in Simulator" Quick-Run & Round-Trip Re-Sync [ ] (0.0% — 7/7)
-- [ ] `PH5-27.02.001`: Add `"Test in Simulator"` quick-run panel directly within the Objects workspace, executing rapid in-situ simulation without switching pages.
-- [ ] `PH5-27.02.002`: Provide quick-run simulation presets:
+### Submodule PH5-27.02: "Test in Simulator" Quick-Run & Round-Trip Re-Sync [x] (100.0% — 7/7)
+- [x] `PH5-27.02.001`: Add `"Test in Simulator"` quick-run panel directly within the Objects workspace, executing rapid in-situ simulation without switching pages.
+- [x] `PH5-27.02.002`: Provide quick-run simulation presets:
   - `"Apply Step Voltage (120V)"`
   - `"Drop Test (1m onto Rigid Steel)"`
   - `"Thermal Shock (298K -> 1200K)"`
   - `"Mechanical Tensile Pull (1 kN)"`
-- [ ] `PH5-27.02.003`: Stream live simulation telemetry (current, temperature, deformation) into the bottom drawer at 60 Hz via lock-free ring buffers.
-- [ ] `PH5-27.02.004`: Implement bidirectional round-trip synchronization: when an object is modified in the Objects workspace, automatically re-sync its parameters with any active simulation scenes.
-- [ ] `PH5-27.02.005`: Display simulation sync status chip in the bottom status bar: `[In Sync: Clean]`, `[Modified: Out of Sync]`, or `[Simulation Running]`.
-- [ ] `PH5-27.02.006`: When sync is out of date, prompt user with `"Update Simulation Model"` button.
-- [ ] `PH5-27.02.007`: Add automated integration test verifying that modifying filament wire thickness reactively updates resistance in an active simulation run.
+- [x] `PH5-27.02.003`: Stream live simulation telemetry (current, temperature, deformation) into the bottom drawer at 60 Hz via lock-free ring buffers.
+- [x] `PH5-27.02.004`: Implement bidirectional round-trip synchronization: when an object is modified in the Objects workspace, automatically re-sync its parameters with any active simulation scenes.
+- [x] `PH5-27.02.005`: Display simulation sync status chip in the bottom status bar: `[In Sync: Clean]`, `[Modified: Out of Sync]`, or `[Simulation Running]`.
+- [x] `PH5-27.02.006`: When sync is out of date, prompt user with `"Update Simulation Model"` button.
+- [x] `PH5-27.02.007`: Add automated integration test verifying that modifying filament wire thickness reactively updates resistance in an active simulation run.
 
 ---
 
