@@ -4,6 +4,8 @@
 #include "shunya/matdb/element_database.hpp"
 
 #include <QDateTime>
+#include <QGuiApplication>
+#include <QStyleHints>
 #include <chrono>
 #include <cmath>
 #include <sstream>
@@ -15,6 +17,13 @@ using namespace shunya::core::domain;
 ShunyaStudioController::ShunyaStudioController(QObject* parent)
     : QObject(parent)
 {
+    // Reactive listener for OS-level theme appearance preference
+    if (auto* hints = QGuiApplication::styleHints()) {
+        connect(hints, &QStyleHints::colorSchemeChanged, this, [this](Qt::ColorScheme) {
+            emit systemThemeChanged();
+        });
+    }
+
     // Initialize Headless Core AppContext
     auto& ctx = AppContext::instance();
     AppInitOptions opts;
@@ -273,4 +282,29 @@ void ShunyaStudioController::clearLog()
     log_lines_.clear();
     log_output_.clear();
     emit logOutputChanged();
+}
+
+bool ShunyaStudioController::systemIsDarkMode() const noexcept
+{
+    if (auto* hints = QGuiApplication::styleHints()) {
+        return hints->colorScheme() == Qt::ColorScheme::Dark;
+    }
+    return true;
+}
+
+QString ShunyaStudioController::systemColorScheme() const noexcept
+{
+    if (auto* hints = QGuiApplication::styleHints()) {
+        switch (hints->colorScheme()) {
+        case Qt::ColorScheme::Dark: return QStringLiteral("dark");
+        case Qt::ColorScheme::Light: return QStringLiteral("light");
+        default: return QStringLiteral("unknown");
+        }
+    }
+    return QStringLiteral("dark");
+}
+
+void ShunyaStudioController::requestSystemThemeCheck()
+{
+    emit systemThemeChanged();
 }

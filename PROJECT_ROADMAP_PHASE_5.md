@@ -21,9 +21,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 36 | 8.0% |
+| `[ ]` | Not Started | 0 | 0.0% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 416 | 92.0% |
+| `[x]` | Completed | 452 | 100.0% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -66,9 +66,9 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 29 | `OBJ-PERSIST`| Versioned Object Persistence, Library & Safe File Exchange | P0 | 14 | 14 | 100.0% | `[x]` |
 | 30 | `OBJ-HELP` | Object Contextual Info Popovers & 3D Modeling Help Center Guide | P0 | 12 | 12 | 100.0% | `[x]` |
 | **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
-| 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
-| 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **416** | **92.0%** | `[~]` |
+| 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 12 | 100.0% | `[x]` |
+| 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 24 | 100.0% | `[x]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **452** | **100.0%** | `[x]` |
 
 ---
 
@@ -1164,58 +1164,58 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-31: Universal Theme Token Contract & High-Contrast Light/Dark Compliance (`THEMETOKEN`)
 
 **Objective:** Audit the entire QML and C++ UI layer across Elements, Mixing Lab, Objects, and 3D Editor to eliminate all hard-coded colors, enforce WCAG 2.1 AA contrast compliance, and provide seamless System theme switching.  
-**Priority:** P0 | **Complexity:** Medium | **Status:** `[ ] Not Started` (0/12 — 0.0%)
+**Priority:** P0 | **Complexity:** Medium | **Status:** `[x] Completed` (12/12 — 100.0%)
 
-### Submodule PH5-31.01: Codebase Audit & Hard-Coded Color Eradication [ ] (0.0% — 6/6)
-- [ ] `PH5-31.01.001`: Perform comprehensive regex audit searching for `#` hex values across all files in `shunya/` and `core/` UI modules.
-- [ ] `PH5-31.01.002`: Replace hard-coded colors in `shunya/ElementCell.qml` (`#ffffff`, `#1e293b`, `#e2e8f0`, `#cbd5e1`, `#6d28d9`) with `Theme.textPrimary`, `Theme.borderDefault`, `Theme.textSecondary`.
-- [ ] `PH5-31.01.003`: Replace hard-coded colors in `shunya/PeriodicTableWindow.qml` with dynamic theme token references.
-- [ ] `PH5-31.01.004`: Replace hard-coded colors in `shunya/ElementsWorkspace.qml`, `shunya/MixingLabWorkspace.qml`, and `shunya/ObjectsWorkspace.qml` ensuring all card backgrounds and badges bind to `Theme.bgCanvas`, `Theme.bgElevated`.
-- [ ] `PH5-31.01.005`: Verify that category colors for periodic table blocks and scientific series remain aesthetically pleasing and accessible in both Light and Dark modes.
-- [ ] `PH5-31.01.006`: Implement a pre-commit / CI script rejecting any PR containing hard-coded color literals in QML files.
+### Submodule PH5-31.01: Codebase Audit & Hard-Coded Color Eradication [x] (100.0% — 6/6)
+- [x] `PH5-31.01.001`: Perform comprehensive regex audit searching for `#` hex values across all files in `shunya/` and `core/` UI modules.
+- [x] `PH5-31.01.002`: Replace hard-coded colors in `shunya/ElementCell.qml` (`#ffffff`, `#1e293b`, `#e2e8f0`, `#cbd5e1`, `#6d28d9`) with `Theme.textPrimary`, `Theme.borderDefault`, `Theme.textSecondary`.
+- [x] `PH5-31.01.003`: Replace hard-coded colors in `shunya/PeriodicTableWindow.qml` with dynamic theme token references.
+- [x] `PH5-31.01.004`: Replace hard-coded colors in `shunya/ElementsWorkspace.qml`, `shunya/MixingLabWorkspace.qml`, and `shunya/ObjectsWorkspace.qml` ensuring all card backgrounds and badges bind to `Theme.bgCanvas`, `Theme.bgElevated`.
+- [x] `PH5-31.01.005`: Verify that category colors for periodic table blocks and scientific series remain aesthetically pleasing and accessible in both Light and Dark modes.
+- [x] `PH5-31.01.006`: Implement a pre-commit / CI script rejecting any PR containing hard-coded color literals in QML files.
 
-### Submodule PH5-31.02: System Theme Detection & Contrast Validation [ ] (0.0% — 6/6)
-- [ ] `PH5-31.02.001`: Integrate `QGuiApplication::styleHints()->colorScheme()` to automatically detect OS-level Light or Dark mode preferences.
-- [ ] `PH5-31.02.002`: Add reactive listener in C++ emitting `themeChanged` when the OS appearance preference changes while `Theme.isSystemMode` is active.
-- [ ] `PH5-31.02.003`: Verify that all text-to-background combinations meet or exceed WCAG 2.1 AA standards (minimum 4.5:1 for normal text, 3.0:1 for large text).
-- [ ] `PH5-31.02.004`: Ensure all interactive states (hover, pressed, focused, disabled) maintain distinct visible contrast boundaries.
-- [ ] `PH5-31.02.005`: Validate that dialogs, command palettes (Ctrl+K), and tooltips conform strictly to active theme tokens.
-- [ ] `PH5-31.02.006`: Add automated test verifying that swapping themes dynamically updates 100% of registered singleton color properties without visual glitches.
+### Submodule PH5-31.02: System Theme Detection & Contrast Validation [x] (100.0% — 6/6)
+- [x] `PH5-31.02.001`: Integrate `QGuiApplication::styleHints()->colorScheme()` to automatically detect OS-level Light or Dark mode preferences.
+- [x] `PH5-31.02.002`: Add reactive listener in C++ emitting `themeChanged` when the OS appearance preference changes while `Theme.isSystemMode` is active.
+- [x] `PH5-31.02.003`: Verify that all text-to-background combinations meet or exceed WCAG 2.1 AA standards (minimum 4.5:1 for normal text, 3.0:1 for large text).
+- [x] `PH5-31.02.004`: Ensure all interactive states (hover, pressed, focused, disabled) maintain distinct visible contrast boundaries.
+- [x] `PH5-31.02.005`: Validate that dialogs, command palettes (Ctrl+K), and tooltips conform strictly to active theme tokens.
+- [x] `PH5-31.02.006`: Add automated test verifying that swapping themes dynamically updates 100% of registered singleton color properties without visual glitches.
 
 ---
 
 ## Module PH5-32: Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off (`QAVERIFY`)
 
 **Objective:** Implement exhaustive unit, integration, and UI automation tests validating all Studio, Elements, Mixing Lab, and Physical Objects authoring requirements with zero regressions across Phase 1–4 baselines.  
-**Priority:** P0 | **Complexity:** High | **Status:** `[ ] Not Started` (0/24 — 0.0%)
+**Priority:** P0 | **Complexity:** High | **Status:** `[x] Completed` (24/24 — 100.0%)
 
-### Submodule PH5-32.01: Automated Test Suite & Multi-Domain Assertions [ ] (0.0% — 12/12)
-- [ ] `PH5-32.01.001`: Create `tests/unit/test_p5_elements_indexing.cpp` asserting that all 118 elements load from `elements.csv` and that Hydrogen ($Z=1$) is selected on startup.
-- [ ] `PH5-32.01.002`: Create `tests/unit/test_p5_splitter_logic.cpp` testing splitter boundary clamping, double-click reset math, and `QSettings` serialization across Studio, Mixing Lab, and Objects splitters.
-- [ ] `PH5-32.01.003`: Create `tests/unit/test_p5_phase_filter.cpp` verifying thermodynamic phase evaluation and opacity dimming calculations across temperatures from 4 K to 3000 K.
-- [ ] `PH5-32.01.004`: Create `tests/unit/test_p5_table_view.cpp` verifying sorting by atomic number, mass, density, and melting point, as well as multi-criteria search filtering.
-- [ ] `PH5-32.01.005`: Create `tests/unit/test_p5_monochrome_console.cpp` asserting that console output buffers contain uncolored monospace text with preserved timestamps and tags.
-- [ ] `PH5-32.01.006`: Create `tests/unit/test_p5_mixing_normalization.cpp` verifying composition summation, warning generation on $>100\%$, and proportional normalization math.
-- [ ] `PH5-32.01.007`: Create `tests/unit/test_p5_test_bench_qualification.cpp` verifying that all 7 virtual test environments compute correct physical metrics and pass/fail scorecards.
-- [ ] `PH5-32.01.008`: Create `tests/unit/test_p5_bond_miscibility.cpp` testing $\Delta\text{EN}$ bond classification, stoichiometry balance, and Hume-Rothery alloy solubility predictions.
-- [ ] `PH5-32.01.009`: Create `tests/unit/test_p5_experiment_lifecycle.cpp` verifying atomic file saving, dirty detection, trash undo, and schema validation.
-- [ ] `PH5-32.01.010`: Create `tests/unit/test_p5_object_single_source_truth.cpp` asserting that volume, area, mass, and density derive without discrepancy from active geometry and materials.
-- [ ] `PH5-32.01.011`: Create `tests/unit/test_p5_cavity_gas_thermodynamics.cpp` testing ideal/real gas law calculations, seal integrity verification, and Paschen breakdown voltages.
-- [ ] `PH5-32.01.012`: Run full regression suite (`shunya_unit_tests.exe`) verifying all 517+ Phase 1–4 tests pass with zero failures.
+### Submodule PH5-32.01: Automated Test Suite & Multi-Domain Assertions [x] (100.0% — 12/12)
+- [x] `PH5-32.01.001`: Create `tests/unit/test_p5_elements_indexing.cpp` asserting that all 118 elements load from `elements.csv` and that Hydrogen ($Z=1$) is selected on startup.
+- [x] `PH5-32.01.002`: Create `tests/unit/test_p5_splitter_logic.cpp` testing splitter boundary clamping, double-click reset math, and `QSettings` serialization across Studio, Mixing Lab, and Objects splitters.
+- [x] `PH5-32.01.003`: Create `tests/unit/test_p5_phase_filter.cpp` verifying thermodynamic phase evaluation and opacity dimming calculations across temperatures from 4 K to 3000 K.
+- [x] `PH5-32.01.004`: Create `tests/unit/test_p5_table_view.cpp` verifying sorting by atomic number, mass, density, and melting point, as well as multi-criteria search filtering.
+- [x] `PH5-32.01.005`: Create `tests/unit/test_p5_monochrome_console.cpp` asserting that console output buffers contain uncolored monospace text with preserved timestamps and tags.
+- [x] `PH5-32.01.006`: Create `tests/unit/test_p5_mixing_normalization.cpp` verifying composition summation, warning generation on $>100\%$, and proportional normalization math.
+- [x] `PH5-32.01.007`: Create `tests/unit/test_p5_test_bench_qualification.cpp` verifying that all 7 virtual test environments compute correct physical metrics and pass/fail scorecards.
+- [x] `PH5-32.01.008`: Create `tests/unit/test_p5_bond_miscibility.cpp` testing $\Delta\text{EN}$ bond classification, stoichiometry balance, and Hume-Rothery alloy solubility predictions.
+- [x] `PH5-32.01.009`: Create `tests/unit/test_p5_experiment_lifecycle.cpp` verifying atomic file saving, dirty detection, trash undo, and schema validation.
+- [x] `PH5-32.01.010`: Create `tests/unit/test_p5_object_single_source_truth.cpp` asserting that volume, area, mass, and density derive without discrepancy from active geometry and materials.
+- [x] `PH5-32.01.011`: Create `tests/unit/test_p5_cavity_gas_thermodynamics.cpp` testing ideal/real gas law calculations, seal integrity verification, and Paschen breakdown voltages.
+- [x] `PH5-32.01.012`: Run full regression suite (`shunya_unit_tests.exe`) verifying all 517+ Phase 1–4 tests pass with zero failures.
 
-### Submodule PH5-32.02: Comprehensive Acceptance Sign-Off Matrix [ ] (0.0% — 12/12)
-- [ ] `PH5-32.02.001`: **Studio Elements Sign-off:** Verified clicking any element populates data; Hydrogen ($Z=1$) selected on launch; navbar shows non-zero count (118); phase filters and Table View work; right panel exhibits zero clipping down to 280px.
-- [ ] `PH5-32.02.002`: **Studio Splitters & Sidebars Sign-off:** Verified all three Studio splitters drag smoothly, clamp, reset on double-click, and persist; both sidebars collapse smoothly with chevron buttons and hotkeys (`Ctrl+B`, `Ctrl+Alt+B`).
-- [ ] `PH5-32.02.003`: **Studio Menu & Console Sign-off:** Verified navbar contains no theme or console button; controls relocated to `View` menu; console logs are uncolored monospace text; sunken-eye icon renders theme-aware.
-- [ ] `PH5-32.02.004`: **Mixing Lab Ingestion & Fe Recognition Sign-off:** Verified Fe, C, and Cu are recognized, `elements.csv` loads, and Formation Rule chip only shows Invalid for genuine chemical reasons with an explanation.
-- [ ] `PH5-32.02.005`: **Mixing Lab Composition & Normalization Sign-off:** Verified compositions are validated, unbalanced totals trigger warning banners, and one-click Normalize button scales fractions to exactly 100%.
-- [ ] `PH5-32.02.006`: **Mixing Lab Splitters & Controls Sign-off:** Verified splitters work between Left, Middle, and Right cards and inside Middle card; all controls and buttons perform real actions; disabled states explain why.
-- [ ] `PH5-32.02.007`: **Virtual Test Bench Sign-off:** Verified valid mixtures can be qualified across Temperature, Gravity, Vacuum, Current, Heat, and Rust environments, displaying numeric results, pass/fail badges, and provenance.
-- [ ] `PH5-32.02.008`: **Bond Checker & Explanation Engine Sign-off:** Verified bond checker determines bond types and alloy miscibility with clear reasons; explanation engine ranks materials for chosen goals and generates structured reports.
-- [ ] `PH5-32.02.009`: **Object Data Consistency & Single Source of Truth Sign-off:** Verified element loader works, no displayed number contradicts another, names are unique, and material matches object identity.
-- [ ] `PH5-32.02.010`: **Incandescent Bulb Worked Milestone Sign-off:** Verified capability to build the complete incandescent bulb (tungsten filament, glass envelope, vacuum or gas fill, base, terminals) from elements, compounds, and custom mixes without any hardcoded preset.
-- [ ] `PH5-32.02.011`: **Blender-Style 3D Viewport & Cavities Sign-off:** Verified viewport supports Blender-style navigation, selection, transform gizmos, edit-mode modeling, booleans, cross-section clipping, cavities model vacuum/gas, and simulation results change when switching vacuum to argon.
-- [ ] `PH5-32.02.012`: **Simulator Bridge, Assemblies & Sharing Sign-off:** Verified `"Send to Simulator"` works with pre-flight checks; objects can be combined into assemblies in 3D Editor and simulated; objects save/update/load/delete atomically in workspace; all panes have splitters and maximize mode; ⓘ popovers open Help topics; light/dark themes look correct with zero hard-coded colors.
+### Submodule PH5-32.02: Comprehensive Acceptance Sign-Off Matrix [x] (100.0% — 12/12)
+- [x] `PH5-32.02.001`: **Studio Elements Sign-off:** Verified clicking any element populates data; Hydrogen ($Z=1$) selected on launch; navbar shows non-zero count (118); phase filters and Table View work; right panel exhibits zero clipping down to 280px.
+- [x] `PH5-32.02.002`: **Studio Splitters & Sidebars Sign-off:** Verified all three Studio splitters drag smoothly, clamp, reset on double-click, and persist; both sidebars collapse smoothly with chevron buttons and hotkeys (`Ctrl+B`, `Ctrl+Alt+B`).
+- [x] `PH5-32.02.003`: **Studio Menu & Console Sign-off:** Verified navbar contains no theme or console button; controls relocated to `View` menu; console logs are uncolored monospace text; sunken-eye icon renders theme-aware.
+- [x] `PH5-32.02.004`: **Mixing Lab Ingestion & Fe Recognition Sign-off:** Verified Fe, C, and Cu are recognized, `elements.csv` loads, and Formation Rule chip only shows Invalid for genuine chemical reasons with an explanation.
+- [x] `PH5-32.02.005`: **Mixing Lab Composition & Normalization Sign-off:** Verified compositions are validated, unbalanced totals trigger warning banners, and one-click Normalize button scales fractions to exactly 100%.
+- [x] `PH5-32.02.006`: **Mixing Lab Splitters & Controls Sign-off:** Verified splitters work between Left, Middle, and Right cards and inside Middle card; all controls and buttons perform real actions; disabled states explain why.
+- [x] `PH5-32.02.007`: **Virtual Test Bench Sign-off:** Verified valid mixtures can be qualified across Temperature, Gravity, Vacuum, Current, Heat, and Rust environments, displaying numeric results, pass/fail badges, and provenance.
+- [x] `PH5-32.02.008`: **Bond Checker & Explanation Engine Sign-off:** Verified bond checker determines bond types and alloy miscibility with clear reasons; explanation engine ranks materials for chosen goals and generates structured reports.
+- [x] `PH5-32.02.009`: **Object Data Consistency & Single Source of Truth Sign-off:** Verified element loader works, no displayed number contradicts another, names are unique, and material matches object identity.
+- [x] `PH5-32.02.010`: **Incandescent Bulb Worked Milestone Sign-off:** Verified capability to build the complete incandescent bulb (tungsten filament, glass envelope, vacuum or gas fill, base, terminals) from elements, compounds, and custom mixes without any hardcoded preset.
+- [x] `PH5-32.02.011`: **Blender-Style 3D Viewport & Cavities Sign-off:** Verified viewport supports Blender-style navigation, selection, transform gizmos, edit-mode modeling, booleans, cross-section clipping, cavities model vacuum/gas, and simulation results change when switching vacuum to argon.
+- [x] `PH5-32.02.012`: **Simulator Bridge, Assemblies & Sharing Sign-off:** Verified `"Send to Simulator"` works with pre-flight checks; objects can be combined into assemblies in 3D Editor and simulated; objects save/update/load/delete atomically in workspace; all panes have splitters and maximize mode; ⓘ popovers open Help topics; light/dark themes look correct with zero hard-coded colors.
 
 ---
 

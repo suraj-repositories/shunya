@@ -8,7 +8,7 @@ Rectangle {
     property string symbol: "H"
     property string elementName: "Hydrogen"
     property double atomicMass: 1.008
-    property string cellColor: "#6d28d9"
+    property color cellColor: Theme.bgElevated
     property string valueLabel: "1.008"
     property bool isSelected: false
     property bool isHighlighted: true

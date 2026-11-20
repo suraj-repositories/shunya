@@ -180,6 +180,7 @@ add_executable(shunya_unit_tests
     unit/test_p5_assembly_editor.cpp
     unit/test_p5_object_persistence.cpp
     unit/test_p5_object_help.cpp
+    unit/test_p5_theme_tokens.cpp
 )
 
 target_include_directories(shunya_unit_tests

@@ -152,7 +152,7 @@ Item {
                             width: 10
                             height: 18
                             radius: 2
-                            color: modelData.colorHex || "#4a9eff"
+                            color: modelData.colorHex || Theme.accentPrimary
                         }
 
                         Text {

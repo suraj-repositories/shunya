@@ -379,16 +379,22 @@ MenuBar {
             background: VSCodeMenuBackground {}
             delegate: VSCodeMenuItem {}
             Action {
+                text: qsTr("System Default")
+                checkable: true
+                checked: Theme.isSystemMode
+                onTriggered: Theme.setSystemTheme()
+            }
+            Action {
                 text: qsTr("Light")
                 checkable: true
-                checked: !Theme.isDarkMode
-                onTriggered: Theme.isDarkMode = false
+                checked: !Theme.isSystemMode && !Theme.isDarkMode
+                onTriggered: Theme.setDarkMode(false)
             }
             Action {
                 text: qsTr("Dark")
                 checkable: true
-                checked: Theme.isDarkMode
-                onTriggered: Theme.isDarkMode = true
+                checked: !Theme.isSystemMode && Theme.isDarkMode
+                onTriggered: Theme.setDarkMode(true)
             }
         }
         VSCodeMenuSeparator {}

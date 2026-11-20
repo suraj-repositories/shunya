@@ -6,6 +6,29 @@ QtObject {
 
     // Persistent Light / Dark Monochrome Mode
     property bool isDarkMode: true
+    property bool isSystemMode: false
+
+    function setDarkMode(val) {
+        isSystemMode = false;
+        isDarkMode = val;
+    }
+
+    function setSystemTheme() {
+        isSystemMode = true;
+        if (typeof studio !== "undefined" && studio && studio.systemIsDarkMode !== undefined) {
+            isDarkMode = studio.systemIsDarkMode;
+        }
+    }
+
+    Component.onCompleted: {
+        if (typeof studio !== "undefined" && studio && studio.systemThemeChanged) {
+            studio.systemThemeChanged.connect(function() {
+                if (theme.isSystemMode) {
+                    theme.isDarkMode = studio.systemIsDarkMode;
+                }
+            });
+        }
+    }
 
     // =========================================================================
     // Core Monochrome Black & White Chrome Tokens (Zero Blue UI Accents)
@@ -17,6 +40,7 @@ QtObject {
     readonly property color bgHover:        isDarkMode ? "#262626" : "#E5E5E5"
     readonly property color bgActive:       isDarkMode ? "#2E2E2E" : "#DCDCDC"
     readonly property color bgInput:        isDarkMode ? "#121212" : "#FFFFFF"
+    readonly property color bgSurfaceActive:isDarkMode ? "#2A2A2A" : "#E5E5E5"
 
     readonly property color borderSubtle:   isDarkMode ? "#262626" : "#E5E5E5"
     readonly property color borderDefault:  isDarkMode ? "#333333" : "#D4D4D4"
@@ -26,8 +50,12 @@ QtObject {
     readonly property color textPrimary:    isDarkMode ? "#FAFAFA" : "#0A0A0A"
     readonly property color textSecondary:  isDarkMode ? "#D4D4D4" : "#262626"
     readonly property color textMuted:      isDarkMode ? "#A3A3A3" : "#525252"
-    readonly property color textSubtle:     isDarkMode ? "#737373" : "#737373"
+    readonly property color textSubtle:     isDarkMode ? "#8A8A8A" : "#595959"
     readonly property color textInverse:    isDarkMode ? "#0A0A0A" : "#FFFFFF"
+
+    // Functional accent tokens for highlights and interactive indicators
+    readonly property color accentPrimary:  isDarkMode ? "#60A5FA" : "#2563EB"
+    readonly property color accentHover:    isDarkMode ? "#93C5FD" : "#1D4ED8"
 
     // Monochrome Contrast Action Buttons
     readonly property color btnPrimaryBg:   isDarkMode ? "#FAFAFA" : "#0A0A0A"

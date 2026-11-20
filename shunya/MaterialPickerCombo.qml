@@ -193,7 +193,7 @@ Item {
                             width: 12
                             height: 24
                             radius: 3
-                            color: modelData.colorHex || "#4a9eff"
+                            color: modelData.colorHex || Theme.accentPrimary
                         }
 
                         ColumnLayout {

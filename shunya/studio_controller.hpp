@@ -28,6 +28,8 @@ class ShunyaStudioController : public QObject {
     Q_PROPERTY(QStringList activeEntities READ activeEntities NOTIFY activeEntitiesChanged)
     Q_PROPERTY(QString benchmarkOutput READ benchmarkOutput NOTIFY benchmarkOutputChanged)
     Q_PROPERTY(QString logOutput READ logOutput NOTIFY logOutputChanged)
+    Q_PROPERTY(bool systemIsDarkMode READ systemIsDarkMode NOTIFY systemThemeChanged)
+    Q_PROPERTY(QString systemColorScheme READ systemColorScheme NOTIFY systemThemeChanged)
 
 public:
     explicit ShunyaStudioController(QObject* parent = nullptr);
@@ -39,6 +41,8 @@ public:
     [[nodiscard]] QStringList activeEntities() const noexcept { return active_entities_; }
     [[nodiscard]] QString benchmarkOutput() const noexcept { return benchmark_output_; }
     [[nodiscard]] QString logOutput() const noexcept { return log_output_; }
+    [[nodiscard]] bool systemIsDarkMode() const noexcept;
+    [[nodiscard]] QString systemColorScheme() const noexcept;
     [[nodiscard]] std::shared_ptr<shunya::core::domain::Project> currentProject() const noexcept { return current_project_; }
     [[nodiscard]] std::shared_ptr<shunya::eng::EngineeringWorkspaceState> workspace() const noexcept { return workspace_; }
     [[nodiscard]] shunya::core::domain::CommandStack& commandStack() noexcept { return workspace_ ? workspace_->command_stack() : command_stack_; }
@@ -61,6 +65,7 @@ public slots:
     void runSweep(const QString& param, double minVal, double maxVal, int steps);
     void appendLog(const QString& msg);
     void clearLog();
+    Q_INVOKABLE void requestSystemThemeCheck();
 
 signals:
     void simTimeChanged();
@@ -69,6 +74,7 @@ signals:
     void activeEntitiesChanged();
     void benchmarkOutputChanged();
     void logOutputChanged();
+    void systemThemeChanged();
 
 private slots:
     void onTimerTick();
