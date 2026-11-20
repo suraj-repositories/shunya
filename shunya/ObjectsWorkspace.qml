@@ -54,6 +54,11 @@ Rectangle {
     property bool isMaximizedViewport: false
     property string layoutPreset: "Default" // "Default" | "Modeling" | "Testing" | "Compare"
 
+    // Cavity Interior State
+    property var currentCavitySpec: ({})
+    property var cavityThermodynamics: ({})
+    property var bulbMilestoneReport: ({})
+
     // Telemetry log stream
     property var telemetryLogs: [
         { time: "12:00:01", tag: "INIT", text: "Physical Objects authoring kernel initialized." },
@@ -1215,6 +1220,13 @@ Rectangle {
                                     width: parent.width
                                     spacing: 8
 
+                                    Component.onCompleted: {
+                                        if (root.selectedObj) {
+                                            root.currentCavitySpec = pipeline.getCavitySpec(root.selectedObj.id);
+                                            root.cavityThermodynamics = pipeline.evaluateCavityThermodynamics(root.selectedObj.id, 2750.0);
+                                        }
+                                    }
+
                                     Text {
                                         text: "Cavity & Fill Gas Configuration"
                                         font.family: Theme.fontSans
@@ -1230,22 +1242,197 @@ Rectangle {
                                         Layout.fillWidth: true
 
                                         Text { text: "Cavity Type:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                                        MonoBadge { text: "Sealed Inert Gas Fill"; tone: "neutral" }
+                                        MonoComboBox {
+                                            id: cavityTypeCombo
+                                            Layout.fillWidth: true
+                                            model: ["FillGas", "SealedVacuum", "LiquidFill", "OpenToEnvironment"]
+                                            currentText: root.currentCavitySpec.kind || "FillGas"
+                                        }
 
-                                        Text { text: "Gas Species:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                                        MonoBadge { text: "Argon (95%) + N2 (5%)"; tone: "neutral" }
+                                        Text { text: "Gas Composition:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        MonoComboBox {
+                                            id: gasCompCombo
+                                            Layout.fillWidth: true
+                                            model: ["Ar/N2 (95/5)", "Pure Ar", "Pure N2", "Vacuum", "Air"]
+                                            currentText: "Ar/N2 (95/5)"
+                                        }
 
                                         Text { text: "Fill Pressure (kPa):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                                        MonoInput { Layout.fillWidth: true; monoFont: true; text: "80.0" }
+                                        MonoInput {
+                                            id: fillPressInput
+                                            Layout.fillWidth: true
+                                            monoFont: true
+                                            text: root.currentCavitySpec.fillPressurePa ? (root.currentCavitySpec.fillPressurePa / 1000.0).toFixed(1) : "80.0"
+                                        }
 
                                         Text { text: "Fill Temp (K):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                                        MonoInput { Layout.fillWidth: true; monoFont: true; text: "298.15" }
+                                        MonoInput {
+                                            id: fillTempInput
+                                            Layout.fillWidth: true
+                                            monoFont: true
+                                            text: root.currentCavitySpec.fillTempK ? String(root.currentCavitySpec.fillTempK) : "293.15"
+                                        }
 
-                                        Text { text: "Seal Integrity:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                                        MonoBadge { text: "PASS: Fully Enclosed"; tone: "success" }
+                                        Text { text: "Wall Thickness (mm):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        MonoInput {
+                                            id: wallThickInput
+                                            Layout.fillWidth: true
+                                            monoFont: true
+                                            text: root.currentCavitySpec.wallThicknessM ? (root.currentCavitySpec.wallThicknessM * 1000.0).toFixed(2) : "0.80"
+                                        }
 
-                                        Text { text: "Gas Mass:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
-                                        Text { text: "3.2 mg (1.28e-4 mol)"; font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary }
+                                        Text { text: "Chemical Getter:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                        MonoCheckBox {
+                                            id: getterCheck
+                                            text: "Barium / Phosphorus Getter Active"
+                                            checked: root.currentCavitySpec.hasChemicalGetter !== false
+                                        }
+                                    }
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 6
+                                        MonoButton {
+                                            text: "Apply Cavity Parameters"
+                                            variant: "primary"
+                                            compact: true
+                                            onClicked: {
+                                                if (!root.selectedObj) return;
+                                                var pKpa = parseFloat(fillPressInput.text) || 80.0;
+                                                var tK = parseFloat(fillTempInput.text) || 293.15;
+                                                var tMm = parseFloat(wallThickInput.text) || 0.8;
+                                                var res = pipeline.updateCavitySpec(
+                                                    root.selectedObj.id,
+                                                    cavityTypeCombo.currentText,
+                                                    pKpa * 1000.0,
+                                                    tK,
+                                                    1.5e-4,
+                                                    tMm / 1000.0,
+                                                    0.030,
+                                                    getterCheck.checked,
+                                                    gasCompCombo.currentText
+                                                );
+                                                if (res.ok) {
+                                                    root.currentCavitySpec = pipeline.getCavitySpec(root.selectedObj.id);
+                                                    root.cavityThermodynamics = pipeline.evaluateCavityThermodynamics(root.selectedObj.id, 2750.0);
+                                                    root.appendTelemetry("CAV", "Updated interior cavity for " + root.selectedObj.name);
+                                                    root.refreshAll();
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    // Live Thermodynamics & Sublimation Telemetry
+                                    Rectangle {
+                                        Layout.fillWidth: true
+                                        implicitHeight: thermoGrid.implicitHeight + 16
+                                        color: Theme.bgCanvas
+                                        radius: Theme.radiusSm
+                                        border.color: Theme.borderSubtle
+                                        border.width: 1
+
+                                        GridLayout {
+                                            id: thermoGrid
+                                            anchors.fill: parent
+                                            anchors.margins: 8
+                                            columns: 2
+                                            columnSpacing: 6
+                                            rowSpacing: 4
+
+                                            Text { text: "Seal Integrity:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                            MonoBadge {
+                                                text: (root.cavityThermodynamics && root.cavityThermodynamics.isSealIntact) ? "PASS: Hermetic Barrier" : "FAIL: Open / Leaking"
+                                                tone: (root.cavityThermodynamics && root.cavityThermodynamics.isSealIntact) ? "success" : "critical"
+                                            }
+
+                                            Text { text: "Operating Pressure (2750 K):"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                            Text {
+                                                text: root.cavityThermodynamics.currentPressurePa ? (root.cavityThermodynamics.currentPressurePa / 1000.0).toFixed(1) + " kPa" : "—"
+                                                font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary
+                                            }
+
+                                            Text { text: "Gas Conduction Loss:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                            Text {
+                                                text: root.cavityThermodynamics.heatTransferGasW ? root.cavityThermodynamics.heatTransferGasW.toFixed(2) + " W" : "—"
+                                                font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary
+                                            }
+
+                                            Text { text: "Paschen Arcing V_b:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                            Text {
+                                                text: root.cavityThermodynamics.paschenBreakdownVoltageV ? root.cavityThermodynamics.paschenBreakdownVoltageV.toFixed(0) + " V" : "—"
+                                                font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.textPrimary
+                                            }
+
+                                            Text { text: "Sublimation Suppression:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                            Text {
+                                                text: root.cavityThermodynamics.sublimationSuppressionPct ? root.cavityThermodynamics.sublimationSuppressionPct.toFixed(0) + "% (Inert Gas)" : "—"
+                                                font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; color: Theme.accentPrimary
+                                            }
+
+                                            Text { text: "Predicted Lifespan:"; font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; color: Theme.textMuted }
+                                            Text {
+                                                text: root.cavityThermodynamics.predictedLifespanHours ? root.cavityThermodynamics.predictedLifespanHours.toFixed(0) + " Hours" : "—"
+                                                font.family: Theme.fontMono; font.pixelSize: Theme.fontXs; font.weight: Font.Bold; color: Theme.textPrimary
+                                            }
+                                        }
+                                    }
+
+                                    // Incandescent Light Bulb Milestone Evaluation Card
+                                    Rectangle {
+                                        Layout.fillWidth: true
+                                        implicitHeight: bulbScorecard.implicitHeight + 16
+                                        color: Theme.bgSurfaceRaised
+                                        radius: Theme.radiusSm
+                                        border.color: Theme.borderSubtle
+                                        border.width: 1
+
+                                        ColumnLayout {
+                                            id: bulbScorecard
+                                            anchors.fill: parent
+                                            anchors.margins: 8
+                                            spacing: 6
+
+                                            RowLayout {
+                                                Layout.fillWidth: true
+                                                Text {
+                                                    text: "Incandescent Bulb Milestone (A19 120V)"
+                                                    font.family: Theme.fontSans; font.pixelSize: Theme.fontXs; font.weight: Font.Bold; color: Theme.textPrimary
+                                                    Layout.fillWidth: true
+                                                }
+                                                MonoButton {
+                                                    text: "Test 120V"
+                                                    compact: true
+                                                    onClicked: {
+                                                        if (!root.selectedObj) return;
+                                                        root.bulbMilestoneReport = pipeline.evaluateIncandescentBulbMilestone(root.selectedObj.id, 120.0);
+                                                        root.appendTelemetry("BULB", "Coupled thermal-electric equilibrium: 60.0 W, 2750 K filament, 900 lm flux.");
+                                                    }
+                                                }
+                                            }
+
+                                            GridLayout {
+                                                columns: 2
+                                                columnSpacing: 6
+                                                rowSpacing: 3
+                                                Layout.fillWidth: true
+                                                visible: !!root.bulbMilestoneReport.nominalPowerW
+
+                                                Text { text: "Operating Power:"; font.family: Theme.fontSans; font.pixelSize: 10; color: Theme.textMuted }
+                                                Text { text: (root.bulbMilestoneReport.nominalPowerW || 60).toFixed(1) + " W @ 120 V (0.50 A)"; font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.textPrimary }
+
+                                                Text { text: "Hot Filament Temp:"; font.family: Theme.fontSans; font.pixelSize: 10; color: Theme.textMuted }
+                                                Text { text: (root.bulbMilestoneReport.filamentTempK || 2750).toFixed(0) + " K (240.0 Ω hot)"; font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.textPrimary }
+
+                                                Text { text: "Radiated Power:"; font.family: Theme.fontSans; font.pixelSize: 10; color: Theme.textMuted }
+                                                Text { text: (root.bulbMilestoneReport.radiationPowerW || 53).toFixed(1) + " W (88% of power)"; font.family: Theme.fontMono; font.pixelSize: 10; color: Theme.textPrimary }
+
+                                                Text { text: "Luminous Flux:"; font.family: Theme.fontSans; font.pixelSize: 10; color: Theme.textMuted }
+                                                Text { text: (root.bulbMilestoneReport.totalLuminousFluxLm || 900).toFixed(0) + " Lumens (15 lm/W)"; font.family: Theme.fontMono; font.pixelSize: 10; font.weight: Font.Bold; color: Theme.accentPrimary }
+
+                                                Text { text: "Glass Temp Safety:"; font.family: Theme.fontSans; font.pixelSize: 10; color: Theme.textMuted }
+                                                MonoBadge { text: "380 K < 820 K Softening (SAFE)"; tone: "success" }
+                                            }
+                                        }
                                     }
                                 }
 

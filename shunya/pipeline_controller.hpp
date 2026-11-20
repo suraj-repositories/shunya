@@ -294,6 +294,25 @@ public:
         const QString& regionId,
         const QString& materialId);
 
+    // Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone (OBJ-CAVITY)
+    Q_INVOKABLE QVariantMap getCavitySpec(const QString& objectId) const;
+    Q_INVOKABLE QVariantMap updateCavitySpec(
+        const QString& objectId,
+        const QString& kind,
+        double fillPressurePa,
+        double fillTempK,
+        double cavityVolumeM3,
+        double wallThicknessM,
+        double envelopeRadiusM,
+        bool hasChemicalGetter,
+        const QString& gasFormula = "Ar/N2");
+    Q_INVOKABLE QVariantMap evaluateCavityThermodynamics(
+        const QString& objectId,
+        double operatingTempK = 2750.0) const;
+    Q_INVOKABLE QVariantMap evaluateIncandescentBulbMilestone(
+        const QString& objectId,
+        double inputVoltageV = 120.0) const;
+
     // =========================================================================
     // 4. Functional Circuit Components (OBJCMP)
     // =========================================================================

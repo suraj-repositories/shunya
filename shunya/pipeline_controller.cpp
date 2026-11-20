@@ -1838,6 +1838,19 @@ QVariantMap ShunyaPipelineController::instantiateLibraryTemplate(const QString& 
         bulb.operating_temp_k = 298.15;
         bulb.operating_pressure_pa = 80000.0; // 80 kPa Argon/N2 gas fill
 
+        // Interior cavity specification
+        bulb.cavity.kind = eng::CavityKind::FillGas;
+        bulb.cavity.fill_pressure_pa = 80000.0;
+        bulb.cavity.fill_temp_k = 293.15;
+        bulb.cavity.cavity_volume_m3 = 1.5e-4; // 150 cm^3
+        bulb.cavity.wall_thickness_m = 0.0008; // 0.8 mm
+        bulb.cavity.envelope_radius_m = 0.030; // 30 mm
+        bulb.cavity.has_chemical_getter = true;
+        bulb.cavity.gas_composition = {
+            {"Ar", 0.95, 0.039948},
+            {"N2", 0.05, 0.028013}
+        };
+
         // 4 Multi-material regions
         eng::ObjectRegion r_env;
         r_env.region_id = "glass_envelope";
@@ -1845,6 +1858,8 @@ QVariantMap ShunyaPipelineController::instantiateLibraryTemplate(const QString& 
         r_env.material_id = glass_id;
         r_env.volume_fraction = 0.70;
         r_env.is_conductive_path = false;
+        r_env.role = eng::RegionFunctionalRole::DielectricSpacer;
+        r_env.color_hex = "#a0d2eb";
 
         eng::ObjectRegion r_fil;
         r_fil.region_id = "tungsten_filament";
@@ -1852,6 +1867,8 @@ QVariantMap ShunyaPipelineController::instantiateLibraryTemplate(const QString& 
         r_fil.material_id = tungsten_id;
         r_fil.volume_fraction = 0.05;
         r_fil.is_conductive_path = true;
+        r_fil.role = eng::RegionFunctionalRole::ActiveEmitter;
+        r_fil.color_hex = "#ffd700";
 
         eng::ObjectRegion r_base;
         r_base.region_id = "screw_base";
@@ -1859,6 +1876,8 @@ QVariantMap ShunyaPipelineController::instantiateLibraryTemplate(const QString& 
         r_base.material_id = al_id;
         r_base.volume_fraction = 0.20;
         r_base.is_conductive_path = true;
+        r_base.role = eng::RegionFunctionalRole::ConductivePath;
+        r_base.color_hex = "#c0c0c0";
 
         eng::ObjectRegion r_contact;
         r_contact.region_id = "base_contact";
@@ -1866,6 +1885,8 @@ QVariantMap ShunyaPipelineController::instantiateLibraryTemplate(const QString& 
         r_contact.material_id = brass_id;
         r_contact.volume_fraction = 0.05;
         r_contact.is_conductive_path = true;
+        r_contact.role = eng::RegionFunctionalRole::ConductivePath;
+        r_contact.color_hex = "#b5a642";
 
         bulb.regions = {r_env, r_fil, r_base, r_contact};
 
@@ -2540,6 +2561,162 @@ QVariantMap ShunyaPipelineController::setRegionMaterial(
     QVariantMap changes;
     changes["materialId"] = materialId;
     return updateObjectRegion(objectId, regionId, changes);
+}
+
+// =========================================================================
+// PH5-24: Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone
+// =========================================================================
+
+QVariantMap ShunyaPipelineController::getCavitySpec(const QString& objectId) const {
+    QVariantMap res;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) return res;
+    const auto* obj = ws_->object_manager().get_object(*uid);
+    if (!obj) return res;
+
+    const auto& c = obj->cavity;
+    res["ok"] = true;
+    res["kind"] = QString::fromStdString(std::string(eng::cavity_kind_to_string(c.kind)));
+    res["fillPressurePa"] = c.fill_pressure_pa;
+    res["fillTempK"] = c.fill_temp_k;
+    res["cavityVolumeM3"] = c.cavity_volume_m3;
+    res["wallThicknessM"] = c.wall_thickness_m;
+    res["envelopeRadiusM"] = c.envelope_radius_m;
+    res["hasChemicalGetter"] = c.has_chemical_getter;
+
+    QVariantList compList;
+    for (const auto& sp : c.gas_composition) {
+        QVariantMap spMap;
+        spMap["formula"] = QString::fromStdString(sp.formula);
+        spMap["moleFraction"] = sp.mole_fraction;
+        compList.append(spMap);
+    }
+    res["gasComposition"] = compList;
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::updateCavitySpec(
+    const QString& objectId,
+    const QString& kind,
+    double fillPressurePa,
+    double fillTempK,
+    double cavityVolumeM3,
+    double wallThicknessM,
+    double envelopeRadiusM,
+    bool hasChemicalGetter,
+    const QString& gasFormula) {
+    QVariantMap res;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) {
+        res["ok"] = false;
+        res["error"] = "Invalid object UUID.";
+        return res;
+    }
+    auto* obj = const_cast<eng::PhysicalObject*>(ws_->object_manager().get_object(*uid));
+    if (!obj) {
+        res["ok"] = false;
+        res["error"] = "Object not found in workspace.";
+        return res;
+    }
+
+    if (auto kRes = eng::cavity_kind_from_string(kind.toStdString()); kRes.is_ok()) {
+        obj->cavity.kind = kRes.value();
+    }
+    obj->cavity.fill_pressure_pa = std::max(0.0, fillPressurePa);
+    obj->cavity.fill_temp_k = std::max(10.0, fillTempK);
+    obj->cavity.cavity_volume_m3 = std::max(1e-9, cavityVolumeM3);
+    obj->cavity.wall_thickness_m = std::max(1e-5, wallThicknessM);
+    obj->cavity.envelope_radius_m = std::max(1e-4, envelopeRadiusM);
+    obj->cavity.has_chemical_getter = hasChemicalGetter;
+
+    if (gasFormula == "Vacuum" || kind == "SealedVacuum") {
+        obj->cavity.kind = eng::CavityKind::SealedVacuum;
+        obj->cavity.fill_pressure_pa = 1e-5;
+    } else if (gasFormula == "Pure Ar") {
+        obj->cavity.kind = eng::CavityKind::FillGas;
+        obj->cavity.gas_composition = {{"Ar", 1.0, 0.039948}};
+    } else if (gasFormula == "Pure N2") {
+        obj->cavity.kind = eng::CavityKind::FillGas;
+        obj->cavity.gas_composition = {{"N2", 1.0, 0.028013}};
+    } else if (gasFormula == "Air" || kind == "OpenToEnvironment") {
+        obj->cavity.gas_composition = {{"N2", 0.78, 0.028013}, {"O2", 0.21, 0.031998}, {"Ar", 0.01, 0.039948}};
+    } else {
+        // Default Ar/N2 95/5
+        obj->cavity.kind = eng::CavityKind::FillGas;
+        obj->cavity.gas_composition = {{"Ar", 0.95, 0.039948}, {"N2", 0.05, 0.028013}};
+    }
+
+    ws_->notify_change(eng::DependencyChangeKind::ObjectUpdated, *uid, "Updated interior cavity of " + obj->name);
+    res["ok"] = true;
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::evaluateCavityThermodynamics(
+    const QString& objectId,
+    double operatingTempK) const {
+    QVariantMap res;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (!uid) {
+        res["ok"] = false;
+        res["error"] = "Invalid object UUID.";
+        return res;
+    }
+    const auto* obj = ws_->object_manager().get_object(*uid);
+    if (!obj) {
+        res["ok"] = false;
+        res["error"] = "Object not found.";
+        return res;
+    }
+
+    auto rep = eng::CavityPhysicsEngine::evaluate_cavity(obj->cavity, operatingTempK);
+    res["ok"] = true;
+    res["moleCount"] = rep.mole_count;
+    res["totalGasMassKg"] = rep.total_gas_mass_kg;
+    res["currentPressurePa"] = rep.current_pressure_pa;
+    res["pressureRiseRatio"] = rep.pressure_rise_ratio;
+    res["wallMechanicalStressPa"] = rep.wall_mechanical_stress_pa;
+    res["paschenBreakdownVoltageV"] = rep.paschen_breakdown_voltage_v;
+    res["gasThermalConductivity"] = rep.gas_thermal_conductivity_w_mk;
+    res["heatTransferGasW"] = rep.heat_transfer_gas_w;
+    res["sublimationRateKgM2s"] = rep.sublimation_rate_kg_m2_s;
+    res["sublimationSuppressionPct"] = (1.0 - rep.sublimation_suppression_factor) * 100.0;
+    res["predictedLifespanHours"] = rep.predicted_lifespan_hours;
+    res["isSealIntact"] = rep.is_seal_intact;
+
+    QStringList warnList;
+    for (const auto& w : rep.seal_warnings) warnList.append(QString::fromStdString(w));
+    res["sealWarnings"] = warnList;
+    return res;
+}
+
+QVariantMap ShunyaPipelineController::evaluateIncandescentBulbMilestone(
+    const QString& objectId,
+    double inputVoltageV) const {
+    QVariantMap res;
+    const eng::PhysicalObject* obj = nullptr;
+    auto uid = core::base::Uuid::from_string(objectId.toStdString());
+    if (uid) obj = ws_->object_manager().get_object(*uid);
+
+    eng::CavitySpec cavity = obj ? obj->cavity : eng::CavitySpec{};
+    auto pt = eng::CavityPhysicsEngine::evaluate_incandescent_bulb(cavity, inputVoltageV);
+
+    res["ok"] = true;
+    res["inputVoltageV"] = pt.input_voltage_v_rms;
+    res["coldResistanceOhm"] = pt.cold_resistance_ohm;
+    res["hotResistanceOhm"] = pt.hot_resistance_ohm;
+    res["operatingCurrentA"] = pt.operating_current_a;
+    res["nominalPowerW"] = pt.nominal_power_w;
+    res["filamentTempK"] = pt.filament_temp_k;
+    res["envelopeTempK"] = pt.envelope_temp_k;
+    res["radiationPowerW"] = pt.radiation_power_w;
+    res["gasConductionLossW"] = pt.gas_conduction_loss_w;
+    res["leadLossW"] = pt.lead_loss_w;
+    res["luminousEfficacyLmW"] = pt.luminous_efficacy_lm_w;
+    res["totalLuminousFluxLm"] = pt.total_luminous_flux_lm;
+    res["sublimationSuppressionPct"] = pt.filament_sublimation_suppression_pct;
+    res["expectedLifespanHours"] = pt.expected_lifespan_hours;
+    res["safeGlassEnvelopeTemp"] = pt.safe_glass_envelope_temp;
+    return res;
 }
 
 // =========================================================================

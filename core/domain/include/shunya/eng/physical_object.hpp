@@ -6,6 +6,7 @@
 #include "shunya/core/base/result.hpp"
 #include "shunya/core/base/uuid.hpp"
 #include "shunya/core/domain/material_assignment.hpp"
+#include "shunya/eng/cavity_physics.hpp"
 
 #include <cstdint>
 #include <optional>
@@ -191,6 +192,7 @@ struct PhysicalObject {
     std::vector<ObjectRegion> regions;
     double operating_temp_k{298.15};
     double operating_pressure_pa{101325.0};
+    CavitySpec cavity;
     ObjectComputedProperties computed;
 
     [[nodiscard]] std::string to_json() const;

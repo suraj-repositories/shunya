@@ -21,9 +21,9 @@
 
 | Status Indicator | Meaning | Task Count | Percentage |
 |:---:|---|:---:|:---:|
-| `[ ]` | Not Started | 164 | 36.3% |
+| `[ ]` | Not Started | 120 | 26.5% |
 | `[~]` | In Progress | 0 | 0.0% |
-| `[x]` | Completed | 288 | 63.7% |
+| `[x]` | Completed | 332 | 73.5% |
 | `[-]` | Blocked | 0 | 0.0% |
 
 Parent-level completion status and progress percentages are **strictly calculated from child leaf subtasks** (`completed_leaf_subtasks / total_leaf_subtasks * 100%`).
@@ -58,7 +58,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | 21 | `OBJ-LAYOUT` | Workspace Layout, Multi-Pane Splitters & Viewport Maximization | P0 | 12 | 12 | 100.0% | `[x]` |
 | 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 14 | 100.0% | `[x]` |
 | 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 14 | 100.0% | `[x]` |
-| 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 0 | 0.0% | `[ ]` |
+| 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 16 | 100.0% | `[x]` |
 | 25 | `OBJ-VIEW3D` | Blender-Style 3D Viewport, Gizmos, Edit Modes & Modeling Tools | P0 | 16 | 0 | 0.0% | `[ ]` |
 | 26 | `OBJ-TEST` | Object Multi-Domain Physics Test Bench (Thermal, Electrical, Mechanical, Vacuum) | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 27 | `OBJ-SIM` | End-to-End Simulator Bridge, Pre-Flight Checks & Round-Trip Re-Sync | P0 | 14 | 0 | 0.0% | `[ ]` |
@@ -68,7 +68,7 @@ Parent-level completion status and progress percentages are **strictly calculate
 | **TRACK 4** | **THEME & QA** | **Universal Token Compliance, Automated Tests & Master Sign-Off** | | | | | |
 | 31 | `THEMETOKEN`| Universal Theme Token Contract & High-Contrast Light/Dark Compliance | P0 | 12 | 0 | 0.0% | `[ ]` |
 | 32 | `QAVERIFY` | Quality Assurance, Automated Regression Testing & Full Acceptance Sign-Off | P0 | 24 | 0 | 0.0% | `[ ]` |
-| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **316** | **69.9%** | `[~]` |
+| **TOTAL** | **ALL** | **Phase 5 Integrated UI/UX, Mixing Lab & Object Authoring Platform** | **--** | **452** | **332** | **73.5%** | `[~]` |
 | 22 | `OBJ-GEO` | Parametric Primitives, Custom Modeling & Template Library | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 23 | `OBJ-MATREG` | Multi-Region Authoring, Material Pickers & Real Computed Tensors | P0 | 14 | 0 | 0.0% | `[ ]` |
 | 24 | `OBJ-CAVITY` | Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone | P0 | 16 | 0 | 0.0% | `[ ]` |
@@ -973,36 +973,36 @@ PH5: Integrated UI/UX Refinement, Dynamic Splitters, Mixing Lab & Object Authori
 ## Module PH5-24: Sealed/Open Cavities, Vacuum/Gas Physics & Incandescent Bulb Milestone (`OBJ-CAVITY`)
 
 **Objective:** Implement cavity modeling supporting vacuum and fill gases (air, N2, Ar, Kr, Xe, He, H2, CO2, custom mixes), real-gas PVT calculations, seal integrity verification, and validate the milestone worked example of an incandescent bulb.  
-**Priority:** P0 | **Complexity:** High | **Status:** `[ ] Not Started` (0/16 — 0.0%)
+**Priority:** P0 | **Complexity:** High | **Status:** `[x] Completed` (16/16 — 100.0%)
 
-### Submodule PH5-24.01: Cavity Modeling & Gas Thermodynamics [ ] (0.0% — 8/8)
-- [ ] `PH5-24.01.001`: Create `core/domain/include/shunya/eng/cavity_physics.hpp` defining `CavitySpec` and internal fluid/vacuum physics models.
-- [ ] `PH5-24.01.002`: Support cavity types:
+### Submodule PH5-24.01: Cavity Modeling & Gas Thermodynamics [x] (100.0% — 8/8)
+- [x] `PH5-24.01.001`: Create `core/domain/include/shunya/eng/cavity_physics.hpp` defining `CavitySpec` and internal fluid/vacuum physics models.
+- [x] `PH5-24.01.002`: Support cavity types:
   - **Vacuum:** specify residual pressure ($P_{\text{res}}$ down to $10^{-7}\text{ Pa}$) and outgassing rate.
   - **Fill Gas:** select pure gas ($\text{N}_2, \text{Ar}, \text{Kr}, \text{Xe}, \text{He}, \text{H}_2, \text{CO}_2, \text{Air}$) or custom mixture with species mole fractions.
   - **Liquid Fill:** dielectric oil, water, or cooling fluid.
-- [ ] `PH5-24.01.003`: Compute gas quantity from fill volume $V$, pressure $P$, and temperature $T$ using ideal gas law ($n = \frac{PV}{RT}$) and Peng-Robinson real gas EOS for high pressures.
-- [ ] `PH5-24.01.004`: Implement automated **Seal Integrity Checker**: verify that the cavity mesh boundary is completely enclosed by solid walls of a non-porous gas-tight material; flag warnings if the cavity is leaking or open to the environment.
-- [ ] `PH5-24.01.005`: Compute gas-phase thermal conduction and convection: evaluate Rayleigh number $Ra$ and Nusselt number $Nu$ to model heat transfer through fill gas from hot core to envelope.
-- [ ] `PH5-24.01.006`: Compute pressure rise with temperature: $P(T) = P_0 \frac{T}{T_0}$ and calculate mechanical stress load on envelope walls: $\sigma_{\text{wall}} = \frac{\Delta P \cdot r}{2t}$.
-- [ ] `PH5-24.01.007`: Compute electrical breakdown and arcing voltage across gap using Paschen's Law: $V_B = \frac{B \cdot P \cdot d}{\ln(A \cdot P \cdot d) - \ln[\ln(1 + 1/\gamma_{\text{se}})]}$.
-- [ ] `PH5-24.01.008`: Add vacuum evaporation and sublimation model: Langmuir rate $W = P_v \sqrt{\frac{M}{2\pi R T}}$ calculating tungsten filament mass loss rate in vacuum vs inert gas suppression.
+- [x] `PH5-24.01.003`: Compute gas quantity from fill volume $V$, pressure $P$, and temperature $T$ using ideal gas law ($n = \frac{PV}{RT}$) and Peng-Robinson real gas EOS for high pressures.
+- [x] `PH5-24.01.004`: Implement automated **Seal Integrity Checker**: verify that the cavity mesh boundary is completely enclosed by solid walls of a non-porous gas-tight material; flag warnings if the cavity is leaking or open to the environment.
+- [x] `PH5-24.01.005`: Compute gas-phase thermal conduction and convection: evaluate Rayleigh number $Ra$ and Nusselt number $Nu$ to model heat transfer through fill gas from hot core to envelope.
+- [x] `PH5-24.01.006`: Compute pressure rise with temperature: $P(T) = P_0 \frac{T}{T_0}$ and calculate mechanical stress load on envelope walls: $\sigma_{\text{wall}} = \frac{\Delta P \cdot r}{2t}$.
+- [x] `PH5-24.01.007`: Compute electrical breakdown and arcing voltage across gap using Paschen's Law: $V_B = \frac{B \cdot P \cdot d}{\ln(A \cdot P \cdot d) - \ln[\ln(1 + 1/\gamma_{\text{se}})]}$.
+- [x] `PH5-24.01.008`: Add vacuum evaporation and sublimation model: Langmuir rate $W = P_v \sqrt{\frac{M}{2\pi R T}}$ calculating tungsten filament mass loss rate in vacuum vs inert gas suppression.
 
-### Submodule PH5-24.02: Milestone Worked Example: The Incandescent Bulb [ ] (0.0% — 8/8)
-- [ ] `PH5-24.02.001`: Build end-to-end authoring template for the canonical **Incandescent Light Bulb (A19)**:
+### Submodule PH5-24.02: Milestone Worked Example: The Incandescent Bulb [x] (100.0% — 8/8)
+- [x] `PH5-24.02.001`: Build end-to-end authoring template for the canonical **Incandescent Light Bulb (A19)**:
   - **Envelope:** Soda-lime / borosilicate glass revolved shell ($t = 0.8\text{ mm}$).
   - **Filament:** Tungsten ($W$) helical coil ($\diameter_{\text{wire}} = 0.045\text{ mm}$, 1200 turns).
   - **Supports & Leads:** Molybdenum support wires, Copper / Dumet lead-in wires.
   - **Base:** Aluminum screw shell (E26) + lead-alloy solder contact + black glass insulator.
   - **Interior:** Cavity with selectable fill (High Vacuum vs 80 kPa Argon/Nitrogen 95/5).
   - **Terminals:** Base eyelet contact terminal ($+V$) and threaded shell terminal ($\text{GND}$).
-- [ ] `PH5-24.02.002`: Wire electrical voltage input ($120\text{ V}$ RMS): compute temperature-dependent filament resistance $R(T) = R_0 [1 + \alpha(T - T_0)]$, steady-state operating current ($I \approx 0.5\text{ A}$), and nominal power ($P \approx 60\text{ W}$).
-- [ ] `PH5-24.02.003`: Solve coupled thermal equilibrium: Joule heat $P = I^2 R$ balanced against blackbody radiation ($P_{\text{rad}} = \epsilon \sigma A (T_{\text{fil}}^4 - T_{\text{env}}^4)$) and gas conduction ($P_{\text{gas}}$).
-- [ ] `PH5-24.02.004`: Compute operating filament temperature ($T_{\text{fil}} \approx 2750\text{ K}$) and luminous efficacy (lumens and visible spectrum output).
-- [ ] `PH5-24.02.005`: Compare vacuum vs Argon fill: demonstrate that 80 kPa Argon reduces tungsten sublimation rate by $95\%$, preventing envelope blackening and extending bulb lifespan from 50 hours to 1000 hours.
-- [ ] `PH5-24.02.006`: Compute glass envelope outer temperature ($T_{\text{glass}} \approx 380\text{ K}$) and verify it stays below the glass softening point ($820\text{ K}$).
-- [ ] `PH5-24.02.007`: Provide getter and outgassing simulator for vacuum devices (phosphorus/barium chemical getter absorbing residual $\text{O}_2$).
-- [ ] `PH5-24.02.008`: Add automated test in `tests/unit/test_p5_incandescent_bulb.cpp` asserting that the bulb authoring pipeline reproduces expected $60\text{ W}$ operating point and lifetime metrics.
+- [x] `PH5-24.02.002`: Wire electrical voltage input ($120\text{ V}$ RMS): compute temperature-dependent filament resistance $R(T) = R_0 [1 + \alpha(T - T_0)]$, steady-state operating current ($I \approx 0.5\text{ A}$), and nominal power ($P \approx 60\text{ W}$).
+- [x] `PH5-24.02.003`: Solve coupled thermal equilibrium: Joule heat $P = I^2 R$ balanced against blackbody radiation ($P_{\text{rad}} = \epsilon \sigma A (T_{\text{fil}}^4 - T_{\text{env}}^4)$) and gas conduction ($P_{\text{gas}}$).
+- [x] `PH5-24.02.004`: Compute operating filament temperature ($T_{\text{fil}} \approx 2750\text{ K}$) and luminous efficacy (lumens and visible spectrum output).
+- [x] `PH5-24.02.005`: Compare vacuum vs Argon fill: demonstrate that 80 kPa Argon reduces tungsten sublimation rate by $95\%$, preventing envelope blackening and extending bulb lifespan from 50 hours to 1000 hours.
+- [x] `PH5-24.02.006`: Compute glass envelope outer temperature ($T_{\text{glass}} \approx 380\text{ K}$) and verify it stays below the glass softening point ($820\text{ K}$).
+- [x] `PH5-24.02.007`: Provide getter and outgassing simulator for vacuum devices (phosphorus/barium chemical getter absorbing residual $\text{O}_2$).
+- [x] `PH5-24.02.008`: Add automated test in `tests/unit/test_p5_incandescent_bulb.cpp` asserting that the bulb authoring pipeline reproduces expected $60\text{ W}$ operating point and lifetime metrics.
 
 ---
 
