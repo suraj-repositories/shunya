@@ -185,7 +185,7 @@ Rectangle {
 
                         // Draw Axes & Labels
                         ctx.fillStyle = Theme.textMuted;
-                        ctx.font = "9px " + Theme.fontSans;
+                        ctx.font = "9px '" + Theme.fontSans + "', sans-serif";
                         ctx.textAlign = "center";
                         ctx.textBaseline = "middle";
 

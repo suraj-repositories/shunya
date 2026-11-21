@@ -54,7 +54,7 @@ Rectangle {
     property real bottomPaneHeight: 140
     property bool leftCollapsed: false
     property bool rightCollapsed: false
-    property bool bottomCollapsed: false
+    property bool bottomCollapsed: true
     property bool isMaximizedViewport: false
     property string layoutPreset: "Default" // "Default" | "Modeling" | "Testing" | "Compare"
 
@@ -106,6 +106,9 @@ Rectangle {
         arr.push({ time: timeStr, tag: tag, text: text });
         if (arr.length > 200) arr.shift();
         root.telemetryLogs = arr;
+        if (typeof studio !== "undefined") {
+            studio.appendLog("[" + timeStr + "] [" + tag + "] " + text);
+        }
     }
 
     Settings {

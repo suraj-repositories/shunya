@@ -8,6 +8,7 @@ Item {
     property real minSize: 56
     property real maxSize: 500
     property bool animated: false
+    property alias isDragging: dragMa.isDragging
 
     signal dragDelta(real delta)
     signal resetRequested()
@@ -39,7 +40,7 @@ Item {
     Rectangle {
         id: visualBar
         anchors.fill: parent
-        color: dragMa.drag.active
+        color: dragMa.isDragging
             ? Theme.borderFocus
             : (dragMa.containsMouse ? Theme.borderStrong : Theme.borderSubtle)
 
@@ -54,8 +55,8 @@ Item {
             width: root.orientation === Qt.Vertical ? 2 : 24
             height: root.orientation === Qt.Vertical ? 24 : 2
             radius: 1
-            color: dragMa.containsMouse || dragMa.drag.active ? Theme.textPrimary : Theme.textSubtle
-            opacity: dragMa.containsMouse || dragMa.drag.active ? 1.0 : 0.4
+            color: dragMa.containsMouse || dragMa.isDragging ? Theme.textPrimary : Theme.textSubtle
+            opacity: dragMa.containsMouse || dragMa.isDragging ? 1.0 : 0.4
         }
     }
 
@@ -66,21 +67,34 @@ Item {
         hoverEnabled: true
         cursorShape: root.orientation === Qt.Vertical ? Qt.SplitHCursor : Qt.SplitVCursor
 
-        property real startPos: 0
+        property real lastScenePos: 0
+        property bool isDragging: false
 
         onPressed: (mouse) => {
             root.forceActiveFocus();
-            startPos = (root.orientation === Qt.Vertical) ? mouse.x : mouse.y;
+            var scenePt = root.mapToItem(null, mouse.x, mouse.y);
+            lastScenePos = (root.orientation === Qt.Vertical) ? scenePt.x : scenePt.y;
+            isDragging = true;
         }
 
         onPositionChanged: (mouse) => {
-            if (pressed) {
-                var current = (root.orientation === Qt.Vertical) ? mouse.x : mouse.y;
-                var delta = current - startPos;
-                if (Math.abs(delta) >= 0.5) {
+            if (pressed && isDragging) {
+                var scenePt = root.mapToItem(null, mouse.x, mouse.y);
+                var currentScenePos = (root.orientation === Qt.Vertical) ? scenePt.x : scenePt.y;
+                var delta = currentScenePos - lastScenePos;
+                if (Math.abs(delta) >= 1.0) {
+                    lastScenePos = currentScenePos;
                     root.dragDelta(delta);
                 }
             }
+        }
+
+        onReleased: {
+            isDragging = false;
+        }
+
+        onCanceled: {
+            isDragging = false;
         }
 
         onDoubleClicked: {

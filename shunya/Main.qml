@@ -75,6 +75,7 @@ ApplicationWindow {
     Shortcut { sequence: "F1"; onActivated: openHelpCenter("mixing-lab-overview") }
     Shortcut { sequence: "F12"; onActivated: window.showConsoleDrawer = !window.showConsoleDrawer }
     Shortcut { sequence: "Ctrl+`"; onActivated: window.showConsoleDrawer = !window.showConsoleDrawer }
+    Shortcut { sequence: "Ctrl+J"; onActivated: window.showConsoleDrawer = !window.showConsoleDrawer }
     Shortcut { sequence: "Ctrl+B"; onActivated: window.leftRailCollapsed = !window.leftRailCollapsed }
     Shortcut { sequence: "Ctrl+Alt+B"; onActivated: window.rightPanelCollapsed = !window.rightPanelCollapsed }
     Shortcut { sequence: "F11"; onActivated: { if (window.visibility === Window.FullScreen) window.showNormal(); else window.showFullScreen(); } }
@@ -96,16 +97,53 @@ ApplicationWindow {
         anchors.fill: parent
         spacing: 0
 
-        // 1. Monochrome Menu Bar
-        MainMenuBar {
-            id: appMenuBar
+        // 1. Monochrome Menu Bar with Right-Aligned VS Code Layout Controls
+        Item {
             Layout.fillWidth: true
-            onNewProjectRequested: newProjectWizard.open()
-            onOpenProjectRequested: openFileDialog.open()
-            onSaveProjectRequested: if (typeof menuController !== "undefined") menuController.saveProject()
-            onSaveProjectAsRequested: saveFileDialog.open()
-            onCloseProjectRequested: if (typeof menuController !== "undefined") menuController.closeProject(false)
-            onExitRequested: if (typeof menuController !== "undefined") menuController.requestExit(); else Qt.quit()
+            height: 30
+            implicitHeight: 30
+            z: 10000
+
+            MainMenuBar {
+                id: appMenuBar
+                anchors.fill: parent
+                onNewProjectRequested: newProjectWizard.open()
+                onOpenProjectRequested: openFileDialog.open()
+                onSaveProjectRequested: if (typeof menuController !== "undefined") menuController.saveProject()
+                onSaveProjectAsRequested: saveFileDialog.open()
+                onCloseProjectRequested: if (typeof menuController !== "undefined") menuController.closeProject(false)
+                onExitRequested: if (typeof menuController !== "undefined") menuController.requestExit(); else Qt.quit()
+            }
+
+            Row {
+                id: layoutControlsRow
+                anchors.right: parent.right
+                anchors.rightMargin: 10
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 4
+                z: 20000
+
+                VSCodeLayoutButton {
+                    panelType: 0
+                    active: !window.leftRailCollapsed
+                    tooltipText: qsTr("Toggle Primary Side Bar (Ctrl+B)")
+                    onClicked: window.leftRailCollapsed = !window.leftRailCollapsed
+                }
+
+                VSCodeLayoutButton {
+                    panelType: 1
+                    active: window.showConsoleDrawer
+                    tooltipText: qsTr("Toggle Panel (Ctrl+`, Ctrl+J)")
+                    onClicked: window.showConsoleDrawer = !window.showConsoleDrawer
+                }
+
+                VSCodeLayoutButton {
+                    panelType: 2
+                    active: !window.rightPanelCollapsed
+                    tooltipText: qsTr("Toggle Secondary Side Bar (Ctrl+Alt+B)")
+                    onClicked: window.rightPanelCollapsed = !window.rightPanelCollapsed
+                }
+            }
         }
 
         // 2. Single-Project Top Workflow Header Bar (No File-Manager Sidebar!)
@@ -183,6 +221,7 @@ ApplicationWindow {
                 border.width: 1
 
                 Behavior on Layout.preferredWidth {
+                    enabled: !leftRailSplitter.isDragging
                     NumberAnimation { duration: 180; easing.type: Easing.InOutQuad }
                 }
 
@@ -309,7 +348,7 @@ ApplicationWindow {
                 id: leftRailSplitter
                 orientation: Qt.Vertical
                 defaultSize: 184
-                minSize: 56
+                minSize: 120
                 maxSize: 360
                 visible: !window.leftRailCollapsed
                 onDragDelta: (delta) => {
