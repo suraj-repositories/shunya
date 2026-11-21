@@ -73,6 +73,7 @@ qt_add_qml_module(shunya_gui_lib
         MonoCheckBox.qml
         StudioSplitter.qml
         VSCodeLayoutButton.qml
+        VSCodeWindowControls.qml
         ElementsWorkspace.qml
         MixingLabWorkspace.qml
         VirtualTestBenchPanel.qml

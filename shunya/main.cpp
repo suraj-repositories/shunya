@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     app.setOrganizationName("Shunya");
     app.setOrganizationDomain("shunya.org");
     app.setApplicationName("Shunya");
-    app.setWindowIcon(QIcon(":/icons/sunken-eye.svg"));
+    app.setWindowIcon(QIcon(":/icons/shunya.svg"));
 
     QQmlApplicationEngine engine;
     engine.addImageProvider(QStringLiteral("icons"), new shunya::gui::ShunyaIconProvider());

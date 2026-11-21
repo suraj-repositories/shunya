@@ -65,9 +65,8 @@ MenuBar {
     background: Rectangle {
         implicitHeight: 30
         height: 30
-        color: Theme.bgSurface
-        border.color: Theme.borderSubtle
-        border.width: 1
+        color: "transparent"
+        border.width: 0
     }
 
     // Menu Bar Top-Level Item Delegate (30px Height, 8px Horizontal Padding)

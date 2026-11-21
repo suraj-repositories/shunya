@@ -12,6 +12,7 @@ ApplicationWindow {
     minimumHeight: 680
     visible: true
     color: Theme.bgPrimary
+    flags: Qt.Window | Qt.FramelessWindowHint
     title: (typeof pipeline !== "undefined" ? pipeline.projectName : "Shunya Studio") +
            (typeof pipeline !== "undefined" && pipeline.isDirty ? " * " : " ") +
            "- Shunya Engineering Studio"
@@ -97,51 +98,141 @@ ApplicationWindow {
         anchors.fill: parent
         spacing: 0
 
-        // 1. Monochrome Menu Bar with Right-Aligned VS Code Layout Controls
-        Item {
+        // 1. Unified Monochrome Title & Menu Bar (VS Code Client-Side Titlebar)
+        Rectangle {
+            id: unifiedTitleBar
             Layout.fillWidth: true
             height: 30
             implicitHeight: 30
+            color: Theme.bgSurface
             z: 10000
 
-            MainMenuBar {
-                id: appMenuBar
-                anchors.fill: parent
-                onNewProjectRequested: newProjectWizard.open()
-                onOpenProjectRequested: openFileDialog.open()
-                onSaveProjectRequested: if (typeof menuController !== "undefined") menuController.saveProject()
-                onSaveProjectAsRequested: saveFileDialog.open()
-                onCloseProjectRequested: if (typeof menuController !== "undefined") menuController.closeProject(false)
-                onExitRequested: if (typeof menuController !== "undefined") menuController.requestExit(); else Qt.quit()
+            // Bottom border dividing title bar from workflow header
+            Rectangle {
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: 1
+                color: Theme.borderSubtle
             }
 
+            // Window drag & double-click maximize area (underneath interactive controls)
+            MouseArea {
+                anchors.fill: parent
+                onPressed: window.startSystemMove()
+                onDoubleClicked: {
+                    if (window.visibility === Window.Maximized) {
+                        window.showNormal();
+                    } else {
+                        window.showMaximized();
+                    }
+                }
+            }
+
+            // Left Section: Brand Favicon + Menu Bar
             Row {
-                id: layoutControlsRow
-                anchors.right: parent.right
-                anchors.rightMargin: 10
+                id: leftMenuRow
+                anchors.left: parent.left
+                anchors.leftMargin: 8
                 anchors.verticalCenter: parent.verticalCenter
-                spacing: 4
+                spacing: 6
                 z: 20000
 
-                VSCodeLayoutButton {
-                    panelType: 0
-                    active: !window.leftRailCollapsed
-                    tooltipText: qsTr("Toggle Primary Side Bar (Ctrl+B)")
-                    onClicked: window.leftRailCollapsed = !window.leftRailCollapsed
+                Image {
+                    id: brandFavicon
+                    width: 18
+                    height: 18
+                    anchors.verticalCenter: parent.verticalCenter
+                    source: "qrc:/icons/shunya.svg"
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
                 }
 
-                VSCodeLayoutButton {
-                    panelType: 1
-                    active: window.showConsoleDrawer
-                    tooltipText: qsTr("Toggle Panel (Ctrl+`, Ctrl+J)")
-                    onClicked: window.showConsoleDrawer = !window.showConsoleDrawer
+                MainMenuBar {
+                    id: appMenuBar
+                    anchors.verticalCenter: parent.verticalCenter
+                    onNewProjectRequested: newProjectWizard.open()
+                    onOpenProjectRequested: openFileDialog.open()
+                    onSaveProjectRequested: if (typeof menuController !== "undefined") menuController.saveProject()
+                    onSaveProjectAsRequested: saveFileDialog.open()
+                    onCloseProjectRequested: if (typeof menuController !== "undefined") menuController.closeProject(false)
+                    onExitRequested: if (typeof menuController !== "undefined") menuController.requestExit(); else Qt.quit()
+                }
+            }
+
+            // Center Section: Draggable Window Title / Project Indicator
+            Item {
+                id: centerTitleArea
+                anchors.centerIn: parent
+                height: 30
+                width: Math.min(parent.width * 0.40, centerTitleText.implicitWidth + 32)
+                z: 20000
+
+                Text {
+                    id: centerTitleText
+                    anchors.centerIn: parent
+                    text: window.projectName + (typeof pipeline !== "undefined" && pipeline.isDirty ? " * " : " ") + "- Shunya Engineering Studio"
+                    font.family: Theme.fontSans
+                    font.pixelSize: Theme.fontXs
+                    color: Theme.textMuted
+                    elide: Text.ElideMiddle
+                    maximumLineCount: 1
                 }
 
-                VSCodeLayoutButton {
-                    panelType: 2
-                    active: !window.rightPanelCollapsed
-                    tooltipText: qsTr("Toggle Secondary Side Bar (Ctrl+Alt+B)")
-                    onClicked: window.rightPanelCollapsed = !window.rightPanelCollapsed
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: window.startSystemMove()
+                    onDoubleClicked: {
+                        if (window.visibility === Window.Maximized) {
+                            window.showNormal();
+                        } else {
+                            window.showMaximized();
+                        }
+                    }
+                }
+            }
+
+            // Right Section: VS Code Layout Toggles + Window Caption Controls
+            Row {
+                id: rightControlsRow
+                anchors.right: parent.right
+                anchors.rightMargin: 0
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 6
+                z: 20000
+
+                // Layout Toggles
+                Row {
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 4
+
+                    VSCodeLayoutButton {
+                        panelType: 0
+                        active: !window.leftRailCollapsed
+                        tooltipText: qsTr("Toggle Primary Side Bar (Ctrl+B)")
+                        onClicked: window.leftRailCollapsed = !window.leftRailCollapsed
+                    }
+
+                    VSCodeLayoutButton {
+                        panelType: 1
+                        active: window.showConsoleDrawer
+                        tooltipText: qsTr("Toggle Panel (Ctrl+`, Ctrl+J)")
+                        onClicked: window.showConsoleDrawer = !window.showConsoleDrawer
+                    }
+
+                    VSCodeLayoutButton {
+                        panelType: 2
+                        active: !window.rightPanelCollapsed
+                        tooltipText: qsTr("Toggle Secondary Side Bar (Ctrl+Alt+B)")
+                        onClicked: window.rightPanelCollapsed = !window.rightPanelCollapsed
+                    }
+                }
+
+                // Window Caption Controls: Minimize, Maximize / Restore, Close
+                VSCodeWindowControls {
+                    id: windowControls
+                    anchors.verticalCenter: parent.verticalCenter
+                    targetWindow: window
                 }
             }
         }
@@ -163,7 +254,7 @@ ApplicationWindow {
                 Row {
                     spacing: 8
                     Layout.alignment: Qt.AlignVCenter
-                    ShunyaIcon { name: "sunken-eye"; size: 18; anchors.verticalCenter: parent.verticalCenter }
+                    ShunyaIcon { name: "shunya"; size: 18; anchors.verticalCenter: parent.verticalCenter }
                     Text {
                         text: window.projectName
                         font.family: Theme.fontSans
@@ -639,6 +730,73 @@ ApplicationWindow {
                 unsavedGuard.pendingAction = action;
                 unsavedGuard.open();
             }
+        }
+    }
+
+    // Frameless window subtle 1px border when not maximized (VS Code aesthetic)
+    Rectangle {
+        anchors.fill: parent
+        color: "transparent"
+        border.color: (window.visibility === Window.Maximized || window.visibility === Window.FullScreen) ? "transparent" : Theme.borderSubtle
+        border.width: (window.visibility === Window.Maximized || window.visibility === Window.FullScreen) ? 0 : 1
+        z: 29999
+        enabled: false
+    }
+
+    // Frameless window 8-way resize grips (active when not maximized)
+    Item {
+        id: resizeBorders
+        anchors.fill: parent
+        visible: window.visibility !== Window.Maximized && window.visibility !== Window.FullScreen
+        z: 30000
+
+        MouseArea {
+            anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
+            height: 4
+            cursorShape: Qt.SizeVerCursor
+            onPressed: window.startSystemResize(Qt.TopEdge)
+        }
+        MouseArea {
+            anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
+            height: 4
+            cursorShape: Qt.SizeVerCursor
+            onPressed: window.startSystemResize(Qt.BottomEdge)
+        }
+        MouseArea {
+            anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom
+            width: 4
+            cursorShape: Qt.SizeHorCursor
+            onPressed: window.startSystemResize(Qt.LeftEdge)
+        }
+        MouseArea {
+            anchors.right: parent.right; anchors.top: parent.top; anchors.bottom: parent.bottom
+            width: 4
+            cursorShape: Qt.SizeHorCursor
+            onPressed: window.startSystemResize(Qt.RightEdge)
+        }
+        MouseArea {
+            anchors.left: parent.left; anchors.top: parent.top
+            width: 8; height: 8
+            cursorShape: Qt.SizeFDiagCursor
+            onPressed: window.startSystemResize(Qt.TopEdge | Qt.LeftEdge)
+        }
+        MouseArea {
+            anchors.right: parent.right; anchors.top: parent.top
+            width: 8; height: 8
+            cursorShape: Qt.SizeBDiagCursor
+            onPressed: window.startSystemResize(Qt.TopEdge | Qt.RightEdge)
+        }
+        MouseArea {
+            anchors.left: parent.left; anchors.bottom: parent.bottom
+            width: 8; height: 8
+            cursorShape: Qt.SizeBDiagCursor
+            onPressed: window.startSystemResize(Qt.BottomEdge | Qt.LeftEdge)
+        }
+        MouseArea {
+            anchors.right: parent.right; anchors.bottom: parent.bottom
+            width: 8; height: 8
+            cursorShape: Qt.SizeFDiagCursor
+            onPressed: window.startSystemResize(Qt.BottomEdge | Qt.RightEdge)
         }
     }
 }
