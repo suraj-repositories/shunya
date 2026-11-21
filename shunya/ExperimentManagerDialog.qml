@@ -43,7 +43,7 @@ Dialog {
 
             MonoInput {
                 Layout.fillWidth: true
-                placeholder: "Search saved experiments by name, author, or scenario..."
+                placeholderText: "Search saved experiments by name, author, or scenario..."
                 text: root.searchQuery
                 onTextEdited: (t) => root.searchQuery = t
             }

@@ -99,6 +99,7 @@ MenuBar {
     // Reusable Custom VS Code Menu Item Component
     component VSCodeMenuItem: MenuItem {
         id: vsItem
+        property string shortcut: ""
         implicitHeight: 28
         implicitWidth: 230
         leftPadding: 8
@@ -148,7 +149,7 @@ MenuBar {
 
             // Right-aligned monospace keyboard shortcut badge
             Text {
-                text: vsItem.action ? vsItem.action.shortcut : ""
+                text: (vsItem.action && vsItem.action.shortcut) ? vsItem.action.shortcut : vsItem.shortcut
                 font.family: Theme.fontMono
                 font.pixelSize: Theme.fontXs
                 color: Theme.textMuted
@@ -351,21 +352,21 @@ MenuBar {
         background: VSCodeMenuBackground {}
         delegate: VSCodeMenuItem {}
 
-        VSCodeMenuItem {
+        Action {
             text: qsTr("Toggle &Left Sidebar")
             shortcut: "Ctrl+B"
             checkable: true
             checked: !window.leftRailCollapsed
             onTriggered: window.leftRailCollapsed = !window.leftRailCollapsed
         }
-        VSCodeMenuItem {
+        Action {
             text: qsTr("Toggle &Details Panel")
             shortcut: "Ctrl+Alt+B"
             checkable: true
             checked: !window.rightPanelCollapsed
             onTriggered: window.rightPanelCollapsed = !window.rightPanelCollapsed
         }
-        VSCodeMenuItem {
+        Action {
             text: qsTr("Toggle &Diagnostics Console")
             shortcut: "F12"
             checkable: true

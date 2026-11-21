@@ -151,7 +151,7 @@ Dialog {
                 }
 
                 Text {
-                    visible: root.previewData && root.previewData.hasMissingMaterials
+                    visible: Boolean(root.previewData && root.previewData.hasMissingMaterials)
                     text: "⚠ Notice: Some regions reference external materials that will fallback to standard properties."
                     font.family: Theme.fontSans
                     font.pixelSize: Theme.fontXs

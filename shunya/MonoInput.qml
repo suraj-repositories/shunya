@@ -5,6 +5,7 @@ Rectangle {
     id: root
     property alias text: input.text
     property string placeholderText: ""
+    property alias placeholder: root.placeholderText
     property bool readOnly: false
     property bool monoFont: false
     property bool clearable: false

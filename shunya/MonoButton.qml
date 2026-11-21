@@ -6,6 +6,7 @@ Rectangle {
     property string iconName: ""
     property int iconSize: 14
     property string variant: "secondary" // "primary", "secondary", "ghost", "danger"
+    property bool primary: false
     property bool active: false
     property bool compact: false
     property string tooltipText: ""
@@ -19,7 +20,7 @@ Rectangle {
     opacity: enabled ? 1.0 : 0.45
 
     color: {
-        if (variant === "primary" || active) {
+        if (variant === "primary" || primary || active) {
             return ma.pressed ? Theme.btnPrimaryHover : (ma.containsMouse ? Theme.btnPrimaryHover : Theme.btnPrimaryBg);
         }
         if (variant === "ghost") {
@@ -33,7 +34,7 @@ Rectangle {
 
     border.width: variant === "ghost" ? 0 : 1
     border.color: {
-        if (variant === "primary" || active) return Theme.btnPrimaryBg;
+        if (variant === "primary" || primary || active) return Theme.btnPrimaryBg;
         if (variant === "danger") return Theme.statusError;
         return ma.containsMouse ? Theme.borderStrong : Theme.btnSecBorder;
     }
@@ -47,7 +48,7 @@ Rectangle {
             visible: root.iconName !== ""
             name: root.iconName
             size: root.iconSize
-            inverse: (root.variant === "primary" || root.active)
+            inverse: (root.variant === "primary" || root.primary || root.active)
             color: root.variant === "danger" ? Theme.statusError : Theme.textPrimary
             anchors.verticalCenter: parent.verticalCenter
         }
@@ -57,8 +58,8 @@ Rectangle {
             text: root.text
             font.family: Theme.fontSans
             font.pixelSize: Theme.fontSm
-            font.weight: (root.variant === "primary" || root.active) ? Font.DemiBold : Font.Medium
-            color: (root.variant === "primary" || root.active)
+            font.weight: (root.variant === "primary" || root.primary || root.active) ? Font.DemiBold : Font.Medium
+            color: (root.variant === "primary" || root.primary || root.active)
                 ? Theme.btnPrimaryFg
                 : (root.variant === "danger" ? Theme.statusError : Theme.textPrimary)
             anchors.verticalCenter: parent.verticalCenter

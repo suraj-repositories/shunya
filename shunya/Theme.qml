@@ -79,6 +79,7 @@ QtObject {
     readonly property int fontXs:  11
     readonly property int fontSm:  12
     readonly property int fontMd:  13
+    readonly property int fontBase: 13
     readonly property int fontLg:  15
     readonly property int fontXl:  18
     readonly property int font2Xl: 22
@@ -115,4 +116,15 @@ QtObject {
     readonly property color statusInfo:    isDarkMode ? "#D4D4D4" : "#404040"
     readonly property color gridLine:      isDarkMode ? "#242424" : "#E5E5E5"
     readonly property color axisLine:      isDarkMode ? "#525252" : "#737373"
+
+    // Semantic status text & background helpers
+    readonly property color textSuccess:      isDarkMode ? "#22C55E" : "#15803D"
+    readonly property color textDanger:       isDarkMode ? "#EF4444" : "#B91C1C"
+    readonly property color textWarning:      isDarkMode ? "#F59E0B" : "#B45309"
+    readonly property color stateSuccessText: isDarkMode ? "#22C55E" : "#15803D"
+    readonly property color stateWarningText: isDarkMode ? "#F59E0B" : "#B45309"
+    readonly property color stateDangerText:  isDarkMode ? "#EF4444" : "#B91C1C"
+    readonly property color statusSuccessBg:  isDarkMode ? "#132E1B" : "#DCFCE7"
+    readonly property color statusDangerBg:   isDarkMode ? "#2D1214" : "#FEE2E2"
+    readonly property color statusWarningBg:  isDarkMode ? "#2D200E" : "#FEF3C7"
 }

@@ -163,7 +163,7 @@ Window {
 
                 MonoInput {
                     Layout.fillWidth: true
-                    placeholder: "Search documentation..."
+                    placeholderText: "Search documentation..."
                     text: helpWin.searchQuery
                     onTextEdited: (val) => helpWin.searchQuery = val
                 }

@@ -105,6 +105,10 @@ private:
 
 private slots:
     void initTestCase() {
+        QCoreApplication::setOrganizationName("Shunya");
+        QCoreApplication::setOrganizationDomain("shunya.org");
+        QCoreApplication::setApplicationName("Shunya");
+
         // Ensure crisp readable fonts even under QT_QPA_PLATFORM=offscreen on Windows
         QFontDatabase::addApplicationFont(QStringLiteral("C:/Windows/Fonts/segoeui.ttf"));
         QFontDatabase::addApplicationFont(QStringLiteral("C:/Windows/Fonts/segoeuib.ttf"));

@@ -165,7 +165,7 @@ Item {
                         MonoButton {
                             text: root.isRunning ? "Running..." : "Run Qualification Bench"
                             iconName: "play"
-                            primary: true
+                            variant: "primary"
                             Layout.fillWidth: true
                             onClicked: root.runQualification()
                         }
